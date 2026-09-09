@@ -93,9 +93,12 @@ spec.
   models well; **DeepSeek Harness (dsh)** is promising but early; **opencode** works on local Ollama once
   you fix the config (127.0.0.1 + apiKey) and use a native-tool-calling model - see
   [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md).
-- **Local vs frontier:** on a well-specified medium task (a 7-part spec), local qwen3-coder:30b matched
-  GPT-6 Astra, Claude, and DeepSeek V4-Pro - all produced correct code. The remote edge shows on large,
-  long-horizon, or ambiguous work, and on raw speed. See [BASELINE-REMOTE.md](BASELINE-REMOTE.md).
+- **Local vs frontier:** on a well-specified medium task (a 7-part spec) local qwen3-coder:30b *matched*
+  GPT-6 Astra, Claude, and DeepSeek V4-Pro - all correct. But on a harder spec (a dependency graph with
+  topological `plan` and cycle detection) the local model dropped to **8/10** (it missed cycle detection
+  and failed its own self-test) while every frontier option held **10/10**. That is the ceiling: locals
+  are competitive up to real algorithmic complexity, past which the remote edge is real. See
+  [BASELINE-REMOTE.md](BASELINE-REMOTE.md) and [HARD-SPEC-TEST.md](HARD-SPEC-TEST.md).
 
 ## Docs in this repo
 - [HARDWARE.md](HARDWARE.md) - the exact box and its ceilings.
@@ -103,6 +106,8 @@ spec.
 - [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md) - deep dive: why opencode "hangs" on local Ollama and the fix.
 - [DECOMPOSITION-TEST.md](DECOMPOSITION-TEST.md) - head-to-head: three harnesses build the same 7-part spec.
 - [BASELINE-REMOTE.md](BASELINE-REMOTE.md) - how the locals compare to cutting-edge remote (Codex + GPT-6 Astra).
+- [HARD-SPEC-TEST.md](HARD-SPEC-TEST.md) - the harder spec where the local model finally slips (8/10 vs frontier 10/10).
+- [examples/](examples/) - the actual programs each harness produced, plus the specs and the scorer.
 - [transparent-decomposer.md](transparent-decomposer.md) - prompt that makes an agent show its plan and work step by step.
 - [MODELS.md](MODELS.md) - local models tried, what fits, the MoE-vs-dense lesson.
 - [METHODOLOGY.md](METHODOLOGY.md) - how we benchmark (probes, tok/s, placement).

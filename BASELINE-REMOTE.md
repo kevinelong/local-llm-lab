@@ -46,3 +46,6 @@ login --with-api-key`).
 For tasks of this size, a good local 30B MoE on a 12 GB box is competitive with the current frontier on
 outcome. Reach for remote frontier models when the task is large, long-horizon, or ambiguous, or when you
 need speed without tying up local hardware. Match the tool to the task, not the hype.
+
+Follow-up: we then built a harder spec to find that ceiling, and it showed up cleanly - the local model
+dropped to 8/10 while every frontier option held 10/10. See [HARD-SPEC-TEST.md](HARD-SPEC-TEST.md).
