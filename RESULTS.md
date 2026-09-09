@@ -1,8 +1,9 @@
 # Results
 
 All numbers from DARKTEXAS (RTX 5070 12 GB / 32 GB RAM), Ollama, temperature 0, 32k context unless noted.
-tok/s is generation speed. "Placement" is the GPU share reported by `ollama ps`. All models listed passed
-the correctness probes (bat-and-ball with thinking on, planets in order, and a code probe where applicable).
+tok/s is generation speed. "Placement" is the GPU share reported by `ollama ps`. Except where the
+"Correctness notes" section says otherwise, models passed the probes (bat-and-ball with thinking on,
+planets in order, and a code probe where applicable).
 
 ## Fresh round (2026-09-09)
 
@@ -31,6 +32,7 @@ the correctness probes (bat-and-ball with thinking on, planets in order, and a c
 | qwen3-coder:30b | 30B MoE coder | ~37 | ~50% GPU | yes (strong local coder) |
 | nemotron-3.5-lightning:30b | 30B MoE / 3B active | 33.8 | 35% GPU | yes (agent-focused) |
 | muse-glimmer:30b | 30B dense | 4.5 | 50% GPU | NO (too slow) |
+| gemma4:26b | 26B MoE | n/a | crashed on load | pre-0.31.1 Blackwell MoE bug; deleted. Would run now, not re-tested. |
 | Kimi-K2.7-Code | 1T MoE | n/a | does not fit | NO (cloud/API only) |
 | DeepSeek V4-Pro | 1.6T MoE | n/a | does not fit | NO (cloud/API only) |
 
@@ -39,6 +41,34 @@ the correctness probes (bat-and-ball with thinking on, planets in order, and a c
 - The cliff is muse-glimmer:30b at 4.5 tok/s - a **dense** 30B. Compare to the 30B **MoE** models at
   33-37 tok/s. Same total size, ~8x speed difference, entirely due to active-parameter count under offload.
 - The 100B+ / 1T models are not a speed problem, they are a "does not fit in 32 GB RAM at all" problem.
+
+## Correctness notes (per-model nuances)
+- **Thinking-mode matters.** ornith-1.5:9b, the qwen3 family, and the small coders get the bat-and-ball
+  trap RIGHT with thinking enabled (inline chain-of-thought to $0.05) but fall for the $0.10 trap if you
+  force thinking off. Always leave thinking on for reasoning tasks. This is why the probe is run with
+  thinking on: forcing it off tests the wrong thing.
+- **gemma4:26b never produced a result** on this box in the crash-era round (see the crash row) - it is the
+  one model that did not pass, because it would not load. All others listed produced correct probe answers.
+- **muse-glimmer:30b was correct but unusable** - right answers, 4.5 tok/s. Correctness is necessary, not
+  sufficient; speed is the gate at 12 GB.
+
+## Agent-harness task results
+Beyond raw model speed, we ran real agentic tasks through each harness and verified the output (executed
+the code / checked the file). These are the measured outcomes:
+
+| Harness | Model | Task | Result | Time |
+|---|---|---|---|---|
+| Aider | qwen2.5-coder:7b | write fizzbuzz.py | correct (executed, asserts pass) | 11.3 s |
+| Aider | qwen3-coder:30b | write roman.py (int<->roman, both ways) | correct + robust (range check, verified round-trip) | 62.6 s |
+| Open Interpreter | qwen2.5-coder:7b | find 3 largest files, write sizes.txt | correct order | 33.9 s |
+| Open Interpreter (web search) | qwen2.5-coder:7b | "newest Node LTS?" via DuckDuckGo | searched + grounded, but 7B picked a near-latest version | ~20 s |
+| Open Interpreter (web search) | qwen3:14b | same task | correct (24.18.0) with source cited | - |
+| opencode 1.16.2 / 1.17.15 | local via Ollama | write fizzbuzz.py | HUNG - request never reached Ollama (bug #14956); killed | >12 min |
+| DeepSeek Harness (dsh) | DeepSeek V4-Pro (API) | "what is 2+2" headless | correct ("4") | - |
+
+Reading it: local coding via **Aider** works and is grounded (it executes/tests); **Open Interpreter**
+handles shell + web-search but the 9-14B tier synthesizes better than 7B; **opencode** is unusable on
+local Ollama; **dsh** works against the DeepSeek cloud API. See HARNESSES.md for the qualitative writeup.
 
 ## Takeaways
 - Newest sweet spot on this box: **qwen3.5:9b** (fast general) and **granite4.2:8b**, plus **gpt-oss:20b**
