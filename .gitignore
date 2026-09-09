@@ -1,0 +1,9 @@
+# logs, scratch, and anything that could carry secrets
+*.log
+*.tmp
+.env
+*token*
+*secret*
+*apikey*
+*api_key*
+scratch/
