@@ -68,8 +68,14 @@ For taking a big specification and working it incrementally instead of over-reac
 
 The discipline is really in the loop, not just the tool: a plan-first, small-diffs, iterate-and-verify
 pattern (explore, write a plan, gate it, then implement and verify one small piece at a time) imposes
-decomposition on whatever model you use. This ranking is from each harness's design and our observed
-behavior, not a formal head-to-head benchmark yet.
+decomposition on whatever model you use.
+
+The ranking above is from each harness's design (the features for staying scoped on hard, long tasks).
+We also ran a measured head-to-head on a 7-part spec ([DECOMPOSITION-TEST.md](DECOMPOSITION-TEST.md)):
+**all three completed it correctly**, so a medium spec does not separate them - Claude Code was fastest,
+Aider's architect mode was the most transparent about its plan-implement-review loop, and a local
+qwen3-coder:30b driving Aider handled the whole spec. Finding where each over-reaches needs a much larger
+spec.
 
 ## TL;DR for a 12 GB / 32 GB box
 
@@ -92,6 +98,7 @@ behavior, not a formal head-to-head benchmark yet.
 - [HARDWARE.md](HARDWARE.md) - the exact box and its ceilings.
 - [HARNESSES.md](HARNESSES.md) - inference harnesses and agent harnesses, with our findings.
 - [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md) - deep dive: why opencode "hangs" on local Ollama and the fix.
+- [DECOMPOSITION-TEST.md](DECOMPOSITION-TEST.md) - head-to-head: three harnesses build the same 7-part spec.
 - [MODELS.md](MODELS.md) - local models tried, what fits, the MoE-vs-dense lesson.
 - [METHODOLOGY.md](METHODOLOGY.md) - how we benchmark (probes, tok/s, placement).
 - [RESULTS.md](RESULTS.md) - the measured numbers.
