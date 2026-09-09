@@ -31,6 +31,12 @@ So on a small box, prefer **low-active-param MoE** for anything above the dense-
 ## Notes
 - **Thinking models** (qwen3 family, ornith): keep thinking ON for reasoning; they do inline chain-of-thought.
   With thinking forced off they will fall for trick questions (e.g. the bat-and-ball trap).
-- **Context vs speed:** a big context window grows the KV cache and forces more offload. Drop to 8k when
-  you want a 30B MoE to stay more on-GPU.
+- **Context vs speed (the real lever on this box):** a big context window grows the KV cache and forces
+  more offload. Measured on qwen3-coder:30b: at 32k context it runs ~35 tok/s (53% offloaded to CPU,
+  22 GB footprint); dropping to 8k context takes it to ~43 tok/s (footprint 19 GB, more on GPU). So for a
+  30B MoE, lowering context is worth ~20%+ throughput.
+- **Freeing VRAM barely helps a too-big model:** killing every non-OS GPU app freed only ~0.7 GB and left
+  the 30B MoE speed unchanged, because a 22 GB model on a 12 GB card offloads ~half regardless. Desktop
+  overhead is not the bottleneck; model-size-vs-VRAM is. Lower the context (or use a smaller model)
+  instead of chasing VRAM.
 - Models freshly under test this round (see RESULTS.md): granite4.2:8b, qwen3.5:9b, gpt-oss:20b.
