@@ -40,6 +40,14 @@ requirements). This test validates competence, not a decomposition winner.
   plan/to-do decomposition happens internally and is not streamed in headless mode, so this run did not
   surface it. To watch it decompose out loud you use interactive plan mode.
 
+## Making Claude Code a transparent decomposer
+In headless `-p` mode Claude Code does not stream its to-do list, so the run above did not surface how it
+decomposed. That is a display default, not a lack of decomposition, and a one-line preamble fixes it: told
+to write a `PLAN.md` and print `STEP n` markers, `claude -p` produced an explicit 11-step plan mapped to
+each requirement and worked through it (correct code; about 133s vs 58s plain, since transparency costs
+output). So Claude Code can match Aider architect's visible plan-implement-review loop on demand. Reusable
+preamble: [transparent-decomposer.md](transparent-decomposer.md).
+
 ## Honest conclusion
 On a medium spec, all three decompose well enough to finish. The earlier ranking (Claude Code best, by
 design: plan mode + to-do list + subagents) is about *features for staying scoped on hard, long tasks*,

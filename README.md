@@ -99,6 +99,7 @@ spec.
 - [HARNESSES.md](HARNESSES.md) - inference harnesses and agent harnesses, with our findings.
 - [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md) - deep dive: why opencode "hangs" on local Ollama and the fix.
 - [DECOMPOSITION-TEST.md](DECOMPOSITION-TEST.md) - head-to-head: three harnesses build the same 7-part spec.
+- [transparent-decomposer.md](transparent-decomposer.md) - prompt that makes an agent show its plan and work step by step.
 - [MODELS.md](MODELS.md) - local models tried, what fits, the MoE-vs-dense lesson.
 - [METHODOLOGY.md](METHODOLOGY.md) - how we benchmark (probes, tok/s, placement).
 - [RESULTS.md](RESULTS.md) - the measured numbers.
