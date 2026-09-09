@@ -32,6 +32,45 @@ use, the model replies with either an answer or a tool call, and the harness exe
 file, run a command), feeds the result back, and repeats until the task is done. The model is swappable,
 served locally by Ollama or by a cloud API, without changing the harness around it.*
 
+### Why the same model gives different results in different harnesses
+
+Point two harnesses at the identical Ollama endpoint and the same model, and you will still get different
+behavior, sometimes wildly. The model is only one input; the harness controls everything around it:
+
+- **System prompt and instructions** it wraps the request in. Each harness injects its own, often large,
+  and that steering changes what the model does.
+- **Which tools it exposes, and how it parses tool calls back** (native function-calling vs treating them
+  as plain text). This is not cosmetic: opencode did nothing with qwen2.5-coder:7b because that model
+  emitted its tool call as inline text, yet the same harness worked with qwen3-coder:30b, which emits
+  native tool calls. Same endpoint, same task, opposite outcome.
+- **Context it feeds in** - which files, how much history, the repo map, and how it compacts when the
+  window fills. More or better context changes the answer.
+- **The loop** - whether it plans first, works one step at a time, verifies and retries, or just fires a
+  single shot. On hard tasks this is the biggest differentiator of all.
+- **Model options it sets** - temperature, num_ctx, and whether "thinking" is on or off.
+
+So "which model" is a smaller lever than most people expect. "Which harness, and how it is configured"
+often decides whether a task actually completes.
+
+### Breaking a large spec into small pieces (who is best)
+
+For taking a big specification and working it incrementally instead of over-reaching:
+
+- **Claude Code (best):** plans before it acts (plan mode), keeps a to-do list and does one item at a
+  time, and can delegate scoped pieces to subagents. Purpose-built for decomposition.
+- **DeepSeek Harness (dsh):** architecturally suited (goal / workflow / subagent / context-compaction
+  plugins) but a dev preview, so less proven.
+- **Aider (architect mode):** the practical local choice - it separates planning from editing and is
+  naturally scoped to the files you add, so changes stay small. You drive the decomposition more than it
+  does.
+- **Open Interpreter:** weakest here - a step executor, not a long-horizon planner; it tends to just start
+  doing rather than break the work down.
+
+The discipline is really in the loop, not just the tool: a plan-first, small-diffs, iterate-and-verify
+pattern (explore, write a plan, gate it, then implement and verify one small piece at a time) imposes
+decomposition on whatever model you use. This ranking is from each harness's design and our observed
+behavior, not a formal head-to-head benchmark yet.
+
 ## TL;DR for a 12 GB / 32 GB box
 
 - **Inference harness: Ollama.** Easiest, GPU-accelerated on Blackwell, OpenAI-compatible API, every agent
