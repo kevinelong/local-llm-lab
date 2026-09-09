@@ -20,11 +20,14 @@ as directional. Everything here was measured, not guessed.
 - **The one rule that matters at 12 GB:** for anything above ~14B, only low-active-param MoE is usable.
   Active parameters, not total size, decide whether CPU offload wrecks your speed.
 - **Agent harness:** Claude Code (cloud) for the hard work; **Aider** + **Open Interpreter** drive local
-  models well; **DeepSeek Harness (dsh)** is promising but early; **opencode** still hangs on local Ollama.
+  models well; **DeepSeek Harness (dsh)** is promising but early; **opencode** works on local Ollama once
+  you fix the config (127.0.0.1 + apiKey) and use a native-tool-calling model - see
+  [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md).
 
 ## Docs in this repo
 - [HARDWARE.md](HARDWARE.md) - the exact box and its ceilings.
 - [HARNESSES.md](HARNESSES.md) - inference harnesses and agent harnesses, with our findings.
+- [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md) - deep dive: why opencode "hangs" on local Ollama and the fix.
 - [MODELS.md](MODELS.md) - local models tried, what fits, the MoE-vs-dense lesson.
 - [METHODOLOGY.md](METHODOLOGY.md) - how we benchmark (probes, tok/s, placement).
 - [RESULTS.md](RESULTS.md) - the measured numbers.

@@ -63,7 +63,9 @@ the code / checked the file). These are the measured outcomes:
 | Open Interpreter | qwen2.5-coder:7b | find 3 largest files, write sizes.txt | correct order | 33.9 s |
 | Open Interpreter (web search) | qwen2.5-coder:7b | "newest Node LTS?" via DuckDuckGo | searched + grounded, but 7B picked a near-latest version | ~20 s |
 | Open Interpreter (web search) | qwen3:14b | same task | correct (24.18.0) with source cited | - |
-| opencode 1.16.2 / 1.17.15 | local via Ollama | write fizzbuzz.py | HUNG - request never reached Ollama (bug #14956); killed | >12 min |
+| opencode (localhost, no apiKey) | qwen2.5-coder:7b | write fizzbuzz.py | HUNG - request never reached Ollama (config: localhost->IPv6 + no apiKey) | killed >12 min |
+| opencode (127.0.0.1 + apiKey) | qwen2.5-coder:7b | write fizzbuzz.py | reaches Ollama, responds, but tool-call returned as text, not executed | 13.8 s |
+| opencode (127.0.0.1 + apiKey) | qwen3-coder:30b | write fizzbuzz.py | SUCCESS - file created, runs correctly | 40 s |
 | DeepSeek Harness (dsh) | DeepSeek V4-Pro (API) | "what is 2+2" headless | correct ("4") | - |
 
 Reading it: local coding via **Aider** works and is grounded (it executes/tests); **Open Interpreter**
