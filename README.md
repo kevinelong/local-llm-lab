@@ -93,12 +93,16 @@ spec.
   models well; **DeepSeek Harness (dsh)** is promising but early; **opencode** works on local Ollama once
   you fix the config (127.0.0.1 + apiKey) and use a native-tool-calling model - see
   [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md).
+- **Local vs frontier:** on a well-specified medium task (a 7-part spec), local qwen3-coder:30b matched
+  GPT-6 Astra, Claude, and DeepSeek V4-Pro - all produced correct code. The remote edge shows on large,
+  long-horizon, or ambiguous work, and on raw speed. See [BASELINE-REMOTE.md](BASELINE-REMOTE.md).
 
 ## Docs in this repo
 - [HARDWARE.md](HARDWARE.md) - the exact box and its ceilings.
 - [HARNESSES.md](HARNESSES.md) - inference harnesses and agent harnesses, with our findings.
 - [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md) - deep dive: why opencode "hangs" on local Ollama and the fix.
 - [DECOMPOSITION-TEST.md](DECOMPOSITION-TEST.md) - head-to-head: three harnesses build the same 7-part spec.
+- [BASELINE-REMOTE.md](BASELINE-REMOTE.md) - how the locals compare to cutting-edge remote (Codex + GPT-6 Astra).
 - [transparent-decomposer.md](transparent-decomposer.md) - prompt that makes an agent show its plan and work step by step.
 - [MODELS.md](MODELS.md) - local models tried, what fits, the MoE-vs-dense lesson.
 - [METHODOLOGY.md](METHODOLOGY.md) - how we benchmark (probes, tok/s, placement).

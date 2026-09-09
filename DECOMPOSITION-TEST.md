@@ -22,6 +22,12 @@ the harness alone:
 | Claude Code (cloud Claude) | 58.5 s | 246 | yes | PASS (all commands work, stats correct, notes.json persists) |
 | Aider architect (qwen3-coder:30b, local) | 114 s | 188 | yes | PASS |
 | dsh headless (DeepSeek V4-Pro) | 122 s | 356 | yes | PASS |
+| Codex (gpt-6-astra) | 176 s | 238 | yes | PASS |
+| gpt-6-astra raw (one-shot API, no agent) | 54 s | 291 | yes | PASS |
+
+Cutting-edge remote baselines (Codex + GPT-6 Astra) were added and also passed - see
+[BASELINE-REMOTE.md](BASELINE-REMOTE.md). Notably the LOCAL qwen3-coder:30b matched the frontier on this
+spec, and even a raw single-shot gpt-6-astra call nailed it.
 
 None "bit off more than it could chew" on this spec. That is itself the main finding: a 7-part spec is
 within reach of all three current harness+model combos, so it did not separate them on success. To find
