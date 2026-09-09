@@ -7,6 +7,31 @@ tested it. Updated 2026-09-09.
 This is a working lab notebook, not a product. Numbers are from one machine ("DARKTEXAS"); treat them
 as directional. Everything here was measured, not guessed.
 
+## LLM vs harness (how they relate)
+
+```mermaid
+flowchart LR
+    U([Your task]) --> H
+    subgraph H["HARNESS (does the work)"]
+      direction TB
+      L["agent loop:<br/>plan, call tools,<br/>manage context, apply edits"]
+      T["tools:<br/>read/write files,<br/>run terminal, web search"]
+      L <--> T
+    end
+    H -->|"prompt + list of available tools"| M
+    M -->|"reply: text or a tool call"| H
+    subgraph M["LLM (does the thinking)"]
+      B["picks the next action;<br/>emits text or a tool call.<br/>served locally by Ollama<br/>or by a cloud API"]
+    end
+    H --> R([Result])
+```
+
+*The LLM is the brain; the harness is the body. The model only predicts text, it cannot touch your files
+or run commands. The harness wraps it in a loop: it sends the model a prompt plus the list of tools it may
+use, the model replies with either an answer or a tool call, and the harness executes that call (read a
+file, run a command), feeds the result back, and repeats until the task is done. The model is swappable,
+served locally by Ollama or by a cloud API, without changing the harness around it.*
+
 ## TL;DR for a 12 GB / 32 GB box
 
 - **Inference harness: Ollama.** Easiest, GPU-accelerated on Blackwell, OpenAI-compatible API, every agent
