@@ -19,6 +19,7 @@ tool, not a desktop one.
 
 | Harness | Model source | Our finding |
 |---|---|---|
+| **Pi 0.85.1** | Local Ollama via isolated provider | Installed and tested. Use `pi-local -Model omni` for the experimental no-thinking profile; read [September 15 results](RESULTS-2026-09-15.md) for failures and comparison limits. |
 | **Claude Code** (cloud) | Frontier Claude | Best overall agentic reliability. The "conductor" for hard tasks. Not local. |
 | **Aider** | local via Ollama | Works great on local models. Clean git-aware edits; auto-picks "whole" edit format for smaller models. Best **local coding** agent we tested. |
 | **Open Interpreter** | local via Ollama | Executes shell/Python as tools; best **local shell/automation** agent. We also gave it a DuckDuckGo web-search tool so it researches instead of guessing. |

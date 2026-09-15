@@ -1,0 +1,619 @@
+{
+  "probes": [
+    {
+      "label": "probe-omni-gpu",
+      "measurements": [
+        {
+          "name": "throughput",
+          "pass": null,
+          "wall_seconds": 6.81,
+          "load_seconds": 4.69,
+          "output_tokens": 197,
+          "tokens_per_second": 98.08,
+          "gpu": "7159, 4785, 94",
+          "gpu_bytes": 5961846619,
+          "total_model_bytes": 5961846619
+        },
+        {
+          "name": "extraction",
+          "pass": true,
+          "wall_seconds": 0.42,
+          "load_seconds": 0.01,
+          "output_tokens": 29,
+          "tokens_per_second": 98.68,
+          "gpu": "7163, 4781, 88",
+          "gpu_bytes": 5961846619,
+          "total_model_bytes": 5961846619
+        },
+        {
+          "name": "instruction",
+          "pass": true,
+          "wall_seconds": 0.16,
+          "load_seconds": 0.01,
+          "output_tokens": 3,
+          "tokens_per_second": 118.64,
+          "gpu": "7163, 4781, 88",
+          "gpu_bytes": 5961846619,
+          "total_model_bytes": 5961846619
+        },
+        {
+          "name": "reasoning",
+          "pass": true,
+          "wall_seconds": 0.14,
+          "load_seconds": 0.01,
+          "output_tokens": 3,
+          "tokens_per_second": 117.11,
+          "gpu": "7163, 4781, 21",
+          "gpu_bytes": 5961846619,
+          "total_model_bytes": 5961846619
+        }
+      ]
+    },
+    {
+      "label": "probe-qwen-gpu",
+      "measurements": [
+        {
+          "name": "throughput",
+          "pass": null,
+          "wall_seconds": 53.33,
+          "load_seconds": 31.96,
+          "output_tokens": 212,
+          "tokens_per_second": 70.37,
+          "gpu": "8201, 3743, 88",
+          "gpu_bytes": 6014380276,
+          "total_model_bytes": 6014380276
+        },
+        {
+          "name": "extraction",
+          "pass": true,
+          "wall_seconds": 0.41,
+          "load_seconds": 0.01,
+          "output_tokens": 29,
+          "tokens_per_second": 96.52,
+          "gpu": "8205, 3739, 23",
+          "gpu_bytes": 6014380276,
+          "total_model_bytes": 6014380276
+        },
+        {
+          "name": "instruction",
+          "pass": true,
+          "wall_seconds": 0.12,
+          "load_seconds": 0.01,
+          "output_tokens": 3,
+          "tokens_per_second": 114.23,
+          "gpu": "8205, 3739, 34",
+          "gpu_bytes": 6014380276,
+          "total_model_bytes": 6014380276
+        },
+        {
+          "name": "reasoning",
+          "pass": true,
+          "wall_seconds": 0.16,
+          "load_seconds": 0.01,
+          "output_tokens": 3,
+          "tokens_per_second": 117.2,
+          "gpu": "8205, 3739, 34",
+          "gpu_bytes": 6014380276,
+          "total_model_bytes": 6014380276
+        }
+      ]
+    },
+    {
+      "label": "probe-smoffyy-cpu",
+      "measurements": [
+        {
+          "name": "throughput",
+          "pass": null,
+          "wall_seconds": 22.19,
+          "load_seconds": 4.14,
+          "output_tokens": 202,
+          "tokens_per_second": 11.41,
+          "gpu": "1206, 10738, 3",
+          "gpu_bytes": 0,
+          "total_model_bytes": 3700833647
+        },
+        {
+          "name": "extraction",
+          "pass": false,
+          "wall_seconds": 3.33,
+          "load_seconds": 0.01,
+          "output_tokens": 34,
+          "tokens_per_second": 11.98,
+          "gpu": "1206, 10738, 3",
+          "gpu_bytes": 0,
+          "total_model_bytes": 3700833647
+        },
+        {
+          "name": "instruction",
+          "pass": true,
+          "wall_seconds": 0.53,
+          "load_seconds": 0.01,
+          "output_tokens": 3,
+          "tokens_per_second": 16.25,
+          "gpu": "1206, 10738, 4",
+          "gpu_bytes": 0,
+          "total_model_bytes": 3700833647
+        },
+        {
+          "name": "reasoning",
+          "pass": true,
+          "wall_seconds": 0.77,
+          "load_seconds": 0.01,
+          "output_tokens": 3,
+          "tokens_per_second": 17.25,
+          "gpu": "1206, 10738, 3",
+          "gpu_bytes": 0,
+          "total_model_bytes": 3700833647
+        }
+      ]
+    },
+    {
+      "label": "probe-smoffyy-gpu",
+      "measurements": [
+        {
+          "name": "throughput",
+          "pass": null,
+          "wall_seconds": 5.92,
+          "load_seconds": 4.44,
+          "output_tokens": 204,
+          "tokens_per_second": 151.42,
+          "gpu": "5635, 6309, 93",
+          "gpu_bytes": 3689351740,
+          "total_model_bytes": 3689351740
+        },
+        {
+          "name": "extraction",
+          "pass": false,
+          "wall_seconds": 0.34,
+          "load_seconds": 0.01,
+          "output_tokens": 34,
+          "tokens_per_second": 153.45,
+          "gpu": "5639, 6305, 93",
+          "gpu_bytes": 3689351740,
+          "total_model_bytes": 3689351740
+        },
+        {
+          "name": "instruction",
+          "pass": true,
+          "wall_seconds": 0.12,
+          "load_seconds": 0.0,
+          "output_tokens": 3,
+          "tokens_per_second": 161.14,
+          "gpu": "5639, 6305, 93",
+          "gpu_bytes": 3689351740,
+          "total_model_bytes": 3689351740
+        },
+        {
+          "name": "reasoning",
+          "pass": true,
+          "wall_seconds": 0.12,
+          "load_seconds": 0.01,
+          "output_tokens": 3,
+          "tokens_per_second": 164.06,
+          "gpu": "5639, 6305, 93",
+          "gpu_bytes": 3689351740,
+          "total_model_bytes": 3689351740
+        }
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "label": "aider-qwen-hard-1",
+      "harness": "aider",
+      "model": "lab-20260915-qwen-16k",
+      "smoke": false,
+      "wall_seconds": 317.36,
+      "exit_code": 0,
+      "timed_out": null,
+      "reasoning_effort": "server_default",
+      "context": 16384,
+      "score": "3/10",
+      "failures": [
+        "self_test                  FAIL  exit=1",
+        "done_blocking              FAIL  blocked=1 a_done=1 b_done=1",
+        "ready_set                  FAIL  exit=0",
+        "plan_topological           FAIL  exit=0",
+        "cycle_detected             FAIL  exit=0",
+        "rm_dependents_guard        FAIL  refuse=1 force=1",
+        "persistence                FAIL  exit=0"
+      ],
+      "extra": {
+        "checks": [
+          {
+            "name": "ids_never_reused",
+            "pass": false,
+            "error": "Expected one task line"
+          },
+          {
+            "name": "plan_priority_ties",
+            "pass": false,
+            "error": "substring not found"
+          },
+          {
+            "name": "selftest_preserves_data",
+            "pass": false
+          },
+          {
+            "name": "stats_chain_depth",
+            "pass": false
+          }
+        ],
+        "passed": 0,
+        "total": 4
+      }
+    },
+    {
+      "label": "opencode-qwen-hard-1",
+      "harness": "opencode",
+      "model": "lab-20260915-qwen-16k",
+      "smoke": false,
+      "wall_seconds": 600.81,
+      "exit_code": null,
+      "timed_out": true,
+      "reasoning_effort": "server_default",
+      "context": 16384,
+      "score": "1/10",
+      "failures": [
+        "self_test                  FAIL  exit=1",
+        "done_blocking              FAIL  blocked=1 a_done=1 b_done=1",
+        "ready_set                  FAIL  exit=1",
+        "plan_topological           FAIL  exit=1",
+        "cycle_detected             FAIL  exit=1",
+        "rm_dependents_guard        FAIL  refuse=1 force=1",
+        "export_import              FAIL  exp=1 file=False imp=1",
+        "persistence                FAIL  exit=1",
+        "corrupt_file_safe          FAIL  exit=1"
+      ],
+      "extra": {
+        "checks": [
+          {
+            "name": "ids_never_reused",
+            "pass": false,
+            "error": "Expected one task line"
+          },
+          {
+            "name": "plan_priority_ties",
+            "pass": false
+          },
+          {
+            "name": "selftest_preserves_data",
+            "pass": false,
+            "error": "[Errno 2] No such file or directory: 'C:\\\\Users\\\\kevin\\\\AppData\\\\Local\\\\Temp\\\\lab_extra_nj5i8l67\\\\tasks.json'"
+          },
+          {
+            "name": "stats_chain_depth",
+            "pass": false
+          }
+        ],
+        "passed": 0,
+        "total": 4
+      }
+    },
+    {
+      "label": "opencode-qwen-smoke",
+      "harness": "opencode",
+      "model": "lab-20260915-qwen-16k",
+      "smoke": true,
+      "wall_seconds": 97.73,
+      "exit_code": 0,
+      "timed_out": null,
+      "reasoning_effort": null,
+      "context": 16384
+    },
+    {
+      "label": "pi-omni-hard-1",
+      "harness": "pi",
+      "model": "lab-20260915-omni-16k",
+      "smoke": false,
+      "wall_seconds": 600.8,
+      "exit_code": null,
+      "timed_out": true,
+      "reasoning_effort": null,
+      "context": 16384,
+      "score": "3/10",
+      "failures": [
+        "self_test                  FAIL  exit=1",
+        "done_blocking              FAIL  blocked=1 a_done=1 b_done=1",
+        "ready_set                  FAIL  exit=0",
+        "plan_topological           FAIL  exit=0",
+        "cycle_detected             FAIL  exit=0",
+        "rm_dependents_guard        FAIL  refuse=1 force=1",
+        "persistence                FAIL  exit=0"
+      ],
+      "extra": {
+        "checks": [
+          {
+            "name": "ids_never_reused",
+            "pass": false,
+            "error": "Expected one task line"
+          },
+          {
+            "name": "plan_priority_ties",
+            "pass": false,
+            "error": "substring not found"
+          },
+          {
+            "name": "selftest_preserves_data",
+            "pass": false
+          },
+          {
+            "name": "stats_chain_depth",
+            "pass": false
+          }
+        ],
+        "passed": 0,
+        "total": 4
+      },
+      "last_stop_reason": "toolUse",
+      "event_counts": {
+        "tool_calls": 64,
+        "tool_errors": 12,
+        "compactions": 8,
+        "input_tokens": 81376,
+        "output_tokens": 28822
+      }
+    },
+    {
+      "label": "pi-omni-no-think-1",
+      "harness": "pi",
+      "model": "lab-20260915-omni-16k",
+      "smoke": false,
+      "wall_seconds": 482.83,
+      "exit_code": 0,
+      "timed_out": null,
+      "reasoning_effort": "none",
+      "context": 16384,
+      "score": "9/10",
+      "failures": [
+        "self_test                  FAIL  exit=1"
+      ],
+      "extra": {
+        "checks": [
+          {
+            "name": "ids_never_reused",
+            "pass": true
+          },
+          {
+            "name": "plan_priority_ties",
+            "pass": true
+          },
+          {
+            "name": "selftest_preserves_data",
+            "pass": false
+          },
+          {
+            "name": "stats_chain_depth",
+            "pass": true
+          }
+        ],
+        "passed": 3,
+        "total": 4
+      },
+      "last_stop_reason": "error",
+      "last_error": "Stream ended without finish_reason",
+      "event_counts": {
+        "tool_calls": 9,
+        "tool_errors": 4,
+        "compactions": 3,
+        "input_tokens": 3174,
+        "output_tokens": 11374
+      }
+    },
+    {
+      "label": "pi-qwen-hard-1",
+      "harness": "pi",
+      "model": "lab-20260915-qwen-16k",
+      "smoke": false,
+      "wall_seconds": 151.73,
+      "exit_code": 0,
+      "timed_out": null,
+      "reasoning_effort": null,
+      "context": 16384,
+      "score": "7/10",
+      "failures": [
+        "self_test                  FAIL  exit=1",
+        "plan_topological           FAIL  exit=1",
+        "export_import              FAIL  exp=1 file=True imp=0"
+      ],
+      "extra": {
+        "checks": [
+          {
+            "name": "ids_never_reused",
+            "pass": false
+          },
+          {
+            "name": "plan_priority_ties",
+            "pass": false
+          },
+          {
+            "name": "selftest_preserves_data",
+            "pass": false
+          },
+          {
+            "name": "stats_chain_depth",
+            "pass": true
+          }
+        ],
+        "passed": 1,
+        "total": 4
+      },
+      "last_stop_reason": "length",
+      "event_counts": {
+        "tool_calls": 14,
+        "tool_errors": 5,
+        "compactions": 0,
+        "input_tokens": 21693,
+        "output_tokens": 11451
+      }
+    },
+    {
+      "label": "pi-qwen-hard-compact-1",
+      "harness": "pi",
+      "model": "lab-20260915-qwen-16k",
+      "smoke": false,
+      "wall_seconds": 600.73,
+      "exit_code": null,
+      "timed_out": true,
+      "reasoning_effort": null,
+      "context": 16384,
+      "score": "7/10",
+      "failures": [
+        "self_test                  FAIL  exit=1",
+        "cycle_detected             FAIL  exit=0",
+        "export_import              FAIL  exp=1 file=True imp=0"
+      ],
+      "extra": {
+        "checks": [
+          {
+            "name": "ids_never_reused",
+            "pass": false
+          },
+          {
+            "name": "plan_priority_ties",
+            "pass": true
+          },
+          {
+            "name": "selftest_preserves_data",
+            "pass": false
+          },
+          {
+            "name": "stats_chain_depth",
+            "pass": false
+          }
+        ],
+        "passed": 1,
+        "total": 4
+      },
+      "last_stop_reason": "toolUse",
+      "event_counts": {
+        "tool_calls": 78,
+        "tool_errors": 24,
+        "compactions": 10,
+        "input_tokens": 108118,
+        "output_tokens": 33631
+      }
+    },
+    {
+      "label": "pi-qwen-no-think-1",
+      "harness": "pi",
+      "model": "lab-20260915-qwen-16k",
+      "smoke": false,
+      "wall_seconds": 600.77,
+      "exit_code": null,
+      "timed_out": true,
+      "reasoning_effort": "none",
+      "context": 16384,
+      "score": "8/10",
+      "failures": [
+        "self_test                  FAIL  exit=1",
+        "export_import              FAIL  exp=0 file=True imp=1"
+      ],
+      "extra": {
+        "checks": [
+          {
+            "name": "ids_never_reused",
+            "pass": false
+          },
+          {
+            "name": "plan_priority_ties",
+            "pass": true
+          },
+          {
+            "name": "selftest_preserves_data",
+            "pass": false
+          },
+          {
+            "name": "stats_chain_depth",
+            "pass": false
+          }
+        ],
+        "passed": 1,
+        "total": 4
+      },
+      "last_stop_reason": "toolUse",
+      "event_counts": {
+        "tool_calls": 53,
+        "tool_errors": 15,
+        "compactions": 12,
+        "input_tokens": 149125,
+        "output_tokens": 31588
+      }
+    },
+    {
+      "label": "pi-qwen-smoke",
+      "harness": "pi",
+      "model": "lab-20260915-qwen-16k",
+      "smoke": true,
+      "wall_seconds": 8.61,
+      "exit_code": 0,
+      "timed_out": null,
+      "reasoning_effort": null,
+      "context": 16384,
+      "last_stop_reason": "stop",
+      "event_counts": {
+        "tool_calls": 2,
+        "tool_errors": 0,
+        "compactions": 0,
+        "input_tokens": 1650,
+        "output_tokens": 218
+      }
+    },
+    {
+      "label": "pi-smoffyy-no-think-1",
+      "harness": "pi",
+      "model": "lab-20260915-smoffyy-16k",
+      "smoke": false,
+      "wall_seconds": 236.8,
+      "exit_code": 0,
+      "timed_out": null,
+      "reasoning_effort": "none",
+      "context": 16384,
+      "score": "1/10",
+      "failures": [
+        "self_test                  FAIL  exit=1",
+        "done_blocking              FAIL  blocked=1 a_done=1 b_done=1",
+        "ready_set                  FAIL  exit=1",
+        "plan_topological           FAIL  exit=1",
+        "cycle_detected             FAIL  exit=1",
+        "rm_dependents_guard        FAIL  refuse=1 force=1",
+        "export_import              FAIL  exp=1 file=True imp=0",
+        "persistence                FAIL  exit=1",
+        "corrupt_file_safe          FAIL  exit=1"
+      ],
+      "extra": {
+        "checks": [
+          {
+            "name": "ids_never_reused",
+            "pass": false,
+            "error": "Expected one task line"
+          },
+          {
+            "name": "plan_priority_ties",
+            "pass": false
+          },
+          {
+            "name": "selftest_preserves_data",
+            "pass": false,
+            "error": "[Errno 2] No such file or directory: 'C:\\\\Users\\\\kevin\\\\AppData\\\\Local\\\\Temp\\\\lab_extra_ltmdbxj7\\\\tasks.json'"
+          },
+          {
+            "name": "stats_chain_depth",
+            "pass": false
+          }
+        ],
+        "passed": 0,
+        "total": 4
+      },
+      "last_stop_reason": "error",
+      "last_error": "Stream ended without finish_reason",
+      "event_counts": {
+        "tool_calls": 4,
+        "tool_errors": 1,
+        "compactions": 0,
+        "input_tokens": 8797,
+        "output_tokens": 8296
+      }
+    }
+  ]
+}

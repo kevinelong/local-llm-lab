@@ -2,10 +2,12 @@
 
 Field notes from running AI LLM harnesses and local models on a deliberately limited desktop
 (RTX 5070 12 GB / 32 GB RAM). What actually fits, what runs fast, which harness to use, and how we
-tested it. Updated 2026-09-09.
+tested it. Updated 2026-09-15.
 
 This is a working lab notebook, not a product. Numbers are from one machine ("DARKTEXAS"); treat them
-as directional. Everything here was measured, not guessed.
+as directional. Research candidates are labeled separately from measured results.
+
+Latest: [September 15 experiments](RESULTS-2026-09-15.md) add Pi, OmniCoder, a small Smoffyy variant, and a CPU-only baseline. The historical recommendations below precede that round.
 
 ## LLM vs harness (how they relate)
 
@@ -101,6 +103,8 @@ spec.
   [BASELINE-REMOTE.md](BASELINE-REMOTE.md) and [HARD-SPEC-TEST.md](HARD-SPEC-TEST.md).
 
 ## Docs in this repo
+- [RESULTS-2026-09-15.md](RESULTS-2026-09-15.md) - Pi, Aider, and OpenCode experiments, compact GGUF variants, and CPU-only measurements.
+- [RESEARCH-2026-09-15.md](RESEARCH-2026-09-15.md) - new candidates, popular Hugging Face variants, CPU-only models, and Pi comparison plan.
 - [HARDWARE.md](HARDWARE.md) - the exact box and its ceilings.
 - [HARNESSES.md](HARNESSES.md) - inference harnesses and agent harnesses, with our findings.
 - [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md) - deep dive: why opencode "hangs" on local Ollama and the fix.

@@ -3,6 +3,8 @@
 Small, repeatable, and honest. Every model gets the same treatment against the Ollama API.
 
 ## What we measure
+Before each test: inspect GPU processes and loaded models, unload resident models, stop confirmed idle VRAM hogs, and record GPU memory before/after cleanup. Preserve active work and Windows/assistant processes. Run one model at a time; unload it afterward. For CPU-only tests, explicitly disable GPU execution and verify the backend log and GPU memory. See AGENTS.md for the user's standing preference.
+
 1. **Placement** - `ollama ps` after the model loads: is it `100% GPU` or a `NN%/NN% CPU/GPU` split?
    This is the single best predictor of whether it will be fast.
 2. **Generation speed** - tokens/sec from the API timing fields: `eval_count / (eval_duration / 1e9)`.
@@ -32,5 +34,7 @@ Small, repeatable, and honest. Every model gets the same treatment against the O
   parse. Keep scripts pure ASCII.
 
 ## The benchmark script
+The September 15 round uses `benchmarks/round_20260915.py`: 16k context, three short correctness checks, a throughput prompt, and the existing dependency-task-manager spec. Its short probes explicitly disable thinking; these results describe that operating mode, not maximum reasoning capability. Agent runs record thinking configuration separately. See RESULTS-2026-09-15.md for configuration changes and limitations.
+
 See `benchmarks/bench-model.ps1`. It takes a model name, warms it, prints tok/s + placement, and runs the
 probes. Point it at any local Ollama model.

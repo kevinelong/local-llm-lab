@@ -1,5 +1,7 @@
 # Results
 
+Latest experiment: [September 15 local agent and CPU round](RESULTS-2026-09-15.md), using 16k context and a separate probe set. Historical measurements below retain their original settings.
+
 All numbers from DARKTEXAS (RTX 5070 12 GB / 32 GB RAM), Ollama, temperature 0, 32k context unless noted.
 tok/s is generation speed. "Placement" is the GPU share reported by `ollama ps`. Except where the
 "Correctness notes" section says otherwise, models passed the probes (bat-and-ball with thinking on,
