@@ -1,0 +1,21 @@
+{
+ "repo": "ggml-org/Qwen3.6-35B-A3B-GGUF",
+ "revision": "baec3ebee244827cda0f4557eafa8b28f7545fa6",
+ "items": [
+  {
+   "name": "Qwen3.6-35B-A3B-Q4_K_M.gguf",
+   "bytes": 20419565568,
+   "sha256": "671e47e0ec53c665d048b98c3ecbfd5236b5ca9c3e02ed19fc8f81f7b85140c7"
+  },
+  {
+   "name": "dflash-Qwen3.6-35B-A3B-Q8_0.gguf",
+   "bytes": 421060800,
+   "sha256": "339030c9dad4f410c7ef2d6cbd6e38251a84fabb59c44db992538c2451a0efee"
+  },
+  {
+   "name": "mtp-Qwen3.6-35B-A3B-Q4_0.gguf",
+   "bytes": 1060038432,
+   "sha256": "606fca331adcbfbdadc107512ce6a7161e84e1646ba0e0018256426f6296877f"
+  }
+ ]
+}

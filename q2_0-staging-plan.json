@@ -1,0 +1,21 @@
+{
+ "repo": "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF",
+ "revision": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",
+ "items": [
+  {
+   "path": "Q2_0/Qwen3.8-Flash-Next-GSQ-RCO-Q2_0-00001-of-00002.gguf",
+   "bytes": 37623740192,
+   "sha256": "69820c02ec7d0b45ef2ebb19d6620299db749fe2aded7f39f93c6b88b199b720"
+  },
+  {
+   "path": "Q2_0/Qwen3.8-Flash-Next-GSQ-RCO-Q2_0-00002-of-00002.gguf",
+   "bytes": 28800138432,
+   "sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113"
+  },
+  {
+   "path": "mmproj-Qwen3.8-Flash-Next-BF16.gguf",
+   "bytes": 907543008,
+   "sha256": "b1a82259702816a5330d7bd7607cd9676b11780e79ff7348c21103ff3ce49bd0"
+  }
+ ]
+}

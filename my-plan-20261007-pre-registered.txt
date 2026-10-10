@@ -1,0 +1,30 @@
+My next-steps list, written BEFORE reading the model's proposal (pre-registered comparison baseline)
+================================================================================================
+
+Source: the resume/next-actions sections of today's reports and the handoff notes (not invented now).
+
+1. Convert single-run screens into rates. Repeat the leading configurations so each has n>=3 under one
+   declared setting. Motivation on record: MiniCPM paths scored 75/75, 75/75, 9/75 under identical
+   declarations, and the Strata ledger split 70/70, 70/70, 64/70, 7/70, 7/70. Single runs are not point
+   estimates on these harnesses.
+2. Adopt "report a rate over n runs against an explicit floor" as the lab's reporting rule (open
+   proposal to Kevin since 2026-10-06).
+3. Kolibri-1 long-context capability test (64k -> 262k). The publisher validated 253,646 tokens on an
+   RTX 5070 12 GB with experts in RAM; our protocol is 32k, so this is an untested capability of the
+   best large model here.
+4. Stage and screen ggml-org/Qwen3.6-35B-A3B (35B total / 3B active, Q4_K_M 19 GB, plus MTP and DFlash
+   heads) - the newest small-active MoE from the preferred publisher, expected in the 34-45 tok/s band.
+5. Decide the engine question for the frozen coding roots: b10883 vs b11461 measured within noise on
+   the identical A3B model, so migrating buys features (--fit, MTP/DFlash heads, --n-cpu-moe,
+   --reasoning-*) rather than speed. Recommend migrating only for models that need those features.
+6. Finish the Strata quant curve: Q2_0 is now the reference (budget 12). IQ2_XS and IQ3_XXS also fit on
+   64 GB and can be compared at the same budget to see whether more bits help those tasks.
+7. Owner decisions to surface: BitLocker status still unconfirmed (never checked elevated); whether to
+   close applications to test Q2_0 at a larger resident budget; whether to accept the rate-over-n-runs
+   change; the 6 GiB worker-private cap question is already resolved (8 GiB declared in v3).
+8. Hygiene: keep candidates-20261007-v3 (the dense 27B root) deliberately unrun with its reason;
+   consider deleting the 67 GB Q2_0 GGUF staging now that the pack exists (135 GB free disk), keeping
+   the pack and the sha256 record.
+
+Explicitly NOT on my list: any acquisition of >64 GB models, any gate/floor change, any reboot, any
+100B+ MoE (gpt-oss-120b is 63.4 GB and does not fit), and any change to the frozen roots.

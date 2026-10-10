@@ -1,0 +1,78 @@
+# The Bespoke civil_comments anomaly is solved - it is a metric artifact, and the metric flips the ranking
+
+2026-10-08, overnight. Read with `bespoke-suite-20261005-v1/REPORT.md` and
+`bespoke-suite-20261007-v1/REPORT.md`, which both recorded this as unexplained: our nimble run scored
+**91.0 %** on `civil_comments` against a published **70.3 %**. The 2026-10-05 note guessed "rendering or
+positive-class handling"; the 2026-10-07 note left it alone. Neither was right, and no inference was
+needed to settle it - the answer is in the rows already on disk.
+
+## What `civil_comments` is, in this suite
+
+It is a **`noul`** subset: the model returns a scalar probability `noul`, the scorer expands it to
+`{'false': 1-p, 'true': p}`, and the prediction is `p > 0.5`
+(`suite_worker.py: probabilities()`, `assess()`). So the subset's accuracy is a **threshold at 0.5 on a
+binary label**, and its value therefore depends almost entirely on the label balance.
+
+## The balance, measured from our own rows
+
+| | targets | majority baseline | our accuracy | our **balanced** accuracy | published |
+|---|---|---|---|---|---|
+| `civil_comments` (300 rows) | **32 positive, 268 negative** | **89.3 %** | 91.0 % | **72.9 %** | 70.3 % |
+
+- Our 91.0 % is the majority baseline **+ 1.7 points** - almost no signal.
+- Our **balanced accuracy is 72.9 %**, which matches the published 70.3 % to 2.6 points - the same
+  agreement band as every other subset where our run and the published table track each other
+  (aegis2 -5.6, boolq +0.3, paws -3.6, squad2 +1.3).
+- The other five binary subsets are near-balanced (majority 50.2-58.0 %), which is exactly why they never
+  showed the anomaly. `civil_comments` is the only `noul` subset in the suite with a 90/10 skew.
+
+**Conclusion: the published figure is a class-balanced metric, ours was plain accuracy on a 90/10
+subset.** The anomaly is closed as a metric mismatch, not rendering, not positive-class handling, and
+not a better local model.
+
+## The consequence is bigger than the anomaly: the ranking depends on the metric
+
+Recomputed from the stored rows, all five local models, 13 subsets each (balanced accuracy over the
+binary subsets; plain accuracy over the rest as before):
+
+| model | accuracy macro | rank | **balanced macro** | rank | civil_comments |
+|---|---|---|---|---|---|
+| **kev4 4B** | 0.744 | 2 | **0.805** | **1** | 0.833 |
+| nimble 9B | **0.757** | 1 | 0.797 | 2 | 0.910 |
+| lev | 0.684 | 3 | 0.790 | 3 | 0.750 |
+| kev0 | 0.612 | 4 | 0.694 | 4 | 0.840 |
+| laya | 0.580 | 5 | 0.651 | 5 | 0.937 |
+
+- **The 4B model takes the top spot from the 9B** when the binary subsets are scored class-balanced
+  (0.805 vs 0.797), and the two are inside 1 point either way.
+- `lev` moves **+10.6 points** (0.684 -> 0.790) and closes to within 1.5 of the leader, so its earlier
+  distance from nimble was mostly a majority-class artifact.
+- `laya` is the *best* model on `civil_comments` by accuracy (0.937) purely because it predicts the
+  majority class hardest; balanced, it is last.
+- The honest statement about this suite is therefore: **kev4, nimble and lev are within ~1.5 points of
+  each other on class-balanced accuracy**, and any "4B is close to 9B" or "9B leads" claim from the
+  accuracy macro alone is metric-dependent.
+
+## Two further measurement points from the same rows
+
+1. **The macro mixes metrics with different baselines.** `noul` and `choice` subsets are scored as
+   accuracy, but `score` subsets (helpsteer2, summeval-*) are scored as **argmax-rounded accuracy on a
+   5-point scale** (36-43 % for helpsteer2, 34-39 % for summeval-relevance). Those are legitimately hard,
+   but averaging them with binary accuracy means the macro is a blend of scales with different chance
+   floors. The scorer already computes the better primitive for them - `expected_score` and
+   `absolute_score_error` - which should be reported and averaged separately.
+2. **Prediction rates expose the failure mode directly.** On `civil_comments` the positive-prediction
+   rate is 0.09 (nimble) and 0.21 (kev4) against a 0.107 positive base rate: nimble is close to a
+   constant-majority classifier, kev4 tries more and pays accuracy for it. Reporting the prediction rate
+   next to accuracy would have made this visible in the original table.
+
+## Recommendation for how this suite is reported from now on
+
+- Report **balanced accuracy (or per-class recall) for every binary subset**, alongside the prediction
+  rate; keep plain accuracy only as a secondary number.
+- **Separate the metric families** in the macro: one macro over choice/noul subsets (accuracy or
+  balanced accuracy), one over score subsets (expected-score error). Do not average them together.
+- Treat `civil_comments` as near-uninformative under accuracy (89.3 % majority); if it is kept, score it
+  balanced.
+- No re-run is needed for any of this: every number above is recomputed from the stored rows, so the
+  existing roots stay frozen and the ranking can be restated in the corrected metric.

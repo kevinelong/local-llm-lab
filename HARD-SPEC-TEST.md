@@ -1,5 +1,7 @@
 # Hard spec: where the local model finally falls behind
 
+September 20 correction: the local program detects cycles but swallows the failing exit status; the algorithmic explanation below was incorrect. The historical 8/10 and 10/10 scores reproduce, but supplemental checks expose additional failures, including the Claude artifact overwriting existing data during its self-test. See [the audit and evidence](REVIEW-2026-09-20.md) before interpreting the historical conclusions below.
+
 The 7-part `notes.py` spec (DECOMPOSITION-TEST.md, BASELINE-REMOTE.md) was too easy - everyone passed. So
 we built a genuinely harder spec and reran all five. Run 2026-09-09.
 

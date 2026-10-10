@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { createGuard } from './repeat_guard_20260922.mjs';
+const guard = createGuard();
+for (let i=1;i<=3;i++) assert.deepEqual(guard('powershell', {command:'test',timeout:5}, 'a'), {count:i,block:false,terminate:false});
+assert.deepEqual(guard('powershell', {timeout:5,command:'test'}, 'a'), {count:4,block:true,terminate:false});
+assert.deepEqual(guard('powershell', {command:'test',timeout:5}, 'a'), {count:5,block:true,terminate:true});
+assert.equal(guard('powershell', {command:'test',timeout:5}, 'changed-file').block, false);
+assert.equal(guard('powershell', {command:'different'}, 'a').block, false);
+assert.equal(guard('read', {}, 'a').count, 0);
+const observe = createGuard('observe');
+for (let i=0;i<8;i++) assert.equal(observe('powershell', {command:'test'}, 'a').block, false);
+console.log('Repeat guard controls passed: warning, termination, canonical keys, file change, distinct command, read exclusion, observe-only.');

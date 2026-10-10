@@ -1,0 +1,263 @@
+{
+  "replays": [
+    {
+      "mode": "json",
+      "cap": 4096,
+      "http_status": 500,
+      "finish_reasons": [],
+      "done_marker": null,
+      "seconds": 48.18700000003446,
+      "usage": null,
+      "error": null,
+      "tool_call_count": 0,
+      "server_error": {
+        "message": "llama-server returned invalid tool call arguments for \"write\": unexpected end of JSON input",
+        "type": "api_error",
+        "param": null,
+        "code": null
+      },
+      "invalid_control": false
+    },
+    {
+      "mode": "native",
+      "cap": 4096,
+      "http_status": 400,
+      "finish_reasons": [
+        null
+      ],
+      "done_marker": null,
+      "seconds": 0.015999999945051968,
+      "usage": null,
+      "error": null,
+      "tool_call_count": 0,
+      "server_error": "json: cannot unmarshal array into Go struct field ChatRequest.messages.content of type string",
+      "invalid_control": true
+    },
+    {
+      "mode": "native-fixed",
+      "cap": 4096,
+      "http_status": 500,
+      "finish_reasons": [
+        null
+      ],
+      "done_marker": null,
+      "seconds": 47.20299999997951,
+      "usage": null,
+      "error": null,
+      "tool_call_count": 0,
+      "server_error": "llama-server returned invalid tool call arguments for \"write\": unexpected end of JSON input",
+      "invalid_control": false
+    },
+    {
+      "mode": "stream",
+      "cap": 4096,
+      "http_status": 200,
+      "finish_reasons": [],
+      "done_marker": false,
+      "seconds": 49.375,
+      "usage": [],
+      "error": null,
+      "tool_call_count": 0,
+      "server_error": null,
+      "invalid_control": false
+    },
+    {
+      "mode": "stream",
+      "cap": 8192,
+      "http_status": 200,
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "done_marker": true,
+      "seconds": 91.25,
+      "usage": [
+        {
+          "prompt_tokens": 2530,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "completion_tokens": 8101,
+          "total_tokens": 10631
+        }
+      ],
+      "error": null,
+      "tool_call_count": 1,
+      "server_error": null,
+      "invalid_control": false
+    }
+  ],
+  "agent_trials": [
+    {
+      "label": "pi-omni-hard-16384-1",
+      "context": 16384,
+      "output_limit": 4096,
+      "seconds": 50.01600000006147,
+      "timed_out": null,
+      "score": 0,
+      "total": 10,
+      "clean_finish": false,
+      "success": false,
+      "agent_errors": [
+        "Stream ended without finish_reason"
+      ],
+      "error": null,
+      "extra_passed": 0,
+      "captured_streams": 2,
+      "streams_with_terminal_signal": 1,
+      "streams_without_terminal_signal": [
+        {
+          "id": "40faea7784064b3d9c86128ede7f3f2d",
+          "start": "2026-09-16T20:58:05.481434+00:00",
+          "finish_reasons": [],
+          "done_marker": false,
+          "bytes": 5383,
+          "end": "2026-09-16T20:58:49.138095+00:00"
+        }
+      ],
+      "placement": {
+        "models": [
+          {
+            "name": "night-20260916-omni-16384:latest",
+            "model": "night-20260916-omni-16384:latest",
+            "size": 5961846619,
+            "digest": "77c4024c2e7e0ae1b8f629280a629ce8bda88c81eeb2073cb33bed4ea1fd46fa",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "qwen35",
+              "families": [
+                "qwen35"
+              ],
+              "parameter_size": "9.0B",
+              "quantization_level": "Q4_K_M"
+            },
+            "expires_at": "2026-09-16T14:03:49.1380957-07:00",
+            "size_vram": 5961846619,
+            "context_length": 16384
+          }
+        ]
+      },
+      "cleanup": {
+        "before": "7462, 4482, 0",
+        "unloaded": [
+          "night-20260916-omni-16384:latest"
+        ],
+        "after": "1592, 10352, 0",
+        "remaining": {
+          "models": []
+        }
+      }
+    },
+    {
+      "label": "pi-omni-hard-16384-2",
+      "context": 16384,
+      "output_limit": 8192,
+      "seconds": 94.03099999995902,
+      "timed_out": null,
+      "score": 0,
+      "total": 10,
+      "clean_finish": false,
+      "success": false,
+      "agent_errors": [
+        "Stream ended without finish_reason"
+      ],
+      "error": null,
+      "extra_passed": 0,
+      "captured_streams": 2,
+      "streams_with_terminal_signal": 1,
+      "streams_without_terminal_signal": [
+        {
+          "id": "e9053d48523047a9a3cf7551c17428eb",
+          "start": "2026-09-16T21:00:29.037183+00:00",
+          "finish_reasons": [],
+          "done_marker": false,
+          "bytes": 5359,
+          "end": "2026-09-16T21:01:56.562375+00:00"
+        }
+      ],
+      "placement": {
+        "models": [
+          {
+            "name": "night-20260916-omni-16384:latest",
+            "model": "night-20260916-omni-16384:latest",
+            "size": 5961846619,
+            "digest": "77c4024c2e7e0ae1b8f629280a629ce8bda88c81eeb2073cb33bed4ea1fd46fa",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "qwen35",
+              "families": [
+                "qwen35"
+              ],
+              "parameter_size": "9.0B",
+              "quantization_level": "Q4_K_M"
+            },
+            "expires_at": "2026-09-16T14:06:56.5623756-07:00",
+            "size_vram": 5961846619,
+            "context_length": 16384
+          }
+        ]
+      },
+      "cleanup": {
+        "before": "7462, 4482, 0",
+        "unloaded": [
+          "night-20260916-omni-16384:latest"
+        ],
+        "after": "1592, 10352, 1",
+        "remaining": {
+          "models": []
+        }
+      }
+    },
+    {
+      "label": "pi-omni-hard-32768-3",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 550.1410000000615,
+      "timed_out": null,
+      "score": 2,
+      "total": 10,
+      "clean_finish": false,
+      "success": false,
+      "agent_errors": [],
+      "error": null,
+      "extra_passed": 0,
+      "captured_streams": 115,
+      "streams_with_terminal_signal": 115,
+      "streams_without_terminal_signal": [],
+      "placement": {
+        "models": [
+          {
+            "name": "night-20260916-omni-32768:latest",
+            "model": "night-20260916-omni-32768:latest",
+            "size": 6406432357,
+            "digest": "4b08316889104f7261074cc1c97e93805e8cade0fba06ba1be2e87d3222500e2",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "qwen35",
+              "families": [
+                "qwen35"
+              ],
+              "parameter_size": "9.0B",
+              "quantization_level": "Q4_K_M"
+            },
+            "expires_at": "2026-09-16T14:16:50.8384411-07:00",
+            "size_vram": 6406432357,
+            "context_length": 32768
+          }
+        ]
+      },
+      "cleanup": {
+        "before": "7886, 4058, 0",
+        "unloaded": [
+          "night-20260916-omni-32768:latest"
+        ],
+        "after": "1592, 10352, 1",
+        "remaining": {
+          "models": []
+        }
+      }
+    }
+  ]
+}

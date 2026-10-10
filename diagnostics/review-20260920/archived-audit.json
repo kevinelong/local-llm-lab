@@ -1,0 +1,131 @@
+{
+  "tasks.aider.py": {
+    "historical": {
+      "exit": 0,
+      "stdout": "==== tasks.py ====\n  self_test                  FAIL  exit=1\n  add_invalid_dep_rejected   PASS  exit=1\n  done_blocking              PASS  blocked=1 a_done=0 b_done=0\n  ready_set                  PASS  exit=0\n  plan_topological           PASS  exit=0\n  cycle_detected             FAIL  exit=0\n  rm_dependents_guard        PASS  refuse=1 force=0\n  export_import              PASS  exp=0 file=True imp=0\n  persistence                PASS  exit=0\n  corrupt_file_safe          PASS  exit=0\nSCORE: 8/10\n",
+      "stderr": ""
+    },
+    "supplemental": {
+      "exit": 0,
+      "stdout": "{\n  \"checks\": [\n    {\n      \"name\": \"ids_never_reused\",\n      \"pass\": false\n    },\n    {\n      \"name\": \"plan_priority_ties\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"selftest_preserves_data\",\n      \"pass\": false\n    },\n    {\n      \"name\": \"stats_chain_depth\",\n      \"pass\": true\n    }\n  ],\n  \"passed\": 2,\n  \"total\": 4\n}\n",
+      "stderr": ""
+    },
+    "cycle_reproduction": [
+      {
+        "args": [
+          "add",
+          "A"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "add",
+          "B"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "dep",
+          "1",
+          "--on",
+          "2"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "dep",
+          "2",
+          "--on",
+          "1"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "args": [
+          "plan"
+        ],
+        "exit": 0,
+        "stdout": "cycle detected: [1, 2]\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "tasks.astra.py": {
+    "historical": {
+      "exit": 0,
+      "stdout": "==== tasks.py ====\n  self_test                  PASS  exit=0\n  add_invalid_dep_rejected   PASS  exit=1\n  done_blocking              PASS  blocked=1 a_done=0 b_done=0\n  ready_set                  PASS  exit=0\n  plan_topological           PASS  exit=0\n  cycle_detected             PASS  exit=1\n  rm_dependents_guard        PASS  refuse=1 force=0\n  export_import              PASS  exp=0 file=True imp=0\n  persistence                PASS  exit=0\n  corrupt_file_safe          PASS  exit=0\nSCORE: 10/10\n",
+      "stderr": ""
+    },
+    "supplemental": {
+      "exit": 0,
+      "stdout": "{\n  \"checks\": [\n    {\n      \"name\": \"ids_never_reused\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"plan_priority_ties\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"selftest_preserves_data\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"stats_chain_depth\",\n      \"pass\": true\n    }\n  ],\n  \"passed\": 4,\n  \"total\": 4\n}\n",
+      "stderr": ""
+    }
+  },
+  "tasks.claude.py": {
+    "historical": {
+      "exit": 0,
+      "stdout": "==== tasks.py ====\n  self_test                  PASS  exit=0\n  add_invalid_dep_rejected   PASS  exit=1\n  done_blocking              PASS  blocked=1 a_done=0 b_done=0\n  ready_set                  PASS  exit=0\n  plan_topological           PASS  exit=0\n  cycle_detected             PASS  exit=1\n  rm_dependents_guard        PASS  refuse=1 force=0\n  export_import              PASS  exp=0 file=True imp=0\n  persistence                PASS  exit=0\n  corrupt_file_safe          PASS  exit=0\nSCORE: 10/10\n",
+      "stderr": ""
+    },
+    "supplemental": {
+      "exit": 0,
+      "stdout": "{\n  \"checks\": [\n    {\n      \"name\": \"ids_never_reused\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"plan_priority_ties\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"selftest_preserves_data\",\n      \"pass\": false\n    },\n    {\n      \"name\": \"stats_chain_depth\",\n      \"pass\": true\n    }\n  ],\n  \"passed\": 3,\n  \"total\": 4\n}\n",
+      "stderr": ""
+    },
+    "preservation_reproduction": {
+      "before": "{\n  \"tasks\": [\n    {\n      \"id\": 1,\n      \"title\": \"PRESERVE_ME\",\n      \"priority\": 3,\n      \"status\": \"open\",\n      \"deps\": [],\n      \"created\": 1789923545.9722807\n    }\n  ],\n  \"next_id\": 2\n}",
+      "test": {
+        "exit": 0,
+        "stdout": "added task 1: task one\nadded task 2: task two\nadded task 1: a\nadded task 2: b\ncannot complete: blocked by open dependency 1\ntask 1 marked done\ntask 2 marked done\nadded task 1: low\nadded task 2: high\nadded task 3: blocked\nadded task 1: a\nadded task 2: b\nadded task 3: c\nadded task 4: d\nadded task 1: a\nadded task 2: b\ncycle detected: 1, 2\nadded task 1: base\nadded task 2: dependent\nremoved task 1\nadded task 1: a\nadded task 2: b\nadded task 3: c\nadded task 4: standalone\nadded task 1: a\nadded task 2: b\nadded task 3: c\ntask 1 marked done\nexported 3 tasks to C:\\Users\\kevin\\AppData\\Local\\Temp\\tasks_test_vu76fi0m\\tasks_test.csv\nimported 3 tasks from C:\\Users\\kevin\\AppData\\Local\\Temp\\tasks_test_vu76fi0m\\tasks_test.csv\nall tests passed\n",
+        "stderr": "error: dependency 999 does not exist\nerror: task 1 is depended on by 2 (use --force)\nerror: dependency 42 referenced by task 1 does not exist\n"
+      },
+      "after": "{\n  \"tasks\": [\n    {\n      \"id\": 1,\n      \"title\": \"a\",\n      \"priority\": 4,\n      \"status\": \"done\",\n      \"deps\": [],\n      \"created\": 1789923546.0390198\n    },\n    {\n      \"id\": 2,\n      \"title\": \"b\",\n      \"priority\": 2,\n      \"status\": \"open\",\n      \"deps\": [\n        1\n      ],\n      \"created\": 1789923546.0390198\n    },\n    {\n      \"id\": 3,\n      \"title\": \"c\",\n      \"priority\": 3,\n      \"status\": \"open\",\n      \"deps\": [\n        1,\n        2\n      ],\n      \"created\": 1789923546.0390198\n    }\n  ],\n  \"next_id\": 4\n}",
+      "listing_after": {
+        "exit": 0,
+        "stdout": "1 [x] P4 a (deps: -)\n2 [ ] P2 b (deps: 1)\n3 [ ] P3 c (deps: 1,2)\n",
+        "stderr": ""
+      }
+    }
+  },
+  "tasks.codex.py": {
+    "historical": {
+      "exit": 0,
+      "stdout": "==== tasks.py ====\n  self_test                  PASS  exit=0\n  add_invalid_dep_rejected   PASS  exit=1\n  done_blocking              PASS  blocked=1 a_done=0 b_done=0\n  ready_set                  PASS  exit=0\n  plan_topological           PASS  exit=0\n  cycle_detected             PASS  exit=1\n  rm_dependents_guard        PASS  refuse=1 force=0\n  export_import              PASS  exp=0 file=True imp=0\n  persistence                PASS  exit=0\n  corrupt_file_safe          PASS  exit=0\nSCORE: 10/10\n",
+      "stderr": ""
+    },
+    "supplemental": {
+      "exit": 0,
+      "stdout": "{\n  \"checks\": [\n    {\n      \"name\": \"ids_never_reused\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"plan_priority_ties\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"selftest_preserves_data\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"stats_chain_depth\",\n      \"pass\": true\n    }\n  ],\n  \"passed\": 4,\n  \"total\": 4\n}\n",
+      "stderr": ""
+    }
+  },
+  "tasks.dsh.py": {
+    "historical": {
+      "exit": 0,
+      "stdout": "==== tasks.py ====\n  self_test                  PASS  exit=0\n  add_invalid_dep_rejected   PASS  exit=1\n  done_blocking              PASS  blocked=1 a_done=0 b_done=0\n  ready_set                  PASS  exit=0\n  plan_topological           PASS  exit=0\n  cycle_detected             PASS  exit=1\n  rm_dependents_guard        PASS  refuse=1 force=0\n  export_import              PASS  exp=0 file=True imp=0\n  persistence                PASS  exit=0\n  corrupt_file_safe          PASS  exit=0\nSCORE: 10/10\n",
+      "stderr": ""
+    },
+    "supplemental": {
+      "exit": 0,
+      "stdout": "{\n  \"checks\": [\n    {\n      \"name\": \"ids_never_reused\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"plan_priority_ties\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"selftest_preserves_data\",\n      \"pass\": true\n    },\n    {\n      \"name\": \"stats_chain_depth\",\n      \"pass\": true\n    }\n  ],\n  \"passed\": 4,\n  \"total\": 4\n}\n",
+      "stderr": ""
+    }
+  },
+  "broken_control": {
+    "exit": 0,
+    "stdout": "==== tasks.py ====\n  self_test                  FAIL  exit=1\n  add_invalid_dep_rejected   PASS  exit=1\n  done_blocking              FAIL  blocked=1 a_done=1 b_done=1\n  ready_set                  FAIL  exit=1\n  plan_topological           FAIL  exit=1\n  cycle_detected             FAIL  exit=1\n  rm_dependents_guard        FAIL  refuse=1 force=1\n  export_import              FAIL  exp=1 file=False imp=1\n  persistence                FAIL  exit=1\n  corrupt_file_safe          FAIL  exit=1\nSCORE: 1/10\n",
+    "stderr": ""
+  }
+}

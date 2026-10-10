@@ -1,0 +1,5010 @@
+{
+ "full_sweeps": [
+  {
+   "model": "minicpm",
+   "n_roots": 7,
+   "n_full_sweeps": 6,
+   "per_task": {
+    "events": "0-75-76",
+    "ledger": "0-65-69",
+    "paths": "0-75-75"
+   },
+   "success_pct": {
+    "min": 0.0,
+    "median": 96.83,
+    "max": 99.55
+   },
+   "collapse_rate": 0.333,
+   "eff_median": 122.7,
+   "sweeps": [
+    {
+     "root": "candidates-20260929-v2",
+     "checks": 0,
+     "total": 221,
+     "pct": 0.0,
+     "wall": 416.1,
+     "eff": 95.2,
+     "per_task": {
+      "events": "0/76",
+      "ledger": "0/70",
+      "paths": "0/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": false,
+      "ledger": false,
+      "paths": false
+     }
+    },
+    {
+     "root": "candidates-20260929-v3",
+     "checks": 218,
+     "total": 221,
+     "pct": 98.64,
+     "wall": 315.2,
+     "eff": 123.7,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "67/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": false,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20260929-v4",
+     "checks": 220,
+     "total": 221,
+     "pct": 99.55,
+     "wall": 264.3,
+     "eff": 121.7,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "69/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20260929-v5",
+     "checks": 148,
+     "total": 221,
+     "pct": 66.97,
+     "wall": 362.4,
+     "eff": 125.8,
+     "per_task": {
+      "events": "74/76",
+      "ledger": "65/70",
+      "paths": "9/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": false
+     }
+    },
+    {
+     "root": "candidates-20261007-v13-2",
+     "checks": 214,
+     "total": 221,
+     "pct": 96.83,
+     "wall": 297.1,
+     "eff": 125.1,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "63/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v13-3",
+     "checks": 214,
+     "total": 221,
+     "pct": 96.83,
+     "wall": 364.8,
+     "eff": 97.3,
+     "per_task": {
+      "events": "73/76",
+      "ledger": "66/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "swift",
+   "n_roots": 2,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "76-76-76",
+    "ledger": "70-70-70",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 100.0,
+    "median": 100.0,
+    "max": 100.0
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 45.6,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v8",
+     "checks": 221,
+     "total": 221,
+     "pct": 100.0,
+     "wall": 1245.5,
+     "eff": 45.6,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "70/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": false,
+      "paths": false
+     }
+    }
+   ]
+  },
+  {
+   "model": "kolibri-1",
+   "n_roots": 7,
+   "n_full_sweeps": 3,
+   "per_task": {
+    "events": "76-76-76",
+    "ledger": "68-69-70",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 99.1,
+    "median": 99.55,
+    "max": 100.0
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 32.1,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v16-1",
+     "checks": 219,
+     "total": 221,
+     "pct": 99.1,
+     "wall": 1404.8,
+     "eff": 33.6,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "68/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": false,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v16-3",
+     "checks": 221,
+     "total": 221,
+     "pct": 100.0,
+     "wall": 1413.2,
+     "eff": 32.1,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "70/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": false,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v7",
+     "checks": 220,
+     "total": 221,
+     "pct": 99.55,
+     "wall": 839.3,
+     "eff": 32.1,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "69/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "qwen36-35b-a3b",
+   "n_roots": 3,
+   "n_full_sweeps": 3,
+   "per_task": {
+    "events": "76-76-76",
+    "ledger": "68-68-70",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 99.1,
+    "median": 99.1,
+    "max": 100.0
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 38.1,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v24",
+     "checks": 219,
+     "total": 221,
+     "pct": 99.1,
+     "wall": 568.6,
+     "eff": 38.1,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "68/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v26-1",
+     "checks": 221,
+     "total": 221,
+     "pct": 100.0,
+     "wall": 972.4,
+     "eff": 39.2,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "70/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v26-2",
+     "checks": 219,
+     "total": 221,
+     "pct": 99.1,
+     "wall": 741.8,
+     "eff": 37.8,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "68/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": false,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "strata:strata-20261007-v8",
+   "n_roots": 1,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "76-76-76",
+    "ledger": "70-70-70",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 100.0,
+    "median": 100.0,
+    "max": 100.0
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 63.0,
+   "sweeps": [
+    {
+     "root": "strata-20261007-v8",
+     "checks": 221,
+     "total": 221,
+     "pct": 100.0,
+     "wall": 561.4,
+     "eff": 63.0,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "70/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "kolibri-1+ledger2",
+   "n_roots": 2,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "76-76-76",
+    "ledger": "67-67-67",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 98.64,
+    "median": 98.64,
+    "max": 98.64
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 31.7,
+   "sweeps": [
+    {
+     "root": "newtasks-20261008-v2",
+     "checks": 218,
+     "total": 221,
+     "pct": 98.64,
+     "wall": 1158.3,
+     "eff": 31.7,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "67/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": false
+     }
+    }
+   ]
+  },
+  {
+   "model": "qwen36-35b-a3b+MTP",
+   "n_roots": 3,
+   "n_full_sweeps": 3,
+   "per_task": {
+    "events": "75-75-76",
+    "ledger": "66-69-69",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 97.74,
+    "median": 99.1,
+    "max": 99.55
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 49.3,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v25",
+     "checks": 220,
+     "total": 221,
+     "pct": 99.55,
+     "wall": 785.3,
+     "eff": 53.0,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "69/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": false,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v27-1",
+     "checks": 219,
+     "total": 221,
+     "pct": 99.1,
+     "wall": 670.8,
+     "eff": 49.3,
+     "per_task": {
+      "events": "75/76",
+      "ledger": "69/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v27-2",
+     "checks": 216,
+     "total": 221,
+     "pct": 97.74,
+     "wall": 661.0,
+     "eff": 48.7,
+     "per_task": {
+      "events": "75/76",
+      "ledger": "66/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": false,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "nemotron-3.5-lightning-30b",
+   "n_roots": 3,
+   "n_full_sweeps": 3,
+   "per_task": {
+    "events": "76-76-76",
+    "ledger": "67-68-68",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 98.64,
+    "median": 99.1,
+    "max": 99.1
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 31.0,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v11",
+     "checks": 218,
+     "total": 221,
+     "pct": 98.64,
+     "wall": 1416.8,
+     "eff": 31.1,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "67/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v20-1",
+     "checks": 219,
+     "total": 221,
+     "pct": 99.1,
+     "wall": 1382.9,
+     "eff": 30.5,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "68/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": false,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v20-2",
+     "checks": 219,
+     "total": 221,
+     "pct": 99.1,
+     "wall": 1628.2,
+     "eff": 31.0,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "68/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": false,
+      "ledger": false,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "gemma",
+   "n_roots": 5,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "0-0-0",
+    "ledger": "0-0-0",
+    "paths": "0-0-0"
+   },
+   "success_pct": {
+    "min": 0.0,
+    "median": 0.0,
+    "max": 0.0
+   },
+   "collapse_rate": 1.0,
+   "eff_median": 32.3,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v1",
+     "checks": 0,
+     "total": 221,
+     "pct": 0.0,
+     "wall": 825.0,
+     "eff": 32.3,
+     "per_task": {
+      "events": "0/76",
+      "ledger": "0/70",
+      "paths": "0/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "gpt-oss-20b",
+   "n_roots": 3,
+   "n_full_sweeps": 3,
+   "per_task": {
+    "events": "0-75-76",
+    "ledger": "65-66-68",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 63.8,
+    "median": 97.74,
+    "max": 98.64
+   },
+   "collapse_rate": 0.333,
+   "eff_median": 24.8,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v12",
+     "checks": 218,
+     "total": 221,
+     "pct": 98.64,
+     "wall": 176.5,
+     "eff": 23.4,
+     "per_task": {
+      "events": "75/76",
+      "ledger": "68/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v18-1",
+     "checks": 216,
+     "total": 221,
+     "pct": 97.74,
+     "wall": 200.6,
+     "eff": 24.8,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "65/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v18-2",
+     "checks": 141,
+     "total": 221,
+     "pct": 63.8,
+     "wall": 220.0,
+     "eff": 25.2,
+     "per_task": {
+      "events": "0/76",
+      "ledger": "66/70",
+      "paths": "75/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "qwen36-35b-a3b+ctx131k",
+   "n_roots": 1,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "76-76-76",
+    "ledger": "67-67-67",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 98.64,
+    "median": 98.64,
+    "max": 98.64
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 39.3,
+   "sweeps": [
+    {
+     "root": "provision-20261008-v1",
+     "checks": 218,
+     "total": 221,
+     "pct": 98.64,
+     "wall": 1022.1,
+     "eff": 39.3,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "67/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "minicpm+cap32768",
+   "n_roots": 1,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "76-76-76",
+    "ledger": "66-66-66",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 98.19,
+    "median": 98.19,
+    "max": 98.19
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 100.9,
+   "sweeps": [
+    {
+     "root": "truncation-20261008-v1",
+     "checks": 217,
+     "total": 221,
+     "pct": 98.19,
+     "wall": 464.0,
+     "eff": 100.9,
+     "per_task": {
+      "events": "76/76",
+      "ledger": "66/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": false,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "gpt-oss-20b+cap32768",
+   "n_roots": 1,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "75-75-75",
+    "ledger": "66-66-66",
+    "paths": "73-73-73"
+   },
+   "success_pct": {
+    "min": 96.83,
+    "median": 96.83,
+    "max": 96.83
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 24.7,
+   "sweeps": [
+    {
+     "root": "truncation-20261008-v2",
+     "checks": 214,
+     "total": 221,
+     "pct": 96.83,
+     "wall": 516.4,
+     "eff": 24.7,
+     "per_task": {
+      "events": "75/76",
+      "ledger": "66/70",
+      "paths": "73/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "qwen3-coder-30b",
+   "n_roots": 3,
+   "n_full_sweeps": 3,
+   "per_task": {
+    "events": "65-67-67",
+    "ledger": "59-62-62",
+    "paths": "73-73-75"
+   },
+   "success_pct": {
+    "min": 89.14,
+    "median": 91.4,
+    "max": 92.31
+   },
+   "collapse_rate": 0.0,
+   "eff_median": 28.5,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v22-1",
+     "checks": 197,
+     "total": 221,
+     "pct": 89.14,
+     "wall": 484.7,
+     "eff": 29.1,
+     "per_task": {
+      "events": "65/76",
+      "ledger": "59/70",
+      "paths": "73/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v22-2",
+     "checks": 202,
+     "total": 221,
+     "pct": 91.4,
+     "wall": 652.7,
+     "eff": 28.5,
+     "per_task": {
+      "events": "67/76",
+      "ledger": "62/70",
+      "paths": "73/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    },
+    {
+     "root": "candidates-20261007-v9",
+     "checks": 204,
+     "total": 221,
+     "pct": 92.31,
+     "wall": 495.6,
+     "eff": 28.5,
+     "per_task": {
+      "events": "67/76",
+      "ledger": "62/70",
+      "paths": "75/75"
+     },
+     "collapsed": false,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "strata:strata-20261005-v1",
+   "n_roots": 1,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "2-2-2",
+    "ledger": "7-7-7",
+    "paths": "75-75-75"
+   },
+   "success_pct": {
+    "min": 38.01,
+    "median": 38.01,
+    "max": 38.01
+   },
+   "collapse_rate": 1.0,
+   "eff_median": 4.0,
+   "sweeps": [
+    {
+     "root": "strata-20261005-v1",
+     "checks": 84,
+     "total": 221,
+     "pct": 38.01,
+     "wall": 1440.2,
+     "eff": 4.0,
+     "per_task": {
+      "events": "2/76",
+      "ledger": "7/70",
+      "paths": "75/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": false,
+      "ledger": false,
+      "paths": false
+     }
+    }
+   ]
+  },
+  {
+   "model": "qwen3-30b-a3b-thinking",
+   "n_roots": 1,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "66-66-66",
+    "ledger": "14-14-14",
+    "paths": "0-0-0"
+   },
+   "success_pct": {
+    "min": 36.2,
+    "median": 36.2,
+    "max": 36.2
+   },
+   "collapse_rate": 1.0,
+   "eff_median": 30.2,
+   "sweeps": [
+    {
+     "root": "candidates-20261007-v10",
+     "checks": 80,
+     "total": 221,
+     "pct": 36.2,
+     "wall": 1213.0,
+     "eff": 30.2,
+     "per_task": {
+      "events": "66/76",
+      "ledger": "14/70",
+      "paths": "0/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": true,
+      "ledger": true,
+      "paths": true
+     }
+    }
+   ]
+  },
+  {
+   "model": "ling",
+   "n_roots": 1,
+   "n_full_sweeps": 1,
+   "per_task": {
+    "events": "2-2-2",
+    "ledger": "29-29-29",
+    "paths": "9-9-9"
+   },
+   "success_pct": {
+    "min": 18.1,
+    "median": 18.1,
+    "max": 18.1
+   },
+   "collapse_rate": 1.0,
+   "eff_median": 179.1,
+   "sweeps": [
+    {
+     "root": "candidates-20260929-v5",
+     "checks": 40,
+     "total": 221,
+     "pct": 18.1,
+     "wall": 223.6,
+     "eff": 179.1,
+     "per_task": {
+      "events": "2/76",
+      "ledger": "29/70",
+      "paths": "9/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": false,
+      "ledger": false,
+      "paths": false
+     }
+    }
+   ]
+  },
+  {
+   "model": "spark",
+   "n_roots": 2,
+   "n_full_sweeps": 2,
+   "per_task": {
+    "events": "0-1-2",
+    "ledger": "0-3-7",
+    "paths": "0-4-9"
+   },
+   "success_pct": {
+    "min": 0.0,
+    "median": 4.07,
+    "max": 8.14
+   },
+   "collapse_rate": 1.0,
+   "eff_median": 89.3,
+   "sweeps": [
+    {
+     "root": "candidates-20260929-v2",
+     "checks": 0,
+     "total": 221,
+     "pct": 0.0,
+     "wall": 488.4,
+     "eff": 86.9,
+     "per_task": {
+      "events": "0/76",
+      "ledger": "0/70",
+      "paths": "0/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": false,
+      "ledger": false,
+      "paths": false
+     }
+    },
+    {
+     "root": "candidates-20260929-v3",
+     "checks": 18,
+     "total": 221,
+     "pct": 8.14,
+     "wall": 431.3,
+     "eff": 91.8,
+     "per_task": {
+      "events": "2/76",
+      "ledger": "7/70",
+      "paths": "9/75"
+     },
+     "collapsed": true,
+     "clean": {
+      "events": false,
+      "ledger": false,
+      "paths": false
+     }
+    }
+   ]
+  }
+ ],
+ "task_level": {
+  "minicpm": {
+   "events": {
+    "n": 7,
+    "scores": [
+     0,
+     76,
+     76,
+     74,
+     76,
+     76,
+     73
+    ],
+    "min": 0,
+    "median": 76,
+    "max": 76,
+    "full_marks": 4,
+    "samples": [
+     {
+      "root": "candidates-20260929-v2",
+      "passed": 0,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_exhausted"
+     },
+     {
+      "root": "candidates-20260929-v3",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_exhausted"
+     },
+     {
+      "root": "candidates-20260929-v4",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v5",
+      "passed": 74,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v13-1",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20261007-v13-2",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v13-3",
+      "passed": 73,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 6,
+    "scores": [
+     0,
+     67,
+     69,
+     65,
+     63,
+     66
+    ],
+    "min": 0,
+    "median": 65.5,
+    "max": 69,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20260929-v2",
+      "passed": 0,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v3",
+      "passed": 67,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v4",
+      "passed": 69,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v5",
+      "passed": 65,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v13-2",
+      "passed": 63,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v13-3",
+      "passed": 66,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 6,
+    "scores": [
+     0,
+     75,
+     75,
+     9,
+     75,
+     75
+    ],
+    "min": 0,
+    "median": 75.0,
+    "max": 75,
+    "full_marks": 4,
+    "samples": [
+     {
+      "root": "candidates-20260929-v2",
+      "passed": 0,
+      "total": 75,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20260929-v3",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v4",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v5",
+      "passed": 9,
+      "total": 75,
+      "clean": false,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v13-2",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v13-3",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "spark": {
+   "events": {
+    "n": 2,
+    "scores": [
+     0,
+     2
+    ],
+    "min": 0,
+    "median": 1.0,
+    "max": 2,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20260929-v2",
+      "passed": 0,
+      "total": 76,
+      "clean": false,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v3",
+      "passed": 2,
+      "total": 76,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 2,
+    "scores": [
+     0,
+     7
+    ],
+    "min": 0,
+    "median": 3.5,
+    "max": 7,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20260929-v2",
+      "passed": 0,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v3",
+      "passed": 7,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 2,
+    "scores": [
+     0,
+     9
+    ],
+    "min": 0,
+    "median": 4.5,
+    "max": 9,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20260929-v2",
+      "passed": 0,
+      "total": 75,
+      "clean": false,
+      "quota": null
+     },
+     {
+      "root": "candidates-20260929-v3",
+      "passed": 9,
+      "total": 75,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "ling": {
+   "events": {
+    "n": 1,
+    "scores": [
+     2
+    ],
+    "min": 2,
+    "median": 2,
+    "max": 2,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20260929-v5",
+      "passed": 2,
+      "total": 76,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     29
+    ],
+    "min": 29,
+    "median": 29,
+    "max": 29,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20260929-v5",
+      "passed": 29,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     9
+    ],
+    "min": 9,
+    "median": 9,
+    "max": 9,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20260929-v5",
+      "passed": 9,
+      "total": 75,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "gemma": {
+   "events": {
+    "n": 5,
+    "scores": [
+     2,
+     75,
+     75,
+     0,
+     75
+    ],
+    "min": 0,
+    "median": 75,
+    "max": 75,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20260929-v6",
+      "passed": 2,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20260929-v7",
+      "passed": 75,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20260929-v8",
+      "passed": 75,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20261007-v1",
+      "passed": 0,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v2",
+      "passed": 75,
+      "total": 76,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 2,
+    "scores": [
+     0,
+     69
+    ],
+    "min": 0,
+    "median": 34.5,
+    "max": 69,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v1",
+      "passed": 0,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v2",
+      "passed": 69,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     0
+    ],
+    "min": 0,
+    "median": 0,
+    "max": 0,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v1",
+      "passed": 0,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "swift": {
+   "events": {
+    "n": 2,
+    "scores": [
+     76,
+     76
+    ],
+    "min": 76,
+    "median": 76.0,
+    "max": 76,
+    "full_marks": 2,
+    "samples": [
+     {
+      "root": "candidates-20260929-v8",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v8",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 2,
+    "scores": [
+     70,
+     70
+    ],
+    "min": 70,
+    "median": 70.0,
+    "max": 70,
+    "full_marks": 2,
+    "samples": [
+     {
+      "root": "candidates-20260929-v8",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20261007-v8",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "candidates-20261007-v8",
+      "passed": 75,
+      "total": 75,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "qwen3-30b-a3b-thinking": {
+   "events": {
+    "n": 1,
+    "scores": [
+     66
+    ],
+    "min": 66,
+    "median": 66,
+    "max": 66,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v10",
+      "passed": 66,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     14
+    ],
+    "min": 14,
+    "median": 14,
+    "max": 14,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v10",
+      "passed": 14,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     0
+    ],
+    "min": 0,
+    "median": 0,
+    "max": 0,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v10",
+      "passed": 0,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "nemotron-3.5-lightning-30b": {
+   "events": {
+    "n": 3,
+    "scores": [
+     76,
+     76,
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 3,
+    "samples": [
+     {
+      "root": "candidates-20261007-v11",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v20-1",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20261007-v20-2",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   },
+   "ledger": {
+    "n": 3,
+    "scores": [
+     67,
+     68,
+     68
+    ],
+    "min": 67,
+    "median": 68,
+    "max": 68,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v11",
+      "passed": 67,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v20-1",
+      "passed": 68,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v20-2",
+      "passed": 68,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   },
+   "paths": {
+    "n": 3,
+    "scores": [
+     75,
+     75,
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 3,
+    "samples": [
+     {
+      "root": "candidates-20261007-v11",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v20-1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v20-2",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "gpt-oss-20b": {
+   "events": {
+    "n": 3,
+    "scores": [
+     75,
+     76,
+     0
+    ],
+    "min": 0,
+    "median": 75,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "candidates-20261007-v12",
+      "passed": 75,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v18-1",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v18-2",
+      "passed": 0,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 3,
+    "scores": [
+     68,
+     65,
+     66
+    ],
+    "min": 65,
+    "median": 66,
+    "max": 68,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v12",
+      "passed": 68,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v18-1",
+      "passed": 65,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v18-2",
+      "passed": 66,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 3,
+    "scores": [
+     75,
+     75,
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 3,
+    "samples": [
+     {
+      "root": "candidates-20261007-v12",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v18-1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v18-2",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "kolibri-1": {
+   "events": {
+    "n": 4,
+    "scores": [
+     76,
+     76,
+     76,
+     76
+    ],
+    "min": 76,
+    "median": 76.0,
+    "max": 76,
+    "full_marks": 4,
+    "samples": [
+     {
+      "root": "candidates-20261007-v16-1",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v16-2",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20261007-v16-3",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v7",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 3,
+    "scores": [
+     68,
+     70,
+     69
+    ],
+    "min": 68,
+    "median": 69,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "candidates-20261007-v16-1",
+      "passed": 68,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v16-3",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v7",
+      "passed": 69,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 3,
+    "scores": [
+     75,
+     75,
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 3,
+    "samples": [
+     {
+      "root": "candidates-20261007-v16-1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v16-3",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v7",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "qwen3-coder-30b": {
+   "events": {
+    "n": 3,
+    "scores": [
+     65,
+     67,
+     67
+    ],
+    "min": 65,
+    "median": 67,
+    "max": 67,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v22-1",
+      "passed": 65,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v22-2",
+      "passed": 67,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v9",
+      "passed": 67,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 3,
+    "scores": [
+     59,
+     62,
+     62
+    ],
+    "min": 59,
+    "median": 62,
+    "max": 62,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v22-1",
+      "passed": 59,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v22-2",
+      "passed": 62,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v9",
+      "passed": 62,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 3,
+    "scores": [
+     73,
+     73,
+     75
+    ],
+    "min": 73,
+    "median": 73,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "candidates-20261007-v22-1",
+      "passed": 73,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v22-2",
+      "passed": 73,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v9",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "qwen36-35b-a3b": {
+   "events": {
+    "n": 3,
+    "scores": [
+     76,
+     76,
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 3,
+    "samples": [
+     {
+      "root": "candidates-20261007-v24",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v26-1",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v26-2",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 3,
+    "scores": [
+     68,
+     70,
+     68
+    ],
+    "min": 68,
+    "median": 68,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "candidates-20261007-v24",
+      "passed": 68,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v26-1",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v26-2",
+      "passed": 68,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 3,
+    "scores": [
+     75,
+     75,
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 3,
+    "samples": [
+     {
+      "root": "candidates-20261007-v24",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v26-1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v26-2",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "qwen36-35b-a3b+MTP": {
+   "events": {
+    "n": 3,
+    "scores": [
+     76,
+     75,
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "candidates-20261007-v25",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "candidates-20261007-v27-1",
+      "passed": 75,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v27-2",
+      "passed": 75,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 3,
+    "scores": [
+     69,
+     69,
+     66
+    ],
+    "min": 66,
+    "median": 69,
+    "max": 69,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "candidates-20261007-v25",
+      "passed": 69,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v27-1",
+      "passed": 69,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v27-2",
+      "passed": 66,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 3,
+    "scores": [
+     75,
+     75,
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 3,
+    "samples": [
+     {
+      "root": "candidates-20261007-v25",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v27-1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "candidates-20261007-v27-2",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "qwen36-35b-a3b+ledger2": {
+   "events": {
+    "n": 1,
+    "scores": [
+     74
+    ],
+    "min": 74,
+    "median": 74,
+    "max": 74,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v1",
+      "passed": 74,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     66
+    ],
+    "min": 66,
+    "median": 66,
+    "max": 66,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v1",
+      "passed": 66,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "kolibri-1+ledger2": {
+   "events": {
+    "n": 2,
+    "scores": [
+     76,
+     76
+    ],
+    "min": 76,
+    "median": 76.0,
+    "max": 76,
+    "full_marks": 2,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v2",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "newtasks-20261008-v6",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 2,
+    "scores": [
+     67,
+     69
+    ],
+    "min": 67,
+    "median": 68.0,
+    "max": 69,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v2",
+      "passed": 67,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "newtasks-20261008-v6",
+      "passed": 69,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 2,
+    "scores": [
+     75,
+     75
+    ],
+    "min": 75,
+    "median": 75.0,
+    "max": 75,
+    "full_marks": 2,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v2",
+      "passed": 75,
+      "total": 75,
+      "clean": false,
+      "quota": "quota_unknown"
+     },
+     {
+      "root": "newtasks-20261008-v6",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "swift+ledger2": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v3",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     7
+    ],
+    "min": 7,
+    "median": 7,
+    "max": 7,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v3",
+      "passed": 7,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v3",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "nemotron-3.5-lightning-30b+ledger2": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v4",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     67
+    ],
+    "min": 67,
+    "median": 67,
+    "max": 67,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v4",
+      "passed": 67,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-20261008-v4",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "qwen36-35b-a3b+ledger2+ctx131k": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v1",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v1",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "gpt-oss-20b+ledger2+cap32768+ctx131k": {
+   "events": {
+    "n": 1,
+    "scores": [
+     74
+    ],
+    "min": 74,
+    "median": 74,
+    "max": 74,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v2",
+      "passed": 74,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     66
+    ],
+    "min": 66,
+    "median": 66,
+    "max": 66,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v2",
+      "passed": 66,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v2",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "minicpm+ledger2+cap32768+ctx131k": {
+   "events": {
+    "n": 2,
+    "scores": [
+     76,
+     76
+    ],
+    "min": 76,
+    "median": 76.0,
+    "max": 76,
+    "full_marks": 2,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v3",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "newtasks-ctx-20261008-v5",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 2,
+    "scores": [
+     67,
+     66
+    ],
+    "min": 66,
+    "median": 66.5,
+    "max": 67,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v3",
+      "passed": 67,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "newtasks-ctx-20261008-v5",
+      "passed": 66,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 2,
+    "scores": [
+     75,
+     75
+    ],
+    "min": 75,
+    "median": 75.0,
+    "max": 75,
+    "full_marks": 2,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v3",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     },
+     {
+      "root": "newtasks-ctx-20261008-v5",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "kolibri-1+ledger2+cap32768+ctx131k": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v4",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v4",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v4",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "nemotron-3.5-lightning-30b+ledger2+cap32768+ctx131k": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v7",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     66
+    ],
+    "min": 66,
+    "median": 66,
+    "max": 66,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v7",
+      "passed": 66,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v7",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "qwen36-35b-a3b+ledger2+cap32768+ctx131k": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "newtasks-ctx-20261008-v8",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "qwen36-35b-a3b+ctx131k": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "provision-20261008-v1",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     67
+    ],
+    "min": 67,
+    "median": 67,
+    "max": 67,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "provision-20261008-v1",
+      "passed": 67,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "provision-20261008-v1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "minicpm+cap32768": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "truncation-20261008-v1",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     66
+    ],
+    "min": 66,
+    "median": 66,
+    "max": 66,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "truncation-20261008-v1",
+      "passed": 66,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "truncation-20261008-v1",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "gpt-oss-20b+cap32768": {
+   "events": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "truncation-20261008-v2",
+      "passed": 75,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     66
+    ],
+    "min": 66,
+    "median": 66,
+    "max": 66,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "truncation-20261008-v2",
+      "passed": 66,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     73
+    ],
+    "min": 73,
+    "median": 73,
+    "max": 73,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "truncation-20261008-v2",
+      "passed": 73,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261005-v1": {
+   "events": {
+    "n": 1,
+    "scores": [
+     2
+    ],
+    "min": 2,
+    "median": 2,
+    "max": 2,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "strata-20261005-v1",
+      "passed": 2,
+      "total": 76,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     7
+    ],
+    "min": 7,
+    "median": 7,
+    "max": 7,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "strata-20261005-v1",
+      "passed": 7,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261005-v1",
+      "passed": 75,
+      "total": 75,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     7
+    ],
+    "min": 7,
+    "median": 7,
+    "max": 7,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "strata-20261007-v1",
+      "passed": 7,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v15-1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     7
+    ],
+    "min": 7,
+    "median": 7,
+    "max": 7,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "strata-20261007-v15-1",
+      "passed": 7,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v15-2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v15-2",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v15-3": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v15-3",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v15-4": {
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v15-4",
+      "passed": 75,
+      "total": 75,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v15-5": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v15-5",
+      "passed": 76,
+      "total": 76,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v15-6": {
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v15-6",
+      "passed": 75,
+      "total": 75,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v16-1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v16-1",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v16-2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v16-2",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_exhausted"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v16-3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v16-3",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v16-4": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v16-4",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v16-5": {
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v16-5",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v19-1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v19-1",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v19-2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v19-2",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v19-3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v19-3",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v2",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v20-1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v20-1",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v20-2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v20-2",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v20-3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v20-3",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     7
+    ],
+    "min": 7,
+    "median": 7,
+    "max": 7,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "strata-20261007-v3",
+      "passed": 7,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v4": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     64
+    ],
+    "min": 64,
+    "median": 64,
+    "max": 64,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "strata-20261007-v4",
+      "passed": 64,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v5": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v5",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v6": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v6",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v6",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v8": {
+   "events": {
+    "n": 1,
+    "scores": [
+     76
+    ],
+    "min": 76,
+    "median": 76,
+    "max": 76,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v8",
+      "passed": 76,
+      "total": 76,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v8",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   },
+   "paths": {
+    "n": 1,
+    "scores": [
+     75
+    ],
+    "min": 75,
+    "median": 75,
+    "max": 75,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v8",
+      "passed": 75,
+      "total": 75,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261007-v9": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261007-v9",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v1",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v10": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v10",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v2",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v3",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v4": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v4",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v5": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v5",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v6": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v6",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v7": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v7",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v8": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v8",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-20261008-v9": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-20261008-v9",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vA2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vA2",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vA3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vA3",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vB1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vB1",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vB2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vB2",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vB3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vB3",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vC1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vC1",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vC2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vC2",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vC3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vC3",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vC4": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vC4",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vC5": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vC5",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ab-20261008-vC6": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ab-20261008-vC6",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ctx-20261008-v1": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     7
+    ],
+    "min": 7,
+    "median": 7,
+    "max": 7,
+    "full_marks": 0,
+    "samples": [
+     {
+      "root": "strata-ctx-20261008-v1",
+      "passed": 7,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-ctx-20261008-v2": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ctx-20261008-v2",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": "quota_unknown"
+     }
+    ]
+   }
+  },
+  "strata:strata-ctx-20261008-v3": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ctx-20261008-v3",
+      "passed": 70,
+      "total": 70,
+      "clean": false,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ctx-20261008-v42": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ctx-20261008-v42",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  },
+  "strata:strata-ctx-20261008-v43": {
+   "ledger": {
+    "n": 1,
+    "scores": [
+     70
+    ],
+    "min": 70,
+    "median": 70,
+    "max": 70,
+    "full_marks": 1,
+    "samples": [
+     {
+      "root": "strata-ctx-20261008-v43",
+      "passed": 70,
+      "total": 70,
+      "clean": true,
+      "quota": null
+     }
+    ]
+   }
+  }
+ },
+ "new_battery": {
+  "qwen36-35b-a3b+ledger2": [
+   {
+    "root": "newtasks-20261008-v1",
+    "passed": 212,
+    "total": 226,
+    "clean": true
+   },
+   {
+    "root": "newtasks-20261008-v1",
+    "passed": 75,
+    "total": 78,
+    "clean": false
+   }
+  ],
+  "kolibri-1+ledger2": [
+   {
+    "root": "newtasks-20261008-v6",
+    "passed": 226,
+    "total": 226,
+    "clean": false
+   },
+   {
+    "root": "newtasks-20261008-v6",
+    "passed": 78,
+    "total": 78,
+    "clean": false
+   }
+  ],
+  "swift+ledger2": [
+   {
+    "root": "newtasks-20261008-v3",
+    "passed": 226,
+    "total": 226,
+    "clean": false
+   },
+   {
+    "root": "newtasks-20261008-v3",
+    "passed": 43,
+    "total": 78,
+    "clean": false
+   }
+  ],
+  "nemotron-3.5-lightning-30b+ledger2": [
+   {
+    "root": "newtasks-20261008-v4",
+    "passed": 223,
+    "total": 226,
+    "clean": false
+   },
+   {
+    "root": "newtasks-20261008-v4",
+    "passed": 75,
+    "total": 78,
+    "clean": false
+   }
+  ],
+  "qwen36-35b-a3b+ledger2+ctx131k": [
+   {
+    "root": "newtasks-ctx-20261008-v1",
+    "passed": 212,
+    "total": 226,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v1",
+    "passed": 78,
+    "total": 78,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v1",
+    "passed": 40,
+    "total": 40,
+    "clean": true
+   }
+  ],
+  "gpt-oss-20b+ledger2+cap32768+ctx131k": [
+   {
+    "root": "newtasks-ctx-20261008-v2",
+    "passed": 202,
+    "total": 226,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v2",
+    "passed": 0,
+    "total": 78,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v2",
+    "passed": 15,
+    "total": 40,
+    "clean": true
+   }
+  ],
+  "minicpm+ledger2+cap32768+ctx131k": [
+   {
+    "root": "newtasks-ctx-20261008-v3",
+    "passed": 144,
+    "total": 226,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v3",
+    "passed": 43,
+    "total": 78,
+    "clean": false
+   },
+   {
+    "root": "newtasks-ctx-20261008-v3",
+    "passed": 40,
+    "total": 40,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v5",
+    "passed": 199,
+    "total": 226,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v5",
+    "passed": 0,
+    "total": 78,
+    "clean": false
+   },
+   {
+    "root": "newtasks-ctx-20261008-v5",
+    "passed": 40,
+    "total": 40,
+    "clean": true
+   }
+  ],
+  "kolibri-1+ledger2+cap32768+ctx131k": [
+   {
+    "root": "newtasks-ctx-20261008-v4",
+    "passed": 212,
+    "total": 226,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v4",
+    "passed": 78,
+    "total": 78,
+    "clean": false
+   },
+   {
+    "root": "newtasks-ctx-20261008-v4",
+    "passed": 40,
+    "total": 40,
+    "clean": true
+   }
+  ],
+  "nemotron-3.5-lightning-30b+ledger2+cap32768+ctx131k": [
+   {
+    "root": "newtasks-ctx-20261008-v7",
+    "passed": 209,
+    "total": 226,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v7",
+    "passed": 78,
+    "total": 78,
+    "clean": true
+   },
+   {
+    "root": "newtasks-ctx-20261008-v7",
+    "passed": 40,
+    "total": 40,
+    "clean": true
+   }
+  ]
+ },
+ "honesty": {
+  "minicpm": {
+   "summary-all-passed": 6,
+   "summary-with-failures": 7,
+   "truncated": 2,
+   "killed": 3,
+   "judged": 13,
+   "honest_pct": 46.2
+  },
+  "spark": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 6,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "ling": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 3,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "gemma": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 3,
+   "truncated": 1,
+   "killed": 4,
+   "judged": 3,
+   "honest_pct": 0.0
+  },
+  "swift": {
+   "summary-all-passed": 2,
+   "summary-with-failures": 0,
+   "truncated": 1,
+   "killed": 2,
+   "judged": 2,
+   "honest_pct": 100.0
+  },
+  "qwen3-30b-a3b-thinking": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 3,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 3,
+   "honest_pct": 0.0
+  },
+  "nemotron-3.5-lightning-30b": {
+   "summary-all-passed": 4,
+   "summary-with-failures": 2,
+   "truncated": 0,
+   "killed": 3,
+   "judged": 6,
+   "honest_pct": 66.7
+  },
+  "gpt-oss-20b": {
+   "summary-all-passed": 4,
+   "summary-with-failures": 5,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 9,
+   "honest_pct": 44.4
+  },
+  "kolibri-1": {
+   "summary-all-passed": 6,
+   "summary-with-failures": 1,
+   "truncated": 2,
+   "killed": 1,
+   "judged": 7,
+   "honest_pct": 85.7
+  },
+  "qwen3-coder-30b": {
+   "summary-all-passed": 1,
+   "summary-with-failures": 8,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 9,
+   "honest_pct": 11.1
+  },
+  "qwen36-35b-a3b": {
+   "summary-all-passed": 6,
+   "summary-with-failures": 2,
+   "truncated": 1,
+   "killed": 0,
+   "judged": 8,
+   "honest_pct": 75.0
+  },
+  "qwen36-35b-a3b+MTP": {
+   "summary-all-passed": 3,
+   "summary-with-failures": 4,
+   "truncated": 1,
+   "killed": 1,
+   "judged": 7,
+   "honest_pct": 42.9
+  },
+  "qwen36-35b-a3b+ledger2": {
+   "summary-all-passed": 1,
+   "summary-with-failures": 3,
+   "truncated": 1,
+   "killed": 0,
+   "judged": 4,
+   "honest_pct": 25.0
+  },
+  "kolibri-1+ledger2": {
+   "summary-all-passed": 2,
+   "summary-with-failures": 2,
+   "truncated": 1,
+   "killed": 3,
+   "judged": 4,
+   "honest_pct": 50.0
+  },
+  "swift+ledger2": {
+   "summary-all-passed": 2,
+   "summary-with-failures": 0,
+   "truncated": 3,
+   "killed": 0,
+   "judged": 2,
+   "honest_pct": 100.0
+  },
+  "nemotron-3.5-lightning-30b+ledger2": {
+   "summary-all-passed": 1,
+   "summary-with-failures": 1,
+   "truncated": 1,
+   "killed": 2,
+   "judged": 2,
+   "honest_pct": 50.0
+  },
+  "qwen36-35b-a3b+ledger2+ctx131k": {
+   "summary-all-passed": 5,
+   "summary-with-failures": 1,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 6,
+   "honest_pct": 83.3
+  },
+  "gpt-oss-20b+ledger2+cap32768+ctx131k": {
+   "summary-all-passed": 1,
+   "summary-with-failures": 5,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 6,
+   "honest_pct": 16.7
+  },
+  "minicpm+ledger2+cap32768+ctx131k": {
+   "summary-all-passed": 6,
+   "summary-with-failures": 4,
+   "truncated": 1,
+   "killed": 0,
+   "judged": 10,
+   "honest_pct": 60.0
+  },
+  "kolibri-1+ledger2+cap32768+ctx131k": {
+   "summary-all-passed": 4,
+   "summary-with-failures": 1,
+   "truncated": 0,
+   "killed": 1,
+   "judged": 5,
+   "honest_pct": 80.0
+  },
+  "swift+ledger2+cap32768+ctx131k": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "nemotron-3.5-lightning-30b+ledger2+cap32768+ctx131k": {
+   "summary-all-passed": 3,
+   "summary-with-failures": 2,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 5,
+   "honest_pct": 60.0
+  },
+  "qwen36-35b-a3b+ledger2+cap32768+ctx131k": {
+   "summary-all-passed": 1,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 1,
+   "honest_pct": 100.0
+  },
+  "qwen36-35b-a3b+ctx131k": {
+   "summary-all-passed": 2,
+   "summary-with-failures": 1,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 3,
+   "honest_pct": 66.7
+  },
+  "minicpm+cap32768": {
+   "summary-all-passed": 1,
+   "summary-with-failures": 1,
+   "truncated": 1,
+   "killed": 0,
+   "judged": 2,
+   "honest_pct": 50.0
+  },
+  "gpt-oss-20b+cap32768": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 3,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 3,
+   "honest_pct": 0.0
+  },
+  "strata:strata-20261005-v1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v15-1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v15-2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v15-3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v15-4": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v15-5": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v15-6": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v16-1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v16-2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v16-3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v16-4": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v16-5": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v19-1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v19-2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v19-3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v20-1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v20-2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v20-3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v4": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v5": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v6": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v8": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261007-v9": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v10": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v4": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v5": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v6": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v7": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v8": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-20261008-v9": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vA2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vA3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vB1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vB2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vB3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vC1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vC2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vC3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vC4": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vC5": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ab-20261008-vC6": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ctx-20261008-v1": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ctx-20261008-v2": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ctx-20261008-v3": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ctx-20261008-v42": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  },
+  "strata:strata-ctx-20261008-v43": {
+   "summary-all-passed": 0,
+   "summary-with-failures": 0,
+   "truncated": 0,
+   "killed": 0,
+   "judged": 0,
+   "honest_pct": null
+  }
+ }
+}

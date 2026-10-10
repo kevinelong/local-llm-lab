@@ -1,0 +1,46 @@
+[
+ {
+  "name": "minicpm5-2b",
+  "arch": "llama",
+  "params": null,
+  "expert_tensors": 0,
+  "dense_ffn_tensors": 126,
+  "expert_meta": {}
+ },
+ {
+  "name": "swift-bonsai-2-pq2",
+  "arch": "qwen35",
+  "params": null,
+  "expert_tensors": 0,
+  "dense_ffn_tensors": 192,
+  "expert_meta": {}
+ },
+ {
+  "name": "kolibri-1-78b",
+  "arch": "kolibri1",
+  "params": null,
+  "expert_tensors": 150,
+  "dense_ffn_tensors": 0,
+  "expert_meta": {
+   "kolibri1.expert_count": 384,
+   "kolibri1.expert_used_count": 6,
+   "kolibri1.expert_feed_forward_length": 512,
+   "kolibri1.expert_shared_feed_forward_length": 512,
+   "kolibri1.expert_shared_count": 1,
+   "kolibri1.expert_weights_norm": false,
+   "kolibri1.expert_gating_func": 5
+  }
+ },
+ {
+  "name": "gemma-4-26b-a4b",
+  "arch": "gemma4",
+  "params": null,
+  "expert_tensors": 90,
+  "dense_ffn_tensors": 90,
+  "expert_meta": {
+   "gemma4.expert_count": 128,
+   "gemma4.expert_used_count": 8,
+   "gemma4.expert_feed_forward_length": 704
+  }
+ }
+]

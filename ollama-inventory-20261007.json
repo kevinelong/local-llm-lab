@@ -1,0 +1,218 @@
+[
+ {
+  "arch": "amd64",
+  "model": "deepseek-r1",
+  "tag": "8b",
+  "gib": 4.87,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-f64cd5418e4b038ef90cf5fab6eb7ce6ae8f18909416822751d3b9fca827c2ab"
+ },
+ {
+  "arch": "amd64",
+  "model": "gemma3",
+  "tag": "12b",
+  "gib": 7.59,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-6819964c2bcf53f6dd3593f9571e91cbf2bab9665493f870f96eeb29873049b4"
+ },
+ {
+  "arch": "amd64",
+  "model": "gemma4",
+  "tag": "12b",
+  "gib": 7.04,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-c805f5b265d8e695c44f4065dfc368206cd8026447604925fef8db57ee32ee23"
+ },
+ {
+  "arch": "amd64",
+  "model": "gpt-oss",
+  "tag": "20b",
+  "gib": 12.85,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-776beb3adb235076157cfea408b8ea2a2d25eae99d7f5da997f607f6b69fa0fa"
+ },
+ {
+  "arch": "amd64",
+  "model": "granite3-moe",
+  "tag": "3b",
+  "gib": 1.92,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-3ef6bfc0337c0e9246fbf29b0f8265f6f56164aab42ea06fdd822591c9f8b23d"
+ },
+ {
+  "arch": "amd64",
+  "model": "granite4.2",
+  "tag": "8b",
+  "gib": 4.98,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-d86276ca46ace9753cefd3aaa5309b99a926479860916e87a873e332f8c79dfc"
+ },
+ {
+  "arch": "amd64",
+  "model": "lab-20260915-omni-16k",
+  "tag": "latest",
+  "gib": 5.34,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-3d561cca0c790e33a88dd2ce5e4be9ee59176212b2fc62d7c4c2654821bc59d1"
+ },
+ {
+  "arch": "amd64",
+  "model": "lab-20260915-qwen-16k",
+  "tag": "latest",
+  "gib": 6.14,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-ba00e09dc1fb0d68392e1088965f3653c33181a340ff090a578958621ed9e606"
+ },
+ {
+  "arch": "amd64",
+  "model": "lab-20260915-smoffyy-16k",
+  "tag": "latest",
+  "gib": 3.15,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-32609f539089a14f65166adf62fce215bfbc581b8085a230264b229d41d33204"
+ },
+ {
+  "arch": "amd64",
+  "model": "muse-glimmer",
+  "tag": "30b",
+  "gib": 16.91,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-57b82200bf7c0d7d7051c1349e584f193db42799c74529a96c83addd0fa80147"
+ },
+ {
+  "arch": "amd64",
+  "model": "nemotron-3.5-lightning",
+  "tag": "30b",
+  "gib": 23.68,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-7101a4a1d9e30ce87a71265e93215173f5e4cc84883e5cf1ef88862547f31fcd"
+ },
+ {
+  "arch": "amd64",
+  "model": "night-20260916-omni-16384",
+  "tag": "latest",
+  "gib": 5.34,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-3d561cca0c790e33a88dd2ce5e4be9ee59176212b2fc62d7c4c2654821bc59d1"
+ },
+ {
+  "arch": "amd64",
+  "model": "night-20260916-omni-32768",
+  "tag": "latest",
+  "gib": 5.34,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-3d561cca0c790e33a88dd2ce5e4be9ee59176212b2fc62d7c4c2654821bc59d1"
+ },
+ {
+  "arch": "amd64",
+  "model": "night-20260916-qwen-16384",
+  "tag": "latest",
+  "gib": 6.14,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-ba00e09dc1fb0d68392e1088965f3653c33181a340ff090a578958621ed9e606"
+ },
+ {
+  "arch": "amd64",
+  "model": "night-20260916-qwen-32768",
+  "tag": "latest",
+  "gib": 6.14,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-ba00e09dc1fb0d68392e1088965f3653c33181a340ff090a578958621ed9e606"
+ },
+ {
+  "arch": "amd64",
+  "model": "night-20260916-smoffyy-16384",
+  "tag": "latest",
+  "gib": 3.15,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-32609f539089a14f65166adf62fce215bfbc581b8085a230264b229d41d33204"
+ },
+ {
+  "arch": "amd64",
+  "model": "night-20260916-smoffyy-32768",
+  "tag": "latest",
+  "gib": 3.15,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-32609f539089a14f65166adf62fce215bfbc581b8085a230264b229d41d33204"
+ },
+ {
+  "arch": "amd64",
+  "model": "ornith-1.5",
+  "tag": "9b",
+  "gib": 6.1,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-3d561cca0c790e33a88dd2ce5e4be9ee59176212b2fc62d7c4c2654821bc59d1"
+ },
+ {
+  "arch": "amd64",
+  "model": "qwen2.5-coder",
+  "tag": "7b",
+  "gib": 4.36,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-d9bb33f2786931fea42f50936a2424818aa2f14500638af2f01861eb2c8fb446"
+ },
+ {
+  "arch": "amd64",
+  "model": "qwen3",
+  "tag": "14b",
+  "gib": 8.64,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-78b3b822087d5199783c8203553a5a92ce5eb7b683a5a81003f8efea9b399d74"
+ },
+ {
+  "arch": "amd64",
+  "model": "qwen3",
+  "tag": "30b-a3b",
+  "gib": 17.28,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-3cdc64c2b371af88ae18b4cdac63d1097f76a8f6fd23d785aaaaa02c59450d61"
+ },
+ {
+  "arch": "amd64",
+  "model": "qwen3",
+  "tag": "8b",
+  "gib": 4.87,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-05a61d37b08453e59290add468e3bb2f688e23a01e967fecb0e2fa41218cea76"
+ },
+ {
+  "arch": "amd64",
+  "model": "qwen3-coder",
+  "tag": "30b",
+  "gib": 17.28,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-24a94682582c6045f4950846fc7711479dcecb478b86759f0306a2ef8484d318"
+ },
+ {
+  "arch": "amd64",
+  "model": "qwen3.5",
+  "tag": "9b",
+  "gib": 6.14,
+  "params": 0,
+  "expert_keys": 0,
+  "blob": "C:\\Users\\kevin\\.ollama\\models\\blobs\\sha256-be595b49fe22012bd1f5605ec14c7ffa58331783a88a4fd8c22e5fc8ec42cf9f"
+ }
+]

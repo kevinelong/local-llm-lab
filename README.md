@@ -1,13 +1,45 @@
 # local-llm-lab
 
+**2026-10-10 &middot; [Two instruments, four profiles, and a rule that reverses four readings](../ai_bench/new-items-20261007/RECENT-WORK-2026-10-10.html)**
+&ndash; the knowledge A/B (Qwen3.6 Q4_K_M 974/1100 = 88.5 % vs Qwen3.8-Flash-Next Q2_0 987/1100 = 89.7 %,
+a 1.2-point gap against a 1.33-point standard error &mdash; indistinguishable, and the predicted low-bit
+recall penalty did not appear), the Intel Arc iGPU measured at **0.39x** the RTX 5070 (with the first
+attempt void because `CUDA_VISIBLE_DEVICES=''` means *unset*), the **starter-baseline rule** that
+reversed four readings, and four nine-task profiles with `repo2` as the new discriminator.
+
+**2026-10-09 &middot; [The new-task suite, measured end to end](../ai_bench/new-items-20261007/RECENT-WORK-2026-10-09.html)**
+&ndash; the 414-check ranking (events/paths retired), Swift's context ladder (32,768 or nothing), the
+Strata port and the two bugs it had to fix, and the variance work.
+
+September 23: [completed follow-up results](FOLLOWUP-RESULTS-2026-09-23.md),
+[trace review](COMPLETION-REVIEW-2026-09-23.md) and
+[fixed completion experiment](COMPLETION-PLAN-2026-09-23.md).
+Check the [current report](../ai_bench/completion-20260923-v1/REPORT.md) and
+status.json before inference. The completion and overnight v3 queues are complete with cleanup
+verified. [Memory-qualified CPU reruns](CPU-HEADROOM-PLAN-2026-09-23.md) are
+prepared and held for headroom; original results remain separate.
+
+September 22 continuation: [Go comparison evidence](CONTINUATION-RESULTS-2026-09-22.md),
+[staged versus one-shot smoke](STAGING-RESULTS-2026-09-22.md), and
+[Bonsai packing measurements](PACKING-RESULTS-2026-09-22.md).
+The staging smoke hit its wall limit in both treatments, so the 30-run main
+comparison remains held. Read each report's run status and limitations before
+using its measurements.
+
+Current experiments: [September 20 results](RESULTS-2026-09-20.md) track evaluator v2, the current Ollama replay, a pinned Pi comparison, and Bonsai 2 compatibility. Check the report's status before treating the round as complete.
+
+Latest review: [September 20 research and audit](REVIEW-2026-09-20.md) covers this week's releases and corrects the historical cycle-failure explanation. Rechecking archived programs also exposed a self-test data overwrite in the Claude artifact; original scores are preserved.
+
 Field notes from running AI LLM harnesses and local models on a deliberately limited desktop
 (RTX 5070 12 GB / 32 GB RAM). What actually fits, what runs fast, which harness to use, and how we
-tested it. Updated 2026-09-15.
+tested it. Updated 2026-09-20.
 
 This is a working lab notebook, not a product. Numbers are from one machine ("DARKTEXAS"); treat them
 as directional. Research candidates are labeled separately from measured results.
 
-Latest: [September 15 experiments](RESULTS-2026-09-15.md) add Pi, OmniCoder, a small Smoffyy variant, and a CPU-only baseline. The historical recommendations below precede that round.
+Earlier baseline: [September 15 experiments](RESULTS-2026-09-15.md) add Pi, OmniCoder, a small Smoffyy variant, and a CPU-only baseline. The historical recommendations below precede that round.
+
+Follow-up: [September 16 repeated trials](RESULTS-2026-09-16-OVERNIGHT.md) and [large tool-call streaming diagnosis](STREAMING-DIAGNOSIS-2026-09-16.md). The overnight hard-task failures exposed an output-limit configuration problem; see the diagnosis before interpreting their 0/10 scores.
 
 ## LLM vs harness (how they relate)
 

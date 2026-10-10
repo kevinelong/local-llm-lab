@@ -1,0 +1,49 @@
+{
+ "events": {
+  "artifacts": 50,
+  "checks": 76,
+  "saturated": 2,
+  "top_artifacts": 44,
+  "live_checks": 5,
+  "splitting_cases": "case 9 (41/44), case 10 (43/44), case 11 (41/44), case 12 (41/44), case 15 (40/44)"
+ },
+ "ledger": {
+  "artifacts": 86,
+  "checks": 70,
+  "saturated": 0,
+  "top_artifacts": 75,
+  "live_checks": 13,
+  "splitting_cases": "case 0 (61/75), case 5 (57/75), case 6 (68/75), case 7 (55/75), case 9 (74/75), case 11 (74/75), case 12 (74/75), case 14 (74/75), case 15 (74/75), case 16 (74/75), case 17 (74/75), case 18 (74/75), case 19 (52/75)"
+ },
+ "ledger2": {
+  "artifacts": 120,
+  "checks": 226,
+  "saturated": 39,
+  "top_artifacts": 90,
+  "live_checks": 40,
+  "splitting_cases": "case 0 (75/90), case 5 (75/90), case 6 (86/90), case 7 (70/90), case 11 (88/90), case 12 (88/90), case 19 (65/90), case 70 (65/90), case 71 (64/90), case 72 (64/90), case 73 (65/90), case 74 (64/90), case 75 (64/90), case 76 (65/90)"
+ },
+ "longctx": {
+  "artifacts": 5,
+  "checks": 40,
+  "saturated": 15,
+  "top_artifacts": 4,
+  "live_checks": 0
+ },
+ "paths": {
+  "artifacts": 44,
+  "checks": 75,
+  "saturated": 9,
+  "top_artifacts": 43,
+  "live_checks": 2,
+  "splitting_cases": "case 23 (40/43), case 24 (40/43)"
+ },
+ "repo": {
+  "artifacts": 9,
+  "checks": 78,
+  "saturated": 0,
+  "top_artifacts": 5,
+  "live_checks": 3,
+  "splitting_cases": "case 63 (3/5), case 64 (3/5), case 65 (3/5)"
+ }
+}

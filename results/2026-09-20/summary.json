@@ -1,0 +1,1158 @@
+{
+  "status": {
+    "phase": "complete",
+    "utc": "2026-09-20T20:15:34.686499+00:00",
+    "pid": 2081480,
+    "replays": 3,
+    "primary_agent_runs": 21,
+    "workspace_diagnostic_runs": 1
+  },
+  "replay": [
+    {
+      "cap": 12288,
+      "seconds": 94.45300000003772,
+      "http_status": 200,
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "done_marker": true,
+      "usage": [
+        {
+          "prompt_tokens": 2530,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "completion_tokens": 7223,
+          "total_tokens": 9753
+        }
+      ],
+      "error": null,
+      "valid_tool_json": true,
+      "tool_names": [
+        "write"
+      ],
+      "python_syntax_valid": true
+    },
+    {
+      "cap": 4096,
+      "seconds": 89.92200000002049,
+      "http_status": 200,
+      "finish_reasons": [],
+      "done_marker": false,
+      "usage": [],
+      "error": null,
+      "valid_tool_json": false,
+      "tool_names": []
+    },
+    {
+      "cap": 8192,
+      "seconds": 96.45299999997951,
+      "http_status": 200,
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "done_marker": true,
+      "usage": [
+        {
+          "prompt_tokens": 2530,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "completion_tokens": 7223,
+          "total_tokens": 9753
+        }
+      ],
+      "error": null,
+      "valid_tool_json": true,
+      "tool_names": [
+        "write"
+      ],
+      "python_syntax_valid": true
+    }
+  ],
+  "agents": [
+    {
+      "label": "bonsai-pi-0.86.1-graph-1",
+      "version": "0.86.1",
+      "task": "graph",
+      "repeat": 1,
+      "backend": "bonsai",
+      "context": 16384,
+      "output_limit": 8192,
+      "seconds": 33.03099999995902,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "10298, 1646, 5",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 6,
+      "terminal_signals": 6,
+      "response_caps": [
+        "8192"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2075,
+        "output": 1238,
+        "totalTokens": 15590
+      }
+    },
+    {
+      "label": "bonsai-pi-0.86.1-graph-2",
+      "version": "0.86.1",
+      "task": "graph",
+      "repeat": 2,
+      "backend": "bonsai",
+      "context": 16384,
+      "output_limit": 8192,
+      "seconds": 32.01600000000326,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "10298, 1646, 5",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 6,
+      "terminal_signals": 6,
+      "response_caps": [
+        "8192"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2075,
+        "output": 1242,
+        "totalTokens": 15598
+      }
+    },
+    {
+      "label": "bonsai-pi-0.86.1-graph-3",
+      "version": "0.86.1",
+      "task": "graph",
+      "repeat": 3,
+      "backend": "bonsai",
+      "context": 16384,
+      "output_limit": 8192,
+      "seconds": 33.01600000000326,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "10298, 1646, 5",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 6,
+      "terminal_signals": 6,
+      "response_caps": [
+        "8192"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2075,
+        "output": 1249,
+        "totalTokens": 15612
+      }
+    },
+    {
+      "label": "bonsai-pi-0.86.1-hard-1",
+      "version": "0.86.1",
+      "task": "hard",
+      "repeat": 1,
+      "backend": "bonsai",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 600.375,
+      "clean_finish": false,
+      "score": 0,
+      "total": 21,
+      "success": false,
+      "stop_reason": "toolUse",
+      "tool_calls": 211,
+      "tool_errors": 2,
+      "error": null,
+      "gpu": "10782, 1162, 2",
+      "isolated_workspace": false,
+      "timed_out": true,
+      "captured_requests": 211,
+      "terminal_signals": 211,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 26563,
+        "output": 12183,
+        "totalTokens": 2376528
+      },
+      "historical_score": 0
+    },
+    {
+      "label": "bonsai-pi-0.86.1-hard-1-isolated",
+      "version": "0.86.1",
+      "task": "hard",
+      "repeat": 1,
+      "backend": "bonsai",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 600.5,
+      "clean_finish": false,
+      "score": 16,
+      "total": 21,
+      "success": false,
+      "stop_reason": "toolUse",
+      "tool_calls": 206,
+      "tool_errors": 6,
+      "error": null,
+      "gpu": "10792, 1152, 3",
+      "isolated_workspace": true,
+      "timed_out": true,
+      "captured_requests": 211,
+      "terminal_signals": 210,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 97478,
+        "output": 17658,
+        "totalTokens": 2868499
+      },
+      "historical_score": 9
+    },
+    {
+      "label": "bonsai-pi-0.86.1-intervals-1",
+      "version": "0.86.1",
+      "task": "intervals",
+      "repeat": 1,
+      "backend": "bonsai",
+      "context": 16384,
+      "output_limit": 8192,
+      "seconds": 28.01600000000326,
+      "clean_finish": true,
+      "score": 61,
+      "total": 61,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "10298, 1646, 95",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 6,
+      "terminal_signals": 6,
+      "response_caps": [
+        "8192"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2079,
+        "output": 1060,
+        "totalTokens": 15006
+      }
+    },
+    {
+      "label": "bonsai-pi-0.86.1-intervals-2",
+      "version": "0.86.1",
+      "task": "intervals",
+      "repeat": 2,
+      "backend": "bonsai",
+      "context": 16384,
+      "output_limit": 8192,
+      "seconds": 28.01600000000326,
+      "clean_finish": true,
+      "score": 61,
+      "total": 61,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "10319, 1625, 4",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 6,
+      "terminal_signals": 6,
+      "response_caps": [
+        "8192"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2079,
+        "output": 1167,
+        "totalTokens": 15120
+      }
+    },
+    {
+      "label": "bonsai-pi-0.86.1-intervals-3",
+      "version": "0.86.1",
+      "task": "intervals",
+      "repeat": 3,
+      "backend": "bonsai",
+      "context": 16384,
+      "output_limit": 8192,
+      "seconds": 26.03100000001723,
+      "clean_finish": true,
+      "score": 61,
+      "total": 61,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "10319, 1625, 4",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 6,
+      "terminal_signals": 6,
+      "response_caps": [
+        "8192"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2079,
+        "output": 1167,
+        "totalTokens": 15120
+      }
+    },
+    {
+      "label": "ollama-pi-0.85.1-graph-1",
+      "version": "0.85.1",
+      "task": "graph",
+      "repeat": 1,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 23.01600000000326,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "9159, 2785, 6",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 7,
+      "terminal_signals": 7,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "False"
+      ],
+      "usage": {
+        "input": 2067,
+        "output": 913,
+        "totalTokens": 16250
+      }
+    },
+    {
+      "label": "ollama-pi-0.85.1-graph-2",
+      "version": "0.85.1",
+      "task": "graph",
+      "repeat": 2,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 22.01600000000326,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "9159, 2785, 6",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 7,
+      "terminal_signals": 7,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "False"
+      ],
+      "usage": {
+        "input": 2067,
+        "output": 867,
+        "totalTokens": 16081
+      }
+    },
+    {
+      "label": "ollama-pi-0.85.1-graph-3",
+      "version": "0.85.1",
+      "task": "graph",
+      "repeat": 3,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 21.01600000000326,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 5,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "9159, 2785, 4",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 6,
+      "terminal_signals": 6,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "False"
+      ],
+      "usage": {
+        "input": 1960,
+        "output": 807,
+        "totalTokens": 13336
+      }
+    },
+    {
+      "label": "ollama-pi-0.85.1-hard-1",
+      "version": "0.85.1",
+      "task": "hard",
+      "repeat": 1,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": null,
+      "clean_finish": false,
+      "score": 0,
+      "total": 21,
+      "success": false,
+      "stop_reason": null,
+      "tool_calls": 38,
+      "tool_errors": 15,
+      "error": "TimeoutExpired(['node', 'C:\\\\Users\\\\kevin\\\\ai_bench\\\\pi-lab\\\\node_modules\\\\@earendil-works\\\\pi-coding-agent\\\\dist\\\\bundle\\\\cli.js', '--offline', '--no-extensions', '--no-skills', '--no-context-files', '--no-prompt-templates', '--no-themes', '--no-session', '--provider', 'lab', '--model', 'night-20260916-omni-32768', '--tools', 'read,write,edit,powershell', '--mode', 'json', '-p', 'Read spec.md and implement every requirement in tasks.py. Work incrementally; run python tasks.py test and repair failures. Python is 3.11.9. Use only standard library. Work only in the current directory. No network, package installation, other agents, or files outside this directory. Finish with a brief summary. Keep file writes and edits incremental; do not repeat identical failing actions.'], 20)",
+      "gpu": null,
+      "isolated_workspace": false,
+      "timed_out": true,
+      "recovered_assessment": true,
+      "captured_requests": 41,
+      "terminal_signals": 41,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "False"
+      ],
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "totalTokens": 0
+      }
+    },
+    {
+      "label": "ollama-pi-0.85.1-intervals-1",
+      "version": "0.85.1",
+      "task": "intervals",
+      "repeat": 1,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 23.01600000000326,
+      "clean_finish": true,
+      "score": 61,
+      "total": 61,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 7,
+      "tool_errors": 1,
+      "error": null,
+      "gpu": "9159, 2785, 3",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 8,
+      "terminal_signals": 8,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "False"
+      ],
+      "usage": {
+        "input": 2126,
+        "output": 899,
+        "totalTokens": 18756
+      }
+    },
+    {
+      "label": "ollama-pi-0.85.1-intervals-2",
+      "version": "0.85.1",
+      "task": "intervals",
+      "repeat": 2,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 27.03200000000652,
+      "clean_finish": true,
+      "score": 17,
+      "total": 61,
+      "success": false,
+      "stop_reason": "stop",
+      "tool_calls": 9,
+      "tool_errors": 2,
+      "error": null,
+      "gpu": "9159, 2785, 92",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 10,
+      "terminal_signals": 10,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "False"
+      ],
+      "usage": {
+        "input": 2338,
+        "output": 1171,
+        "totalTokens": 25120
+      }
+    },
+    {
+      "label": "ollama-pi-0.85.1-intervals-3",
+      "version": "0.85.1",
+      "task": "intervals",
+      "repeat": 3,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 33.03099999995902,
+      "clean_finish": true,
+      "score": 21,
+      "total": 61,
+      "success": false,
+      "stop_reason": "stop",
+      "tool_calls": 12,
+      "tool_errors": 3,
+      "error": null,
+      "gpu": "9159, 2785, 4",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 13,
+      "terminal_signals": 13,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "False"
+      ],
+      "usage": {
+        "input": 2638,
+        "output": 1346,
+        "totalTokens": 35766
+      }
+    },
+    {
+      "label": "ollama-pi-0.86.1-graph-1",
+      "version": "0.86.1",
+      "task": "graph",
+      "repeat": 1,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 25.01600000000326,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "9159, 2785, 4",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 7,
+      "terminal_signals": 7,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2152,
+        "output": 1053,
+        "totalTokens": 17618
+      }
+    },
+    {
+      "label": "ollama-pi-0.86.1-graph-2",
+      "version": "0.86.1",
+      "task": "graph",
+      "repeat": 2,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 25.01500000001397,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 5,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "9159, 2785, 4",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 6,
+      "terminal_signals": 6,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2045,
+        "output": 941,
+        "totalTokens": 14289
+      }
+    },
+    {
+      "label": "ollama-pi-0.86.1-graph-3",
+      "version": "0.86.1",
+      "task": "graph",
+      "repeat": 3,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 31.01600000000326,
+      "clean_finish": true,
+      "score": 55,
+      "total": 55,
+      "success": true,
+      "stop_reason": "stop",
+      "tool_calls": 6,
+      "tool_errors": 0,
+      "error": null,
+      "gpu": "9159, 2785, 4",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 7,
+      "terminal_signals": 7,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2067,
+        "output": 1400,
+        "totalTokens": 18235
+      }
+    },
+    {
+      "label": "ollama-pi-0.86.1-hard-1",
+      "version": "0.86.1",
+      "task": "hard",
+      "repeat": 1,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 277.18799999996554,
+      "clean_finish": true,
+      "score": 17,
+      "total": 21,
+      "success": false,
+      "stop_reason": "stop",
+      "tool_calls": 80,
+      "tool_errors": 15,
+      "error": null,
+      "gpu": "9028, 2916, 4",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 82,
+      "terminal_signals": 82,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 19898,
+        "output": 15135,
+        "totalTokens": 1183943
+      },
+      "historical_score": 10
+    },
+    {
+      "label": "ollama-pi-0.86.1-intervals-1",
+      "version": "0.86.1",
+      "task": "intervals",
+      "repeat": 1,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 29.03100000001723,
+      "clean_finish": true,
+      "score": 17,
+      "total": 61,
+      "success": false,
+      "stop_reason": "stop",
+      "tool_calls": 9,
+      "tool_errors": 2,
+      "error": null,
+      "gpu": "9158, 2786, 3",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 10,
+      "terminal_signals": 10,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2423,
+        "output": 1121,
+        "totalTokens": 26582
+      }
+    },
+    {
+      "label": "ollama-pi-0.86.1-intervals-2",
+      "version": "0.86.1",
+      "task": "intervals",
+      "repeat": 2,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 27.030999999959022,
+      "clean_finish": true,
+      "score": 17,
+      "total": 61,
+      "success": false,
+      "stop_reason": "stop",
+      "tool_calls": 9,
+      "tool_errors": 2,
+      "error": null,
+      "gpu": "9158, 2786, 61",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 10,
+      "terminal_signals": 10,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2423,
+        "output": 882,
+        "totalTokens": 25451
+      }
+    },
+    {
+      "label": "ollama-pi-0.86.1-intervals-3",
+      "version": "0.86.1",
+      "task": "intervals",
+      "repeat": 3,
+      "backend": "ollama",
+      "context": 32768,
+      "output_limit": 12288,
+      "seconds": 30.03100000001723,
+      "clean_finish": true,
+      "score": 17,
+      "total": 61,
+      "success": false,
+      "stop_reason": "stop",
+      "tool_calls": 10,
+      "tool_errors": 2,
+      "error": null,
+      "gpu": "9159, 2785, 6",
+      "isolated_workspace": false,
+      "timed_out": false,
+      "captured_requests": 11,
+      "terminal_signals": 11,
+      "response_caps": [
+        "12288"
+      ],
+      "reasoning_efforts": [
+        "none"
+      ],
+      "strict_schema_values": [
+        "True"
+      ],
+      "usage": {
+        "input": 2506,
+        "output": 1158,
+        "totalTokens": 29519
+      }
+    }
+  ],
+  "bonsai": [
+    {
+      "label": "agent-graph-1",
+      "context": 16384,
+      "gpu_loaded": "10290, 1654, 5",
+      "gpu_after": "2331, 9613, 4",
+      "error": null,
+      "server_lifetime_seconds": 45.87572
+    },
+    {
+      "label": "agent-graph-2",
+      "context": 16384,
+      "gpu_loaded": "10290, 1654, 4",
+      "gpu_after": "2331, 9613, 5",
+      "error": null,
+      "server_lifetime_seconds": 45.820676
+    },
+    {
+      "label": "agent-graph-3",
+      "context": 16384,
+      "gpu_loaded": "10290, 1654, 6",
+      "gpu_after": "2331, 9613, 5",
+      "error": null,
+      "server_lifetime_seconds": 48.237673
+    },
+    {
+      "label": "agent-hard-1",
+      "context": 32768,
+      "gpu_loaded": "10729, 1215, 32",
+      "gpu_after": "1787, 10157, 1",
+      "error": null,
+      "server_lifetime_seconds": 615.632859
+    },
+    {
+      "label": "agent-hard-1-isolated",
+      "context": 32768,
+      "gpu_loaded": "10717, 1227, 0",
+      "gpu_after": "1733, 10211, 5",
+      "error": null,
+      "server_lifetime_seconds": 621.89673
+    },
+    {
+      "label": "agent-intervals-1",
+      "context": 16384,
+      "gpu_loaded": "10290, 1654, 5",
+      "gpu_after": "2331, 9613, 5",
+      "error": null,
+      "server_lifetime_seconds": 40.489655
+    },
+    {
+      "label": "agent-intervals-2",
+      "context": 16384,
+      "gpu_loaded": "10290, 1654, 29",
+      "gpu_after": "2288, 9656, 4",
+      "error": null,
+      "server_lifetime_seconds": 39.890986
+    },
+    {
+      "label": "agent-intervals-3",
+      "context": 16384,
+      "gpu_loaded": "10311, 1633, 30",
+      "gpu_after": "2288, 9656, 6",
+      "error": null,
+      "server_lifetime_seconds": 38.092011
+    },
+    {
+      "label": "controls-16384",
+      "context": 16384,
+      "gpu_loaded": "10290, 1654, 27",
+      "gpu_after": "2331, 9613, 6",
+      "error": null,
+      "server_lifetime_seconds": 18.405969,
+      "text.json": {
+        "correct": true,
+        "seconds": 0.34399999998277053,
+        "gpu": "10296, 1648, 4",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 21,
+          "prompt_ms": 267.456,
+          "prompt_per_token_ms": 12.736,
+          "prompt_per_second": 78.51758793969849,
+          "predicted_n": 3,
+          "predicted_ms": 74.914,
+          "predicted_per_token_ms": 37.457,
+          "predicted_per_second": 26.697279547214137
+        }
+      },
+      "tool-json.json": {
+        "correct": true,
+        "seconds": 1.2190000000409782,
+        "gpu": "10298, 1646, 94",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 276,
+          "prompt_ms": 593.556,
+          "prompt_per_token_ms": 2.1505652173913044,
+          "prompt_per_second": 464.99403594606065,
+          "predicted_n": 26,
+          "predicted_ms": 511.119,
+          "predicted_per_token_ms": 20.444760000000002,
+          "predicted_per_second": 48.91228852772055
+        }
+      },
+      "tool-stream.json": {
+        "correct": true,
+        "seconds": 0.6719999999622814,
+        "gpu": "10298, 1646, 93"
+      },
+      "throughput.json": {
+        "correct": null,
+        "seconds": 4.077999999979511,
+        "gpu": "10298, 1646, 92",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 26,
+          "prompt_ms": 150.707,
+          "prompt_per_token_ms": 5.796423076923077,
+          "prompt_per_second": 172.52018817971296,
+          "predicted_n": 189,
+          "predicted_ms": 3705.87,
+          "predicted_per_token_ms": 19.712074468085106,
+          "predicted_per_second": 50.73032783125151
+        }
+      }
+    },
+    {
+      "label": "controls-8192",
+      "context": 8192,
+      "gpu_loaded": "10100, 1844, 5",
+      "gpu_after": "2591, 9353, 4",
+      "error": null,
+      "server_lifetime_seconds": 19.628522,
+      "text.json": {
+        "correct": true,
+        "seconds": 0.35899999999674037,
+        "gpu": "10106, 1838, 41",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 21,
+          "prompt_ms": 237.191,
+          "prompt_per_token_ms": 11.294809523809525,
+          "prompt_per_second": 88.53624294345065,
+          "predicted_n": 3,
+          "predicted_ms": 81.769,
+          "predicted_per_token_ms": 40.8845,
+          "predicted_per_second": 24.45914710954029
+        }
+      },
+      "tool-json.json": {
+        "correct": true,
+        "seconds": 1.1869999999762513,
+        "gpu": "10108, 1836, 53",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 276,
+          "prompt_ms": 592.779,
+          "prompt_per_token_ms": 2.14775,
+          "prompt_per_second": 465.60353858689325,
+          "predicted_n": 26,
+          "predicted_ms": 430.375,
+          "predicted_per_token_ms": 17.215,
+          "predicted_per_second": 58.088875980249774
+        }
+      },
+      "tool-stream.json": {
+        "correct": true,
+        "seconds": 0.625,
+        "gpu": "10108, 1836, 92"
+      },
+      "throughput.json": {
+        "correct": null,
+        "seconds": 3.5310000000172295,
+        "gpu": "10108, 1836, 92",
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 26,
+          "prompt_ms": 179.605,
+          "prompt_per_token_ms": 6.907884615384615,
+          "prompt_per_second": 144.7621168675705,
+          "predicted_n": 189,
+          "predicted_ms": 3162.221,
+          "predicted_per_token_ms": 16.820324468085108,
+          "predicted_per_second": 59.45188524141735
+        }
+      }
+    }
+  ],
+  "evaluation_validation": {
+    "tasks.aider.py": {
+      "passed": 14,
+      "total": 21,
+      "failures": [
+        "plan_dynamic_priority",
+        "plan_cycle_exit",
+        "ids_never_reused",
+        "csv_roundtrip_state",
+        "selftest_preserves_existing",
+        "selftest_no_real_file",
+        "invalid_commands_and_arguments"
+      ]
+    },
+    "tasks.astra.py": {
+      "passed": 21,
+      "total": 21,
+      "failures": []
+    },
+    "tasks.claude.py": {
+      "passed": 19,
+      "total": 21,
+      "failures": [
+        "selftest_preserves_existing",
+        "selftest_no_real_file"
+      ]
+    },
+    "tasks.codex.py": {
+      "passed": 21,
+      "total": 21,
+      "failures": []
+    },
+    "tasks.dsh.py": {
+      "passed": 21,
+      "total": 21,
+      "failures": []
+    },
+    "crash": {
+      "passed": 0,
+      "total": 21
+    },
+    "always_success": {
+      "passed": 0,
+      "total": 21
+    },
+    "selftest_overwrites": {
+      "detected_by": "selftest_preserves_existing",
+      "error": "self-test changed real data"
+    },
+    "cycle_exit_swallowed": {
+      "detected_by": "plan_cycle_exit",
+      "error": "('plan',): expected exit 1, got 0: cycle detected: 1 2\n"
+    },
+    "import_noop": {
+      "detected_by": "csv_roundtrip_state",
+      "error": "roundtrip state differs or import failed to replace"
+    },
+    "reuse_deleted_ids": {
+      "detected_by": "ids_never_reused",
+      "error": ""
+    }
+  },
+  "replay_identity": {
+    "same_weight_blob": true,
+    "same_parameters": true,
+    "same_template": true,
+    "current_version": {
+      "version": "0.34.2"
+    }
+  },
+  "bonsai_identity": {
+    "model_sha256": "3907dc1658db1f78a9826bf8d5bcb8dc65db0d466388937af57f2294fae62ec1",
+    "runtime_tag": "prism-b10709-9a9394a",
+    "model_bytes": 7206168928,
+    "model_revision": "6ed5e12bf84b7a63069882c91dd9e9218647d17b",
+    "runtime_commit": "9a9394a895b96003ca842a6041cb28ac49a108f7"
+  }
+}
