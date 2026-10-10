@@ -1,5 +1,48 @@
 # local-llm-lab
 
+## Recommendations (measured as of 2026-10-10)
+
+Distilled from the nine-battery suite (693 checks: events, ledger, paths, ledger2, repo, longctx,
+repo2, perf, longctx2) on a 64 GB DDR5 / RTX 5070 12 GB box. Each line is a measurement with its run
+behind it; the dated reports just below carry the tables.
+
+- **Best local configuration: Qwen3.6-35B-A3B Q4_K_M on llama.cpp, provisioned** - context 131,072,
+  reply cap 32,768, thinking budget 6144, MoE experts on the CPU (`--cpu-moe --load-mode none`).
+  **414/414** on the ranking metric, **565/565** on the six-task suite, **692/693** on all nine - the
+  best result recorded here, at 1,300-2,700 s per full sweep.
+- **A streamed low-bit giant ties it, and is cheaper in RAM.** Qwen3.8-Flash-Next Q2_0 served by Strata
+  from disk with a 4 GiB resident budget also scores **414/414 and 692/693**, cell for cell, and answered
+  a 1,100-item knowledge set **31 % faster in wall time** (2,128 s vs 3,078 s). On a 12 GB card that is a
+  real option, not a toy.
+- **What the two stacks know: the same.** 88.5 % vs 89.7 % over 1,100 MMLU + GSM8K items - a 1.2-point
+  gap against a 1.33-point standard error - and the expected low-bit *recall* penalty did not appear.
+  Run a knowledge benchmark before claiming a model is "smarter".
+- **Rank by `ledger2`, `repo` and `repo2`, not by runs of small tasks.** `events` (76) and `paths` (75)
+  are saturated (they split on 5/76 and 3/75 checks in the top group), so the metric is
+  `ledger + ledger2 + repo + longctx` = **414 checks**. `repo2` (55) is where models still fail:
+  34-48/55 for everything except the two leaders at 54/55, whose single miss is the same check.
+- **Report each model at the context it can afford, and say which.** 131,072 for the six local models;
+  **32,768 for Swift Bonsai 2**, which trips the 0.5 GiB GPU floor during load at 65,536 and above;
+  65,536 for Strata. Nothing measured shows the raised context costing a battery.
+- **Before believing a low score, check it against the starter.** A score equal to the unmodified
+  starter's baseline (events 2/76, ledger **7/70**, paths 9/75, ledger2 **62/226**, repo **0/78**,
+  longctx 1/40, repo2 0/55, perf 1/33, longctx2 0/40) means the session **never wrote the file** - a
+  lifecycle fact, not a model verdict. Four published readings were corrected by this rule. Hash the
+  artifact against the starter to settle it; `clean_finish` cannot tell you.
+- **`clean_finish`, `exit 143` and `quota_unknown` are not failures** - all three appear on 70/70 runs.
+  Correctness is `evaluation.passed`, and a session killed at its wall *after* the artifact was complete
+  still scores full marks.
+- **Run repeats before concluding anything.** One model has produced 62-226 on `ledger2` (a no-op and a
+  perfect run), another 144-203, and `repo` has swung 0-78 on one model. Single runs are samples.
+- **Use the RTX 5070 and nothing else.** The Arc iGPU does work through Ollama's Vulkan backend but
+  delivers **0.39x** the discrete card (100.8 vs 260.5 tok/s) while spilling to system RAM, and the NPU
+  has no path in any engine here. The iGPU is at best a second device for small decision/embedding work.
+- **Keep the floors.** 3 / 2 / 0.5 GiB runtime, 9 / 8 / 7.5 GiB initial, one inference workload at a
+  time. A trip is a measurement against the floor: Kolibri currently needs ~3.5 GiB more free *commit*
+  than this box has at rest, and that is the finding - not a reason to lower the bar.
+
+## Reports
+
 **2026-10-10 &middot; [Two instruments, four profiles, and a rule that reverses four readings](../ai_bench/new-items-20261007/RECENT-WORK-2026-10-10.html)**
 &ndash; the knowledge A/B (Qwen3.6 Q4_K_M 974/1100 = 88.5 % vs Qwen3.8-Flash-Next Q2_0 987/1100 = 89.7 %,
 a 1.2-point gap against a 1.33-point standard error &mdash; indistinguishable, and the predicted low-bit
@@ -112,6 +155,10 @@ qwen3-coder:30b driving Aider handled the whole spec. Finding where each over-re
 spec.
 
 ## TL;DR for a 12 GB / 32 GB box
+
+*This section predates the RAM upgrade to 64 GB and the nine-battery suite at the top of this file.
+Its hardware arithmetic still holds - low active parameters decide whether CPU offload is usable - but
+take the model list, the 32 GB reference and the harness pick as historical.*
 
 - **Inference harness: Ollama.** Easiest, GPU-accelerated on Blackwell, OpenAI-compatible API, every agent
   tool plugs into it. LM Studio is a fine GUI alternative; llama.cpp for max control; vLLM only if you are
