@@ -1515,4 +1515,16 @@
   publicly while adding ~390 commits to dormant work this lab did not create. If Kevin names a subset (for
   example `Dropbox/!PROJECTS/`), do it path-scoped, one commit per repository, and leave dirty working trees
   alone - several of those repos have uncommitted work.
+  **Completed the same day, via the GitHub API and without cloning anything** (Kevin asked whether "we can
+  use gh to add the license directly to all public repos that we created": gh is not needed, and neither is
+  WSL - the credential that `git push` already stores is enough). Audit of every public non-fork repo on the
+  account: **262 repos, of which 213 already carried FSL-1.1-MIT** from an earlier pass, **46 had no licence
+  file at all, and all 46 were written through the Contents API** (`PUT /repos/{owner}/{repo}/contents/
+  LICENSE.md` with the file base64-encoded), reusing the preamble style of the existing 213 and verified
+  46/46 to contain the full FSL-1.1-MIT body. **Three were deliberately left alone** because they carry other
+  people's licences: `django-registration` (Copyright James Bennett), `mscgen` (GPL), `pdm` (BSD-3-Clause) -
+  all three are third-party projects sitting on this account and should probably be archived or deleted
+  rather than relicensed. **Caveat for future sessions:** GitHub's licence detection does not know FSL, so a
+  repository's sidebar shows no licence even when the file is present - check the file, never the API's
+  `license` field, when auditing this.
 - Preserve existing work.
