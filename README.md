@@ -174,6 +174,13 @@ tested it. Updated 2026-09-20.
 This is a working lab notebook, not a product. Numbers are from one machine ("DARKTEXAS"); treat them
 as directional. Research candidates are labeled separately from measured results.
 
+## License
+
+[FSL-1.1-ALv2](LICENSE) - the Functional Source License, Version 1.1: source-available, usable for anything
+except a competing commercial product or service, with each version converting to Apache-2.0 on its second
+anniversary. It is **not** an OSI open-source licence, so do not describe it as one. [NOTICE.md](NOTICE.md)
+records the third-party datasets and model outputs inside `instruments/`, whose own terms still apply.
+
 Earlier baseline: [September 15 experiments](RESULTS-2026-09-15.md) add Pi, OmniCoder, a small Smoffyy variant, and a CPU-only baseline. The historical recommendations below precede that round.
 
 Follow-up: [September 16 repeated trials](RESULTS-2026-09-16-OVERNIGHT.md) and [large tool-call streaming diagnosis](STREAMING-DIAGNOSIS-2026-09-16.md). The overnight hard-task failures exposed an output-limit configuration problem; see the diagnosis before interpreting their 0/10 scores.

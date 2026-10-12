@@ -1493,4 +1493,12 @@
   to notes and small text, and never add model weights, packs, logs or anything under `ai_bench` - the 37 GB
   Kolibri GGUF and the ~66 GB Strata pack live there and must never be committed. Push with the existing
   credential helper; if a push fails, report it rather than rewriting history.
+- Licensing, 2026-10-12: this repository is **FSL-1.1-ALv2** (Functional Source License 1.1, ALv2 future
+  licence) - source-available, not OSI open source, converting to Apache-2.0 two years after each version is
+  published. See `LICENSE` and `NOTICE.md`. Two consequences to respect in future edits: **never paste
+  third-party code or data into this repo without checking its licence** (the vendor packs keep their own
+  terms, and the four Anthropic document skills must not be redistributed), and **never describe this repo as
+  open source**. The FSL's only restriction is against a competing commercial product or service; Kevin
+  confirmed "FSL" after asking for "the latest FLS licence", and the licensor line reads "Kevin Long" -
+  correct it if the legal name differs.
 - Preserve existing work.
