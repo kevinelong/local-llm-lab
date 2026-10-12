@@ -1499,6 +1499,20 @@
   third-party code or data into this repo without checking its licence** (the vendor packs keep their own
   terms, and the four Anthropic document skills must not be redistributed), and **never describe this repo as
   open source**. The FSL's only restriction is against a competing commercial product or service; Kevin
-  confirmed "FSL" after asking for "the latest FLS licence", and the licensor line reads "Kevin Ernest Long" -
-  correct it if the legal name differs.
+  confirmed "FSL" after asking for "the latest FLS licence", and the licensor line reads "Kevin Ernest
+  Long" (taken from his existing `score` and `score-dist` licences, not guessed).
+  **Scope, decided 2026-10-12:** FSL-1.1-MIT was applied to the repositories that are Kevin's *and* live or
+  published - this one, `tek/tek-tube`, `local-llm-lab/goproverbs`, plus the ones that already carried it
+  (`micro` = pool-table-streaming, `score`, `score-dist`, `fc`, `fc-app`, `fc-releases`). A full scan then
+  found roughly **390** further git repositories under `C:/Users/kevin`, almost all dormant
+  `Dropbox/IdeaProjects/*` and `Dropbox/GitHub/*` coursework from 2014-2017, and they are deliberately
+  **not** relicensed. Three reasons, not to be re-litigated without Kevin's word: about fifty are copies of
+  *other people's* projects (freeCodeCamp, angular.js, rancher, swift-nio, SwiftyJSON, django-model-utils,
+  data-science-from-scratch, browserify-handbook, Metro-UI-CSS, Reacteroids, DrapsTV_Materials) whose licences
+  are upstream's, and an FSL file there would misattribute authorship; about twenty are Dropbox
+  **cloud-only placeholders**, so their contents are not on disk at all (reads fail with os error 1920) and
+  would have to be hydrated first; and nearly all have **no git remote**, so a licence there changes nothing
+  publicly while adding ~390 commits to dormant work this lab did not create. If Kevin names a subset (for
+  example `Dropbox/!PROJECTS/`), do it path-scoped, one commit per repository, and leave dirty working trees
+  alone - several of those repos have uncommitted work.
 - Preserve existing work.
