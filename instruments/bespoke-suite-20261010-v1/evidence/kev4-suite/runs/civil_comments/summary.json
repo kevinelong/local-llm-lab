@@ -1,0 +1,29 @@
+{
+  "subset": "civil_comments",
+  "types": [
+    "noul"
+  ],
+  "wall_seconds": 16.6,
+  "all": {
+    "count": 300,
+    "correct": 250,
+    "accuracy": 0.8333333333333334,
+    "mean_negative_log_likelihood": 0.43005992091944656,
+    "mean_multiclass_brier": 0.26694218744397213,
+    "mean_binary_brier": 0.13347109372198607,
+    "median_ms": 53.18784998962656,
+    "p95_ms": 80.4224000312388
+  },
+  "by_type": {
+    "noul": {
+      "count": 300,
+      "correct": 250,
+      "accuracy": 0.8333333333333334,
+      "mean_negative_log_likelihood": 0.43005992091944656,
+      "mean_multiclass_brier": 0.26694218744397213,
+      "mean_binary_brier": 0.13347109372198607,
+      "median_ms": 53.18784998962656,
+      "p95_ms": 80.4224000312388
+    }
+  }
+}

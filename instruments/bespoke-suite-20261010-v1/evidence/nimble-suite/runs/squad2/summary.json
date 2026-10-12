@@ -1,0 +1,29 @@
+{
+  "subset": "squad2",
+  "types": [
+    "noul"
+  ],
+  "wall_seconds": 41.4,
+  "all": {
+    "count": 299,
+    "correct": 245,
+    "accuracy": 0.8193979933110368,
+    "mean_negative_log_likelihood": 0.46472332894914675,
+    "mean_multiclass_brier": 0.2678637968598323,
+    "mean_binary_brier": 0.13393189842991615,
+    "median_ms": 128.73810000019148,
+    "p95_ms": 217.29830000549555
+  },
+  "by_type": {
+    "noul": {
+      "count": 299,
+      "correct": 245,
+      "accuracy": 0.8193979933110368,
+      "mean_negative_log_likelihood": 0.46472332894914675,
+      "mean_multiclass_brier": 0.2678637968598323,
+      "mean_binary_brier": 0.13393189842991615,
+      "median_ms": 128.73810000019148,
+      "p95_ms": 217.29830000549555
+    }
+  }
+}

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "natural-1",
+    "stuck": false,
+    "rationale": "Dependency diagnostic rerun after a successful, relevant test repair."
+  },
+  {
+    "id": "natural-2",
+    "stuck": false,
+    "rationale": "Missing-dependency retest after fixing the deps normalization in solution.py."
+  },
+  {
+    "id": "natural-3",
+    "stuck": false,
+    "rationale": "Edge-case test rewritten after diagnostic probes; failures change. Separate test-file policy violation is not a loop label."
+  },
+  {
+    "id": "natural-4",
+    "stuck": true,
+    "rationale": "Three identical local scalar diagnostics, same successful output, no intervening change or polling requirement."
+  },
+  {
+    "id": "natural-5",
+    "stuck": true,
+    "rationale": "Repeated merge probes with unchanged results and then three identical calls, no intervening edits."
+  },
+  {
+    "id": "natural-6",
+    "stuck": false,
+    "rationale": "Malformed-input retest after changing validation and unpacking in solution.py."
+  },
+  {
+    "id": "natural-7",
+    "stuck": true,
+    "rationale": "Three empty directory listings of harness files while implementation remains absent; no intervening change."
+  },
+  {
+    "id": "natural-8",
+    "stuck": false,
+    "rationale": "Self-test rerun after a successful repair of the import assertion."
+  },
+  {
+    "id": "natural-9",
+    "stuck": false,
+    "rationale": "Self-test rerun amid successful edits with a changed failure."
+  },
+  {
+    "id": "natural-10",
+    "stuck": true,
+    "rationale": "Third identical edit after two identical no-change failures; a reread does not change the replacement."
+  },
+  {
+    "id": "natural-11",
+    "stuck": false,
+    "rationale": "Public tests rerun after successful edits, with changing failing assertions."
+  },
+  {
+    "id": "natural-12",
+    "stuck": false,
+    "rationale": "Public tests rerun after successful edits, with changing failing assertions."
+  },
+  {
+    "id": "natural-13",
+    "stuck": false,
+    "rationale": "Self-test rerun after repairs; earlier failures and passed-test output differ."
+  },
+  {
+    "id": "natural-14",
+    "stuck": false,
+    "rationale": "List requested after successful task removal and dependency mutation; outputs change."
+  },
+  {
+    "id": "natural-15",
+    "stuck": false,
+    "rationale": "Plan requested after adding tasks; state and output change."
+  },
+  {
+    "id": "natural-16",
+    "stuck": false,
+    "rationale": "Public tests rerun after successful solution edits."
+  },
+  {
+    "id": "natural-17",
+    "stuck": false,
+    "rationale": "Public tests rerun after successful solution edits."
+  },
+  {
+    "id": "natural-18",
+    "stuck": false,
+    "rationale": "Public tests rerun after successful solution edits and inspection."
+  }
+]

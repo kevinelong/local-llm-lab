@@ -1,0 +1,89 @@
+{
+ "probe_repeats": 3,
+ "warmup_requests": 4,
+ "config": "C:\\Users\\kevin\\ai_bench\\staged-strata-20261007\\engine-src-v0.1.40.3\\strata-q2_0.json",
+ "profile_before": {
+  "exists": true,
+  "size": 196632,
+  "mtime": 1791401663.7117455
+ },
+ "phases": {
+  "cold": [
+   {
+    "i": 0,
+    "ttfb_ms": 16.0,
+    "total_ms": 34391.0,
+    "tokens_reported": 160,
+    "chars": 657,
+    "head": "We need answer user: Explain in detail how inverse-square law of light governs apparent brightness of star as seen from "
+   },
+   {
+    "i": 1,
+    "ttfb_ms": null,
+    "total_ms": 26422.0,
+    "tokens_reported": 160,
+    "chars": 703,
+    "head": "We need answer user: Explain in detail how inverse-square law of light governs apparent brightness of star as seen from "
+   },
+   {
+    "i": 2,
+    "ttfb_ms": null,
+    "total_ms": 22421.0,
+    "tokens_reported": 160,
+    "chars": 669,
+    "head": "We need answer user: Explain in detail how inverse-square law of light governs apparent brightness of star as seen from "
+   }
+  ],
+  "warm": [
+   {
+    "i": 0,
+    "ttfb_ms": 31.0,
+    "total_ms": 28328.0,
+    "tokens_reported": 160,
+    "chars": 703,
+    "head": "We need answer user: Explain in detail how inverse-square law of light governs apparent brightness of star as seen from "
+   },
+   {
+    "i": 1,
+    "ttfb_ms": 15.0,
+    "total_ms": 22531.0,
+    "tokens_reported": 160,
+    "chars": 654,
+    "head": "We need answer user: Explain in detail how inverse-square law of light governs apparent brightness of star as seen from "
+   },
+   {
+    "i": 2,
+    "ttfb_ms": 31.0,
+    "total_ms": 23109.0,
+    "tokens_reported": 160,
+    "chars": 658,
+    "head": "We need answer user: Explain in detail how inverse-square law of light governs apparent brightness of star as seen from "
+   }
+  ],
+  "cold_summary": {
+   "median_total_ms": 26422.0,
+   "median_ttfb_ms": 16.0,
+   "tok_per_s_reported": [
+    4.65,
+    6.06,
+    7.14
+   ],
+   "identical_outputs": true
+  },
+  "warm_summary": {
+   "median_total_ms": 23109.0,
+   "median_ttfb_ms": 31.0,
+   "tok_per_s_reported": [
+    5.65,
+    7.1,
+    6.92
+   ],
+   "identical_outputs": true
+  }
+ },
+ "profile_after": {
+  "exists": true,
+  "size": 196632,
+  "mtime": 1791401663.7117455
+ }
+}

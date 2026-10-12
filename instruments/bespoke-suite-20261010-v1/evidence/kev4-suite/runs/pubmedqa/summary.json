@@ -1,0 +1,27 @@
+{
+  "subset": "pubmedqa",
+  "types": [
+    "choice"
+  ],
+  "wall_seconds": 27.5,
+  "all": {
+    "count": 250,
+    "correct": 177,
+    "accuracy": 0.708,
+    "mean_negative_log_likelihood": 0.6976019194429598,
+    "mean_multiclass_brier": 0.39504898921926684,
+    "median_ms": 108.79554998246022,
+    "p95_ms": 152.92700001737103
+  },
+  "by_type": {
+    "choice": {
+      "count": 250,
+      "correct": 177,
+      "accuracy": 0.708,
+      "mean_negative_log_likelihood": 0.6976019194429598,
+      "mean_multiclass_brier": 0.39504898921926684,
+      "median_ms": 108.79554998246022,
+      "p95_ms": 152.92700001737103
+    }
+  }
+}

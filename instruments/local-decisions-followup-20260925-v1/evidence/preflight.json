@@ -1,0 +1,15 @@
+{
+  "physical_available_gib": 14.970375061035156,
+  "physical_total_gib": 31.455806732177734,
+  "commit_headroom_gib": 53.465675354003906,
+  "gpu_free_gib": 10.3369140625,
+  "gpu_used_gib": 1.3271484375,
+  "gpu_utilization_pct": 11.0,
+  "ollama": {
+    "models": [],
+    "status": "offline_process_absence_verified",
+    "process_count_checked": 303
+  },
+  "wsl_servers": "",
+  "time_utc": "2026-09-25T18:19:15.836627+00:00"
+}

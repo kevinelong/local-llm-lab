@@ -1,0 +1,729 @@
+{
+ "responder": "strata-coder",
+ "passed": 987,
+ "total": 1100,
+ "rate": 0.8973,
+ "seconds": 2127.7,
+ "sampling": {
+  "temperature": 0,
+  "seed": 20261009
+ },
+ "per_subject": {
+  "high_school_world_history": {
+   "n": 100,
+   "passed": 91
+  },
+  "high_school_geography": {
+   "n": 100,
+   "passed": 90
+  },
+  "astronomy": {
+   "n": 100,
+   "passed": 96
+  },
+  "world_religions": {
+   "n": 100,
+   "passed": 89
+  },
+  "philosophy": {
+   "n": 100,
+   "passed": 91
+  },
+  "prehistory": {
+   "n": 100,
+   "passed": 94
+  },
+  "virology": {
+   "n": 100,
+   "passed": 58
+  },
+  "international_law": {
+   "n": 100,
+   "passed": 90
+  },
+  "grade_school_math": {
+   "n": 300,
+   "passed": 288
+  }
+ },
+ "failures": [
+  {
+   "id": "mmlu/high_school_world_history/24",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/26",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_world_history/33",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_world_history/36",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/38",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_world_history/55",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/60",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/93",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_world_history/96",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_geography/3",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/6",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/27",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/31",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/48",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/55",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/60",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/80",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/84",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/89",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/astronomy/4",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/astronomy/57",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/astronomy/77",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/88",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/world_religions/2",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/18",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/21",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/world_religions/23",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/48",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/55",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/59",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/67",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/84",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/97",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/99",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/18",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/21",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/42",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/77",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/78",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/83",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/87",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/96",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/99",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/prehistory/0",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/34",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/52",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/prehistory/79",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/83",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/prehistory/92",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/0",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/2",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/8",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/9",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/10",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/11",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/13",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/17",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/20",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/27",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/28",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/29",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/30",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/32",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/34",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/35",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/41",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/42",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/45",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/46",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/49",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/51",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/54",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/61",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/62",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/63",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/64",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/65",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/68",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/69",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/71",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/74",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/77",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/80",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/81",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/83",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/86",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/88",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/90",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/91",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/94",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/97",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/6",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/14",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/19",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/30",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/31",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/69",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/71",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/74",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/83",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/85",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "gsm8k/45",
+   "expected": "104",
+   "parsed": "26",
+   "reply": "To calculate the total number of hours Meredith spent writing articles, we need to determine the number of articles she wrote on each day and then multiply by the time it takes to write one article.\n\n"
+  },
+  {
+   "id": "gsm8k/93",
+   "expected": "36",
+   "parsed": "11",
+   "reply": "To solve this problem, we need to determine Gerald's current running time based on the information provided about Lee's time and their previous relationship.\n\n**Step 1: Determine Lee's current time.**"
+  },
+  {
+   "id": "gsm8k/119",
+   "expected": "95200",
+   "parsed": "40",
+   "reply": "To solve this problem, we need to determine the salaries of Adrien and Lylah four years later.\n\n**Step 1: Determine Adrien's salary four years later.**\nWe are given that Adrien earned $40,000 four yea"
+  },
+  {
+   "id": "gsm8k/122",
+   "expected": "48",
+   "parsed": "42",
+   "reply": "To find the total number of hours Sadie slept throughout the week, we need to break down her sleep schedule day by day.\n\n**1. Monday:**\nSadie slept 8 hours.\n*   Monday = 8 hours\n\n**2. Tuesday and Wedn"
+  },
+  {
+   "id": "gsm8k/161",
+   "expected": "32",
+   "parsed": "17",
+   "reply": "To determine the total number of fish caught by Anakin and Locsin, we need to calculate the catch for each person and then sum them up. Note that the problem asks for \"fish,\" but in common word proble"
+  },
+  {
+   "id": "gsm8k/182",
+   "expected": "23",
+   "parsed": "24",
+   "reply": "To find Jean's age, we need to determine the ages of Mark and Jan based on the information provided.\n\n**Step 1: Determine Jan's age.**\nThe problem states that Jan is 30 years old.\n$$ \\text{Jan's Age} "
+  },
+  {
+   "id": "gsm8k/184",
+   "expected": "25",
+   "parsed": "50",
+   "reply": "To solve this problem, we need to calculate the probability of two specific events and then compare them.\n\n**Step 1: Calculate the probability of rolling a number greater than 3.**\n\nA standard six-sid"
+  },
+  {
+   "id": "gsm8k/234",
+   "expected": "21",
+   "parsed": "14",
+   "reply": "To determine how many tomato vines Steve needs, we must first calculate the total number of tomatoes he consumes per week and then divide that by the production rate of a single vine.\n\n**Step 1: Calcu"
+  },
+  {
+   "id": "gsm8k/241",
+   "expected": "6",
+   "parsed": "3",
+   "reply": "To solve this problem, we need to determine the total number of distinct books read by Dolly and Pandora combined.\n\n1.  **Identify the books available:**\n    *   Dolly has 2 books. Let's call them $D_"
+  },
+  {
+   "id": "gsm8k/255",
+   "expected": "192",
+   "parsed": "176",
+   "reply": "To solve the problem, we need to determine the total number of cows in 8 specific stalls after Mr. Sylas adds the new cows.\n\n**Step 1: Determine the initial number of cows per stall.**\nThere are 10 st"
+  },
+  {
+   "id": "gsm8k/267",
+   "expected": "91",
+   "parsed": "71",
+   "reply": "To solve this problem, we need to break down the timeline into three distinct stages: heating the oil to 300 degrees, heating the oil to 400 degrees, and cooking the chicken.\n\n**Step 1: Time to heat o"
+  },
+  {
+   "id": "gsm8k/293",
+   "expected": "83",
+   "parsed": "2",
+   "reply": "To solve the problem, we need to determine the points for each player after the third round and then apply the rule for the fourth round.\n\n**Step 1: Determine the points after 3 rounds.**\n\n*   **Mike:"
+  }
+ ]
+}

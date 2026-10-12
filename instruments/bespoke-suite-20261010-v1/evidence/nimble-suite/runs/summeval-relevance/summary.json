@@ -1,0 +1,29 @@
+{
+  "subset": "summeval-relevance",
+  "types": [
+    "score"
+  ],
+  "wall_seconds": 53.3,
+  "all": {
+    "count": 240,
+    "correct": 93,
+    "accuracy": 0.3875,
+    "mean_negative_log_likelihood": 1.403911033363064,
+    "mean_multiclass_brier": 0.7568919747248696,
+    "mean_absolute_score_error": 0.7071456647992431,
+    "median_ms": 211.39439998660237,
+    "p95_ms": 287.79900004155934
+  },
+  "by_type": {
+    "score": {
+      "count": 240,
+      "correct": 93,
+      "accuracy": 0.3875,
+      "mean_negative_log_likelihood": 1.403911033363064,
+      "mean_multiclass_brier": 0.7568919747248696,
+      "mean_absolute_score_error": 0.7071456647992431,
+      "median_ms": 211.39439998660237,
+      "p95_ms": 287.79900004155934
+    }
+  }
+}

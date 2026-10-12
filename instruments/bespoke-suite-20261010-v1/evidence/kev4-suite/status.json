@@ -1,0 +1,8 @@
+{
+  "error": null,
+  "after": {
+    "physical_available_gib": 38.44540023803711,
+    "physical_total_gib": 63.455806732177734,
+    "commit_headroom_gib": 31.307544708251953
+  }
+}

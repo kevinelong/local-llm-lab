@@ -1,0 +1,27 @@
+{
+  "subset": "massive-de-DE",
+  "types": [
+    "choice"
+  ],
+  "wall_seconds": 67.0,
+  "all": {
+    "count": 350,
+    "correct": 294,
+    "accuracy": 0.84,
+    "mean_negative_log_likelihood": 0.811366894115902,
+    "mean_multiclass_brier": 0.275070884961541,
+    "median_ms": 191.27564996597357,
+    "p95_ms": 203.59849999658763
+  },
+  "by_type": {
+    "choice": {
+      "count": 350,
+      "correct": 294,
+      "accuracy": 0.84,
+      "mean_negative_log_likelihood": 0.811366894115902,
+      "mean_multiclass_brier": 0.275070884961541,
+      "median_ms": 191.27564996597357,
+      "p95_ms": 203.59849999658763
+    }
+  }
+}

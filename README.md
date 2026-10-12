@@ -276,6 +276,7 @@ take the model list, the 32 GB reference and the harness pick as historical.*
   [BASELINE-REMOTE.md](BASELINE-REMOTE.md) and [HARD-SPEC-TEST.md](HARD-SPEC-TEST.md).
 
 ## Docs in this repo
+- [instruments/](instruments/) - the measurement instruments, frozen inputs and small evidence snapshotted out of `ai_bench`, with a sha256 manifest and the refresh script.
 - [RESULTS-2026-09-15.md](RESULTS-2026-09-15.md) - Pi, Aider, and OpenCode experiments, compact GGUF variants, and CPU-only measurements.
 - [RESEARCH-2026-09-15.md](RESEARCH-2026-09-15.md) - new candidates, popular Hugging Face variants, CPU-only models, and Pi comparison plan.
 - [HARDWARE.md](HARDWARE.md) - the exact box and its ceilings.

@@ -1,0 +1,95 @@
+{
+ "declared": "2026-10-11, overnight",
+ "started": "2026-10-11 21:10:56",
+ "queue": [
+  "i1-strata-placement",
+  "i2-kolibri-knowledge",
+  "i3-colibri-qwen36",
+  "i4-reason-repeat",
+  "i5-papers-repeat",
+  "i6-gliner-replay"
+ ],
+ "results": [
+  {
+   "id": "i1-strata-placement",
+   "exit": 0,
+   "seconds": 696.1,
+   "tail": [
+    "2026-10-11 21:17:29  run: C:\\Program Files\\Python311\\python.exe C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge_deep.py --url http://127.0.0.1:8080 --model strata-coder --label strata-res8 --forms reason --limit 93 --pool shared --seeds 3 --timeout 300",
+    "2026-10-11 21:22:08    | strata-coder             -> knowledge-deep-result-strata-res8.json",
+    "2026-10-11 21:22:08    |   reason : letters 92/93  mean distractors addressed 1.85",
+    "2026-10-11 21:22:36  port 8080 cleared",
+    "2026-10-11 21:22:36  wrote result-i1-strata-placement.json",
+    "2026-10-11 21:22:36  placement: 65/93 replies differ, letters differ on 0, correct 92 vs 92"
+   ],
+   "result_file": "C:\\Users\\kevin\\ai_bench\\overnight-20261011\\result-i1-strata-placement.json"
+  },
+  {
+   "id": "i2-kolibri-knowledge",
+   "exit": 0,
+   "seconds": 1657.7,
+   "tail": [
+    "2026-10-11 21:50:06    |         international_law                   84/100   0.840",
+    "2026-10-11 21:50:06    |         philosophy                          80/100   0.800",
+    "2026-10-11 21:50:06    |         prehistory                          71/100   0.710",
+    "2026-10-11 21:50:06    |         virology                            51/100   0.510",
+    "2026-10-11 21:50:06    |         world_religions                     81/100   0.810",
+    "2026-10-11 21:50:24  wrote result-i2-kolibri-knowledge.json"
+   ],
+   "result_file": "C:\\Users\\kevin\\ai_bench\\overnight-20261011\\result-i2-kolibri-knowledge.json"
+  },
+  {
+   "id": "i3-colibri-qwen36",
+   "exit": -9,
+   "seconds": 7200.1,
+   "tail": [
+    "timeout after 7200s"
+   ],
+   "result_file": null
+  },
+  {
+   "id": "i4-reason-repeat",
+   "exit": 0,
+   "seconds": 1109.4,
+   "tail": [
+    "2026-10-12 00:09:29    |    strata is up",
+    "2026-10-12 00:09:29    |    knowledge_deep.py --label strata-deep-rep1 --url http://127.0.0.1:8080",
+    "2026-10-12 00:09:29    | strata-coder             -> knowledge-deep-result-strata-deep-rep1.json",
+    "2026-10-12 00:09:29    |   reason : letters 92/93  mean distractors addressed 1.90",
+    "2026-10-12 00:09:29    | {\"arm_exit_codes\": {\"qwen36\": 0, \"strata\": 0}}",
+    "2026-10-12 00:09:29  wrote result-i4-reason-repeat.json"
+   ],
+   "result_file": "C:\\Users\\kevin\\ai_bench\\overnight-20261011\\result-i4-reason-repeat.json"
+  },
+  {
+   "id": "i5-papers-repeat",
+   "exit": 0,
+   "seconds": 323.3,
+   "tail": [
+    "2026-10-12 00:15:03    |    strata is up",
+    "2026-10-12 00:15:03    |    knowledge_deep.py --label strata-deep-rep1 --url http://127.0.0.1:8080",
+    "2026-10-12 00:15:03    | strata-coder             -> knowledge-deep-result-strata-deep-rep1.json",
+    "2026-10-12 00:15:03    |   paper  : 3 papers, mean 429 words, on-subject 3, distinct topics 1, grounded 0.950",
+    "2026-10-12 00:15:03    | {\"arm_exit_codes\": {\"qwen36\": 0, \"strata\": 0}}",
+    "2026-10-12 00:15:03  wrote result-i5-papers-repeat.json"
+   ],
+   "result_file": "C:\\Users\\kevin\\ai_bench\\overnight-20261011\\result-i5-papers-repeat.json"
+  },
+  {
+   "id": "i6-gliner-replay",
+   "exit": 1,
+   "seconds": 1852.2,
+   "tail": [
+    "             ^^^^^^^^^^^^^^^^^^^^",
+    "  File \"C:\\Users\\kevin\\ai_bench\\overnight-20261011\\items.py\", line 184, in i6_gliner",
+    "    with shared.colibri_engine('colibri-gliner', GLINER_DIR):",
+    "  File \"C:\\Users\\kevin\\ai_bench\\overnight-20261011\\shared.py\", line 121, in __enter__",
+    "    raise RuntimeError('%s failed to come up' % self.name)",
+    "RuntimeError: colibri-gliner failed to come up"
+   ],
+   "result_file": null
+  }
+ ],
+ "stopped": "queue complete",
+ "finished": "2026-10-12 00:46:13"
+}

@@ -1,0 +1,29 @@
+{
+  "subset": "helpsteer2",
+  "types": [
+    "score"
+  ],
+  "wall_seconds": 36.4,
+  "all": {
+    "count": 249,
+    "correct": 90,
+    "accuracy": 0.3614457831325301,
+    "mean_negative_log_likelihood": 1.4275983042299192,
+    "mean_multiclass_brier": 0.72365541094223,
+    "mean_absolute_score_error": 1.0295495634671068,
+    "median_ms": 140.6489000073634,
+    "p95_ms": 254.90479997824878
+  },
+  "by_type": {
+    "score": {
+      "count": 249,
+      "correct": 90,
+      "accuracy": 0.3614457831325301,
+      "mean_negative_log_likelihood": 1.4275983042299192,
+      "mean_multiclass_brier": 0.72365541094223,
+      "mean_absolute_score_error": 1.0295495634671068,
+      "median_ms": 140.6489000073634,
+      "p95_ms": 254.90479997824878
+    }
+  }
+}

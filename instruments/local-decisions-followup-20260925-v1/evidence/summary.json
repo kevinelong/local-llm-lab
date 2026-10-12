@@ -1,0 +1,80 @@
+{
+  "timing": {
+    "all_46_probabilities_and_states_exact": true,
+    "all": {
+      "n": 46,
+      "median_ms": 3032.4200999999957,
+      "p95_ms": 3337.826099999991,
+      "max_ms": 3681.5278000000108,
+      "over_3000ms": 28
+    },
+    "warm_excluding_first": {
+      "n": 45,
+      "median_ms": 3030.2601999999897,
+      "p95_ms": 3337.826099999991,
+      "max_ms": 3681.5278000000108,
+      "over_3000ms": 27
+    },
+    "prior_paired_median_ms": 4038.331649999998,
+    "gate_passed": false
+  },
+  "natural": {
+    "latency": {
+      "n": 18,
+      "median_ms": 11259.655899999996,
+      "p95_ms": 18051.742600000005,
+      "max_ms": 18051.742600000005,
+      "over_3000ms": 18
+    },
+    "openjev": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 14,
+      "fn": 4
+    },
+    "failure_rule": {
+      "tp": 1,
+      "fp": 0,
+      "tn": 14,
+      "fn": 3
+    },
+    "never_flag": {
+      "tp": 0,
+      "fp": 0,
+      "tn": 14,
+      "fn": 4
+    },
+    "always_flag": {
+      "tp": 4,
+      "fp": 14,
+      "tn": 0,
+      "fn": 0
+    }
+  },
+  "resources": {
+    "timing": {
+      "peak_private_gib": 4.501396179199219,
+      "min_free_ram_gib": 10.989982604980469,
+      "min_commit_headroom_gib": 49.01578140258789,
+      "min_free_vram_gib": 10.31640625,
+      "resource_samples": 138,
+      "error": null
+    },
+    "natural": {
+      "peak_private_gib": 4.779487609863281,
+      "min_free_ram_gib": 11.036983489990234,
+      "min_commit_headroom_gib": 48.6483039855957,
+      "min_free_vram_gib": 10.3056640625,
+      "resource_samples": 200,
+      "error": null
+    }
+  },
+  "cleanup": {
+    "owned_identities_checked": 10,
+    "still_alive": [],
+    "port_8098_closed": true,
+    "lock_absent": true
+  },
+  "verified_prior_source_files": 19,
+  "verified_archival_sources": 34
+}

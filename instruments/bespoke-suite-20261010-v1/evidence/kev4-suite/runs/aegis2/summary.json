@@ -1,0 +1,29 @@
+{
+  "subset": "aegis2",
+  "types": [
+    "noul"
+  ],
+  "wall_seconds": 17.0,
+  "all": {
+    "count": 250,
+    "correct": 207,
+    "accuracy": 0.828,
+    "mean_negative_log_likelihood": 0.43942320920582595,
+    "mean_multiclass_brier": 0.2723048784520069,
+    "mean_binary_brier": 0.13615243922600345,
+    "median_ms": 62.41745004081167,
+    "p95_ms": 114.8228999809362
+  },
+  "by_type": {
+    "noul": {
+      "count": 250,
+      "correct": 207,
+      "accuracy": 0.828,
+      "mean_negative_log_likelihood": 0.43942320920582595,
+      "mean_multiclass_brier": 0.2723048784520069,
+      "mean_binary_brier": 0.13615243922600345,
+      "median_ms": 62.41745004081167,
+      "p95_ms": 114.8228999809362
+    }
+  }
+}

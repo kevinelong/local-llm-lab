@@ -1,0 +1,138 @@
+[
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-1-one-shot-baseline\\one-shot-events.jsonl",
+    "sha256": "68c1eb29591dd6f29853b8cbcbe4482d04df94e71fabaef31f4ed1607500dc98"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-1-one-shot-completion\\one-shot-events.jsonl",
+    "sha256": "8b7d55484f565823b1dc6dd0a5dac3dda50ac66d41b1957e21428a4af968ac19"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-2-one-shot-baseline\\one-shot-events.jsonl",
+    "sha256": "2de0581c18c0de5b9f411985e27b5817e9d81fd6a9ce47a593abbfabd1231cd9"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-2-one-shot-completion\\one-shot-events.jsonl",
+    "sha256": "c067f3b75c5a3b69c09179f8b2d8a51df3e0fe27a752f410f843534f7aca9bf9"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-3-one-shot-baseline\\one-shot-events.jsonl",
+    "sha256": "9a125345b7aaff7e7a29dd2eaeac3eb4f204498996822bf0436e0b1cb661408c"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-3-one-shot-completion\\one-shot-events.jsonl",
+    "sha256": "033495b3a16bc90fa3bd0dedd0a6e4c94dd675bb4154c331bf5ffd3f41f7e673"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\intervals-1-one-shot-baseline\\one-shot-events.jsonl",
+    "sha256": "f9428265e918bcbdca8e9160091cafd22e639487fdfafde6424b0f7525bd6d66"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\intervals-1-one-shot-completion\\one-shot-events.jsonl",
+    "sha256": "1382902b07d03f4e4ebca6039736087b222f4cc664c0dfaba3801afaf4b3f8ae"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\intervals-2-one-shot-baseline\\one-shot-events.jsonl",
+    "sha256": "6253a81f02627710a5ddadb960bcae308a9c2227875c38ca25731c6fa7c30f32"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\intervals-2-one-shot-completion\\one-shot-events.jsonl",
+    "sha256": "14149a4d2af1b816c1df8adf96f1b3b4ecb374a930a544b0e4d705561e7062b7"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\intervals-3-one-shot-baseline\\one-shot-events.jsonl",
+    "sha256": "e637afd68b7b56cd5544259e9b64ddf063f36f1442dff22e199735d308c23ac3"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\intervals-3-one-shot-completion\\one-shot-events.jsonl",
+    "sha256": "9377509804ea47d1d450fffb8cbc930ca0b673dfde9577bcc9cc03c0999d56eb"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\bonsai-pi-0.86.1-graph-1\\events.jsonl",
+    "sha256": "b53ea1f8c03686ac67cc20c4698809f6996ad2fb0298675335c052e0d19185ab"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\bonsai-pi-0.86.1-graph-2\\events.jsonl",
+    "sha256": "b5c21a0425535b8a11f2fea08c02fde8960cc4c39d1b4651b3f09e332c046c20"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\bonsai-pi-0.86.1-graph-3\\events.jsonl",
+    "sha256": "2e36b4791011929f5973d6d2d396013fdc42d6065ddc8b22681ec4ec93179cbc"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\bonsai-pi-0.86.1-hard-1\\events.jsonl",
+    "sha256": "c9c6d927e1df40839120e099450270ee76b605ef240e726c0a55527ee281b957"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\bonsai-pi-0.86.1-hard-1-isolated\\events.jsonl",
+    "sha256": "0898c35f7a76237751f0baf0d7bcd7d69ab072deeb7f4a53740b4ab3089ac1fb"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\bonsai-pi-0.86.1-intervals-1\\events.jsonl",
+    "sha256": "82e7aa646b4efb3bbe64904e356189154f13204fa4895d9b66ea87397b356442"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\bonsai-pi-0.86.1-intervals-2\\events.jsonl",
+    "sha256": "e5dddb5f9b8dd76fe62ad9abb0e5a1db5efcabf0378902c515094c89b3c2f7a4"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\bonsai-pi-0.86.1-intervals-3\\events.jsonl",
+    "sha256": "901fff9d6458627b61e6f6fc57b3224da9ac4b514ca617ea4fd9630ea0276306"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-graph-1\\events.jsonl",
+    "sha256": "84dd958beea807ccb2002e0ef3c1fc0c69e92e7d29b0559fe692250b50d34570"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-graph-2\\events.jsonl",
+    "sha256": "ee6cb8040e08424fd1b6ca0cc96fd438820e86cd2958d1a763825f6b834734bd"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-graph-3\\events.jsonl",
+    "sha256": "79401bcc7036b65fc0399957e37f4aad15979a2c772f6531cecf86e98f8c3934"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-hard-1\\events.jsonl",
+    "sha256": "73f55dc82045e238eff643d34c9361bbf7d23953fda71649be867fdafffea605"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-intervals-1\\events.jsonl",
+    "sha256": "de7dc0d60decd232bf0fb6e21716d11426090e627e961ba720a5b052ad7d5a68"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-intervals-2\\events.jsonl",
+    "sha256": "6d0cbb400605e180c6c374b1bb032c069a238f20e4d64be8f59a06e4f5c4bff4"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-intervals-3\\events.jsonl",
+    "sha256": "2c7e9281fc1d9ddcce3d2c6ad9bcd2289343c84df0f8a4a9c4c88e0403c10b5f"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-graph-1\\events.jsonl",
+    "sha256": "6f090e823c553b0bae72c91603b1e3d8110f40ab722d32d39ef5bf2e731f6095"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-graph-2\\events.jsonl",
+    "sha256": "d51ba3718d5efcfcdd18598f155c5df629083a8fd2c63affcd8869f158b15907"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-graph-3\\events.jsonl",
+    "sha256": "b3fbc16b3389c91c2a16f2909313c39750c55f52cab86af9cb80b770d6e1b043"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-hard-1\\events.jsonl",
+    "sha256": "e55bcf3b3ef1fd04a5584f4d8d9d2787707ccd2059c03bf4941df1461e2bd09c"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-1\\events.jsonl",
+    "sha256": "1158fa97167ff9bea376ffdbcedf87c5fc7c7b08fb47ad2307163644c54902ad"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-2\\events.jsonl",
+    "sha256": "767999b785de07d24e90c9dab270fc9ac0c2b9070f23cab37ec4c4b8780bec86"
+  },
+  {
+    "path": "C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-3\\events.jsonl",
+    "sha256": "c0ca6c2a27683aee4a8096ec3eb817e7f56839706ea3f584259539323e970c12"
+  }
+]

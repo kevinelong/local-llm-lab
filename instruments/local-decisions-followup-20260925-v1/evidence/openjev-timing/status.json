@@ -1,0 +1,25 @@
+{
+  "error": null,
+  "before": {
+    "physical_available_gib": 15.159008026123047,
+    "physical_total_gib": 31.455806732177734,
+    "commit_headroom_gib": 53.828704833984375,
+    "gpu_free_gib": 10.34765625,
+    "gpu_used_gib": 1.31640625,
+    "gpu_utilization_pct": 1.0,
+    "ollama": {
+      "models": [],
+      "status": "offline_process_absence_verified",
+      "process_count_checked": 303
+    },
+    "wsl_servers": "",
+    "time_utc": "2026-09-25T18:12:15.116027+00:00"
+  },
+  "after": {
+    "physical_available_gib": 15.250995635986328,
+    "physical_total_gib": 31.455806732177734,
+    "commit_headroom_gib": 53.870201110839844
+  },
+  "worker_exited": true,
+  "memory_scope": "owned process tree"
+}

@@ -1,0 +1,13 @@
+{
+  "physical_available_gib": 37.97569274902344,
+  "physical_total_gib": 63.455806732177734,
+  "commit_headroom_gib": 29.98110580444336,
+  "gpu_free_gib": 9.8369140625,
+  "gpu_used_gib": 1.8271484375,
+  "gpu_utilization_pct": 3.0,
+  "ollama": {
+    "models": []
+  },
+  "wsl_servers": "",
+  "time_utc": "2026-10-11T00:24:40.272743+00:00"
+}

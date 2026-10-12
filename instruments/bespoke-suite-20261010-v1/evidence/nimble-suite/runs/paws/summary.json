@@ -1,0 +1,29 @@
+{
+  "subset": "paws",
+  "types": [
+    "noul"
+  ],
+  "wall_seconds": 24.3,
+  "all": {
+    "count": 250,
+    "correct": 198,
+    "accuracy": 0.792,
+    "mean_negative_log_likelihood": 0.45715065407360533,
+    "mean_multiclass_brier": 0.28873871220133934,
+    "mean_binary_brier": 0.14436935610066967,
+    "median_ms": 97.76355000212789,
+    "p95_ms": 109.50100002810359
+  },
+  "by_type": {
+    "noul": {
+      "count": 250,
+      "correct": 198,
+      "accuracy": 0.792,
+      "mean_negative_log_likelihood": 0.45715065407360533,
+      "mean_multiclass_brier": 0.28873871220133934,
+      "mean_binary_brier": 0.14436935610066967,
+      "median_ms": 97.76355000212789,
+      "p95_ms": 109.50100002810359
+    }
+  }
+}

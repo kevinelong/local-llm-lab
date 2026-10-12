@@ -1,0 +1,271 @@
+{
+ "engine": "colibri v2.0.0 laya.exe",
+ "url": "http://127.0.0.1:8000",
+ "checkpoint": "convaiinnovations/laya @ 7b928d828b7b0e022f929d9bd2e44165aa270148",
+ "inputs_sha256": "9adc36c7b1b6e302cb6eec28bc0d5ab062bf77765a18422ef751cca24e5907ea",
+ "labels_sha256": "73d1cda76d94f1c2eb4861cf7b674311529824e9dff744142da2379dfd939a88",
+ "noul": {
+  "threshold": 0.85,
+  "flagged": 0,
+  "stalls_caught": 0,
+  "stalls_total": 4,
+  "false_alarms": 0,
+  "nonstalls_total": 14,
+  "correct": 14,
+  "total": 18
+ },
+ "choice": {
+  "threshold": 0.85,
+  "flagged": 0,
+  "stalls_caught": 0,
+  "stalls_total": 4,
+  "false_alarms": 0,
+  "nonstalls_total": 14,
+  "correct": 14,
+  "total": 18
+ },
+ "latency_ms": {
+  "noul_median": 359.5,
+  "noul_warm_p95": 375.0,
+  "noul_warm_max": 391.0,
+  "choice_median": 406.0,
+  "choice_warm_p95": 422.0,
+  "gate_3s_passed": true
+ },
+ "rows": [
+  {
+   "id": "natural-1",
+   "label_stall": false,
+   "noul": 0.640994,
+   "ms": 360.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.656698,
+   "choice_ms": 391.0
+  },
+  {
+   "id": "natural-2",
+   "label_stall": false,
+   "noul": 0.675464,
+   "ms": 359.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.659197,
+   "choice_ms": 390.0
+  },
+  {
+   "id": "natural-3",
+   "label_stall": false,
+   "noul": 0.625352,
+   "ms": 375.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.606307,
+   "choice_ms": 391.0
+  },
+  {
+   "id": "natural-4",
+   "label_stall": true,
+   "noul": 0.612305,
+   "ms": 360.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.610599,
+   "choice_ms": 406.0
+  },
+  {
+   "id": "natural-5",
+   "label_stall": true,
+   "noul": 0.780272,
+   "ms": 359.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.677721,
+   "choice_ms": 391.0
+  },
+  {
+   "id": "natural-6",
+   "label_stall": false,
+   "noul": 0.752101,
+   "ms": 359.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.639084,
+   "choice_ms": 406.0
+  },
+  {
+   "id": "natural-7",
+   "label_stall": true,
+   "noul": 0.673994,
+   "ms": 344.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.624908,
+   "choice_ms": 375.0
+  },
+  {
+   "id": "natural-8",
+   "label_stall": false,
+   "noul": 0.599781,
+   "ms": 359.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.528391,
+   "choice_ms": 391.0
+  },
+  {
+   "id": "natural-9",
+   "label_stall": false,
+   "noul": 0.629255,
+   "ms": 360.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.540826,
+   "choice_ms": 406.0
+  },
+  {
+   "id": "natural-10",
+   "label_stall": true,
+   "noul": 0.629407,
+   "ms": 375.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.597448,
+   "choice_ms": 391.0
+  },
+  {
+   "id": "natural-11",
+   "label_stall": false,
+   "noul": 0.619083,
+   "ms": 344.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.574023,
+   "choice_ms": 406.0
+  },
+  {
+   "id": "natural-12",
+   "label_stall": false,
+   "noul": 0.619083,
+   "ms": 343.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.574023,
+   "choice_ms": 406.0
+  },
+  {
+   "id": "natural-13",
+   "label_stall": false,
+   "noul": 0.638982,
+   "ms": 344.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.545699,
+   "choice_ms": 406.0
+  },
+  {
+   "id": "natural-14",
+   "label_stall": false,
+   "noul": 0.653622,
+   "ms": 375.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.645017,
+   "choice_ms": 407.0
+  },
+  {
+   "id": "natural-15",
+   "label_stall": false,
+   "noul": 0.532747,
+   "ms": 359.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.626797,
+   "choice_ms": 406.0
+  },
+  {
+   "id": "natural-16",
+   "label_stall": false,
+   "noul": 0.717901,
+   "ms": 375.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.61754,
+   "choice_ms": 406.0
+  },
+  {
+   "id": "natural-17",
+   "label_stall": false,
+   "noul": 0.717901,
+   "ms": 391.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.61754,
+   "choice_ms": 422.0
+  },
+  {
+   "id": "natural-18",
+   "label_stall": false,
+   "noul": 0.717901,
+   "ms": 375.0,
+   "usage": {
+    "input_tokens": 512,
+    "output_tokens": 0,
+    "cost": 0
+   },
+   "choice_prob": 0.61754,
+   "choice_ms": 422.0
+  }
+ ]
+}

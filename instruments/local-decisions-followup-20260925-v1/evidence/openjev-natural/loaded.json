@@ -1,0 +1,10 @@
+{
+  "model": "openjev-0.8b-v5@058a6c24911b46d908fbe23541390f8af3df3e4d",
+  "device": "cpu",
+  "parameter_dtypes": [
+    "torch.float32"
+  ],
+  "load_seconds": 4.6888325000036275,
+  "torch": "2.14.0+cpu",
+  "threads": 4
+}

@@ -1,0 +1,27 @@
+{
+  "subset": "vitaminc-dev",
+  "types": [
+    "choice"
+  ],
+  "wall_seconds": 37.0,
+  "all": {
+    "count": 599,
+    "correct": 434,
+    "accuracy": 0.7245409015025042,
+    "mean_negative_log_likelihood": 0.9195629992449867,
+    "mean_multiclass_brier": 0.44521481150321807,
+    "median_ms": 62.27930000750348,
+    "p95_ms": 76.46499999100342
+  },
+  "by_type": {
+    "choice": {
+      "count": 599,
+      "correct": 434,
+      "accuracy": 0.7245409015025042,
+      "mean_negative_log_likelihood": 0.9195629992449867,
+      "mean_multiclass_brier": 0.44521481150321807,
+      "median_ms": 62.27930000750348,
+      "p95_ms": 76.46499999100342
+    }
+  }
+}

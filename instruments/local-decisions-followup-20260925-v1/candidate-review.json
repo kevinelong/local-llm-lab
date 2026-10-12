@@ -1,0 +1,403 @@
+[
+  {
+    "id": "natural-1",
+    "run": "graph-1-one-shot-completion",
+    "tool": "powershell",
+    "input": "{'command': 'python diagnostic.py', 'timeout': 30}",
+    "prior": [
+      "\u2713 Empty input returns []\r\n\u2713 Single task works\r\n\u2713 Multiple independent tasks ordered by priority\r\n\u2713 Dependencies respected\r\n\u2713 Same priority: smallest ID first\r\n\u2713 Duplicate IDs raise",
+      "\u2713 Empty input returns []\r\n\u2713 Single task works\r\n\u2713 Multiple independent tasks ordered by priority\r\n\u2713 Dependencies respected\r\n\u2713 Same priority: smallest ID first\r\n\u2713 Duplicate IDs raise"
+    ],
+    "sequence": [
+      "read",
+      "read",
+      "read",
+      "write",
+      "powershell",
+      "write",
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-2",
+    "run": "graph-2-one-shot-baseline",
+    "tool": "powershell",
+    "input": "{'command': 'python test_edge_cases.py', 'timeout': 10}",
+    "prior": [
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-2-one-shot-baseline\\workspace\\test_edge_cases.py\", line 69, in <modul",
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-2-one-shot-baseline\\workspace\\test_edge_cases.py\", line 69, in <modul"
+    ],
+    "sequence": [
+      "powershell",
+      "powershell",
+      "powershell",
+      "write",
+      "powershell",
+      "write",
+      "powershell",
+      "write",
+      "powershell",
+      "read",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-3",
+    "run": "graph-2-one-shot-baseline",
+    "tool": "powershell",
+    "input": "{'command': 'python test_more_edge_cases.py', 'timeout': 10}",
+    "prior": [
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-2-one-shot-baseline\\workspace\\test_more_edge_cases.py\", line 44, in <",
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\graph-2-one-shot-baseline\\workspace\\test_more_edge_cases.py\", line 71, in <"
+    ],
+    "sequence": [
+      "write",
+      "powershell",
+      "write",
+      "powershell",
+      "write",
+      "powershell",
+      "write",
+      "powershell",
+      "write",
+      "powershell",
+      "write",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-4",
+    "run": "graph-3-one-shot-baseline",
+    "tool": "powershell",
+    "input": "{'command': 'python -c \"\\ntasks = [dict(id=1,priority=10,deps=[]),dict(id=2,priority=5,deps=[])]\\nids = [t[\\'id\\'] for t in tasks]\\nprint(\\'ids:\\', ids)\\nprint(\\'len(ids):\\', len(i",
+    "prior": [
+      "ids: [1, 2]\r\nlen(ids): 2\r\nlen(set(ids)): 2\r\nids == list(set(ids)): True\r\nids == set(ids): False\r\nids == set(ids): False\r\n",
+      "ids: [1, 2]\r\nlen(ids): 2\r\nlen(set(ids)): 2\r\nids == list(set(ids)): True\r\nids == set(ids): False\r\nids == set(ids): False\r\n"
+    ],
+    "sequence": [
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "read",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-5",
+    "run": "intervals-1-one-shot-baseline",
+    "tool": "powershell",
+    "input": "{'command': 'python -c \"from solution import merge; print(merge([(1,3),(5,6),(2,4),(4,5),(3,5),(1,2),(0,1),(0,1),(0,1),(0,1),(0,1),(0,1),(0,1),(0,1),(0,1),(0,1),(0,1),(0,1),(0,1),(",
+    "prior": [
+      "[(0, 1), (1, 5), (5, 6)]\r\n",
+      "[(0, 1), (1, 5), (5, 6)]\r\n"
+    ],
+    "sequence": [
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-6",
+    "run": "intervals-3-one-shot-baseline",
+    "tool": "powershell",
+    "input": "{'command': 'python -c \"from solution import merge; merge([(1,3),\\'a\\',5])\" 2>&1', 'timeout': 5}",
+    "prior": [
+      "Traceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\intervals-3-one-shot-baseline\\works",
+      "Traceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n  File \"C:\\Users\\kevin\\ai_bench\\completion-20260923-v1\\ablation\\runs\\intervals-3-one-shot-baseline\\works"
+    ],
+    "sequence": [
+      "write",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "write",
+      "powershell",
+      "write",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-7",
+    "run": "bonsai-pi-0.86.1-hard-1",
+    "tool": "powershell",
+    "input": "{'command': 'Get-ChildItem -Recurse -Force config wire | Select-Object FullName, Length', 'timeout': 10}",
+    "prior": [
+      "(no output)",
+      "(no output)"
+    ],
+    "sequence": [
+      "read",
+      "read",
+      "powershell",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "powershell",
+      "powershell",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-8",
+    "run": "bonsai-pi-0.86.1-hard-1-isolated",
+    "tool": "powershell",
+    "input": "{'command': 'python tasks.py test', 'timeout': 30}",
+    "prior": [
+      "error: dependency 999 does not exist\r\nadded task 2: B\r\ncannot complete: blocked by open dependency 1\r\ntask 1 marked done\r\ntask 2 marked done\r\n[   3] o p3 Z  deps: -\r\n[   1] o p1 X ",
+      "error: dependency 999 does not exist\r\nadded task 2: B\r\ncannot complete: blocked by open dependency 1\r\ntask 1 marked done\r\ntask 2 marked done\r\n[   3] o p3 Z  deps: -\r\n[   1] o p1 X "
+    ],
+    "sequence": [
+      "read",
+      "write",
+      "powershell",
+      "edit",
+      "read",
+      "read",
+      "edit",
+      "powershell",
+      "edit",
+      "read",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-9",
+    "run": "ollama-pi-0.85.1-hard-1",
+    "tool": "powershell",
+    "input": "{'command': 'python tasks.py test'}",
+    "prior": [
+      "error: dependency 999 does not exist\r\ncannot complete: blocked by open dependency 1\r\n\n\nCommand exited with code 1",
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-hard-1\\tasks.py\", line 720, in <module>\r\n    main()\r\n  File \"C:\\Users\\kevin"
+    ],
+    "sequence": [
+      "read",
+      "write",
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-10",
+    "run": "ollama-pi-0.85.1-hard-1",
+    "tool": "edit",
+    "input": "{'path': 'tasks.py', 'edits': [{'newText': 'def run_tests() -> None:\\n    \"\"\"Run self-tests using a temporary data file.\"\"\"\\n    import tempfile\\n    \\n    # Create a temporary dat",
+    "prior": [
+      "No changes made to tasks.py. The replacement produced identical content. This might indicate an issue with special characters or the text not existing as expected.",
+      "No changes made to tasks.py. The replacement produced identical content. This might indicate an issue with special characters or the text not existing as expected."
+    ],
+    "sequence": [
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell",
+      "read",
+      "edit",
+      "edit",
+      "read",
+      "edit"
+    ]
+  },
+  {
+    "id": "natural-11",
+    "run": "ollama-pi-0.85.1-intervals-2",
+    "tool": "powershell",
+    "input": "{'command': 'python test_public.py'}",
+    "prior": [
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-intervals-2\\test_public.py\", line 2, in <module>\r\n    assert merge([(1,3),(",
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-intervals-2\\test_public.py\", line 3, in <module>\r\n    assert merge([(1,9),("
+    ],
+    "sequence": [
+      "read",
+      "read",
+      "read",
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-12",
+    "run": "ollama-pi-0.85.1-intervals-3",
+    "tool": "powershell",
+    "input": "{'command': 'python test_public.py'}",
+    "prior": [
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-intervals-3\\test_public.py\", line 2, in <module>\r\n    assert merge([(1,3),(",
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.85.1-intervals-3\\test_public.py\", line 3, in <module>\r\n    assert merge([(1,9),("
+    ],
+    "sequence": [
+      "read",
+      "read",
+      "read",
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-13",
+    "run": "ollama-pi-0.86.1-hard-1",
+    "tool": "powershell",
+    "input": "{'command': 'python tasks.py test', 'timeout': 30}",
+    "prior": [
+      "\u2713 dep validation on add\r\n\u2713 add task\r\ntest failed: should fail when dep is open\r\n\n\nCommand exited with code 1",
+      "\u2713 dep validation on add\r\n\u2713 add task\r\n\u2713 done-blocking by open deps\r\n\u2713 ready set ordering\r\ntest error: name 'tasks_by_id' is not defined\r\n\n\nCommand exited with code 1"
+    ],
+    "sequence": [
+      "read",
+      "write",
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-14",
+    "run": "ollama-pi-0.86.1-hard-1",
+    "tool": "powershell",
+    "input": "{'command': 'python tasks.py list', 'timeout': 30}",
+    "prior": [
+      "1 [open] 3 A ()\r\n2 [done] 5 B (1)\r\n3 [open] 3 Task A ()\r\n",
+      "2 [done] 5 B ()\r\n3 [open] 3 Task A ()\r\n"
+    ],
+    "sequence": [
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "read",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-15",
+    "run": "ollama-pi-0.86.1-hard-1",
+    "tool": "powershell",
+    "input": "{'command': 'python tasks.py plan', 'timeout': 30}",
+    "prior": [
+      "no open tasks\r\n",
+      "4 5 Task C\r\n"
+    ],
+    "sequence": [
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-16",
+    "run": "ollama-pi-0.86.1-intervals-1",
+    "tool": "powershell",
+    "input": "{'command': 'python test_public.py', 'timeout': 10}",
+    "prior": [
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-1\\test_public.py\", line 2, in <module>\r\n    assert merge([(1,3),(",
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-1\\test_public.py\", line 3, in <module>\r\n    assert merge([(1,9),("
+    ],
+    "sequence": [
+      "read",
+      "read",
+      "read",
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-17",
+    "run": "ollama-pi-0.86.1-intervals-2",
+    "tool": "powershell",
+    "input": "{'command': 'python test_public.py', 'timeout': 10}",
+    "prior": [
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-2\\test_public.py\", line 2, in <module>\r\n    assert merge([(1,3),(",
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-2\\test_public.py\", line 3, in <module>\r\n    assert merge([(1,9),("
+    ],
+    "sequence": [
+      "read",
+      "read",
+      "read",
+      "powershell",
+      "edit",
+      "powershell",
+      "edit",
+      "powershell"
+    ]
+  },
+  {
+    "id": "natural-18",
+    "run": "ollama-pi-0.86.1-intervals-3",
+    "tool": "powershell",
+    "input": "{'command': 'python test_public.py', 'timeout': 10}",
+    "prior": [
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-3\\test_public.py\", line 2, in <module>\r\n    assert merge([(1,3),(",
+      "Traceback (most recent call last):\r\n  File \"C:\\Users\\kevin\\ai_bench\\round-20260920\\runs\\ollama-pi-0.86.1-intervals-3\\test_public.py\", line 3, in <module>\r\n    assert merge([(1,9),("
+    ],
+    "sequence": [
+      "read",
+      "read",
+      "read",
+      "powershell",
+      "edit",
+      "powershell",
+      "read",
+      "edit",
+      "powershell"
+    ]
+  }
+]

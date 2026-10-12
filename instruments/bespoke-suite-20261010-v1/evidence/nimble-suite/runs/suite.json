@@ -1,0 +1,131 @@
+{
+  "subsets": {
+    "aegis2": {
+      "count": 250,
+      "correct": 189,
+      "accuracy": 0.756,
+      "types": [
+        "noul"
+      ]
+    },
+    "boolq": {
+      "count": 300,
+      "correct": 259,
+      "accuracy": 0.8633333333333333,
+      "types": [
+        "noul"
+      ]
+    },
+    "civil_comments": {
+      "count": 300,
+      "correct": 273,
+      "accuracy": 0.91,
+      "types": [
+        "noul"
+      ]
+    },
+    "helpsteer2": {
+      "count": 249,
+      "correct": 106,
+      "accuracy": 0.42570281124497994,
+      "types": [
+        "score"
+      ]
+    },
+    "massive-de-DE": {
+      "count": 350,
+      "correct": 294,
+      "accuracy": 0.84,
+      "types": [
+        "choice"
+      ]
+    },
+    "massive-en-US": {
+      "count": 350,
+      "correct": 300,
+      "accuracy": 0.8571428571428571,
+      "types": [
+        "choice"
+      ]
+    },
+    "multinli": {
+      "count": 299,
+      "correct": 264,
+      "accuracy": 0.882943143812709,
+      "types": [
+        "choice"
+      ]
+    },
+    "paws": {
+      "count": 250,
+      "correct": 198,
+      "accuracy": 0.792,
+      "types": [
+        "noul"
+      ]
+    },
+    "pubmedqa": {
+      "count": 250,
+      "correct": 186,
+      "accuracy": 0.744,
+      "types": [
+        "choice"
+      ]
+    },
+    "squad2": {
+      "count": 299,
+      "correct": 245,
+      "accuracy": 0.8193979933110368,
+      "types": [
+        "noul"
+      ]
+    },
+    "summeval-consistency": {
+      "count": 144,
+      "correct": 110,
+      "accuracy": 0.7638888888888888,
+      "types": [
+        "score"
+      ]
+    },
+    "summeval-relevance": {
+      "count": 240,
+      "correct": 93,
+      "accuracy": 0.3875,
+      "types": [
+        "score"
+      ]
+    },
+    "vitaminc-dev": {
+      "count": 599,
+      "correct": 475,
+      "accuracy": 0.7929883138564274,
+      "types": [
+        "choice"
+      ]
+    }
+  },
+  "macro_accuracy": 0.7565305647377102,
+  "micro_accuracy": 0.7711340206185567,
+  "records": 3880,
+  "by_type": {
+    "noul": {
+      "subsets": 5,
+      "macro_accuracy": 0.828146265328874,
+      "micro_accuracy": 0.8320228734810579,
+      "records": 1399
+    },
+    "choice": {
+      "subsets": 5,
+      "macro_accuracy": 0.8234148629623987,
+      "micro_accuracy": 0.821969696969697,
+      "records": 1848
+    },
+    "score": {
+      "subsets": 3,
+      "macro_accuracy": 0.5256972333779563,
+      "micro_accuracy": 0.4881516587677725,
+      "records": 633
+    }
+  }
+}

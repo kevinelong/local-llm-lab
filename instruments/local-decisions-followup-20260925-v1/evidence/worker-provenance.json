@@ -1,0 +1,12 @@
+{
+  "original": "C:\\Users\\kevin\\ai_bench\\local-decisions-20260925-v1\\worker.py",
+  "original_sha256": "ae71b3199a178a2813c7e336ae627a3e17ee1d9d9d1c7db80077a98dec5a332b",
+  "changes": {
+    "split in ('diagnostic','development','evaluation')": "split in ('timing','natural')",
+    "model_path=ROOT/'models'/model_name": "model_path=ROOT.parent/'local-decisions-20260925-v1'/'models'/model_name",
+    "ROOT/'upstream/openjev'": "ROOT.parent/'local-decisions-20260925-v1'/'upstream/openjev'",
+    "limit=6 if split=='diagnostic' else 20": "limit=len(json.loads((ROOT/(split+'-inputs.json')).read_text()))",
+    "set(questions)!={'stuck','wrong_approach'}": "set(questions)!={'stuck'}"
+  },
+  "followup_sha256": "6168d3e8d82fa48f7b346b57f9936327895b1513c961592029e538c57cf1f804"
+}

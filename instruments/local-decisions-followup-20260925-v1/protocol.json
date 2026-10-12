@@ -1,0 +1,15 @@
+{
+  "timing_inputs_sha256": "41045a964e75fe55630cb0a5dfe4d97922d83bed9caa2d063f0d5b2ef0493b4a",
+  "threshold": 0.85,
+  "timing_gate": "All 46 probabilities exactly match original; warm p95 <=3000ms; no memory abort",
+  "natural_policy": "Labels frozen before natural inference; no threshold tuning; uncertain labels excluded but reported; cap 3 candidates per source; archival histories newly used for judging, not newly generated",
+  "natural_inputs_sha256": "9adc36c7b1b6e302cb6eec28bc0d5ab062bf77765a18422ef751cca24e5907ea",
+  "natural_labels_sha256": "73d1cda76d94f1c2eb4861cf7b674311529824e9dff744142da2379dfd939a88",
+  "baseline_predictions_sha256": "f5da16a87c1bccb96bfdbaadd5e00e594b2d9e6074fd48e49ce597ca1eabcf9a",
+  "prepare_source_sha256": "62c5024b32e63276d5b4138c56600f450c42692ab4a9f82915f4aba59032486b",
+  "natural_frozen_utc": "2026-09-25T18:18:42.654066+00:00",
+  "natural_labels": "Single reviewer, 4 positive and 14 negative; no independent annotator; no model scores seen.",
+  "natural_representation": "12 calls preserved, task first 400 chars, input head/tail 160, output head/tail 120. Full input/output equality represented with local integer IDs. Full audit retained. Successful mutation metadata shared with both judges.",
+  "baseline": "Third identical tool+full arguments; both prior outputs errors and identical; no successful edit/write/apply_patch or recognized shell mutation since first occurrence. Failed edits do not reset. Shell recognition is limited and no general side-effect inference is claimed.",
+  "observer_scope": "All eligible first-per-key archival windows up to 3/source; original online observer emits at most once/user turn, so this is an expanded offline screen, not exact online firing counts."
+}

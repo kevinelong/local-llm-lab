@@ -1,0 +1,27 @@
+{
+  "subset": "multinli",
+  "types": [
+    "choice"
+  ],
+  "wall_seconds": 28.5,
+  "all": {
+    "count": 299,
+    "correct": 264,
+    "accuracy": 0.882943143812709,
+    "mean_negative_log_likelihood": 0.30134621425831476,
+    "mean_multiclass_brier": 0.16005830337047225,
+    "median_ms": 94.7874000412412,
+    "p95_ms": 110.99050001939759
+  },
+  "by_type": {
+    "choice": {
+      "count": 299,
+      "correct": 264,
+      "accuracy": 0.882943143812709,
+      "mean_negative_log_likelihood": 0.30134621425831476,
+      "mean_multiclass_brier": 0.16005830337047225,
+      "median_ms": 94.7874000412412,
+      "p95_ms": 110.99050001939759
+    }
+  }
+}

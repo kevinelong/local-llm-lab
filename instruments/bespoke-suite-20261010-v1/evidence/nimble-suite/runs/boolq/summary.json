@@ -1,0 +1,29 @@
+{
+  "subset": "boolq",
+  "types": [
+    "noul"
+  ],
+  "wall_seconds": 33.4,
+  "all": {
+    "count": 300,
+    "correct": 259,
+    "accuracy": 0.8633333333333333,
+    "mean_negative_log_likelihood": 0.4693093840983761,
+    "mean_multiclass_brier": 0.22443882937967582,
+    "mean_binary_brier": 0.11221941468983791,
+    "median_ms": 108.08920001727529,
+    "p95_ms": 143.69679999072105
+  },
+  "by_type": {
+    "noul": {
+      "count": 300,
+      "correct": 259,
+      "accuracy": 0.8633333333333333,
+      "mean_negative_log_likelihood": 0.4693093840983761,
+      "mean_multiclass_brier": 0.22443882937967582,
+      "mean_binary_brier": 0.11221941468983791,
+      "median_ms": 108.08920001727529,
+      "p95_ms": 143.69679999072105
+    }
+  }
+}

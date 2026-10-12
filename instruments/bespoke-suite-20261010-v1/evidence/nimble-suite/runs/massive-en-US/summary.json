@@ -1,0 +1,27 @@
+{
+  "subset": "massive-en-US",
+  "types": [
+    "choice"
+  ],
+  "wall_seconds": 66.5,
+  "all": {
+    "count": 350,
+    "correct": 300,
+    "accuracy": 0.8571428571428571,
+    "mean_negative_log_likelihood": 0.8346860642681038,
+    "mean_multiclass_brier": 0.24997733427399413,
+    "median_ms": 190.0206499849446,
+    "p95_ms": 202.118800021708
+  },
+  "by_type": {
+    "choice": {
+      "count": 350,
+      "correct": 300,
+      "accuracy": 0.8571428571428571,
+      "mean_negative_log_likelihood": 0.8346860642681038,
+      "mean_multiclass_brier": 0.24997733427399413,
+      "median_ms": 190.0206499849446,
+      "p95_ms": 202.118800021708
+    }
+  }
+}

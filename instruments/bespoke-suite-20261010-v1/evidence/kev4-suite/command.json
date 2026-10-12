@@ -1,0 +1,21 @@
+{
+  "command": [
+    "C:\\Users\\kevin\\ai_bench\\staged-decisions-20261005\\llamacpp-b11429\\llama-server.exe",
+    "-m",
+    "C:\\Users\\kevin\\ai_bench\\staged-decisions-20261005\\gguf\\kev4--Kev-4B-Q4_K_M.gguf",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "18096",
+    "-c",
+    "4096",
+    "-ngl",
+    "99",
+    "-np",
+    "1",
+    "-b",
+    "512",
+    "-ub",
+    "512"
+  ]
+}

@@ -1,0 +1,147 @@
+{
+ "generated": "2026-10-10",
+ "models": [
+  "kev4",
+  "nimble"
+ ],
+ "resamples": 4000,
+ "subsets": {
+  "aegis2": {
+   "n": 250,
+   "binary": true,
+   "family": "noul",
+   "acc_a": 0.828,
+   "acc_b": 0.756,
+   "discordant_kev4_only": 35,
+   "discordant_nimble_only": 17,
+   "p_mcnemar": 0.017533235299084904
+  },
+  "boolq": {
+   "n": 300,
+   "binary": true,
+   "family": "noul",
+   "acc_a": 0.85,
+   "acc_b": 0.8633333333333333,
+   "discordant_kev4_only": 17,
+   "discordant_nimble_only": 21,
+   "p_mcnemar": 0.6271025701571489
+  },
+  "civil_comments": {
+   "n": 300,
+   "binary": true,
+   "family": "noul",
+   "acc_a": 0.8333333333333334,
+   "acc_b": 0.91,
+   "discordant_kev4_only": 10,
+   "discordant_nimble_only": 33,
+   "p_mcnemar": 0.0006061066312668117
+  },
+  "helpsteer2": {
+   "n": 249,
+   "binary": false,
+   "family": "score",
+   "acc_a": 0.3614457831325301,
+   "acc_b": 0.42570281124497994,
+   "discordant_kev4_only": 24,
+   "discordant_nimble_only": 40,
+   "p_mcnemar": 0.05994118956699923
+  },
+  "massive-de-DE": {
+   "n": 350,
+   "binary": false,
+   "family": "choice",
+   "acc_a": 0.8628571428571429,
+   "acc_b": 0.84,
+   "discordant_kev4_only": 22,
+   "discordant_nimble_only": 14,
+   "p_mcnemar": 0.2429849540349096
+  },
+  "massive-en-US": {
+   "n": 350,
+   "binary": false,
+   "family": "choice",
+   "acc_a": 0.8628571428571429,
+   "acc_b": 0.8571428571428571,
+   "discordant_kev4_only": 12,
+   "discordant_nimble_only": 10,
+   "p_mcnemar": 0.8318119049072266
+  },
+  "multinli": {
+   "n": 299,
+   "binary": false,
+   "family": "choice",
+   "acc_a": 0.919732441471572,
+   "acc_b": 0.882943143812709,
+   "discordant_kev4_only": 19,
+   "discordant_nimble_only": 8,
+   "p_mcnemar": 0.052238985896110535
+  },
+  "paws": {
+   "n": 250,
+   "binary": true,
+   "family": "noul",
+   "acc_a": 0.808,
+   "acc_b": 0.792,
+   "discordant_kev4_only": 33,
+   "discordant_nimble_only": 29,
+   "p_mcnemar": 0.7035366713552734
+  },
+  "pubmedqa": {
+   "n": 250,
+   "binary": false,
+   "family": "choice",
+   "acc_a": 0.708,
+   "acc_b": 0.744,
+   "discordant_kev4_only": 15,
+   "discordant_nimble_only": 24,
+   "p_mcnemar": 0.19959086691960692
+  },
+  "squad2": {
+   "n": 299,
+   "binary": true,
+   "family": "noul",
+   "acc_a": 0.7658862876254181,
+   "acc_b": 0.8193979933110368,
+   "discordant_kev4_only": 14,
+   "discordant_nimble_only": 30,
+   "p_mcnemar": 0.022628841205914796
+  },
+  "summeval-consistency": {
+   "n": 144,
+   "binary": false,
+   "family": "score",
+   "acc_a": 0.8125,
+   "acc_b": 0.7638888888888888,
+   "discordant_kev4_only": 14,
+   "discordant_nimble_only": 7,
+   "p_mcnemar": 0.18924713134765625
+  },
+  "summeval-relevance": {
+   "n": 240,
+   "binary": false,
+   "family": "score",
+   "acc_a": 0.3375,
+   "acc_b": 0.3875,
+   "discordant_kev4_only": 41,
+   "discordant_nimble_only": 53,
+   "p_mcnemar": 0.25644234893296924
+  },
+  "vitaminc-dev": {
+   "n": 599,
+   "binary": false,
+   "family": "choice",
+   "acc_a": 0.7245409015025042,
+   "acc_b": 0.7929883138564274,
+   "discordant_kev4_only": 31,
+   "discordant_nimble_only": 72,
+   "p_mcnemar": 6.59633262692302e-05
+  }
+ },
+ "pooled": {
+  "b": 287,
+  "c": 358,
+  "n": 3880,
+  "a": 2921,
+  "b_correct": 2992
+ }
+}
