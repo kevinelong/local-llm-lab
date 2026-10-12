@@ -2,6 +2,29 @@
 
 Updated October 12, 2026. Owner: Kevin, machine DARKTEXAS.
 
+## Restart checklist (2026-10-12, end of session)
+
+1. **Read, in order:** this file, then `local-llm-lab/AGENTS.md` (its top entry is the pause), then
+   `overnight-20261011/README.md`. The instruments, frozen inputs and small evidence are also in the repo
+   under `local-llm-lab/instruments/`; refresh them with `python instruments/refresh-snapshot.py` and commit.
+2. **Nothing from this lab is running or resident.** Check the gates before any load (free physical >= 9 GiB,
+   commit headroom >= 8 GiB). Kevin's own `tools/dev-server.py` holds port 8080 and the WSL relay holds 8000 -
+   those are his, not leftovers, and a gate trip may be WSL's ~5 GiB rather than a stale process.
+3. **The paused queue, in this order:** delete `overnight-20261011/OVERNIGHT-STOP`, then
+   `cd overnight-20261011 && python runner.py --only i4-reason-repeat,i6-gliner-replay`, then the
+   **Colibri Qwen3.6-35B-A3B knowledge comparison** - the "same model, second engine" item that never ran.
+   Its ~23 GB model is already complete on `D:\ai_bench-staged\colibri-models` (21.45 GiB, 50 files), so
+   serve that directory and point the knowledge instrument at port 8000. **Never use `coli setup` for it:**
+   that command downloads and then runs the server in the foreground, so it never returns - it deadlocked an
+   eight-hour attempt.
+4. **Preferences in force:** commit and push after each change (only `local-llm-lab` is a git repo;
+   `ai_bench` is not, and its publishable parts are snapshotted into `instruments/`); open new documents with
+   `ai_bench/Open-Document.ps1`; everything public here is **FSL-1.1-MIT** - source-available, *not* OSI open
+   source, so do not describe it otherwise.
+5. **Do not repeat:** relicensing the three third-party repos on the account (`django-registration`, `mscgen`,
+   `pdm`) or the ~390 dormant Dropbox repos; committing model packs, build output or wire captures; guessing
+   which of `LICENSE` / `LICENSE.md` a repo uses instead of checking both.
+
 - 2026-10-12: **PAUSED MID-QUEUE, resumes tonight.** Read `local-llm-lab/AGENTS.md` (its top entry) and
   `overnight-20261011/README.md`. The queue's stop marker is in place, no engine is resident, and night 1's
   results are preserved in `status-night1.json`, `REPORT-night1.md` and `REPORT-SUMMARY.md`.
@@ -40,6 +63,10 @@ Updated October 12, 2026. Owner: Kevin, machine DARKTEXAS.
   a repo may legitimately carry the licence as `LICENSE.md` rather than `LICENSE` - `tek/tek-tube` does, with
   a `NOTICE.md` for its third-party assets. `local-llm-lab` itself is FSL-1.1-MIT and its `NOTICE.md` covers
   the third-party datasets and model outputs inside `instruments/`.
+  **Repos published in this pass:** `local-llm-lab` (this notebook), `tek/tek-tube`, and **`goproverbs`** -
+  the last found locally at `local-llm-lab/goproverbs` with one branch and no remote, imported as 1,836 files
+  / 29.9 MB and pushed to <https://github.com/kevinelong/goproverbs>, with its build output (`target/`, 461 MB)
+  and 2.7 GB of raw `.jsonl` traces ignored and left local.
 
 - 2026-10-09 (small hours): THE NEW-TASK SUITE RAN LIVE, and Swift is exempt from its provisioning.
   Read `new-items-20261007/RESUME.md` first. The frozen three (events 76 / ledger 70 / paths 75) now
