@@ -29,6 +29,17 @@ Updated October 12, 2026. Owner: Kevin, machine DARKTEXAS.
   frozen inputs and small evidence are now snapshotted into `local-llm-lab/instruments/` with a sha256
   manifest and a refresh script; and a **standing preference is recorded to commit and push after each
   change** (that repo is public, so the snapshot is secret-scanned first).
+  **Licensing (same day):** every public repo on this account is licensed **FSL-1.1-MIT** (Functional Source
+  License 1.1, MIT future licence - source-available, **not** OSI open source; each version becomes MIT on
+  its second anniversary). An audit of 262 public non-fork repos found **213 already carried it**, **46 had
+  no licence file and all 46 were written through the GitHub Contents API** (no `gh`, no WSL, no cloning -
+  the stored git credential is enough), and **3 were deliberately skipped** because they hold other people's
+  licences: `django-registration` (James Bennett), `mscgen` (GPL), `pdm` (BSD-3-Clause) - archive or delete
+  those rather than licensing them. Two traps: GitHub's licence detection does not know FSL, so a repo
+  sidebar shows no licence even when the file is there (audit the file, never the API's `license` field), and
+  a repo may legitimately carry the licence as `LICENSE.md` rather than `LICENSE` - `tek/tek-tube` does, with
+  a `NOTICE.md` for its third-party assets. `local-llm-lab` itself is FSL-1.1-MIT and its `NOTICE.md` covers
+  the third-party datasets and model outputs inside `instruments/`.
 
 - 2026-10-09 (small hours): THE NEW-TASK SUITE RAN LIVE, and Swift is exempt from its provisioning.
   Read `new-items-20261007/RESUME.md` first. The frozen three (events 76 / ledger 70 / paths 75) now
