@@ -1493,7 +1493,7 @@
   to notes and small text, and never add model weights, packs, logs or anything under `ai_bench` - the 37 GB
   Kolibri GGUF and the ~66 GB Strata pack live there and must never be committed. Push with the existing
   credential helper; if a push fails, report it rather than rewriting history.
-- Licensing, 2026-10-12: this repository is **FSL-1.1-MIT** (Functional Source License 1.1, ALv2 future
+- Licensing, 2026-10-12: this repository is **FSL-1.1-MIT** (Functional Source License 1.1, MIT future
   licence) - source-available, not OSI open source, converting to MIT two years after each version is
   published. See `LICENSE` and `NOTICE.md`. Two consequences to respect in future edits: **never paste
   third-party code or data into this repo without checking its licence** (the vendor packs keep their own

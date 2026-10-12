@@ -1,8 +1,8 @@
 # Licensing notice
 
-This repository is licensed under the **Functional Source License, Version 1.1, ALv2 Future License**
+This repository is licensed under the **Functional Source License, Version 1.1, MIT Future License**
 (`FSL-1.1-MIT`) - see [LICENSE](LICENSE). In short: you may use, copy, modify and redistribute it for any
-purpose except a competing commercial product or service, and each version becomes Apache-2.0 on its second
+purpose except a competing commercial product or service, and each version becomes MIT on its second
 anniversary.
 
 Two things that a licence on this repository cannot and does not change:
