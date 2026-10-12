@@ -89,6 +89,16 @@ def main():
                 shutil.copyfile(path, target)
                 copied += 1
 
+    # Root-level handoff files, non-recursive so this never walks the multi-hundred-GB tree.
+    for name in ('CONTINUE-HERE.md',):
+        path = BASE / name
+        if not path.exists() or path.stat().st_size > SIZE_CAP:
+            continue
+        manifest[name] = {'bytes': path.stat().st_size, 'sha256': sha256(path)}
+        if not args.check:
+            shutil.copyfile(path, DEST_ROOT / name)
+            copied += 1
+
     if not args.check:
         (DEST_ROOT / 'SNAPSHOT.json').write_text(json.dumps(
             {'generated': '2026-10-12', 'source_root': str(BASE), 'size_cap_bytes': SIZE_CAP,
