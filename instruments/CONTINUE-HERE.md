@@ -24,6 +24,11 @@ Updated October 12, 2026. Owner: Kevin, machine DARKTEXAS.
 5. **Do not repeat:** relicensing the three third-party repos on the account (`django-registration`, `mscgen`,
    `pdm`) or the ~390 dormant Dropbox repos; committing model packs, build output or wire captures; guessing
    which of `LICENSE` / `LICENSE.md` a repo uses instead of checking both.
+6. **Product work is separate from this lab.** The Android scoreboard app and the tournament web console were
+   worked on in the same session as this lab; their state is in `score/CONTINUE-HERE.md`
+   (`C:/Users/kevin/score/`), including a local branch in the `15ball-scoresheet` clone holding the unmerged
+   web work and the commands to bring its servers back. None of it touches this lab's instruments or frozen
+   evidence — `tools/dev-server.py` on port 8080 belongs to that work, as item 2 says.
 
 - 2026-10-12: **PAUSED MID-QUEUE, resumes tonight.** Read `local-llm-lab/AGENTS.md` (its top entry) and
   `overnight-20261011/README.md`. The queue's stop marker is in place, no engine is resident, and night 1's

@@ -90,7 +90,7 @@ def main():
                 copied += 1
 
     # Root-level handoff files, non-recursive so this never walks the multi-hundred-GB tree.
-    for name in ('CONTINUE-HERE.md',):
+    for name in ('CONTINUE-HERE.md', 'RESTART_NOTES.md'):
         path = BASE / name
         if not path.exists() or path.stat().st_size > SIZE_CAP:
             continue
