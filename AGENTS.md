@@ -1527,4 +1527,14 @@
   rather than relicensed. **Caveat for future sessions:** GitHub's licence detection does not know FSL, so a
   repository's sidebar shows no licence even when the file is present - check the file, never the API's
   `license` field, when auditing this.
+  **`goproverbs` was published the same day:** found locally at `local-llm-lab/goproverbs` (branch `master`,
+  no remote until now, only the licence commit in it) and imported as **1,836 files / 29.9 MB**, pushed to
+  <https://github.com/kevinelong/goproverbs>. Excluded and left local: `target/` (461 MB of build output),
+  `dist/`, and **`results/**/*.jsonl` - 277 raw wire and per-game traces totalling 2.7 GB**, consistent with
+  the lab's rule that captures are not published; the reports, fixtures, SGF records and the frozen
+  per-experiment source snapshots under `results/` *are* committed. Check `LICENSE` *and* `LICENSE.md` when
+  auditing a repo - `tek-tube` uses the latter and `goproverbs` the former, and guessing wrong twice cost two
+  false alarms. Its licence preamble also needed correcting by hand: the first draft described
+  "Go/weiqi proverb retrieval with neural verification" when the repository is the **Rust Go player engine**
+  (README and Cargo.toml are authoritative) - read the README before writing a preamble.
 - Preserve existing work.
