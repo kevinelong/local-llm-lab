@@ -1,5 +1,8 @@
 # The Bespoke civil_comments anomaly is solved - it is a metric artifact, and the metric flips the ranking
 
+*(2026-10-10: the anomaly diagnosis holds, but "flips the ranking" does not - that came from comparing a
+5-subset average against a 13-subset macro. See the correction at the end of this file.)*
+
 2026-10-08, overnight. Read with `bespoke-suite-20261005-v1/REPORT.md` and
 `bespoke-suite-20261007-v1/REPORT.md`, which both recorded this as unexplained: our nimble run scored
 **91.0 %** on `civil_comments` against a published **70.3 %**. The 2026-10-05 note guessed "rendering or
@@ -76,3 +79,26 @@ binary subsets; plain accuracy over the rest as before):
   balanced.
 - No re-run is needed for any of this: every number above is recomputed from the stored rows, so the
   existing roots stay frozen and the ranking can be restated in the corrected metric.
+
+## Correction, 2026-10-10: the flip was an averaging artifact
+
+Re-derived from the frozen `rows.jsonl` in `ai_bench/bespoke-metric-20261010/` (`recompute.py`, no
+inference). The table above compares two different things: its "balanced macro" column is the mean over
+the **5 binary subsets only**, set beside a **13-subset** accuracy macro.
+
+| view | kev4 4B | nimble 9B | lev | kev0 | laya |
+|---|---|---|---|---|---|
+| 13-subset accuracy macro (the original metric) | 0.7442 | **0.7565** | 0.6841 | 0.6121 | 0.5801 |
+| 13-subset balanced macro (balanced for the 5 `noul` subsets, accuracy elsewhere) | 0.7395 | **0.7445** | 0.6814 | 0.5997 | 0.5687 |
+| 5 binary subsets (`noul`), balanced accuracy | **0.8049** | 0.7969 | 0.7897 | 0.6939 | 0.6505 |
+
+The note's "0.805 / 0.797" is the third row. Like-for-like, **the ranking does not flip**: nimble stays
+0.5 points ahead on both 13-subset macros, and kev4 leads by 0.8 points on the binary subsets alone. The
+defensible claim is the weaker one - the 4B `kev4` is within a point of the 9B `nimble` on every view and
+leads on the binary view, so they are a tie at this sample size.
+
+Everything else here is confirmed to the digit: all five recorded accuracies reproduce (75.65 / 74.42 /
+68.41 / 61.21 / 58.01); nimble's `civil_comments` is 0.910 against a 0.893 majority baseline (+1.7
+points) with balanced accuracy 0.730; and `laya` tops that subset on accuracy (0.937) while predicting
+the positive class only 5.0 % of the time (nimble 9.0 %, kev4 21.3 %, kev0 14.7 %, lev 28.3 %). The
+artifact diagnosis and every reporting recommendation below stand; only the rank reversal was overstated.

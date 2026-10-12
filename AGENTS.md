@@ -1,5 +1,130 @@
 # Local AI lab working instructions
 
+- October 12 (morning): **the overnight queue's first pass is done and its results are in** - read
+  `ai_bench/overnight-20261011/REPORT-SUMMARY.md`, `REPORT-night1.md` and `status-night1.json`; queue 2 is
+  running as a harness job for the three items that needed a fix. Four of six items produced results, the
+  resource gates held throughout (free physical 39.9-43.4 GiB, commit headroom dipping to 26.7 and
+  recovering), and no frozen artifact was touched.
+  - **Placement changes the prose, not the answers.** Strata at `--resident-budget-gib` 2 vs 8 on the same 93
+    shared-correct items: **65 of 93 justifications differ** (my recorded prediction was 20-60%, so wider than
+    expected), **the chosen letter differs on 0 of 93**, correctness 92 vs 92. This localises what the lab had
+    only as "temperature 0 is not seed-stable on that engine": free-form text moves with placement, the scored
+    answer does not. Our suite scores are placement-robust; text-based instruments (papers, fact lists) are
+    not, which is exactly where that earlier variance appeared.
+  - **Kolibri-1 78B leads on coding and trails on knowledge: 901/1100 = 81.9%**, against Qwen3.6-35B-A3B
+    88.5% and Strata Q2_0 89.7% - a 6.6-point gap, and **wrong against my recorded prediction of 85-92%**.
+    It is also the fastest at 1.46 s/item (Qwen3.6 2.80, Strata 1.93). Per subject: grade-school math 285/300
+    (95%), world history 86, international law 84, astronomy 82, geography 81, religions 81, philosophy 80,
+    prehistory 71, **virology 51** - the same virology floor the other two hit, so that is the item set, not
+    the model. Model ranking here is task-dependent, measured.
+  - **The paper form's topic variability is not stable**: re-run, Qwen3.6 produced 1 distinct topic again
+    (2/2 runs deterministic) while **Strata produced 1, not the 2 of the first run** - so "Strata picks
+    different topics" is a sometimes-property, not a fixed one.
+  - **Two failures, both mine, both fixed.** Items 4 and 5 shared the suffix `-rep1`, so the paper run
+    **overwrote the reasoning repeat's artifact** - re-running with distinct labels. And queue 2 was launched
+    with a bare shell `&`: **the driver was reaped when the tool call returned** (the first item survived as an
+    orphan), which is precisely the trap this lab's notes record under "never launch a batch with a bare
+    shell `&`". Fix: `supervise.py`, launched through the harness, waits for the orphan, clears the ports and
+    drives the rest.
+  - **Two environment findings worth keeping.** Colibri's Qwen3.6-35B-A3B download reached 21.45 GiB of ~23 GB
+    in two hours (~3 MB/s, the slowest source this lab has used; the Laya checkpoint did 0.84 GiB in 15 s) and
+    resumes. And GLiNER2.5-Decide has a **version skew**: upstream renamed the architecture, so from revision
+    `2125c8ac` the root `config.json` is `model_type: gliner2` / `[Gliner2ForSchemaExtraction]` and the pinned
+    Colibri v2.0.0 refuses it ("unsupported model_type: gliner2"); revisions up to `a6ef71ce` carry
+    `model_type: extractor` / `[SpanExtractor]`, which is what its doc describes. Pinned there.
+
+- October 11 (evening): **an overnight queue is running** - read `ai_bench/overnight-20261011/README.md`
+  before anything else; `status.json` and `REPORT.md` in that root say where it is, and a file named
+  `OVERNIGHT-STOP` there cancels it before the next item. Six serial items, one inference workload at a
+  time, gates re-checked before each item (a trip **stops** the queue, never lowers it), no frozen artifact
+  edited, nothing deleted or rebooted. Predictions for every item were written down *before* its run.
+  Items: Strata at `--resident-budget-gib` 2 vs 8 over the same 93 items (the placement/output instrument);
+  **Kolibri-1** on the 1,100-item knowledge set; **Colibri's** own Qwen3.6-35B-A3B over the same items (same
+  model, second engine); the repeat of our 93-item reasoning run; the paper form repeated; GLiNER2.5-Decide
+  on Colibri over the frozen decision windows. Both smoke tests passed before the night started - the
+  placement item end to end, Kolibri after fixing its launch.
+  **Two launch facts worth keeping, both probed rather than guessed:** the community `hob-b11434` runtime
+  (the only build that loads kolibri1) dies at load with `CUDA error: shared object initialization failed`
+  in `launch_fattn` unless `-b 512 -ub 512` are set explicitly - with a 128k context the default micro-batch
+  asks the flash-attention kernel for more shared memory than the card allows; and `-ctk/-ctv q8_0`
+  *requires* `-fa on` (with `-fa off` the context fails to build, the opposite pairing to what the error
+  suggests). Kolibri then loads in 26 s, matching the frozen note's 27.7 s, and answers at ~22 tok/s on a
+  cold burst. Same day's disk work: the `D:` second NVMe (331.6 GiB free, throughput parity with `C:`) and
+  the archived `staged-strata-20260930` are recorded in the research note.
+
+- October 11: **Strata-alternative research** (no inference, no install, no gate touched, nothing
+  deleted). Read `local-llm-lab/STRATA-ALTERNATIVES-2026-10-11.md`. The mechanism that makes an engine
+  "like Strata" is streaming routed experts from disk inside a bounded memory budget, so a GPU becomes an
+  optional tier rather than a requirement. **Colibrì** (`JustVugg/colibri`, tag v2.0.0 published
+  2026-10-06T20:24:40Z, Apache-2.0, pure C, Windows, GPU optional, asset sha256s published) is the one real
+  alternative: it has an engine for the Qwen3.8-Flash-Next we serve, and a **Jev-compatible
+  `/v1/systemone`** with three native decision models on the CPU (Laya 0.85 GB, GLiNER2.5-Decide 1.95 GB,
+  Clef 55 GB) - the cheapest test of a Strata alternative we have, and it needs no GPU. On Windows its CUDA
+  DLL covers only `colibri`, `qwen36` and `kimi_k3`, so Qwen3.8 there is Vulkan/CPU, and its 186 GB download
+  does not fit our free space (81 GiB, see the disk note below). **Name collision: Kolibri-1 78B is a model we measure; Colibrì is an
+  unrelated engine.** StrataFlow (Coaade, 2026-10-05) is the same thesis - `.strata` format built from GGUF -
+  but source-available (not OSI), CPU-only, no HTTP server, no release: watch only, plus an open lineage
+  question about whether our MIT Strata shares its code. The unmerged llama.cpp proposal #27149 is still
+  worth reading for its measurements: GGUF expert interleaving costs **111x page amplification** (36x after
+  a contiguous re-layout), and calibrating the hot set from real text lifts the hit rate from **6 % to 42 %**
+  (56 % with LRU) - the next lever for our own expert cache. **Disk note, resolved the same day: free space
+  fell 103 -> 81 -> 61 GiB across three measurements, and the cause is the pagefile.** `pagefile.sys` read
+  32.57 GiB early and 50.79 GiB two hours later (written 2026-10-11 10:11, only 3.54 GiB in use) - an ~18 GiB
+  allocation against a 20 GiB drop, with nothing in the lab's roots growing (the only new file over 300 MB is
+  the 0.78 GiB Laya checkpoint), Windows Update at 0.03 GiB and no shadow copies. So engine loads raise commit
+  charge, Windows grows the pagefile, and the space stays allocated until a reboot. **Free disk on this box is
+  not a static resource, and a guard watching disk during an engine run is partly watching the pagefile.** At
+  61 GiB no large Colibrì pack fits without deleting something; the decision models (0.85-1.95 GB, Laya staged
+  already), OLMoE (14 GB), Qwen3-Coder-30B (19 GB) and Qwen3.6-35B-A3B (23 GB) do. **Then the same day found
+  a second identical NVMe: `D:` (disk 0, same `NVMe P0527 Phison 1024GB` as `C:` on disk 1), 953.7 GiB with
+  331.6 GiB free, already holding a 622 GiB models store (Kimi-K2.7-Code 554.3 GiB; Qwen3.8-Flash-Next as
+  Ollama `UD-IQ1_S` 72.5 GiB - a different quantisation, checked and *not* a duplicate of our GSQ-RCO Q2_0,
+  so nothing was deleted). Measured 1 GB sequential: `C:` 1187 write / 3212 read MB/s, `D:` 1261 / 3123 -
+  parity, and enough read for expert streaming. So large routes do fit, on `D:`; frozen roots keep their
+  absolute `C:` paths, so staging stays put and new downloads go to `D:`. Same note, addendum: a
+  captions-less video (AgenticEngineering,
+  2026-10-08, `egYyctiT2Kk`) named two engines the first search missed because they use different words for
+  the same idea - **ds4/DwarfStar 4** (`antirez/ds4`, MIT, Metal/CUDA/ROCm, `--ssd-streaming`, own GGUFs,
+  60-197 GiB models, persistent SHA1-keyed disk KV cache) and **FreeToken** (arXiv 2608.16157v1,
+  bandwidth-adaptive, `ft bench bw` measures CPU-vs-PCIe bandwidth before scheduling). Both are
+  hardware-blocked on this box; ds4's cache rule ("more cache helps only while the rest of the working set
+  still fits") and its identical-logits result are the takeaways. Searching one phrasing of an idea is how
+  you miss its implementations. **Ran the first recommended experiment** (`ai_bench/colibri-laya-20261011/`):
+  Colibrì v2.0.0 (tag-pinned, zip sha256 verified) serving Laya (checkpoint pinned `7b928d82`), over the 18
+  frozen windows with the verbatim `stuck` question from `decisions-20261005-v3/worker.py`, frozen inputs
+  verified against `protocol.json`. Result: **14/18, 0/4 stalls caught, 0/14 false alarms at 0.85 - identical
+  to our own Laya run**, so that failure is the model, not our serving path. New mechanism: at the
+  checkpoint's default `max_len` 512 the head returned a near-constant **0.7179** for unrelated windows
+  (truncation, not blindness); at 4096 its values are state-dependent but carry **no** stall signal (mean
+  stall 0.5868 vs non-stall 0.5768; no threshold in 0.40-0.90 catches a stall) and the doc's two-option
+  `choice` workaround points the wrong way (-0.021). Latency is the second finding: warm p95 **2765 ms** at
+  4096, about 15x our Laya's 183 ms and close to our own 3 s gate. The sweep is label-tuned and is not
+  validation. Server stopped, no gate touched. **The stall signal is in the transcript and a rule reads it**
+  (`ai_bench/decision-signal-20261011/`, frozen features only, no inference): the discriminator is not the
+  error flag but whether a repeated action produced a **byte-identical outcome** - three of the four labelled
+  stalls repeat a *successful* action with the same output hash, which is why the 2026-09-25 rule (identical
+  **error** repeat) caught only **1/4**. Error-agnostic identical-outcome catches **4/4 at 2/14 false
+  alarms**; adding "no DISTINCT successful outcome" gives **4/4 at 1/14**; the variant that also demands no
+  successful mutation gives 3/4 at 0/14. Against that, every neural decision model we have screened catches
+  **0/4** (Laya on two engines, kev4, kev0, julia), Laya adds **zero** catches on top of the rule at every
+  threshold down to 0.60, and the rule costs microseconds against Laya's 1562 ms. Descriptive, fitted on
+  these 18 labels - a real detector needs a fresh labelled set. **Colibrì's GLiNER2.5-Decide run was skipped
+  as redundant**: its own speed table predicts 25.7 s at 1923 tokens and our GLiNER verdict was p95 27.56 s,
+  so that latency is sequence length (quadratic attention on a DeBERTa-large), not a serving path - no engine
+  will fix it, only shorter states or a rule. Its checkpoint needs a root `config.json` (the opposite of
+  Laya's gotcha) and ships **no calibration**, so its probabilities are raw softmax.
+  **Calibrated-hot-set test on our own Strata: negative** (`ai_bench/strata-warmcache-20261011/`). One engine
+  process, declaration unchanged (`--resident-budget-gib 2`), three cold probes, four to eight same-domain
+  warm-ups, three warm probes: cold steady 22.4-26.4 s against warm 22.5-28.3 s, with the within-phase spread
+  (4.65-7.14 tok/s) larger than any between-phase difference. `expert-profile.bin` is byte-identical after
+  both runs (the pack's own file, dated 2026-10-07), so the engine persists no learned profile and a warm-up
+  has nothing to carry over. Two by-products worth keeping: this engine **is** deterministic for this prompt
+  and length (three byte-identical probes, 657-703 chars), so the earlier output variance belongs to long
+  free-form generations rather than to the engine as such; and a trap - the endpoint returns its tokens in
+  `reasoning_content`, so a collector reading only `content` silently measures 0 chars and "identical" empty
+  outputs, which my first run did.
+  Pending Kevin: whether to spend the ~2 GB on the GLiNER replication anyway.
+
 - October 9 (small hours): the new-task suite ran live end to end - read
   `ai_bench/new-items-20261007/RESUME.md` and its REPORT.md section "The chain's last runs". The
   frozen three tasks (events 76, ledger 70, paths 75) now sit beside three new batteries: **ledger2**
@@ -1343,4 +1468,12 @@
 - Include popular Hugging Face variants, CPU-only approaches, and agent-harness comparisons (especially Pi). Downloads and likes indicate interest, not correctness.
 - A model server (Ollama/llama.cpp), coding agent (Pi/Aider/OpenCode), and evaluator are separate experimental variables. Hold the others fixed when comparing one.
 - Keep scripts and new notes ASCII. Windows and PowerShell are the primary environment.
-- Preserve existing work. Do not commit or publish changes unless requested.
+- User preference, 2026-10-12: **commit and push after each change, in this repo.** Kevin asked for it
+  explicitly and asked that it be remembered. Only `C:/Users/kevin/local-llm-lab` is a git repo (remote
+  `https://github.com/kevinelong/local-llm-lab.git`, branch `main`, public); `C:/Users/kevin/ai_bench` is
+  NOT a repo, so instruments, roots and evidence stay local and are referenced from the notes by path.
+  Because the remote is public, before every commit: scan for secrets (API keys, tokens), keep the commit
+  to notes and small text, and never add model weights, packs, logs or anything under `ai_bench` - the 37 GB
+  Kolibri GGUF and the ~66 GB Strata pack live there and must never be committed. Push with the existing
+  credential helper; if a push fails, report it rather than rewriting history.
+- Preserve existing work.

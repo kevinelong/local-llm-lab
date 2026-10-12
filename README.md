@@ -37,11 +37,105 @@ behind it; the dated reports just below carry the tables.
 - **Use the RTX 5070 and nothing else.** The Arc iGPU does work through Ollama's Vulkan backend but
   delivers **0.39x** the discrete card (100.8 vs 260.5 tok/s) while spilling to system RAM, and the NPU
   has no path in any engine here. The iGPU is at best a second device for small decision/embedding work.
+- **The decision track: a 4B and a 9B inside one point, and the RAM upgrade changed nothing.** On
+  Bespoke's published 3,880-record suite `nimble` 9B leads `kev4` 4B on the 13-subset macro (0.7565 vs
+  0.7442) and on the class-balanced macro (0.7445 vs 0.7395), but **paired, both differences cross zero**
+  (95 % CI [-0.0257, +0.0015] and [-0.0189, +0.0092]). Pooled record-level nimble is ahead (McNemar
+  p = 0.0058), and by family it is nominally ahead in all three - noul +1.5 (p = 0.20), choice +1.6
+  (p = 0.06), score +3.3 (p = 0.13) - yet no family comparison is significant. The binary family even
+  splits by metric: nimble +1.1 on accuracy, **kev4 +0.8 on balanced accuracy**. Re-measured after the
+  upgrade, all **7,760 records are identical** to the pre-upgrade run, so the suite is platform-invariant.
+  Report balanced accuracy, the prediction rate and the majority baseline for skewed subsets, and
+  `mean |prediction - target|` for the score family (nimble 0.727, kev4 0.787, lev 0.856, kev0 1.090,
+  laya 1.224). Sources: `bespoke-metric-20261010/`, `bespoke-suite-20261010-v1/`.
 - **Keep the floors.** 3 / 2 / 0.5 GiB runtime, 9 / 8 / 7.5 GiB initial, one inference workload at a
   time. A trip is a measurement against the floor: Kolibri currently needs ~3.5 GiB more free *commit*
   than this box has at rest, and that is the finding - not a reason to lower the bar.
 
+### Note: knowledge breadth, the top two stacks (measured 2026-10-10)
+
+1,100 pinned items each (800 MMLU over 8 subjects for recall + 300 GSM8K as the procedural control),
+sampling pinned at temperature 0 / seed 20261009. This is the lab's first knowledge instrument; before
+it, every battery here measured procedural coding/repair.
+
+| stack | overall | MMLU (recall) | GSM8K (math) | wall | per item |
+|---|---|---|---|---|---|
+| Qwen3.6-35B-A3B Q4_K_M (llama.cpp, 131,072, cpu-moe) | 974/1100 = **88.5 %** | 688/800 = 86.0 % | 286/300 = 95.3 % | **51.3 min** | 2.80 s |
+| Qwen3.8-Flash-Next Q2_0 (Strata, 65,536, 4 GiB resident, streamed) | 987/1100 = **89.7 %** | 699/800 = 87.4 % | 288/300 = 96.0 % | **35.5 min** | 1.93 s |
+
+Per-subject, in case a topic matters to you:
+
+| topic | Qwen3.6 | Strata Q2_0 | reading |
+|---|---|---|---|
+| astronomy | 95/100 | 96/100 | tie |
+| high-school geography | 90/100 | 90/100 | tie |
+| world history | 90/100 | 91/100 | tie |
+| philosophy | 90/100 | 91/100 | tie |
+| world religions | 86/100 | 89/100 | tie |
+| international law | **93/100** | 90/100 | tie (Qwen3.6 nominally ahead) |
+| **prehistory** | 86/100 | **94/100** | **Strata ahead - the only gap that clears noise** (~1.9 se) |
+| **virology** | **58/100** | **58/100** | a ceiling in the items, not a model property |
+| grade-school math | 286/300 | 288/300 | tie |
+
+**The honest read: Strata is nominally ahead, not established ahead.** 13 items = 1.2 points overall
+against a **1.33-point standard error**, with MMLU +1.4 and GSM8K +0.7 - all inside one se. What *does*
+clear noise: the **wall time** (15.8 min, 31 % faster) and the **prehistory** topic. Meanwhile my
+recorded prediction for this test was wrong in an interesting way - I expected ~2-bit weights to cost
+*recall* first, and MMLU came out 87.4 % vs 86.0 %, i.e. no measurable penalty.
+
+So **do not choose between these two on knowledge** - at this sample size they know the same things.
+Choose on **cost and operation**: Strata served all 1,100 items in 35.5 min with only ~4 GiB resident and
+66 GB on disk, while Qwen3.6 took 51.3 min and needs the whole ~20 GB MoE reachable through `--cpu-moe`,
+i.e. system RAM - which is exactly why that recipe does not transfer to a 16 GB box.
+
+### Note: the same tie, expanded (measured 2026-10-10)
+
+A recognition tie does not mean they can *explain* the topic, so the pair were re-tested on the subject
+they are most tied on. Design: the 8 shared-correct astronomy items that mention **Mars** (of 93
+shared-correct astronomy items overall), a 25-fact list, and a ~550-word paper at three repeats; scored
+against a pinned Wikipedia corpus (12 Mars-science pages, 63,297 words, sha256 `05e8091a…`); temperature
+0, seed 20261009, fully local verification, no judge model.
+
+| form | Qwen3.6-35B-A3B Q4 | Strata Qwen3.8-Flash-Next Q2_0 |
+|---|---|---|
+| reasoning on 93 shared-correct items | 90/93 (96.8 %) | **92/93 (98.9 %)** |
+| 25-fact list, grounded | 25/25 | 25/25 |
+| facts carrying figures | **16** | 8 |
+| paper length (target ~550) | 408 words | 424 words |
+| paper grounding | 0.86 | **0.98** |
+| distinct paper topics over 3 repeats | 1 | 2 |
+
+**Reasoning: no difference, now measured on 93 items rather than 8.** Asked for the answer plus the
+decisive fact and the rejected distractor, Qwen3.6 scores 90/93 and Strata 92/93 - 1 discordant pair one
+way, 3 the other, paired McNemar **p = 0.625**. Qwen3.6's three misses share one signature: it derives the
+correct value and then states a different letter (item 66 derives 25x, answers A = 100x; item 74 derives
+2.537 million light-years, answers B; item 90 derives 2.175x10^16 kg, answers B), and 74/90 repeat
+identically under both prompt variants. A first free-form pass scored 88/93 vs 92/93 (p = 0.219) because
+the extractor read the option the reply opens by *quoting* ("A. 4:1 ... D is actually the correct
+answer"). Requiring `ANSWER: <letter>` fixed it - 186/186 replies then parsed unambiguously, and the
+item-level picture got sharper, not just cleaner. **Most of that 4.3-point raw gap was my scoring
+convention, not the models.**
+
+**What is solid:** neither stack fabricated entities or figures. Every one of the 25 facts on each side
+was grounded, and the three figures my exact-check flagged were hand-verified as two correct facts absent
+from the corpus (Perseverance 1,025 kg; Phobos 22.4 km) and one slightly off (Mars "4,217 miles" vs
+4,212). The exact-figure check is a **flag for human review, not a verdict**. Separately, Qwen3.6 returned
+a byte-identical paper three times while Strata returned two different papers from the same pinned
+request - an independent cross-check of the lab's earlier note that temperature 0 is not seed-stable on
+that engine.
+
+**Limit:** these checks measure grounding and figures, not truth, argument quality or whether the prose is
+worth reading. `new-items-20261007/DEEP-SCORECARD.md` holds both stacks' facts lists and full papers
+relabelled A/B for blind human scoring; the mapping is in the result JSONs. Instrument design, every
+pass, the parse lesson and the caveats: [KNOWLEDGE-DEEP-2026-10-10.md](KNOWLEDGE-DEEP-2026-10-10.md).
+
 ## Reports
+
+**2026-10-10 &middot; [The tied-topic expansion: reasoning, facts, papers](KNOWLEDGE-DEEP-2026-10-10.md)**
+&ndash; 93 shared-correct items answered with justification (90/93 vs 92/93, paired p = 0.625, no reasoning
+difference), one reproducible failure mode in Qwen3.6 (correct derivation, wrong letter), a pinned
+Wikipedia corpus used to verify a 25-fact list and three papers per stack, and the parse lesson that a
+scoring convention can manufacture a 4.3-point gap.
 
 **2026-10-10 &middot; [Two instruments, four profiles, and a rule that reverses four readings](../ai_bench/new-items-20261007/RECENT-WORK-2026-10-10.html)**
 &ndash; the knowledge A/B (Qwen3.6 Q4_K_M 974/1100 = 88.5 % vs Qwen3.8-Flash-Next Q2_0 987/1100 = 89.7 %,
