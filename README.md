@@ -176,8 +176,8 @@ as directional. Research candidates are labeled separately from measured results
 
 ## License
 
-[FSL-1.1-ALv2](LICENSE) - the Functional Source License, Version 1.1: source-available, usable for anything
-except a competing commercial product or service, with each version converting to Apache-2.0 on its second
+[FSL-1.1-MIT](LICENSE) - the Functional Source License, Version 1.1: source-available, usable for anything
+except a competing commercial product or service, with each version converting to MIT on its second
 anniversary. It is **not** an OSI open-source licence, so do not describe it as one. [NOTICE.md](NOTICE.md)
 records the third-party datasets and model outputs inside `instruments/`, whose own terms still apply.
 

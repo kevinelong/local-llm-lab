@@ -1,7 +1,7 @@
 # Licensing notice
 
 This repository is licensed under the **Functional Source License, Version 1.1, ALv2 Future License**
-(`FSL-1.1-ALv2`) - see [LICENSE](LICENSE). In short: you may use, copy, modify and redistribute it for any
+(`FSL-1.1-MIT`) - see [LICENSE](LICENSE). In short: you may use, copy, modify and redistribute it for any
 purpose except a competing commercial product or service, and each version becomes Apache-2.0 on its second
 anniversary.
 
@@ -23,13 +23,13 @@ FSL covers it.
 
 **2. FSL is source-available, not Open Source.** It is not OSI-approved, and it is deliberately not
 permissive in one respect: it forbids offering a competing commercial product or service. The 2-year
-conversion to Apache-2.0 is real and irrevocable per version, but until then this repository is not "open
+conversion to MIT is real and irrevocable per version, but until then this repository is not "open
 source" in the OSI sense. Do not describe it as such.
 
 ## Which terms apply to which version
 
 Versions published before 2026-10-12 were published without an explicit licence file, which under copyright
-default means all rights reserved. Adopting FSL-1.1-ALv2 on 2026-10-12 *grants* rights over those versions
+default means all rights reserved. Adopting FSL-1.1-MIT on 2026-10-12 *grants* rights over those versions
 rather than removing any - and nothing here can revoke a grant already made for a version that carried
 different terms.
 
