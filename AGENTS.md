@@ -1,5 +1,22 @@
 # Local AI lab working instructions
 
+- October 12 (paused): **testing is paused until tonight, at Kevin's request.** The overnight queue's second
+  pass is stopped, not abandoned: `ai_bench/overnight-20261011/OVERNIGHT-STOP` is in place so the driver
+  starts nothing, the supervisor and its runner/item were killed by hand, and the engine ports were cleared.
+  Night-1 results are intact in `status-night1.json`, `REPORT-night1.md` and `REPORT-SUMMARY.md`.
+  **Three things are owed, in this order:** `i4-reason-repeat` and `i6-gliner-replay` (via
+  `python runner.py --only i4-reason-repeat,i6-gliner-replay` after deleting the STOP file), then the
+  **Colibri Qwen3.6-35B-A3B knowledge comparison** - its ~23 GB model is already complete on
+  `D:\ai_bench-staged\colibri-models` (21.45 GiB, 50 files, which is the "23 GB" in the docs after the
+  decimal/binary difference), so serve that directory and point the knowledge instrument at port 8000.
+  **Do not use `coli setup` for it:** that command downloads and then runs the server in the foreground, so it
+  never returns - which is what deadlocked the first attempt for eight hours.
+  Confirmed while stopping: with the Colibri server resident, commit headroom sat at **7.5 GiB against the
+  8 GiB gate**; once its port was cleared the same check read **35.76 GiB free / 20.94 GiB headroom**, so the
+  guard was measuring a real resident model rather than drift. Also still true from this morning: free space
+  on `C:` is partly pagefile allocation, and the lab's instruments plus their frozen inputs are now
+  snapshotted into the repo under `instruments/` with a sha256 manifest.
+
 - October 12 (morning): **the overnight queue's first pass is done and its results are in** - read
   `ai_bench/overnight-20261011/REPORT-SUMMARY.md`, `REPORT-night1.md` and `status-night1.json`; queue 2 is
   running as a harness job for the three items that needed a fix. Four of six items produced results, the

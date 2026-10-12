@@ -1008,6 +1008,10 @@
    "bytes": 448,
    "sha256": "5231b5ac154d7691fb6c966341629e347186aeb26f626a2bf1d3bc611c6e94a1"
   },
+  "overnight-20261011/OVERNIGHT-STOP": {
+   "bytes": 772,
+   "sha256": "f43f7846b262f27ccfb87dd13b7875e40e796a0686450b736e3980f519cd4984"
+  },
   "overnight-20261011/README.md": {
    "bytes": 4256,
    "sha256": "e14508ec78ec3026222f1300ebf6b2a9f23cff4ddcae9db6d0ab14f60b957122"
