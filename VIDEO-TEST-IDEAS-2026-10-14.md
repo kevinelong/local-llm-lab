@@ -10,6 +10,11 @@ staged and have already run** - `strata Coder IQ1_M: ledger 7,70,7,64,70 - bimod
 (`local-llm-lab/AGENTS.md`). So this is a second opinion on a model with local evidence, which is
 rare and worth mining.
 
+**Status, 2026-10-14:** Kevin has read this note and **the generate-then-run class (idea 1) looks good
+so far**, so it is the first of these to build when the queue has room. The wider scan that follows
+it - other new repos, Hugging Face packs and three more transcripts - is in `NEWS-2026-10-14.md`,
+which adds five ideas on top of these and annotates what each battery measures.
+
 **What this file is not.** It is a proposal, not a queue change. Nothing was run, no engine was
 started, no gate was checked, and no frozen artifact was touched. The overnight queue is still paused
 where 2026-10-12 left it (`i4-reason-repeat`, `i6-gliner-replay`, then the Colibri Qwen3.6-35B-A3B
