@@ -35,7 +35,8 @@ transfers is the **test design** and the **failure classes**, which is what this
 ## What already exists here, so this does not rebuild it
 
 - Throughput and load time, and the RAM/GPU/commit gates: measured per run.
-- Factual recall: the 1,100-item knowledge instrument (MML). Planted-site reading of a 235 KB corpus
+- Factual recall: the 1,100-item knowledge instrument (800 MMLU over 8 subjects + 300 GSM8K as the
+  procedural control). Planted-site reading of a 235 KB corpus
   in slices: `longctx` / `longctx2`. **Neither probes recall as a function of position in a full
   window.**
 - Multi-file code work: `repo` (78) and `repo2` (55) are **repairs** scored by importing the artifact
