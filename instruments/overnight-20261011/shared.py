@@ -151,8 +151,11 @@ def strata_engine(name, config, port=STRATA_PORT):
                          '--port', str(port)], port)
 
 
-def colibri_engine(name, model_dir, port=COLIBRI_PORT, env=None):
-    return Engine(name, [COLIBRI, 'serve', '--model', str(model_dir)], port, cwd=str(COLIBRI.parent), env=env)
+def colibri_engine(name, model_dir, port=COLIBRI_PORT, env=None, extra=()):
+    """A Colibri engine over one model directory. `extra` carries declared serve flags (e.g. --cap)."""
+    args = [COLIBRI, 'serve', '--model', str(model_dir)]
+    args += [str(a) for a in extra]
+    return Engine(name, args, port, cwd=str(COLIBRI.parent), env=env)
 
 
 def write_result(name, payload):

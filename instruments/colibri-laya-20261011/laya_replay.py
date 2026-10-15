@@ -1,4 +1,4 @@
-"""laya_replay.py - the lab's frozen 18-window decision screen, run on Colibri's Laya engine.
+"""laya_replay.py - the lab's frozen 18-window decision screen, run against a Colibri engine.
 
 Why: this lab's own Laya result (decisions-20261007-v1) was 14/18 correct with 0 of 4 stalls caught, and
 the Sept 25 note recorded "unusably high stuck probabilities" on the same model served our way. Colibri's
@@ -7,9 +7,15 @@ and gives a workaround: a two-option `choice` with neutral keys. So this runs bo
 frozen inputs and scores them the lab's way - 0.85 threshold, catch rate over the 4 labelled stalls, false
 alarms over the other 14 - plus latency against the 3 s warm-p95 gate.
 
-Inputs are the frozen files, verified by sha256 against protocol.json before use. No model is loaded here.
+Inputs are the frozen files, verified by sha256 against protocol.json before use. No model is loaded here:
+the screen is model-agnostic (it posts the frozen questions to whatever the engine on --url serves), so
+the engine and checkpoint that produced a result are named by `--engine` / `--checkpoint`. The defaults
+are the Laya values this root first ran, which keeps those results reproducible; the overnight queue's
+GLiNER item passes its own. The 2026-10-15 fix: those two fields were constants, so the GLiNER replay
+wrote Laya's name into its own result file while the engine log said `gliner_decide`.
 
 Usage: python laya_replay.py [--url http://127.0.0.1:8000] [--out laya-colibri.json]
+                             [--engine NAME] [--checkpoint REPO@REV]
 """
 import argparse
 import hashlib
@@ -77,6 +83,8 @@ def main():
     parser.add_argument('--url', default='http://127.0.0.1:8000')
     parser.add_argument('--threshold', type=float, default=0.85)   # the lab's frozen threshold
     parser.add_argument('--out', default=str(Path(__file__).resolve().parent / 'laya-colibri.json'))
+    parser.add_argument('--engine', default='colibri v2.0.0 laya.exe')
+    parser.add_argument('--checkpoint', default='convaiinnovations/laya @ 7b928d828b7b0e022f929d9bd2e44165aa270148')
     args = parser.parse_args()
 
     check_frozen()
@@ -120,8 +128,8 @@ def main():
     warm = [r['ms'] for r in rows[1:]]
     warm_choice = [r['choice_ms'] for r in rows[1:]]
     summary = {
-        'engine': 'colibri v2.0.0 laya.exe', 'url': args.url,
-        'checkpoint': 'convaiinnovations/laya @ 7b928d828b7b0e022f929d9bd2e44165aa270148',
+        'engine': args.engine, 'url': args.url,
+        'checkpoint': args.checkpoint,
         'inputs_sha256': sha256(INPUTS), 'labels_sha256': sha256(LABELS),
         'noul': score('noul', args.threshold), 'choice': score('choice_prob', args.threshold),
         'latency_ms': {'noul_median': statistics.median([r['ms'] for r in rows]),

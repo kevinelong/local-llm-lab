@@ -1,5 +1,54 @@
 # Local AI lab working instructions
 
+- October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
+  STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
+  through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was
+  lowered, nothing was deleted, nothing was rebooted, no frozen artifact was edited.
+  - **i4-reason-repeat: both predictions hit to the check.** Qwen3.6 + provisioning **90/93** and Strata
+    **92/93** - the same counts night 1 recorded - with the letters reproducing across runs and only the
+    free-form prose moving (mean distractors addressed 1.90 -> 1.89 on Strata, 2.08 on Qwen3.6). This is the
+    first *repeat* of this instrument across runs, and it says the letter is stable where the prose is not.
+    The first attempt ran only the Qwen arm: the console's nginx-mirror proxy held port **8080**, which is the
+    lab's own `STRATA_PORT` (`shared.py:29`), and the driver clears its engine ports *between* items rather
+    than before the first - so the Strata arm refused to start (`arm_exit_codes {qwen36: 0, strata: 2}`) and
+    the arm under test was exactly what the conflict cost. Re-run after the port was clear: 647 s,
+    `{qwen36: 0, strata: 0}`.
+  - **i6-gliner-replay: the detection prediction held, the latency prediction was refuted by ~10x.** 0/4
+    stalls caught, 14/18 correct at the frozen 0.85 threshold with **zero** flags either way - the same shape
+    Laya gives, so this instrument still carries no stall signal from either decision model. Warm p95 was
+    **2 937 ms**, then **3 703 ms** on the repeat, against a predicted 20-35 s, and the `gate_3s_passed`
+    verdict *flips* between those two samples: the model sits at the gate, not inside it. That kills the
+    2026-10-11 reading that the 27.56 s p95 was sequence-length cost and "no engine will fix it" - the same
+    class of model on Colibri answers in ~1.7-2.1 s median. The engine log settles what was served:
+    `[gliner_decide] microsoft/deberta-v3-large: DeBERTa-v2 24 layers x 1024 ... loaded in 1.7 s`, 36 x
+    `POST /v1/systemone 200`.
+  - **i3-colibri-qwen36: not run to completion, and it cannot be at the item's declared 7200 s.** Three
+    defects were fixed first, all three of the kind that make a result lie. (a) Colibri advertises the model
+    as **`qwen3.6-colibri`** and answers any other name with `404 model_not_found`, so the item's
+    `qwen36-35b` failed all **1,100** requests in 12.9 s while `knowledge_run.py` exited **0** with a
+    `0/1100` that read like a model verdict; the dead run is preserved as
+    `dead-i3-model-not-found-20261015.json`, the item now reads the id from `/v1/models`, and the instrument
+    records `transport_failures` + `scored: false` and exits **2** when every reply is a transport error
+    (the "unscored, not failed" rule the new-task driver already had). (b) The item would have called
+    `coli setup` three times at a 5400 s timeout each **against a complete directory** - the documented trap
+    that downloads and then serves in the foreground, which deadlocked eight hours on 2026-10-12; it now
+    detects the staged 21.44 GiB model and skips setup. (c) `laya_replay.py` hardcoded `engine` and
+    `checkpoint`, so the GLiNER replay wrote `colibri v2.0.0 laya.exe` and the Laya checkpoint into its own
+    result file while the engine log said `gliner_decide`; both are now `--engine`/`--checkpoint` arguments
+    with the Laya values as defaults, and both frozen Laya results still reproduce those fields byte-for-byte.
+  - **What that comparison actually costs, four-item samples of this same instrument:** engine default
+    (cache 8/layer) **65.7 s/item** (~20 h for 1,100 items), `--no-think --effort minimal` 66.2 s/item (no
+    effect - the cost is per-token, not output length), **`--cap 32` 45.1 s/item (~13.8 h)** with `T(1)` down
+    from ~240 ms to 175-200 ms per token. The corrected run answered **86 items in 7 200 s** before the
+    driver's timeout killed it (exit -9). The comparison is sound - the model answers in the instrument's own
+    format, 4/4 on both samples - but it is a ~14-hour run, so it **waits on Kevin's call** rather than
+    retrying; the item now declares `--cap 32` and the honest label `colibri-qwen36-ctx8192-cap32`, because
+    the served context is the engine's default **8192**, not the 131,072 the old label claimed (no knowledge
+    prompt is anywhere near 8k).
+  - **Carried forward:** the knowledge instrument writes its result only at the end, so a timeout loses the
+    whole run - 7 200 s produced no artifact. Smoke with `OVERNIGHT_LIMIT` first, and give it a
+    checkpointing result file before it runs again. One stale process was left alone deliberately: a second
+    `fifteenball-server.exe` on 8199 (a private-copy DB) that the score work reported as stopped.
 - October 12 (paused): **testing is paused until tonight, at Kevin's request.** The overnight queue's second
   pass is stopped, not abandoned: `ai_bench/overnight-20261011/OVERNIGHT-STOP` is in place so the driver
   starts nothing, the supervisor and its runner/item were killed by hand, and the engine ports were cleared.

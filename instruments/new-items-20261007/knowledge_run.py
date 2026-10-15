@@ -247,6 +247,15 @@ def main():
 
     responder = EngineResponder(args.url, args.model, args.timeout)
     result = score(items, responder, verbose=args.verbose)
+    # A run whose every reply is a transport error is UNSCORED, not a zero. On 2026-10-15 the Colibri item
+    # named a model the engine does not serve (the engine advertises `qwen3.6-colibri`; the request said
+    # `qwen36-35b`), so all 1,100 requests came back `404 model_not_found` in 13 s - and this script exited
+    # 0 with a 0/1100 that read like a model verdict. Partial transport failure is reported but still scored,
+    # because the surviving items are real samples.
+    transport = [f for f in result['failures'] if str(f.get('reply', '')).startswith('TRANSPORT:')]
+    dead = bool(result['total']) and len(transport) == result['total']
+    result['transport_failures'] = len(transport)
+    result['scored'] = not dead
     out = HERE / ('knowledge-result-%s.json' % args.label)
     out.write_text(json.dumps(result, indent=1), encoding='ascii')
     print('%-24s %4d/%-4d rate %.3f  (%.1fs)  -> %s' % (
@@ -255,6 +264,12 @@ def main():
         bucket = result['per_subject'][subject]
         print('        %-34s %3d/%-4d  %.3f' % (subject, bucket['passed'], bucket['n'],
                                                 bucket['passed'] / bucket['n']))
+    if transport:
+        print('        %d of %d replies failed at the transport level, e.g. %s'
+              % (len(transport), result['total'], transport[0]['reply']))
+    if dead:
+        print('        UNSCORED: every reply failed at the transport level - not a model score')
+        return 2
     return 0
 
 

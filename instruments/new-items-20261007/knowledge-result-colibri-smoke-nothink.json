@@ -1,0 +1,24 @@
+{
+ "responder": "qwen3.6-colibri",
+ "passed": 4,
+ "total": 4,
+ "rate": 1.0,
+ "seconds": 264.6,
+ "sampling": {
+  "temperature": 0,
+  "seed": 20261009
+ },
+ "per_subject": {
+  "high_school_world_history": {
+   "n": 2,
+   "passed": 2
+  },
+  "grade_school_math": {
+   "n": 2,
+   "passed": 2
+  }
+ },
+ "failures": [],
+ "transport_failures": 0,
+ "scored": true
+}

@@ -131,6 +131,19 @@ pass, the parse lesson and the caveats: [KNOWLEDGE-DEEP-2026-10-10.md](KNOWLEDGE
 
 ## Reports
 
+**2026-10-15 &middot; [The paused queue's remainder, and what a second engine costs](../ai_bench/overnight-20261011/REPORT.md)**
+&ndash; the two owed repeats came back exactly as predicted (**Qwen3.6 90/93, Strata 92/93**, the same counts
+as night 1, letters identical, prose moved 1.90 &rarr; 1.89), which is the first *repeat* of the reasoning
+instrument across runs. The decision-model replay held its detection prediction (**0/4 stalls caught**,
+14/18 at 0.85, zero flags either way &mdash; the same shape Laya gives) and refuted its latency prediction by
+~10x: warm p95 **2 937 ms** then **3 703 ms** against a predicted 20-35 s, so the 3 s gate verdict flips
+between samples and the earlier "27.56 s is sequence-length cost, no engine will fix it" reading is dead.
+And the Colibri comparison that has been owed since 10-11 was measured rather than guessed: its Qwen3.6 pack
+costs **65.7 s/item** at the engine's default cache, **45.1 s/item** at `--cap 32`, i.e. **~14-20 hours**
+for the 1,100-item knowledge set &mdash; a night, not a queue item, and three defects that would have made its
+result lie were fixed first (the model id, a `coli setup` call against a complete directory, and a result
+file that named Laya while the engine served GLiNER).
+
 **2026-10-10 &middot; [The tied-topic expansion: reasoning, facts, papers](KNOWLEDGE-DEEP-2026-10-10.md)**
 &ndash; 93 shared-correct items answered with justification (90/93 vs 92/93, paired p = 0.625, no reasoning
 difference), one reproducible failure mode in Qwen3.6 (correct derivation, wrong letter), a pinned

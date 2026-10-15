@@ -28,7 +28,18 @@ Updated October 12, 2026. Owner: Kevin, machine DARKTEXAS.
    worked on in the same session as this lab; their state is in `score/CONTINUE-HERE.md`
    (`C:/Users/kevin/score/`), including a local branch in the `15ball-scoresheet` clone holding the unmerged
    web work and the commands to bring its servers back. None of it touches this lab's instruments or frozen
-   evidence — `tools/dev-server.py` on port 8080 belongs to that work, as item 2 says.
+   evidence - `tools/dev-server.py` on port 8080 belongs to that work, as item 2 says.
+
+**Parked, not scheduled:** `local-llm-lab/VIDEO-TEST-IDEAS-2026-10-14.md` turns an outside reviewer's
+Strata Coder run (YouTube `09GB4LtXUok`, 2026-10-14) into test ideas for the agent suite - a
+generate-then-run battery class, solvability and crash-freedom checks under a scripted trace, a
+needle-at-depth probe at 131,072, a canonical-tool-path battery, and three reporting primitives
+(compactions, context spent at delivery, interventions-to-green). Its raw transcript is at
+`transcript-strata-coder-20261014/`. Nothing in it is owed work and it does not jump the queue above;
+it is a menu to choose from when there is room. Its companion `local-llm-lab/NEWS-2026-10-14.md` is the
+wider scan around it - engine releases 0.1.42 to 0.1.44.1 worth a falsifiable A/B, four related harness
+projects (OneDayAgent, `tkarim45/agent-eval-harness`, `ahwurm/localharness`, arXiv 2608.13867) and
+three more transcripts - and it records that the generate-then-run class is the first of these to build.
 
 - 2026-10-12: **PAUSED MID-QUEUE, resumes tonight.** Read `local-llm-lab/AGENTS.md` (its top entry) and
   `overnight-20261011/README.md`. The queue's stop marker is in place, no engine is resident, and night 1's

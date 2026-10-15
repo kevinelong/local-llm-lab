@@ -1,8 +1,8 @@
 {
  "files": {
   "CONTINUE-HERE.md": {
-   "bytes": 76098,
-   "sha256": "e85208464b5cc65ec3c2a216561a4034a79bba614767b5f0b17605ea2458f631"
+   "bytes": 77100,
+   "sha256": "df642c952af999061841806eb6e6c533428035324c596f04c1b493c0f418c652"
   },
   "RESTART_NOTES.md": {
    "bytes": 8862,
@@ -333,8 +333,8 @@
    "sha256": "a402714e18bff3b70f1d8aa38e2ee0c5f9aef46723b297f2a18fe86488eeaabd"
   },
   "colibri-laya-20261011/laya_replay.py": {
-   "bytes": 7587,
-   "sha256": "2cdc270ef3854ca45138664fd1e7c098a06aaf953ae99c68e3a5c236476cde3d"
+   "bytes": 8277,
+   "sha256": "64ffcefab3c2ebc7d40eca8153b286a140e95a9f8dbf8f0a74c6fc773e2dc906"
   },
   "decision-signal-20261011/README.md": {
    "bytes": 4410,
@@ -552,6 +552,10 @@
    "bytes": 89694,
    "sha256": "9929be4d62a9000a3bebe018db1cd4f01479b7299df2d11704be43d4fda9c8db"
   },
+  "new-items-20261007/knowledge-deep-result-strata-deep-rep-reason.json": {
+   "bytes": 88450,
+   "sha256": "7ed1c97eb3f038e0c93ea4a639d7e44ad47facebf39a0c6f2bdb50d3fbff5caa"
+  },
   "new-items-20261007/knowledge-deep-result-strata-deep-rep1.json": {
    "bytes": 10741,
    "sha256": "ae610d84c865e4688cfad7a4540665f9f4b1486a69ce60a2f689a20eadc2c4e3"
@@ -571,6 +575,22 @@
   "new-items-20261007/knowledge-items-20261009.jsonl": {
    "bytes": 541561,
    "sha256": "e28d2fdb87cdcb3445184780806cfd976097518a79b4a7759892e869ffba3985"
+  },
+  "new-items-20261007/knowledge-result-colibri-qwen36-131072.json": {
+   "bytes": 154651,
+   "sha256": "4b9940ea34e82ba349d15c2ca4a0c44f98d21cf6cdf79a760eb53f047be8fe04"
+  },
+  "new-items-20261007/knowledge-result-colibri-smoke-baseline.json": {
+   "bytes": 377,
+   "sha256": "5910ad917579283670ef9a924baed24408b3646a99cc26a6c62f999390a2dee3"
+  },
+  "new-items-20261007/knowledge-result-colibri-smoke-cap32.json": {
+   "bytes": 377,
+   "sha256": "d31bbc48ff901bcaacd4bdb8f2c91c24024277274e9647a5a7bf72d37b07a672"
+  },
+  "new-items-20261007/knowledge-result-colibri-smoke-nothink.json": {
+   "bytes": 377,
+   "sha256": "0b43609971a53cddef0185f5d7c3e3c9f30c6ee731173213a5e984efa1dd9998"
   },
   "new-items-20261007/knowledge-result-kolibri-131072.json": {
    "bytes": 24083,
@@ -597,8 +617,8 @@
    "sha256": "22f0ee796c4f4a7df81ff4ca27ecb5398f2fc74df8e07f384343c15bbbbd9254"
   },
   "new-items-20261007/knowledge_run.py": {
-   "bytes": 11529,
-   "sha256": "65cbc1e08bfc95943b29cbcc2e0b694b4668b935a944cdefd955af8ed5df2fa6"
+   "bytes": 12578,
+   "sha256": "a8fb43ba47c86d68ccd2bddb409f9776400967ad38fc32970c59bba913485e0b"
   },
   "new-items-20261007/ledger_budget.py": {
    "bytes": 5840,
@@ -1016,10 +1036,6 @@
    "bytes": 448,
    "sha256": "5231b5ac154d7691fb6c966341629e347186aeb26f626a2bf1d3bc611c6e94a1"
   },
-  "overnight-20261011/OVERNIGHT-STOP": {
-   "bytes": 772,
-   "sha256": "f43f7846b262f27ccfb87dd13b7875e40e796a0686450b736e3980f519cd4984"
-  },
   "overnight-20261011/README.md": {
    "bytes": 4256,
    "sha256": "e14508ec78ec3026222f1300ebf6b2a9f23cff4ddcae9db6d0ab14f60b957122"
@@ -1033,20 +1049,36 @@
    "sha256": "988ae78330611a1646296b4d8568754b408f2b12f8fb7342c5ae499be82bf669"
   },
   "overnight-20261011/REPORT.md": {
-   "bytes": 6952,
-   "sha256": "5e39b23aea9c57179c9a969c4070d686aa02859d2d13036d73109e7e424bc52b"
+   "bytes": 17971,
+   "sha256": "5f9193487229a8d7d7eb80f134be105a62e3aeaa3f579253d345194623f67c3e"
+  },
+  "overnight-20261011/dead-i3-model-not-found-20261015.json": {
+   "bytes": 154651,
+   "sha256": "4b9940ea34e82ba349d15c2ca4a0c44f98d21cf6cdf79a760eb53f047be8fe04"
+  },
+  "overnight-20261011/gliner-colibri.json": {
+   "bytes": 5243,
+   "sha256": "5e43ea3a7780126f35e6f0d4e614798a70c8d9caa77f1ea83195d3131fb22330"
   },
   "overnight-20261011/items.py": {
-   "bytes": 12279,
-   "sha256": "96242eb7d5085e39a95603eca262465aa8beaa4c28889152fcf02d05e0e382c4"
+   "bytes": 16369,
+   "sha256": "593214b85ee1ba5a6fc57312e11ffb99493b3061db289c0ccf7294ced610a2ee"
   },
   "overnight-20261011/logs/colibri-gliner.log": {
-   "bytes": 58,
-   "sha256": "941103a342c1625ba415062d6fef09828d2ea2ec490c5df146bd975823fd658d"
+   "bytes": 118,
+   "sha256": "2e5e92df54df23c63938968c9ef3ec414d08f80c3bad5f8a4110d20740294419"
+  },
+  "overnight-20261011/logs/colibri-qwen36.log": {
+   "bytes": 60,
+   "sha256": "c6f62d74570ebbd0aca1b52d530a68198e4be7d0a7e8b9547ede020d59f26a61"
   },
   "overnight-20261011/logs/engine-colibri-gliner.log": {
-   "bytes": 194,
-   "sha256": "76e4541e48e20fbe764a9d1de0ff52251b593b2d4ad669e4a50048a03c680bf7"
+   "bytes": 4990,
+   "sha256": "33e91f2a09fe02e47037177bd7e7f1f2e14cc09ccb969d79610d93ce7d2b4c42"
+  },
+  "overnight-20261011/logs/engine-colibri-qwen36.log": {
+   "bytes": 98108,
+   "sha256": "457bb6d138c4c3b7133faa27373f5172d31863e36bc4d12eeaf21393d9250ddc"
   },
   "overnight-20261011/logs/engine-kolibri-1.log": {
    "bytes": 937000,
@@ -1061,8 +1093,8 @@
    "sha256": "1d4e04591d5a09025e07df00efa1d27cb7dc6d6bdda7ea10e7d7fa2decfc3049"
   },
   "overnight-20261011/logs/guard.log": {
-   "bytes": 552,
-   "sha256": "ca1aa167473a0c914c9cd934895f13c4db90f0d5f5a266505f44db43468f2cbf"
+   "bytes": 966,
+   "sha256": "3aac28352af9045f662a2e5977246b3cbcd44604f8e6f917fa80f65d627f960b"
   },
   "overnight-20261011/logs/i1-strata-placement.log": {
    "bytes": 2040,
@@ -1073,20 +1105,20 @@
    "sha256": "95b6aa324f55146871ae74ed410034fd2202971260a031e4f4c25a9d8f8de108"
   },
   "overnight-20261011/logs/i3-colibri-qwen36.log": {
-   "bytes": 310,
-   "sha256": "27f5367b52033a29e30049560ea7665d8cefc19bf20a084865e817b3aab4e847"
+   "bytes": 2099,
+   "sha256": "c2991ef843ce133c4f88b50153ed27ddd4be24fe03c3e3f023a5e0e6824d9ff1"
   },
   "overnight-20261011/logs/i4-reason-repeat.log": {
-   "bytes": 1386,
-   "sha256": "a8d5f3721e5ae752b495e716dd43f54dda313dd89bbd069e2a59fc912bf0861b"
+   "bytes": 3452,
+   "sha256": "697bcc73c4abb67954387b0334463fea640e8c8c944d1c6be557c1dae336d3f8"
   },
   "overnight-20261011/logs/i5-papers-repeat.log": {
    "bytes": 1178,
    "sha256": "5b67121475161f1414b5bb686f8c3c369132c890a637613a14c8389e905cd407"
   },
   "overnight-20261011/logs/i6-gliner-replay.log": {
-   "bytes": 304,
-   "sha256": "ce967aea523dad1bc67d4566af402bc68a2a3258ced5d3849f1c8b7d75b6fead"
+   "bytes": 3264,
+   "sha256": "9fc22603c7c4c56761f89377e8f781bb8c129a9bd3dfbd3288ce749bf40b0626"
   },
   "overnight-20261011/logs/kolibri-1.log": {
    "bytes": 60,
@@ -1121,8 +1153,12 @@
    "sha256": "28bb64c01c65ec7bc1367fe5c571236edf4e66e39cf70dd6ffabc51ba60e1267"
   },
   "overnight-20261011/logs/runner.log": {
-   "bytes": 1267,
-   "sha256": "359d863d91feac92d0740b205560640cb08daa3557edeb56dae289b9f4ed870d"
+   "bytes": 2553,
+   "sha256": "febc5e5be275a23d21ed678fc71fae83a53c17510e3a5a41f8e3ce9170ff47d3"
+  },
+  "overnight-20261011/logs/smoke.log": {
+   "bytes": 120,
+   "sha256": "6a75713d6fbe3e9506814479989138971b547e2c499a338da291e8ec3944ee71"
   },
   "overnight-20261011/logs/strata-res2.log": {
    "bytes": 140,
@@ -1156,6 +1192,10 @@
    "bytes": 150,
    "sha256": "fa8e1bb1d026bb3f52ec9e1aad4bde825bf02cd533750542bc071b0795cedab3"
   },
+  "overnight-20261011/result-i3-colibri-qwen36.json": {
+   "bytes": 229,
+   "sha256": "b109a7d199b5a3d435955d8aa38d602bc0f862ef2b636f97bbf9837524b1510b"
+  },
   "overnight-20261011/result-i4-reason-repeat.json": {
    "bytes": 46,
    "sha256": "9a729a716031f070f4e980672537f1cee1eb4b04e38e506d09c2bb4532125756"
@@ -1164,21 +1204,25 @@
    "bytes": 46,
    "sha256": "c44831990fcec829dc795f7dd87c3a866b22c54299c5e3d2ea5b71e21837ce9d"
   },
+  "overnight-20261011/result-i6-gliner-replay.json": {
+   "bytes": 152,
+   "sha256": "c2697ecab509aa205e47e687e71dffdba2a3b16da84d26e186d170784c9187f4"
+  },
   "overnight-20261011/runner.py": {
    "bytes": 4935,
    "sha256": "d40db5ce254796875f95acdb75a9876046a5b7913305c9d34d05b88e6ca35f02"
   },
   "overnight-20261011/shared.py": {
-   "bytes": 6872,
-   "sha256": "9fe9323df33f2b54118e036dd538c81a31fcd4f63a9a4302110d6f7f3a620cbe"
+   "bytes": 7038,
+   "sha256": "1412d8d06490c1fae5f14c435b780999ca7a4a6271f5216ed3e82473f555da12"
   },
   "overnight-20261011/status-night1.json": {
    "bytes": 4077,
    "sha256": "1c06460b0681c1214ba5b489171ea9a104aa6781e13acaff7485146319e75ad4"
   },
   "overnight-20261011/status.json": {
-   "bytes": 177,
-   "sha256": "0b8a60c5e8fe05a8c455158c039a3454ffb523a776ac30a2fe288900598a162f"
+   "bytes": 434,
+   "sha256": "3ee5ac1cfd192c08af72b54069bc21571c6adc4b8cb8191c99316e57f211f49b"
   },
   "overnight-20261011/strata-cfg-resident2.json": {
    "bytes": 1791,

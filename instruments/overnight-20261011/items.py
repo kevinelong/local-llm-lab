@@ -45,6 +45,40 @@ def item_limit(full):
     return override if override else full
 
 
+def colibri_staged_model(root, minimum_gib=20):
+    """The subdirectory of `root` holding a plausibly complete Colibri model, or (None, bytes seen).
+
+    Exists so `coli setup` can be skipped when the download already finished. Setup both downloads and
+    serves, so on a complete directory it never returns; the 2026-10-12 attempt deadlocked for eight hours.
+    """
+    best, best_bytes = None, 0
+    for candidate in sorted(Path(p) for p in glob.glob(str(Path(root) / '*'))):
+        if not candidate.is_dir():
+            continue
+        total = sum(p.stat().st_size for p in candidate.rglob('*.safetensors'))
+        if total > minimum_gib * 1024 ** 3 and total > best_bytes:
+            best, best_bytes = candidate, total
+    return best, best_bytes
+
+
+def colibri_model_id(url, default='qwen3.6-colibri'):
+    """The model id the Colibri engine actually advertises, read from its own /v1/models.
+
+    Colibri names the model it serves (`qwen3.6-colibri` for the qwen36-35b pack), and a request naming
+    anything else is answered `404 model_not_found` rather than being aliased. Asking beats hardcoding: on
+    2026-10-15 the knowledge instrument was handed the setup name `qwen36-35b`, every one of the 1,100
+    requests 404d, and the item still exited 0 with a 0/1100 that read like a model score.
+    """
+    try:
+        with urllib.request.urlopen(url.rstrip('/') + '/v1/models', timeout=30) as response:
+            payload = json.load(response)
+        entries = [entry.get('id') for entry in (payload.get('data') or []) if entry.get('id')]
+        return entries[0] if entries else default
+    except Exception as error:
+        shared.log('colibri-model-id', 'could not read /v1/models (%r); using %r' % (error, default))
+        return default
+
+
 def knowledge(name, url, model, label, timeout=240, limit=0):
     command = [sys.executable, KNOWLEDGE_ROOT / 'knowledge_run.py', '--url', url, '--model', model,
                '--label', label, '--timeout', str(timeout)]
@@ -129,31 +163,57 @@ def i3_colibri_qwen36(name='i3-colibri-qwen36'):
     The setup download is ~23 GB and slower than the rest of the lab's sources (21.45 GiB in two hours on the
     first attempt, so the item timed out with the download unfinished). `coli setup` resumes, so it is looped
     up to three times and the model directory is checked for a plausible footprint before the instrument runs.
+
+    2026-10-15: the staged model is complete on disk (`D:\\ai_bench-staged\\colibri-models\\qwen36-35b`,
+    22 GiB), so `coli setup` is skipped outright. It must never be run against a complete directory: it
+    downloads and then runs the server in the foreground, so it never returns -- that deadlocked an
+    eight-hour attempt on 2026-10-12, and the loop below is the same trap with a longer fuse (three
+    attempts at a 5400 s timeout each). Serving the staged directory is the documented path.
+
+    What this engine actually costs, measured 2026-10-15 with 4-item samples of this same instrument:
+
+    | configuration              | s/item | T(1) per token | notes                                  |
+    |----------------------------|--------|----------------|----------------------------------------|
+    | engine default (cache 8/layer) | 65.7 | ~240 ms        | 1,100 items = ~20 h                    |
+    | `--no-think --effort minimal`  | 66.2 | ~240 ms        | no effect: the cost is per-token, not output length |
+    | `--cap 32` (32 slots/layer)    | 45.1 | 175-200 ms     | 1,100 items = ~13.8 h; the config used below |
+
+    So the full comparison does NOT fit this item's declared 7200 s timeout: the first corrected run
+    answered 86 items in 7200 s before the driver killed it (exit -9), and the instrument writes its
+    result only at the end, so a timeout loses all of it. The model answers in the instrument's own format
+    (4/4 on both 4-item samples), so the run is sound -- just long.
+
+    Two defects fixed alongside: the served context is the engine's default **8192**, not the 131,072 the
+    label claimed (the item passed no `--ctx`; all knowledge prompts sit far below 8k, and the label now
+    says what was served), and the model id is read from the engine's `/v1/models` because Colibri
+    advertises `qwen3.6-colibri` and 404s a request naming the setup name `qwen36-35b`.
     """
     shared.COLIBRI_MODELS.mkdir(parents=True, exist_ok=True)
-    setup_code = 0
-    for attempt in range(3):
-        setup_code = run(name, [shared.COLIBRI, 'setup', '--model', 'qwen36-35b', '--yes',
-                                '--dir', str(shared.COLIBRI_MODELS)], cwd=COLIBRI_DIR, timeout=5400)
-        sizes = [p.stat().st_size for p in shared.COLIBRI_MODELS.rglob('*.safetensors')]
-        total = sum(sizes)
-        shared.log(name, 'attempt %d: setup exit %d, %d safetensors, %.2f GiB' %
-                   (attempt + 1, setup_code, len(sizes), total / 1024 ** 3))
-        if total > 20 * 1024 ** 3:
-            break
-    candidates = [Path(p) for p in glob.glob(str(shared.COLIBRI_MODELS / '*'))]
-    model_dir = None
-    for candidate in sorted(candidates):
-        if candidate.is_dir() and any(candidate.rglob('*.safetensors')):
-            model_dir = candidate
-            break
+    label = 'colibri-qwen36-ctx8192-cap32'
+    setup_code = None
+    model_dir, staged_bytes = colibri_staged_model(shared.COLIBRI_MODELS)
+    if model_dir is not None:
+        shared.log(name, 'staged model already complete: %s (%.2f GiB) - coli setup NOT run'
+                   % (model_dir, staged_bytes / 1024 ** 3))
+    else:
+        for attempt in range(3):
+            setup_code = run(name, [shared.COLIBRI, 'setup', '--model', 'qwen36-35b', '--yes',
+                                    '--dir', str(shared.COLIBRI_MODELS)], cwd=COLIBRI_DIR, timeout=5400)
+            model_dir, staged_bytes = colibri_staged_model(shared.COLIBRI_MODELS)
+            shared.log(name, 'attempt %d: setup exit %s, %.2f GiB staged'
+                       % (attempt + 1, setup_code, staged_bytes / 1024 ** 3))
+            if model_dir is not None:
+                break
     if model_dir is None:
         shared.write_result(name, {'item': name, 'setup_exit': setup_code, 'error': 'no model directory'})
         return setup_code or 3
-    with shared.colibri_engine('colibri-qwen36', model_dir):
-        code = knowledge(name, 'http://127.0.0.1:8000', 'qwen36-35b', 'colibri-qwen36-131072', timeout=200)
+    with shared.colibri_engine('colibri-qwen36', model_dir, extra=['--cap', '32']):
+        model_id = colibri_model_id('http://127.0.0.1:8000')
+        shared.log(name, 'engine advertises model id %r' % model_id)
+        code = knowledge(name, 'http://127.0.0.1:8000', model_id, label, timeout=200)
     shared.write_result(name, {'item': name, 'setup_exit': setup_code, 'model_dir': str(model_dir),
-                               'result': str(KNOWLEDGE_ROOT / 'knowledge-result-colibri-qwen36-131072.json')})
+                               'model_id': model_id, 'label': label, 'context': 8192, 'cap': 32,
+                               'result': str(KNOWLEDGE_ROOT / ('knowledge-result-%s.json' % label))})
     return code
 
 
@@ -212,7 +272,9 @@ def i6_gliner(name='i6-gliner-replay'):
         subprocess.run(['curl', '-sSL', '--create-dirs', '-o', str(target), url], check=True, timeout=3600)
     with shared.colibri_engine('colibri-gliner', GLINER_DIR):
         code = run(name, [sys.executable, LAYA_REPLAY, '--url', 'http://127.0.0.1:8000',
-                          '--out', str(shared.ROOT / 'gliner-colibri.json')],
+                          '--out', str(shared.ROOT / 'gliner-colibri.json'),
+                          '--engine', 'colibri v2.0.0 gliner_decide.exe',
+                          '--checkpoint', 'fastino/GLiNER2.5-Decide @ %s' % revision],
                    cwd=LAYA_REPLAY.parent, timeout=3 * 3600)
     shared.write_result(name, {'item': name, 'exit': code, 'revision': revision,
                                'out': str(shared.ROOT / 'gliner-colibri.json')})

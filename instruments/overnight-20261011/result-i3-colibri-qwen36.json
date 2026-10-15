@@ -1,0 +1,6 @@
+{
+ "item": "i3-colibri-qwen36",
+ "setup_exit": null,
+ "model_dir": "D:\\ai_bench-staged\\colibri-models\\qwen36-35b",
+ "result": "C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge-result-colibri-qwen36-131072.json"
+}

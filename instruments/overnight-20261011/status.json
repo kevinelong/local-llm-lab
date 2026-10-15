@@ -1,10 +1,20 @@
 {
  "declared": "2026-10-11, overnight",
- "started": "2026-10-12 08:45:46",
+ "started": "2026-10-15 12:55:11",
  "queue": [
-  "i4-reason-repeat",
-  "i6-gliner-replay"
+  "i3-colibri-qwen36"
  ],
- "results": [],
- "stopped": null
+ "results": [
+  {
+   "id": "i3-colibri-qwen36",
+   "exit": -9,
+   "seconds": 7200.1,
+   "tail": [
+    "timeout after 7200s"
+   ],
+   "result_file": "C:\\Users\\kevin\\ai_bench\\overnight-20261011\\result-i3-colibri-qwen36.json"
+  }
+ ],
+ "stopped": "queue complete",
+ "finished": "2026-10-15 14:55:23"
 }
