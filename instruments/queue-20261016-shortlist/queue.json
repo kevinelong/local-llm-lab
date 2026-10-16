@@ -19,7 +19,14 @@
    "question": "On --cpu-moe Qwen3.6-35B-A3B Q4_K_M with 12 GB VRAM, what does each rung buy?",
    "prediction": "Non-monotonic, peaking in the low thousands of MiB: 0 -> ~35-40 tok/s, a rung at 256-2048 best, the top rung at or below the control.",
    "instrument": "ledger + ledger2 (the cache changes numerics, so speed alone is not a result) and the engine decode rate",
-   "ladder_mib": [0, 256, 512, 1024, 2048, 4096],
+   "ladder_mib": [
+    0,
+    256,
+    512,
+    1024,
+    2048,
+    4096
+   ],
    "staged": "ai_bench/staged-llamacpp-b11480 (build 11480, commit d6cf9acb2; control b11461 has no such flag)",
    "download": false,
    "timeout": 5400
@@ -71,7 +78,8 @@
    "gate": "open issue Niko1221/Strata#2747 (2026-10-16T09:31:46Z): Qwen3.6A3B fails with out of memory with recommended configs",
    "download": "needs a 20.98 GiB pack",
    "status": "gated - do not run until the OOM is resolved or explained",
-   "timeout": 7200
+   "timeout": 7200,
+   "instrument": "the ranked batteries and the knowledge instrument, once the route runs at all"
   }
  ]
 }

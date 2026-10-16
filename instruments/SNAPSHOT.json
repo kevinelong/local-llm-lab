@@ -1081,8 +1081,8 @@
    "sha256": "33e91f2a09fe02e47037177bd7e7f1f2e14cc09ccb969d79610d93ce7d2b4c42"
   },
   "overnight-20261011/logs/engine-colibri-qwen36.log": {
-   "bytes": 139813,
-   "sha256": "e54cfe3dfaf1481eaee666ebed12ffdd023ed504abece3132529d6fbaba37ac8"
+   "bytes": 140134,
+   "sha256": "0612d6375cf064e111df12ceb4fa946d42eb1ea71c10f621b5d39db8e18d1c48"
   },
   "overnight-20261011/logs/engine-kolibri-1.log": {
    "bytes": 937000,
@@ -1245,8 +1245,8 @@
    "sha256": "57f73d09e7faf7c8a011c40abf5826155ac1704cac8528ea6245ffd669144f5b"
   },
   "queue-20261016-shortlist/queue.json": {
-   "bytes": 4883,
-   "sha256": "d876065cbcff25ff2b265fff9da3b45f3b2e1dfbae5620ea4a36ed487b310575"
+   "bytes": 5093,
+   "sha256": "05f0c5b50f6b27a09495010b0be2d5c7766bb051c7172263be194ed2e20bb1ed"
   },
   "queue-20261016-shortlist/status.json": {
    "bytes": 1192,
