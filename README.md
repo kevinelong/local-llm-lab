@@ -16,8 +16,8 @@ have been violated here, and every correction is kept in the open.
 [5. Where the numbers come from](#5-where-the-numbers-come-from) |
 [6. The mechanics](#6-the-mechanics)
 
-This is a working lab notebook, not a product. Numbers are from one machine ("DARKTEXAS"); treat them as
-directional. Research candidates are labelled separately from measured results. Licence:
+This is a working lab notebook, not a product. Numbers are from one machine - "DARKTEXAS" is what this box
+is called - so treat them as directional. Licence:
 [FSL-1.1-MIT](#license) - source-available, **not** OSI open source.
 
 ## 1. What we would run today
@@ -55,11 +55,12 @@ carry the tables.
   Report balanced accuracy, the prediction rate and the majority baseline for skewed subsets, and
   `mean |prediction - target|` for the score family (nimble 0.727, kev4 0.787, lev 0.856, kev0 1.090,
   laya 1.224). Sources: `bespoke-metric-20261010/`, `bespoke-suite-20261010-v1/`.
-- **The fastest models fail the hard axes; the fastest *successful* one is not the fastest.**
-  Measured per task: gpt-oss-20b at 159 s/task but `repo` **0/78** (it broke the module import) and
-  `longctx` 15/40; MiniCPM5-2B at 176 s/task and 122 tok/s, with `repo` 43/78. The fastest configuration
-  that passes *everything* is Qwen3.6 + provisioning at 274 s/task. Speed and competence are separate axes:
-  rank on the batteries, then read the clock.
+- **The fastest models fail the hard axes; the fastest *successful* one is not the fastest.** On their
+  first sweeps: gpt-oss-20b at 159 s/task but `repo` **0/78** (it broke the module import) and `longctx`
+  15/40; MiniCPM5-2B at 176 s/task and 122 tok/s with `repo` 43/78. Both later reached 377 and 374 on the
+  ranked metric - gpt-oss scoring `repo` 78/78 on a repeat - which is exactly the volatility the noise rule
+  warns about, and a reason to read any single row of the table above as one sample. The fastest
+  configuration that passes *everything* is Qwen3.6 + provisioning at 274 s/task.
 
 ## 2. How to read any number here
 
@@ -103,8 +104,9 @@ flowchart TD
   artifact equals the starter's (nothing was written), a transport gap leaves positional survivors, or the
   evaluator exited abnormally. All three are labelled in the record rather than counted as failures.
 - **Other people's numbers are leads. Only this box's runs are evidence.** Vendor claims, community
-  reports and papers are quoted with their source and marked `status: lead`; several of them have turned
-  out to be contradicted by a run here (and one of ours was contradicted by theirs - see section 4).
+  reports and papers are quoted with their source and treated as leads - the lab's news scans tag each one
+  `status: lead` in those files. Several have been contradicted by a run here, and one of ours was
+  contradicted by theirs: see [section 4](#4-what-we-got-wrong).
 
 - **Before believing a low score, check it against the starter.** A score equal to the unmodified
   starter's baseline (events 2/76, ledger **7/70**, paths 9/75, ledger2 **62/226**, repo **0/78**,
@@ -119,9 +121,10 @@ flowchart TD
 - **Use the RTX 5070 and nothing else.** The Arc iGPU does work through Ollama's Vulkan backend but
   delivers **0.39x** the discrete card (100.8 vs 260.5 tok/s) while spilling to system RAM, and the NPU
   has no path in any engine here. The iGPU is at best a second device for small decision/embedding work.
-- **Keep the floors.** 3 / 2 / 0.5 GiB runtime, 9 / 8 / 7.5 GiB initial, one inference workload at a
-  time. A trip is a measurement against the floor: Kolibri currently needs ~3.5 GiB more free *commit*
-  than this box has at rest, and that is the finding - not a reason to lower the bar.
+- **Keep the floors.** 9 GiB free physical / 8 GiB commit headroom / 0.5 GiB GPU free before an item;
+  3 / 2 / 0.5 GiB during it; one inference workload at a time. A trip is a measurement against the floor,
+  not a reason to move it - the one deliberate loosening in this record (a 6 GiB worker-private cap) is
+  named in [§6](#6-the-mechanics) with its date, and nothing else has been lowered.
 
 ## 3. The numbers
 
@@ -144,10 +147,23 @@ measured shows the raised context costing a battery, and one model cannot take i
 | MiniCPM5-2B | 131,072 | 374 | - |
 
 The two perfect rows are the only ones at 414, and they tie **cell for cell** on all nine batteries: a
-20 GB fully-resident MoE and a streamed 2-bit giant that keeps 4 GiB resident. Everything else is at 411
-or below.
+20 GB fully-resident MoE and a streamed 2-bit giant that keeps 4 GiB resident.
 
-### What the two leading stacks know
+Three things this table is not. It is **one run per row** (two where a row says so); the battery most of it
+rests on, `ledger2`, moves by up to 19 checks between runs of a single model (§2), so the 3-check gaps -
+411 against 414, 394 against 393, 379 against 377 - are **orderings, not separations**, and only the top two
+against the rest (34 checks and more) are outside the floor. The rows carry **no dates**, because every row
+was produced under the pinned builds in §5 and re-running them is what the [reports](#reports) are for.
+And the counts are the lab's own checks, not a task-success rate. For scale: the **six-task suite (565)** is
+the 414 ranked checks plus `events` (76) and `paths` (75), and the **nine-battery total (693)** adds `repo2`
+(55), `perf` (33) and `longctx2` (40).
+
+### What they know
+
+Two stacks, the same 1,100 items, two different engines and weight formats. The headline is in the figure;
+the per-topic split, and the one topic whose gap clears noise, follow underneath.
+
+![Knowledge accuracy on 1,100 pinned items for three stacks, with one-standard-error whiskers](figures/knowledge-with-se.svg)
 
 ### Note: knowledge breadth, the top two stacks (measured 2026-10-10)
 
@@ -185,8 +201,6 @@ Choose on **cost and operation**: Strata served all 1,100 items in 35.5 min with
 66 GB on disk, while Qwen3.6 took 51.3 min and needs the whole ~20 GB MoE reachable through `--cpu-moe`,
 i.e. system RAM - which is exactly why that recipe does not transfer to a 16 GB box.
 
-
-![Knowledge accuracy on 1,100 pinned items for three stacks, with one-standard-error whiskers](figures/knowledge-with-se.svg)
 
 ### Note: the same tie, expanded (measured 2026-10-10)
 
@@ -304,6 +318,49 @@ without trusting the prose.
 only for its watchdog and tool-parse fixes); Colibri **v2.0.0** at `staged-colibri-20261011`; Ollama
 **0.40.4** installed. Model files, quantisations and their digests are recorded in each frozen root.
 
+### What each battery asks
+
+Nine frozen task sets, 693 checks in all. One line each, because the names are opaque on purpose - they
+say what the lab wanted to probe, not what the task is:
+
+| battery | checks | what it asks the model to do |
+|---|---|---|
+| `events` | 76 | correlate a stream of events into the right groups |
+| `ledger` | 70 | parse ledger records and produce the correct totals |
+| `paths` | 75 | resolve paths and their ordering |
+| `ledger2` | 226 | the same ledger work at fine grain: the 70 checks plus 106 labelled traps and 50 valid random ledgers |
+| `repo` | 78 | a five-file cross-module repair - the first orthogonal discriminator the suite produced |
+| `longctx` | 40 | read a 235 KB module in chunks and make one minimal, correct edit |
+| `repo2` | 55 | the harder multi-file task, where the top group still differs (54/55 for both leaders, 34-48 for everything else) |
+| `perf` | 33 | hold a stated wall-clock budget on 2,000,000 intervals - the only battery that prices engineering judgement, since a correct but quadratic answer passes everything else |
+| `longctx2` | 40 | find nine planted frame-length sites in the same large corpus |
+
+### A short glossary
+
+| term | what it means here |
+|---|---|
+| MoE / dense | mixture-of-experts (a few experts fire per token) vs one dense network |
+| active parameters | what a token actually touches; this, not total size, decides whether CPU offload is usable |
+| `--cpu-moe` | keep the MoE expert weights in system RAM rather than VRAM |
+| `Q4_K_M`, `Q2_0`, `IQ1_M` | GGUF quantisation recipes, roughly 4, 2 and 1 bits per weight |
+| GGUF | the single-file model format these engines load |
+| context window | the most tokens a request may carry; 131,072 here unless a row says otherwise |
+| resident budget | how much RAM an engine may hold for weights and cache before it starts streaming from disk |
+| commit charge | Windows' accounting of memory promised to processes - the "commit headroom" gate watches it |
+| MMLU / GSM8K | a multiple-choice knowledge suite / a grade-school maths suite: the two halves of the knowledge instrument |
+| SE (standard error) | the `±` on a rate; a gap smaller than it is not a gap |
+| McNemar | the paired test used when two stacks answer the same items |
+| MTP | multi-token prediction: a drafting scheme that emits several tokens per pass |
+| battery / instrument / probe | a frozen task set / the tooling that runs and scores it / a one-off measurement |
+| `starter` | the unmodified files a task begins from; matching it means nothing was written |
+| `provisioned` | the declared llama.cpp flag set: context 131,072, reply cap 32,768, thinking budget 6,144, `--cpu-moe --load-mode none` |
+| `ext-v12`, `ctx-v8` | run-root names in the lab's working tree, so a table row can be traced to one session |
+| the declared context exemption | Swift Bonsai 2 is served at 32,768 because it trips the GPU floor at 65,536 and above |
+
+One name collision worth stating plainly, because it has confused this lab's own notes: **Kolibri**-1 78B
+is a *model* measured here; **Colibri** (`JustVugg/colibri`, v2.0.0) is an unrelated *engine*. They share
+no code and no author.
+
 ## 6. The mechanics
 
 - **The box:** 64 GB DDR5 (a 32 GB upgrade part-way through; the suites are platform-invariant across it),
@@ -340,10 +397,23 @@ only for its watchdog and tool-parse fixes); Colibri **v2.0.0** at `staged-colib
 - [benchmarks/](benchmarks/) - the benchmark scripts.
 
 ## How to reproduce quickly
-1. Install Ollama. `ollama pull qwen3:14b` (or any model in MODELS.md).
-2. `ollama ps` shows GPU/CPU split; the API is at `http://127.0.0.1:11434`.
+
+The ranked results above come from llama.cpp b11461 + Qwen3.6-35B-A3B Q4_K_M (provisioned) and Strata
+0.1.40.3 + Qwen3.8-Flash-Next Q2_0; those flags, files and digests are in [§5](#5-where-the-numbers-come-from).
+
+For a five-minute smoke that is *not* a ranked configuration - Ollama is the easiest engine to stand up:
+
+1. Install Ollama. `ollama pull` any model in [MODELS.md](MODELS.md); the 14B class runs fully on the GPU.
+2. `ollama ps` shows the GPU/CPU split; the API is at `http://127.0.0.1:11434`.
 3. Run a probe with the script in `benchmarks/`.
+
+Nothing measured here was produced through that path: it is a way to see the box work, not a way to
+reproduce a row of the table.
 ## Reports
+
+Reports tracked in this repo link directly. A few link into `../ai_bench/…`, the lab's working tree, which
+is **not** this repository - those do not resolve on GitHub. The files behind them are mirrored under
+[`instruments/`](instruments/), which is the copy that ships.
 
 **2026-10-16 &middot; [Daily news scan: the expert cache was already upstream](NEWS-2026-10-16.md)**
 &ndash; the first entry of a **daily** scan, and it corrects the one before it: llama.cpp's MoE expert
@@ -405,12 +475,12 @@ Current experiments: [September 20 results](RESULTS-2026-09-20.md) track evaluat
 
 Latest review: [September 20 research and audit](REVIEW-2026-09-20.md) covers this week's releases and corrects the historical cycle-failure explanation. Rechecking archived programs also exposed a self-test data overwrite in the Claude artifact; original scores are preserved.
 
-Field notes from running AI LLM harnesses and local models on a deliberately limited desktop
-(RTX 5070 12 GB / 32 GB RAM). What actually fits, what runs fast, which harness to use, and how we
-tested it. Updated 2026-09-20.
+## Background and history (September 2026)
 
-This is a working lab notebook, not a product. Numbers are from one machine ("DARKTEXAS"); treat them
-as directional. Research candidates are labeled separately from measured results.
+Everything from here down predates the 64 GB upgrade and the nine-battery suite. It is kept because the
+harness comparisons are still the best thing written here about *why* two harnesses give different answers,
+and because the historical recommendation is a record of what this box could do at 32 GB. Read it as
+history: the current recommendations are [section 1](#1-what-we-would-run-today).
 
 ## LLM vs harness (how they relate)
 
