@@ -1,0 +1,128 @@
+{
+ "item": "q1-strata-kv-residency",
+ "arms": {
+  "base": {
+   "probe": {
+    "wall_s": 26.12,
+    "timings": {
+     "cache_n": 0,
+     "prompt_n": 77,
+     "prompt_ms": 4074.5,
+     "prompt_per_token_ms": 52.916,
+     "prompt_per_second": 18.9,
+     "predicted_n": 160,
+     "predicted_ms": 22022.6,
+     "predicted_per_token_ms": 137.641,
+     "predicted_per_second": 7.3,
+     "draft_n": 130,
+     "draft_n_accepted": 96
+    },
+    "usage": {
+     "prompt_tokens": 77,
+     "completion_tokens": 160,
+     "total_tokens": 237,
+     "prompt_tokens_details": {
+      "cached_tokens": 0
+     }
+    },
+    "predicted_per_second": 7.3,
+    "prompt_per_second": 18.9,
+    "completion_tokens": 160
+   },
+   "letters_of_93": 92,
+   "reason_exit": 0,
+   "result_file": "C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge-deep-result-q1-base.json",
+   "engine_rate_lines": [
+    "[strata] answering: 17 of max 512 tokens, 6.2 tok/s, 9 s",
+    "[strata] answering: 28 of max 512 tokens, 7.1 tok/s, 10 s",
+    "[strata] answering: 37 of max 512 tokens, 7.1 tok/s, 11 s",
+    "[strata] answering: 44 of max 512 tokens, 6.9 tok/s, 12 s",
+    "[strata] answering: 56 of max 512 tokens, 7.3 tok/s, 14 s",
+    "[strata] answering: 64 of max 512 tokens, 7.3 tok/s, 15 s",
+    "[strata] answering: 73 of max 512 tokens, 7.1 tok/s, 16 s",
+    "[strata] answering: 85 of max 512 tokens, 7.5 tok/s, 17 s",
+    "[strata] answering: 95 of max 512 tokens, 7.6 tok/s, 19 s",
+    "[strata] answering: 103 of max 512 tokens, 7.5 tok/s, 20 s",
+    "[strata] answering: 111 of max 512 tokens, 7.4 tok/s, 21 s",
+    "[strata] answering: 116 of max 512 tokens, 7.2 tok/s, 22 s",
+    "[strata] done: 118 tokens in 22 s (7.3 tok/s) (stop, cancel=False), expert cache 53.2% hit (+2.4% of the routed experts over PCIe)",
+    "[strata] answering: 2 of max 512 tokens, 3.9 tok/s, 5 s",
+    "[strata] answering: 13 of max 512 tokens, 8.6 tok/s, 6 s",
+    "[strata] answering: 17 of max 512 tokens, 5.7 tok/s, 7 s",
+    "[strata] answering: 26 of max 512 tokens, 6.1 tok/s, 9 s",
+    "[strata] answering: 36 of max 512 tokens, 6.4 tok/s, 10 s",
+    "[strata] answering: 46 of max 512 tokens, 6.8 tok/s, 11 s",
+    "[strata] answering: 52 of max 512 tokens, 6.6 tok/s, 12 s",
+    "[strata] answering: 60 of max 512 tokens, 6.7 tok/s, 13 s",
+    "[strata] answering: 66 of max 512 tokens, 6.4 tok/s, 15 s",
+    "[strata] answering: 77 of max 512 tokens, 6.8 tok/s, 16 s",
+    "[strata] answering: 87 of max 512 tokens, 6.8 tok/s, 17 s",
+    "[strata] done: 89 tokens in 18 s (6.4 tok/s) (stop, cancel=False), expert cache 46.8% hit (+2.5% of the routed experts over PCIe)"
+   ]
+  },
+  "kv-resident-32768": {
+   "probe": {
+    "wall_s": 22.53,
+    "timings": {
+     "cache_n": 0,
+     "prompt_n": 77,
+     "prompt_ms": 3490.0,
+     "prompt_per_token_ms": 45.325,
+     "prompt_per_second": 22.1,
+     "predicted_n": 160,
+     "predicted_ms": 19020.5,
+     "predicted_per_token_ms": 118.878,
+     "predicted_per_second": 8.4,
+     "draft_n": 115,
+     "draft_n_accepted": 99
+    },
+    "usage": {
+     "prompt_tokens": 77,
+     "completion_tokens": 160,
+     "total_tokens": 237,
+     "prompt_tokens_details": {
+      "cached_tokens": 0
+     }
+    },
+    "predicted_per_second": 8.4,
+    "prompt_per_second": 22.1,
+    "completion_tokens": 160
+   },
+   "letters_of_93": 92,
+   "reason_exit": 0,
+   "result_file": "C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge-deep-result-q1-kv-resident-32768.json",
+   "engine_rate_lines": [
+    "[strata] answering: 81 of max 512 tokens, 8.4 tok/s, 14 s",
+    "[strata] answering: 89 of max 512 tokens, 8.2 tok/s, 15 s",
+    "[strata] done: 91 tokens in 15 s (8.4 tok/s) (stop, cancel=False), expert cache 54.9% hit (+2.1% of the routed experts over PCIe)",
+    "[strata] answering: 2 of max 512 tokens, 4.6 tok/s, 5 s",
+    "[strata] answering: 14 of max 512 tokens, 9.0 tok/s, 6 s",
+    "[strata] answering: 21 of max 512 tokens, 7.6 tok/s, 7 s",
+    "[strata] answering: 30 of max 512 tokens, 7.8 tok/s, 8 s",
+    "[strata] answering: 38 of max 512 tokens, 7.7 tok/s, 9 s",
+    "[strata] answering: 50 of max 512 tokens, 8.3 tok/s, 10 s",
+    "[strata] answering: 60 of max 512 tokens, 8.2 tok/s, 12 s",
+    "[strata] answering: 70 of max 512 tokens, 8.3 tok/s, 13 s",
+    "[strata] answering: 81 of max 512 tokens, 8.4 tok/s, 14 s",
+    "[strata] answering: 94 of max 512 tokens, 8.8 tok/s, 15 s",
+    "[strata] done: 100 tokens in 16 s (8.9 tok/s) (stop, cancel=False), expert cache 56.7% hit (+2.0% of the routed experts over PCIe)",
+    "[strata] answering: 2 of max 512 tokens, 4.3 tok/s, 4 s",
+    "[strata] answering: 14 of max 512 tokens, 8.0 tok/s, 6 s",
+    "[strata] answering: 21 of max 512 tokens, 7.2 tok/s, 7 s",
+    "[strata] answering: 30 of max 512 tokens, 7.6 tok/s, 8 s",
+    "[strata] answering: 40 of max 512 tokens, 7.7 tok/s, 9 s",
+    "[strata] answering: 50 of max 512 tokens, 7.7 tok/s, 10 s",
+    "[strata] answering: 58 of max 512 tokens, 7.7 tok/s, 11 s",
+    "[strata] answering: 66 of max 512 tokens, 7.6 tok/s, 13 s",
+    "[strata] answering: 79 of max 512 tokens, 8.1 tok/s, 14 s",
+    "[strata] answering: 88 of max 512 tokens, 7.9 tok/s, 15 s",
+    "[strata] done: 89 tokens in 15 s (8.0 tok/s) (stop, cancel=False), expert cache 56.5% hit (+2.2% of the routed experts over PCIe)"
+   ]
+  }
+ },
+ "letters": {
+  "base": 92,
+  "kv-resident-32768": 92
+ },
+ "letters_identical": true
+}

@@ -1,0 +1,59 @@
+{
+ "item": "q4-calibrated-warm-cache",
+ "cold_probe_after_warm": {
+  "wall_s": 2.66,
+  "timings": {
+   "cache_n": 72,
+   "prompt_n": 5,
+   "prompt_ms": 53.4,
+   "prompt_per_token_ms": 10.68,
+   "prompt_per_second": 93.6,
+   "predicted_n": 160,
+   "predicted_ms": 2580.9,
+   "predicted_per_token_ms": 16.131,
+   "predicted_per_second": 62.0,
+   "draft_n": 115,
+   "draft_n_accepted": 90
+  },
+  "usage": {
+   "prompt_tokens": 77,
+   "completion_tokens": 160,
+   "total_tokens": 237,
+   "prompt_tokens_details": {
+    "cached_tokens": 72
+   }
+  },
+  "predicted_per_second": 62.0,
+  "prompt_per_second": 93.6,
+  "completion_tokens": 160
+ },
+ "warm_engine_lines": [
+  "[strata] thinking: 52 of max 160 tokens, 55.2 tok/s, 1 s",
+  "[strata] answering: 98 of max 160 tokens, 48.8 tok/s, 2 s",
+  "[strata] answering: 126 of max 160 tokens, 40.5 tok/s, 3 s",
+  "[strata] done: 160 tokens in 4 s (40.6 tok/s) (stop, cancel=False), expert cache 53.0% hit (+3.1% of the routed experts over PCIe)",
+  "[strata] thinking: 53 of max 160 tokens, 53.0 tok/s, 1 s",
+  "[strata] answering: 105 of max 160 tokens, 51.7 tok/s, 2 s",
+  "[strata] done: 154 tokens in 3 s (53.6 tok/s) (stop, cancel=False), expert cache 54.0% hit (+3.0% of the routed experts over PCIe)",
+  "[strata] thinking: 60 of max 160 tokens, 63.5 tok/s, 1 s",
+  "[strata] answering: 122 of max 160 tokens, 62.5 tok/s, 2 s",
+  "[strata] done: 160 tokens in 3 s (63.7 tok/s) (length, cancel=False), expert cache 53.6% hit (+3.0% of the routed experts over PCIe)",
+  "[strata] thinking: 61 of max 160 tokens, 65.1 tok/s, 1 s",
+  "[strata] answering: 131 of max 160 tokens, 66.2 tok/s, 2 s",
+  "[strata] done: 154 tokens in 2 s (66.6 tok/s) (stop, cancel=False), expert cache 54.6% hit (+3.0% of the routed experts over PCIe)",
+  "[strata] thinking: 63 of max 160 tokens, 66.4 tok/s, 1 s",
+  "[strata] answering: 126 of max 160 tokens, 63.5 tok/s, 2 s",
+  "[strata] done: 153 tokens in 2 s (65.1 tok/s) (stop, cancel=False), expert cache 54.0% hit (+3.0% of the routed experts over PCIe)",
+  "[strata] thinking: 61 of max 160 tokens, 64.7 tok/s, 1 s",
+  "[strata] thinking: 119 of max 160 tokens, 59.4 tok/s, 2 s",
+  "[strata] done: 160 tokens in 3 s (58.6 tok/s) (length, cancel=False), expert cache 56.1% hit (+3.3% of the routed experts over PCIe)",
+  "[strata] thinking: 56 of max 160 tokens, 59.9 tok/s, 1 s",
+  "[strata] thinking: 109 of max 160 tokens, 56.0 tok/s, 2 s",
+  "[strata] done: 160 tokens in 3 s (57.6 tok/s) (length, cancel=False), expert cache 54.5% hit (+3.2% of the routed experts over PCIe)",
+  "[strata] thinking: 58 of max 160 tokens, 61.8 tok/s, 1 s",
+  "[strata] thinking: 125 of max 160 tokens, 62.4 tok/s, 2 s",
+  "[strata] done: 160 tokens in 3 s (62.4 tok/s) (length, cancel=False), expert cache 55.8% hit (+3.3% of the routed experts over PCIe)"
+ ],
+ "profile_saved": false,
+ "profile_bytes": 0
+}

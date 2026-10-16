@@ -1,14 +1,8 @@
 {
  "declared": "2026-10-16, from the news scan's ranked shortlist",
- "started": "2026-10-16 11:37:37",
+ "started": "2026-10-16 13:15:31",
  "queue": [
-  "q1-strata-kv-residency",
-  "q2-moe-cache-mib-ladder",
-  "q3-noise-floor",
-  "q4-calibrated-warm-cache",
-  "q5-ollama-decision-path",
-  "q6-coder-iq1-m",
-  "q7-reference-on-strata-0144"
+  "q4-calibrated-warm-cache"
  ],
  "results": [],
  "stopped": null

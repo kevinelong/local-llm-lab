@@ -1,0 +1,6 @@
+{
+ "item": "q5-ollama-decision-path",
+ "status": "blocked",
+ "reason": "no decision model in ollama list",
+ "pull": "ollama run nimble   (or the Laya/GLiNER tag 0.40.4 documents)"
+}

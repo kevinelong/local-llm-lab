@@ -205,36 +205,56 @@ def q4_calibrated_profile(name='q4-calibrated-warm-cache'):
     """Warm with real text, SAVE the profile, then start from it - the path our 2026-10-11 test never asked for.
 
     That test warmed with prompts and then found expert-profile.bin byte-identical, i.e. the engine was never
-    asked to learn one. The engine has --expert-profile-save / --expert-profile-save-every, and its server
-    says the next start begins from the saved profile instead of the config's --expert-profile.
+    asked to learn one. The engine learns one through the *config keys* `expert_profile_save` and
+    `expert_profile_save_every` (minutes; 0 means only at QUIT), which the server turns into
+    `--expert-profile-save*` and which also do the header match that lets the next start adopt the profile.
+    Two traps, both hit on the first attempt (2026-10-16): passing the flag as a raw arg works only if the
+    engine saves some other way, and the default `every` is **ten minutes** - while Engine.__exit__ stops the
+    engine with `taskkill /F`, so a profile that is only written at QUIT never appears. This item therefore
+    uses the config keys, sets `every` to one minute, keeps the warm phase long enough to cross it, and
+    **fails** if the profile is still absent instead of reporting a green run that tested nothing.
     """
     base = json.loads(shared.STRATA_CONFIG.read_text(encoding='utf-8'))
     saved = ROOT / 'q4-expert-profile.bin'
     if saved.exists():
         saved.unlink()
     warm_cfg = ROOT / 'strata-cfg-q4-warm.json'
-    warm_cfg.write_text(json.dumps(dict(base, args=list(base['args']) + ['--expert-profile-save',
-                                                                        str(saved)]), indent=1),
-                        encoding='utf-8')
+    warm = dict(base)
+    warm['expert_profile_save'] = str(saved)
+    warm['expert_profile_save_every'] = 1
+    warm_cfg.write_text(json.dumps(warm, indent=1), encoding='utf-8')
     out = {}
     with shared.strata_engine('q4-warm', warm_cfg):
-        for i in range(1, 9):                      # eight prompts of real material, the 10-11 warm-up shape
+        sent = 0
+        started = time.monotonic()
+        while sent < 40 and (time.monotonic() - started) < 150:   # cross the one-minute save interval
             rate_probe('http://127.0.0.1:8080', 'strata-coder', max_tokens=160)
-            log(name, 'warm-up %d/8 sent' % i)
+            sent += 1
+            if sent % 5 == 0:
+                log(name, 'warm-up %d sent (%.0f s in), profile present: %s'
+                    % (sent, time.monotonic() - started, saved.exists()))
+        out['warm_ups_sent'] = sent
+        out['warm_seconds'] = round(time.monotonic() - started, 1)
         out['cold_probe_after_warm'] = rate_probe('http://127.0.0.1:8080', 'strata-coder')
         out['warm_engine_lines'] = engine_rate_lines('q4-warm')
     out['profile_saved'] = saved.exists()
     out['profile_bytes'] = saved.stat().st_size if saved.exists() else 0
-    if saved.exists():
-        cal_cfg = ROOT / 'strata-cfg-q4-saved.json'
-        cal_cfg.write_text(json.dumps(dict(base, args=list(base['args']) + ['--expert-profile', str(saved)]),
-                                     indent=1), encoding='utf-8')
-        with shared.strata_engine('q4-from-saved', cal_cfg):
-            out['probe_from_saved'] = rate_probe('http://127.0.0.1:8080', 'strata-coder')
-            code, letters, _ = reason_letters(name, 'http://127.0.0.1:8080', 'strata-coder', 'q4-from-saved')
-            out['letters_of_93'] = letters
-            out['reason_exit'] = code
-            out['saved_engine_lines'] = engine_rate_lines('q4-from-saved')
+    if not saved.exists():
+        write_result(name, {'item': name, **out,
+                            'status': 'INCOMPLETE',
+                            'why': 'the engine wrote no profile, so the from-profile half did not run'})
+        print('INCOMPLETE: no expert profile was written, so there is nothing to start from.')
+        print('The warm half ran (%d warm-ups, %.0f s); the item is unscored rather than green.'
+              % (out['warm_ups_sent'], out['warm_seconds']))
+        return 4
+    cal_cfg = ROOT / 'strata-cfg-q4-saved.json'
+    cal_cfg.write_text(json.dumps(warm, indent=1), encoding='utf-8')
+    with shared.strata_engine('q4-from-saved', cal_cfg):
+        out['probe_from_saved'] = rate_probe('http://127.0.0.1:8080', 'strata-coder')
+        code, letters, _ = reason_letters(name, 'http://127.0.0.1:8080', 'strata-coder', 'q4-from-saved')
+        out['letters_of_93'] = letters
+        out['reason_exit'] = code
+        out['saved_engine_lines'] = engine_rate_lines('q4-from-saved')
     write_result(name, {'item': name, **out})
     return 0
 

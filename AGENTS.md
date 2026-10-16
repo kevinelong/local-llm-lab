@@ -132,6 +132,27 @@
     reproduce section told the reader to pull a model that appears in no ranked number; nine battery names
     and a page of jargon were undefined (there is now a battery table and a glossary); and `status: lead`
     was promised as a convention while appearing nowhere in the file.
+  - **The shortlist queue ran, and two of its five predictions were wrong in instructive ways**
+    (`ai_bench/queue-20261016-shortlist/REPORT.md` has the table per item). q1: `--kv-resident 32768` at a
+    fixed 2 GiB budget leaves the letters **identical (92/93 both arms)** and moves decode 7.3 -> 8.4 tok/s,
+    prefill 18.9 -> 22.1 and the expert-cache hit 46.8 -> 56.5 % - the hit-rate line is the mechanism, since
+    the flag itself is not echoed. q2: the `--moe-cache-mib` ladder is **non-monotonic as predicted**
+    (256/512 MiB sit *below* the control) but the best rung was the **largest tested**, 4096 MiB at
+    73.6 tok/s, +56 % over the control and still rising - so the prediction's direction survived and its
+    shape did not, and the ladder wants extending toward the 2 GiB VRAM reserve before anyone quotes "the"
+    cache setting. q3: the noise floor is **sub-1 %** on a 160-token probe (47.80 vs 47.53 tok/s, 3.73 s
+    both), i.e. a 5 % rate claim is ~9x the floor - which refutes the prediction that wall-time noise would
+    swallow a 5 % claim, for this probe at least. Letters were identical at every rung of q2 and both arms
+    of q1, which is the result that matters for scoring: neither knob changes the answers.
+  - **q4 was a false success of mine, and it is the exact defect this lab hunts in other people's work.**
+    It exited 0 in 62 s having tested nothing: `profile_saved: false`, so the from-profile half never ran.
+    Two causes, both mine: the engine learns a profile through the *config keys*
+    `expert_profile_save` / `expert_profile_save_every` (default **ten minutes**, or QUIT only), and
+    `Engine.__exit__` stops engines with `taskkill /F` - so a profile saved at QUIT can never appear. The
+    item now uses the config keys, sets the interval to a minute, keeps the warm phase long enough to cross
+    it, and **fails** when the profile is absent. Re-running it was the first thing done with the slot free.
+    The general rule this restates: an item must verify that the experiment it claims to have run actually
+    ran, and exit non-zero when it did not.
 - October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
   STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
   through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was
