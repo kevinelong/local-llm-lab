@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300" role="img" aria-label="Placement robustness: over the same 93 items run at 2 and 8 GiB resident, the chosen letters differ on 0 of 93 while the written justifications differ on 65 of 93, and correctness is 92 of 93 both ways.">
+  <title>Placement changes the prose, not the answers</title>
+  <desc>Two bars comparing what moved between the same 93 items at 2 GiB and 8 GiB resident budget: chosen letters 0 of 93 differ, justifications 65 of 93 differ. Correctness 92 of 93 in both configurations.</desc>
+  <rect x="0" y="0" width="720" height="300" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="24" y="34" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1f2328">The same 93 items, run at a 2 GiB and an 8 GiB resident budget: what moved?</text>
+  <text x="24" y="54" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#57606a">one engine, everything else identical, scored per item against the other arm</text>
+
+  <g stroke="#d0d7de" stroke-width="1">
+    <line x1="96" y1="90" x2="672" y2="90"/>
+    <line x1="96" y1="140" x2="672" y2="140"/>
+    <line x1="96" y1="190" x2="672" y2="190"/>
+    <line x1="96" y1="240" x2="672" y2="240" stroke="#8c959f"/>
+  </g>
+  <g font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="end">
+    <text x="88" y="94">100%</text>
+    <text x="88" y="144">66%</text>
+    <text x="88" y="194">33%</text>
+    <text x="88" y="244">0%</text>
+  </g>
+
+  <!-- letters chosen: 0 of 93 -->
+  <rect x="150" y="238" width="130" height="2" fill="#2f6fd0"/>
+  <text x="215" y="228" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#2f6fd0" text-anchor="middle">0 / 93</text>
+  <text x="215" y="264" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328" text-anchor="middle">letters chosen differ</text>
+
+  <!-- justifications: 65 of 93 = 69.9% -->
+  <rect x="440" y="137" width="130" height="103" fill="#d97706"/>
+  <text x="505" y="127" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#d97706" text-anchor="middle">65 / 93</text>
+  <text x="505" y="264" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328" text-anchor="middle">justifications written differ</text>
+
+  <text x="24" y="288" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328">Correctness the same both ways: <tspan font-weight="600">92/93</tspan>. Our scoring is placement-robust; anything that scores free-form text is not.</text>
+</svg>

@@ -1,10 +1,30 @@
 # local-llm-lab
 
-## Recommendations (measured as of 2026-10-10)
+Field notes from running large language models on one ordinary desktop - 64 GB DDR5, an RTX 5070 with
+12 GB, two NVMe drives, Windows, no Docker - and measuring, rather than guessing, what fits, what is fast
+and what each model actually scores. Every number here came from a run on this one machine, and every
+claim carries the instrument that produced it.
 
-Distilled from the nine-battery suite (693 checks: events, ledger, paths, ledger2, repo, longctx,
-repo2, perf, longctx2) on a 64 GB DDR5 / RTX 5070 12 GB box. Each line is a measurement with its run
-behind it; the dated reports just below carry the tables.
+Two habits are worth knowing before you read a number. A **prediction is recorded before each run and
+scored afterwards, including when it is wrong** (that is what [section 4](#4-what-we-got-wrong) is), and a
+run that cannot be scored is reported as **unscored, never as a zero**. Both habits exist because both
+have been violated here, and every correction is kept in the open.
+
+**Start here:** [1. What we would run today](#1-what-we-would-run-today) |
+[2. How to read any number here](#2-how-to-read-any-number-here) |
+[3. The numbers](#3-the-numbers) | [4. What we got wrong](#4-what-we-got-wrong) |
+[5. Where the numbers come from](#5-where-the-numbers-come-from) |
+[6. The mechanics](#6-the-mechanics)
+
+This is a working lab notebook, not a product. Numbers are from one machine ("DARKTEXAS"); treat them as
+directional. Research candidates are labelled separately from measured results. Licence:
+[FSL-1.1-MIT](#license) - source-available, **not** OSI open source.
+
+## 1. What we would run today
+
+Distilled from the nine-battery suite (693 checks: events, ledger, paths, ledger2, repo, longctx, repo2,
+perf, longctx2) on this box. Each line is a measurement with its run behind it; the [dated reports](#reports)
+carry the tables.
 
 - **Best local configuration: Qwen3.6-35B-A3B Q4_K_M on llama.cpp, provisioned** - context 131,072,
   reply cap 32,768, thinking budget 6144, MoE experts on the CPU (`--cpu-moe --load-mode none`).
@@ -24,6 +44,68 @@ behind it; the dated reports just below carry the tables.
 - **Report each model at the context it can afford, and say which.** 131,072 for the six local models;
   **32,768 for Swift Bonsai 2**, which trips the 0.5 GiB GPU floor during load at 65,536 and above;
   65,536 for Strata. Nothing measured shows the raised context costing a battery.
+- **The decision track: a 4B and a 9B inside one point, and the RAM upgrade changed nothing.** On
+  Bespoke's published 3,880-record suite `nimble` 9B leads `kev4` 4B on the 13-subset macro (0.7565 vs
+  0.7442) and on the class-balanced macro (0.7445 vs 0.7395), but **paired, both differences cross zero**
+  (95 % CI [-0.0257, +0.0015] and [-0.0189, +0.0092]). Pooled record-level nimble is ahead (McNemar
+  p = 0.0058), and by family it is nominally ahead in all three - noul +1.5 (p = 0.20), choice +1.6
+  (p = 0.06), score +3.3 (p = 0.13) - yet no family comparison is significant. The binary family even
+  splits by metric: nimble +1.1 on accuracy, **kev4 +0.8 on balanced accuracy**. Re-measured after the
+  upgrade, all **7,760 records are identical** to the pre-upgrade run, so the suite is platform-invariant.
+  Report balanced accuracy, the prediction rate and the majority baseline for skewed subsets, and
+  `mean |prediction - target|` for the score family (nimble 0.727, kev4 0.787, lev 0.856, kev0 1.090,
+  laya 1.224). Sources: `bespoke-metric-20261010/`, `bespoke-suite-20261010-v1/`.
+- **The fastest models fail the hard axes; the fastest *successful* one is not the fastest.**
+  Measured per task: gpt-oss-20b at 159 s/task but `repo` **0/78** (it broke the module import) and
+  `longctx` 15/40; MiniCPM5-2B at 176 s/task and 122 tok/s, with `repo` 43/78. The fastest configuration
+  that passes *everything* is Qwen3.6 + provisioning at 274 s/task. Speed and competence are separate axes:
+  rank on the batteries, then read the clock.
+
+## 2. How to read any number here
+
+The process is the product. Every measurement in this repo went through the same loop, and the branches -
+not the happy path - are what make the numbers comparable.
+
+```mermaid
+flowchart TD
+    Q["Question worth answering"] --> PR["Prediction written down<br/>BEFORE the run, scored after"]
+    PR --> FR["Instrument + frozen inputs<br/>pinned files, fixed sampling"]
+    FR --> G{"Resource gates<br/>free RAM, commit, one workload"}
+    G -->|"trip"| STOP["Queue STOPS<br/>the bar is not lowered"]
+    G -->|"pass"| EN["Engine loads<br/>build and flags recorded"]
+    EN --> RUN["Run: one workload,<br/>artifacts kept, checkpointed"]
+    RUN --> SC["Score against the frozen reference"]
+    SC --> SAME{"Artifact identical<br/>to the unmodified starter?"}
+    SAME -->|"yes"| LIFE["UNSCORED: a lifecycle fact,<br/>not a model verdict"]
+    SAME -->|"no"| GAP{"Any transport gap,<br/>or an evaluator that died?"}
+    GAP -->|"yes"| UNS["UNSCORED: the survivors are<br/>positional, not a sample"]
+    GAP -->|"no"| VERD["Counted: checks, the context<br/>served, and the wall time"]
+    VERD --> REP["REPORT.md + status.json<br/>+ frozen evidence in instruments/"]
+    LIFE --> REP
+    UNS --> REP
+    REP --> PRED["Prediction scored -<br/>including when it was wrong"]
+    PRED --> N["Notes updated:<br/>what changed, what is next"]
+```
+
+- **A prediction goes in before the run and is scored after it.** Every item in the overnight queues has
+  its question and its prediction written into `REPORT.md` *before* the engine starts, and the morning
+  scores them. Three of the entries in [section 4](#4-what-we-got-wrong) are predictions that failed.
+- **One inference workload at a time, and the gates are checked rather than lowered.** 9 GiB free
+  physical / 8 GiB commit / 0.5 GiB GPU free before an item, 3 / 2 / 0.5 GiB at runtime. A trip **stops**
+  the queue and says so in `status.json`; it never lowers a bar to keep going. The drivers now also refuse
+  to start while another measured run holds the inference slot.
+- **Compare inside a run, never across runs.** A sweep's rows were produced under one engine build, one
+  context, one set of flags; a number from a different session is a lead until it is re-measured here.
+- **Know the noise floor before believing a difference.** On the discriminating battery, `ledger2` has
+  spanned **19 checks** across six runs of one model (and 14 across five runs of another), and `repo` has
+  swung **0-78** on the weakest two. Single-run `ledger2` differences below ~19 checks are noise.
+- **Unscored is not zero.** Three distinct ways a run yields a number that is *not* a model verdict: the
+  artifact equals the starter's (nothing was written), a transport gap leaves positional survivors, or the
+  evaluator exited abnormally. All three are labelled in the record rather than counted as failures.
+- **Other people's numbers are leads. Only this box's runs are evidence.** Vendor claims, community
+  reports and papers are quoted with their source and marked `status: lead`; several of them have turned
+  out to be contradicted by a run here (and one of ours was contradicted by theirs - see section 4).
+
 - **Before believing a low score, check it against the starter.** A score equal to the unmodified
   starter's baseline (events 2/76, ledger **7/70**, paths 9/75, ledger2 **62/226**, repo **0/78**,
   longctx 1/40, repo2 0/55, perf 1/33, longctx2 0/40) means the session **never wrote the file** - a
@@ -37,20 +119,35 @@ behind it; the dated reports just below carry the tables.
 - **Use the RTX 5070 and nothing else.** The Arc iGPU does work through Ollama's Vulkan backend but
   delivers **0.39x** the discrete card (100.8 vs 260.5 tok/s) while spilling to system RAM, and the NPU
   has no path in any engine here. The iGPU is at best a second device for small decision/embedding work.
-- **The decision track: a 4B and a 9B inside one point, and the RAM upgrade changed nothing.** On
-  Bespoke's published 3,880-record suite `nimble` 9B leads `kev4` 4B on the 13-subset macro (0.7565 vs
-  0.7442) and on the class-balanced macro (0.7445 vs 0.7395), but **paired, both differences cross zero**
-  (95 % CI [-0.0257, +0.0015] and [-0.0189, +0.0092]). Pooled record-level nimble is ahead (McNemar
-  p = 0.0058), and by family it is nominally ahead in all three - noul +1.5 (p = 0.20), choice +1.6
-  (p = 0.06), score +3.3 (p = 0.13) - yet no family comparison is significant. The binary family even
-  splits by metric: nimble +1.1 on accuracy, **kev4 +0.8 on balanced accuracy**. Re-measured after the
-  upgrade, all **7,760 records are identical** to the pre-upgrade run, so the suite is platform-invariant.
-  Report balanced accuracy, the prediction rate and the majority baseline for skewed subsets, and
-  `mean |prediction - target|` for the score family (nimble 0.727, kev4 0.787, lev 0.856, kev0 1.090,
-  laya 1.224). Sources: `bespoke-metric-20261010/`, `bespoke-suite-20261010-v1/`.
 - **Keep the floors.** 3 / 2 / 0.5 GiB runtime, 9 / 8 / 7.5 GiB initial, one inference workload at a
   time. A trip is a measurement against the floor: Kolibri currently needs ~3.5 GiB more free *commit*
   than this box has at rest, and that is the finding - not a reason to lower the bar.
+
+## 3. The numbers
+
+### The ranked batteries
+
+The ranking metric is the discriminating subset - `ledger + ledger2 + repo + longctx` = **414 checks** -
+because `events` (76) and `paths` (75) are saturated: they split on 5 and 3 checks respectively across the
+whole top group. Each row carries the **context it was actually served**, which is a lab rule: nothing
+measured shows the raised context costing a battery, and one model cannot take it at all.
+
+| configuration | context served | ranked metric (414) | all nine batteries (693) |
+|---|---|---|---|
+| Qwen3.6-35B-A3B Q4_K_M, provisioned (`ext-v12`) | 131,072 | **414** | **692** |
+| Qwen3.8-Flash-Next Q2_0, Strata, 4 GiB resident, streamed | 65,536 | **414** | **692** |
+| Qwen3.6-35B-A3B (`ctx-v8`, the first provisioned sweep) | 131,072 | 411 | - |
+| Qwen3.6 / Kolibri-1 78B (two runs, identical per task) | 131,072 | 400 | - |
+| Nemotron (394 and 393 across two runs) | 131,072 | 393-394 | - |
+| Swift Bonsai 2, the declared context exemption | 32,768 | 379 | - |
+| gpt-oss-20b | 131,072 | 377 | - |
+| MiniCPM5-2B | 131,072 | 374 | - |
+
+The two perfect rows are the only ones at 414, and they tie **cell for cell** on all nine batteries: a
+20 GB fully-resident MoE and a streamed 2-bit giant that keeps 4 GiB resident. Everything else is at 411
+or below.
+
+### What the two leading stacks know
 
 ### Note: knowledge breadth, the top two stacks (measured 2026-10-10)
 
@@ -87,6 +184,9 @@ So **do not choose between these two on knowledge** - at this sample size they k
 Choose on **cost and operation**: Strata served all 1,100 items in 35.5 min with only ~4 GiB resident and
 66 GB on disk, while Qwen3.6 took 51.3 min and needs the whole ~20 GB MoE reachable through `--cpu-moe`,
 i.e. system RAM - which is exactly why that recipe does not transfer to a 16 GB box.
+
+
+![Knowledge accuracy on 1,100 pinned items for three stacks, with one-standard-error whiskers](figures/knowledge-with-se.svg)
 
 ### Note: the same tie, expanded (measured 2026-10-10)
 
@@ -129,6 +229,120 @@ worth reading. `new-items-20261007/DEEP-SCORECARD.md` holds both stacks' facts l
 relabelled A/B for blind human scoring; the mapping is in the result JSONs. Instrument design, every
 pass, the parse lesson and the caveats: [KNOWLEDGE-DEEP-2026-10-10.md](KNOWLEDGE-DEEP-2026-10-10.md).
 
+
+### What placement changes, and what it does not
+
+![The same 93 items at 2 GiB and 8 GiB resident: 0 of 93 chosen letters differ, 65 of 93 justifications do](figures/placement-robustness.svg)
+
+This is the measurement that says which instruments are trustworthy. The same 93 items, the same engine,
+the same prompt, at a 2 GiB and an 8 GiB resident budget: **65 of 93 justifications differ, 0 of 93 chosen
+letters**, and correctness is 92/93 both ways. So a battery that scores an answer or an artifact is
+placement-robust, and anything that scores *prose* - papers, fact lists, free-form reasoning - needs
+repeats before a difference means anything. That is the whole reason the ranking metric counts checks and
+not text.
+
+## 4. What we got wrong
+
+The corrections are the most useful part of this notebook, because each one names a way a benchmark can
+lie. Every entry here was a claim *this lab* made and then refuted with its own runs.
+
+- **"Strata's 2-bit weights will cost recall first."** Predicted a recall penalty; measured MMLU
+  87.4 % vs 86.0 % for the 4-bit stack, i.e. no penalty at all, with GSM8K 288 vs 286. The quantisation
+  cost did not land where the intuition said it would.
+- **"The free-form reasoning gap is 4.3 points."** Most of it was our own scoring convention: the extractor
+  read the option a reply *quoted* while explaining why it was wrong. Requiring `ANSWER: <letter>` made all
+  186 replies parse unambiguously and moved the pair from 88/93 vs 92/93 to 90/93 vs 92/93. A parser can
+  manufacture a gap as easily as it can hide one.
+- **"MTP is faster."** Per token, yes: **+31.2 %** (50.3 vs 38.3 tok/s). Wall clock, no: **-7.3 %**, because
+  it emits **+21.7 %** more tokens. Accuracy did not move (plain 219/221/219, MTP 220/219/216, n=3 each),
+  so the single pair that had looked like a gain was variance.
+- **"Swift's ledger score is 7/70."** It was a reply-cap artifact: the turn used exactly 12,288 of its
+  12,288-token allowance and never called a tool. At a 32,768 cap the same model scores **70/70** while the
+  byte-identical `ledger2` checks stay 226/226 in the same session. A low score has to be checked against
+  the reader's limits before it is called a model property.
+- **"Kolibri loses 14 checks to the raised context."** Refuted by four targeted repeats: at the *same*
+  131,072 context it scores **226/226 twice** when `ledger2` runs first, so the variable was loop position
+  or plain variance, not context. Two runs of one cell are not a finding.
+- **"There is no upstream flag for the expert cache, so bumping the build cannot get it."** Wrong by one
+  day and one build: llama.cpp PR **#29887** merged 2026-10-07T18:07:46Z, `--moe-cache-mib` first ships in
+  **b11480**, and our pinned build (b11461, published 06:50:53Z the same day) predates the merge by about
+  eleven hours. The negative control - *our* build has no such flag - was right; the conclusion drawn from
+  it was stale. ([Details](NEWS-2026-10-16.md), and the note it corrects is
+  [STRATA-ALTERNATIVES-2026-10-11.md](STRATA-ALTERNATIVES-2026-10-11.md).)
+- **"#27149 is an unmerged PR."** It is a **Discussion** (`pulls/27149` 404s). The findings quoted from it
+  stand; the artefact type did not.
+- **A knowledge run that scored 0/1100 - and exited 0.** Every one of the 1,100 requests was a `404`,
+  because the engine advertises its model as `qwen3.6-colibri` and the instrument was told `qwen36-35b`.
+  The run took 12.9 s and looked like a very bad model. The item now reads the model id from the engine's
+  own `/v1/models`, and the instrument marks a run with any transport gap **unscored** and exits non-zero.
+- **A 9.3 % that was not a score.** 102/1100 came from an instrument orphaned by a driver timeout plus an
+  engine that had been stopped underneath it: 989 failures were connection errors and the 111 that answered
+  were simply the items that ran first. Positional survivors are not a sample.
+
+## 5. Where the numbers come from
+
+- **The ranked batteries** - nine frozen tasks, 693 checks, generated and scored by the harness in
+  `ai_bench/new-items-20261007`; artifacts are scored against a pinned reference, and a score equal to the
+  unmodified starter's is treated as a lifecycle fact rather than a model verdict.
+- **The knowledge instrument** - 1,100 pinned items (800 MMLU across 8 subjects + 300 GSM8K as the
+  procedural control), sampling pinned at temperature 0 / seed 20261009, no judge model.
+- **The reasoning instrument** - 93 shared-correct items answered with the decisive fact and the rejected
+  distractor, `ANSWER: <letter>` required, paired by item.
+- **The decision suites** - Bespoke's published 3,880-record suite, re-measured after the RAM upgrade:
+  all 7,760 records identical, so the suite is platform-invariant. See `bespoke-suite-20261010-v1/`.
+- **The placement instrument** - the same items at two resident budgets, scored per item.
+- **The transcript rule** - stall detection from the transcript (identical repeated outcome), which catches
+  **4/4 stalls at 1/14 false alarms** where every neural decision model screened here catches **0/4**.
+
+The instruments, their frozen inputs and the small evidence are snapshotted into this repo under
+[`instruments/`](instruments/) with a sha256 manifest and a refresh script, so a claim can be traced back
+without trusting the prose.
+
+**Pinned builds** (the ones the numbers above were produced with): llama.cpp **b11461** at
+`staged-27b-20261007/llamacpp-b11461`, run with `--cpu-moe --load-mode none`; Strata **0.1.40.3** at
+`staged-strata-20261007/engine-src-v0.1.40.3` (0.1.41 was staged and measured neutral on speed, adopted
+only for its watchdog and tool-parse fixes); Colibri **v2.0.0** at `staged-colibri-20261011`; Ollama
+**0.40.4** installed. Model files, quantisations and their digests are recorded in each frozen root.
+
+## 6. The mechanics
+
+- **The box:** 64 GB DDR5 (a 32 GB upgrade part-way through; the suites are platform-invariant across it),
+  RTX 5070 12 GB, two NVMe drives - `C:` system and a 622 GiB models store on `D:` - Windows, no Docker,
+  no systemd, no WSL when a run is measured.
+- **The gates:** 9 GiB free physical / 8 GiB commit headroom / 0.5 GiB GPU free before an item; 3 / 2 /
+  0.5 GiB during it. A trip stops the queue. The one deliberate loosening in the record - removing a 6 GiB
+  worker-private cap that was failing nimble while every system floor passed - is written down with its
+  date.
+- **How a queue runs:** `queue.json` declares each item with its question and prediction; `runner.py` runs
+  them serially, checks the gates between items, clears the engine ports (before the first item and between
+  them), honours a `STOP` file, and writes `status.json` and `REPORT.md` continuously. An item's instrument
+  **checkpoints** its result every 25 items and can **resume** from that checkpoint, so a wall-clock kill or
+  a deliberate pause costs time, not work.
+- **What is deliberately not done:** no frozen artifact is edited (a declared re-pin is recorded with
+  old -> new digests instead), no app is closed or machine rebooted to free memory, and a benchmark is never
+  re-run just because a result was inconvenient.
+
+## Docs in this repo
+- [instruments/](instruments/) - the measurement instruments, frozen inputs and small evidence snapshotted out of `ai_bench`, with a sha256 manifest and the refresh script.
+- [RESULTS-2026-09-15.md](RESULTS-2026-09-15.md) - Pi, Aider, and OpenCode experiments, compact GGUF variants, and CPU-only measurements.
+- [RESEARCH-2026-09-15.md](RESEARCH-2026-09-15.md) - new candidates, popular Hugging Face variants, CPU-only models, and Pi comparison plan.
+- [HARDWARE.md](HARDWARE.md) - the exact box and its ceilings.
+- [HARNESSES.md](HARNESSES.md) - inference harnesses and agent harnesses, with our findings.
+- [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md) - deep dive: why opencode "hangs" on local Ollama and the fix.
+- [DECOMPOSITION-TEST.md](DECOMPOSITION-TEST.md) - head-to-head: three harnesses build the same 7-part spec.
+- [BASELINE-REMOTE.md](BASELINE-REMOTE.md) - how the locals compare to cutting-edge remote (Codex + GPT-6 Astra).
+- [HARD-SPEC-TEST.md](HARD-SPEC-TEST.md) - the harder spec where the local model finally slips (8/10 vs frontier 10/10).
+- [examples/](examples/) - the actual programs each harness produced, plus the specs and the scorer.
+- [transparent-decomposer.md](transparent-decomposer.md) - prompt that makes an agent show its plan and work step by step.
+- [MODELS.md](MODELS.md) - local models tried, what fits, the MoE-vs-dense lesson.
+- [METHODOLOGY.md](METHODOLOGY.md) - how we benchmark (probes, tok/s, placement).
+- [RESULTS.md](RESULTS.md) - the measured numbers.
+- [benchmarks/](benchmarks/) - the benchmark scripts.
+
+## How to reproduce quickly
+1. Install Ollama. `ollama pull qwen3:14b` (or any model in MODELS.md).
+2. `ollama ps` shows GPU/CPU split; the API is at `http://127.0.0.1:11434`.
+3. Run a probe with the script in `benchmarks/`.
 ## Reports
 
 **2026-10-16 &middot; [Daily news scan: the expert cache was already upstream](NEWS-2026-10-16.md)**
@@ -197,17 +411,6 @@ tested it. Updated 2026-09-20.
 
 This is a working lab notebook, not a product. Numbers are from one machine ("DARKTEXAS"); treat them
 as directional. Research candidates are labeled separately from measured results.
-
-## License
-
-[FSL-1.1-MIT](LICENSE) - the Functional Source License, Version 1.1: source-available, usable for anything
-except a competing commercial product or service, with each version converting to MIT on its second
-anniversary. It is **not** an OSI open-source licence, so do not describe it as one. [NOTICE.md](NOTICE.md)
-records the third-party datasets and model outputs inside `instruments/`, whose own terms still apply.
-
-Earlier baseline: [September 15 experiments](RESULTS-2026-09-15.md) add Pi, OmniCoder, a small Smoffyy variant, and a CPU-only baseline. The historical recommendations below precede that round.
-
-Follow-up: [September 16 repeated trials](RESULTS-2026-09-16-OVERNIGHT.md) and [large tool-call streaming diagnosis](STREAMING-DIAGNOSIS-2026-09-16.md). The overnight hard-task failures exposed an output-limit configuration problem; see the diagnosis before interpreting their 0/10 scores.
 
 ## LLM vs harness (how they relate)
 
@@ -306,24 +509,13 @@ take the model list, the 32 GB reference and the harness pick as historical.*
   are competitive up to real algorithmic complexity, past which the remote edge is real. See
   [BASELINE-REMOTE.md](BASELINE-REMOTE.md) and [HARD-SPEC-TEST.md](HARD-SPEC-TEST.md).
 
-## Docs in this repo
-- [instruments/](instruments/) - the measurement instruments, frozen inputs and small evidence snapshotted out of `ai_bench`, with a sha256 manifest and the refresh script.
-- [RESULTS-2026-09-15.md](RESULTS-2026-09-15.md) - Pi, Aider, and OpenCode experiments, compact GGUF variants, and CPU-only measurements.
-- [RESEARCH-2026-09-15.md](RESEARCH-2026-09-15.md) - new candidates, popular Hugging Face variants, CPU-only models, and Pi comparison plan.
-- [HARDWARE.md](HARDWARE.md) - the exact box and its ceilings.
-- [HARNESSES.md](HARNESSES.md) - inference harnesses and agent harnesses, with our findings.
-- [OPENCODE-OLLAMA.md](OPENCODE-OLLAMA.md) - deep dive: why opencode "hangs" on local Ollama and the fix.
-- [DECOMPOSITION-TEST.md](DECOMPOSITION-TEST.md) - head-to-head: three harnesses build the same 7-part spec.
-- [BASELINE-REMOTE.md](BASELINE-REMOTE.md) - how the locals compare to cutting-edge remote (Codex + GPT-6 Astra).
-- [HARD-SPEC-TEST.md](HARD-SPEC-TEST.md) - the harder spec where the local model finally slips (8/10 vs frontier 10/10).
-- [examples/](examples/) - the actual programs each harness produced, plus the specs and the scorer.
-- [transparent-decomposer.md](transparent-decomposer.md) - prompt that makes an agent show its plan and work step by step.
-- [MODELS.md](MODELS.md) - local models tried, what fits, the MoE-vs-dense lesson.
-- [METHODOLOGY.md](METHODOLOGY.md) - how we benchmark (probes, tok/s, placement).
-- [RESULTS.md](RESULTS.md) - the measured numbers.
-- [benchmarks/](benchmarks/) - the benchmark scripts.
+Earlier baseline: [September 15 experiments](RESULTS-2026-09-15.md) add Pi, OmniCoder, a small Smoffyy variant, and a CPU-only baseline. The historical recommendations below precede that round.
 
-## How to reproduce quickly
-1. Install Ollama. `ollama pull qwen3:14b` (or any model in MODELS.md).
-2. `ollama ps` shows GPU/CPU split; the API is at `http://127.0.0.1:11434`.
-3. Run a probe with the script in `benchmarks/`.
+Follow-up: [September 16 repeated trials](RESULTS-2026-09-16-OVERNIGHT.md) and [large tool-call streaming diagnosis](STREAMING-DIAGNOSIS-2026-09-16.md). The overnight hard-task failures exposed an output-limit configuration problem; see the diagnosis before interpreting their 0/10 scores.
+
+## License
+
+[FSL-1.1-MIT](LICENSE) - the Functional Source License, Version 1.1: source-available, usable for anything
+except a competing commercial product or service, with each version converting to MIT on its second
+anniversary. It is **not** an OSI open-source licence, so do not describe it as one. [NOTICE.md](NOTICE.md)
+records the third-party datasets and model outputs inside `instruments/`, whose own terms still apply.
