@@ -16,7 +16,7 @@ have been violated here, and every correction is kept in the open.
 [5. Where the numbers come from](#5-where-the-numbers-come-from) |
 [6. The mechanics](#6-the-mechanics)
 
-The last third of this file is **September 2026 history** - the harness essays and the recommendation for a
+The last fifth of this file is **September 2026 history** - the harness essays and the recommendation for a
 32 GB box - collected under one heading, [Background and history](#background-and-history-september-2026).
 Nothing there is a current recommendation, and the Reports index at the end is split the same way.
 
@@ -41,10 +41,12 @@ carry the tables.
 - **What the two stacks know: the same.** 88.5 % vs 89.7 % over 1,100 MMLU + GSM8K items - a 1.2-point
   gap against a 1.33-point standard error - and the expected low-bit *recall* penalty did not appear.
   Run a knowledge benchmark before claiming a model is "smarter".
-- **Rank by `ledger2`, `repo` and `repo2`, not by runs of small tasks.** `events` (76) and `paths` (75)
-  are saturated (they split on 5/76 and 3/75 checks in the top group), so the metric is
-  `ledger + ledger2 + repo + longctx` = **414 checks**. `repo2` (55) is where models still fail:
-  34-48/55 for everything except the two leaders at 54/55, whose single miss is the same check.
+- **Rank on the batteries that discriminate, and read `repo2` beside them.** `events` (76) and `paths` (75)
+  are saturated - they split on 5/76 and 3/75 checks across the whole top group - so the metric is the four
+  batteries with repeats behind them: `ledger + ledger2 + repo + longctx` = **414 checks**. The other three
+  of the nine (`repo2` 55, `perf` 33, `longctx2` 40) are single-sample batteries, so they are reported
+  next to the metric rather than folded into it. `repo2` is the one that still separates: 34-48/55 for
+  everything except the two leaders at 54/55, whose single miss is the same check.
 - **Report each model at the context it can afford, and say which.** 131,072 for the six local models;
   **32,768 for Swift Bonsai 2**, which trips the 0.5 GiB GPU floor during load at 65,536 and above;
   65,536 for Strata. Nothing measured shows the raised context costing a battery.
@@ -67,6 +69,10 @@ carry the tables.
   exactly the volatility the noise rule warns about and a reason to read any single row of the table in
   [§3](#3-the-numbers) as one sample. The fastest configuration that passes *everything* is Qwen3.6 +
   provisioning at 274 s/task.
+
+Read the numbers in this section the way [§2](#2-how-to-read-any-number-here) says to: the 1-check tie
+between the top two, and the 3-check gaps beneath them, are **inside this lab's own noise floor** - they
+rank the field, they do not separate it.
 
 ## 2. How to read any number here
 
