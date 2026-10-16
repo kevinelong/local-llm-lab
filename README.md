@@ -16,6 +16,10 @@ have been violated here, and every correction is kept in the open.
 [5. Where the numbers come from](#5-where-the-numbers-come-from) |
 [6. The mechanics](#6-the-mechanics)
 
+The last third of this file is **September 2026 history** - the harness essays and the recommendation for a
+32 GB box - collected under one heading, [Background and history](#background-and-history-september-2026).
+Nothing there is a current recommendation, and the Reports index at the end is split the same way.
+
 This is a working lab notebook, not a product. Numbers are from one machine - "DARKTEXAS" is what this box
 is called - so treat them as directional. Licence:
 [FSL-1.1-MIT](#license) - source-available, **not** OSI open source.
@@ -28,12 +32,12 @@ carry the tables.
 
 - **Best local configuration: Qwen3.6-35B-A3B Q4_K_M on llama.cpp, provisioned** - context 131,072,
   reply cap 32,768, thinking budget 6144, MoE experts on the CPU (`--cpu-moe --load-mode none`).
-  **414/414** on the ranking metric, **565/565** on the six-task suite, **692/693** on all nine - the
-  best result recorded here, at 1,300-2,700 s per full sweep.
-- **A streamed low-bit giant ties it, and is cheaper in RAM.** Qwen3.8-Flash-Next Q2_0 served by Strata
-  from disk with a 4 GiB resident budget also scores **414/414 and 692/693**, cell for cell, and answered
-  a 1,100-item knowledge set **31 % faster in wall time** (2,128 s vs 3,078 s). On a 12 GB card that is a
-  real option, not a toy.
+  **414/414** on the ranking metric, **565/565** on the six-task suite, **692/693** on all nine - one of
+  the two best results recorded here, tying the next entry cell for cell, at 1,300-2,700 s per full sweep.
+- **A streamed low-bit giant ties it, and is cheaper in RAM.** Qwen3.8-Flash-Next Q2_0 served by Strata -
+  a streaming inference engine, not a model - from disk with a 4 GiB resident budget also scores
+  **414/414 and 692/693**, cell for cell, and answered a 1,100-item knowledge set **31 % faster in wall
+  time** (2,128 s vs 3,078 s). On a 12 GB card that is a real option, not a toy.
 - **What the two stacks know: the same.** 88.5 % vs 89.7 % over 1,100 MMLU + GSM8K items - a 1.2-point
   gap against a 1.33-point standard error - and the expected low-bit *recall* penalty did not appear.
   Run a knowledge benchmark before claiming a model is "smarter".
@@ -56,11 +60,13 @@ carry the tables.
   `mean |prediction - target|` for the score family (nimble 0.727, kev4 0.787, lev 0.856, kev0 1.090,
   laya 1.224). Sources: `bespoke-metric-20261010/`, `bespoke-suite-20261010-v1/`.
 - **The fastest models fail the hard axes; the fastest *successful* one is not the fastest.** On their
-  first sweeps: gpt-oss-20b at 159 s/task but `repo` **0/78** (it broke the module import) and `longctx`
-  15/40; MiniCPM5-2B at 176 s/task and 122 tok/s with `repo` 43/78. Both later reached 377 and 374 on the
-  ranked metric - gpt-oss scoring `repo` 78/78 on a repeat - which is exactly the volatility the noise rule
-  warns about, and a reason to read any single row of the table above as one sample. The fastest
-  configuration that passes *everything* is Qwen3.6 + provisioning at 274 s/task.
+  first sweeps: gpt-oss-20b at 159 s/task but `repo` **0/78** - which is also the starter's own baseline,
+  so read it as the suspected lifecycle failure [§2](#2-how-to-read-any-number-here) describes rather than
+  a measured limit - and `longctx` 15/40; MiniCPM5-2B at 176 s/task and 122 tok/s with `repo` 43/78. Both
+  later reached 377 and 374 on the ranked metric, gpt-oss scoring `repo` 78/78 on a repeat, which is
+  exactly the volatility the noise rule warns about and a reason to read any single row of the table in
+  [§3](#3-the-numbers) as one sample. The fastest configuration that passes *everything* is Qwen3.6 +
+  provisioning at 274 s/task.
 
 ## 2. How to read any number here
 
@@ -140,7 +146,7 @@ measured shows the raised context costing a battery, and one model cannot take i
 | Qwen3.6-35B-A3B Q4_K_M, provisioned (`ext-v12`) | 131,072 | **414** | **692** |
 | Qwen3.8-Flash-Next Q2_0, Strata, 4 GiB resident, streamed | 65,536 | **414** | **692** |
 | Qwen3.6-35B-A3B (`ctx-v8`, the first provisioned sweep) | 131,072 | 411 | - |
-| Qwen3.6 / Kolibri-1 78B (two runs, identical per task) | 131,072 | 400 | - |
+| Kolibri-1 78B (two runs, identical per task) | 131,072 | 400 | - |
 | Nemotron (394 and 393 across two runs) | 131,072 | 393-394 | - |
 | Swift Bonsai 2, the declared context exemption | 32,768 | 379 | - |
 | gpt-oss-20b | 131,072 | 377 | - |
@@ -239,7 +245,7 @@ request - an independent cross-check of the lab's earlier note that temperature 
 that engine.
 
 **Limit:** these checks measure grounding and figures, not truth, argument quality or whether the prose is
-worth reading. `new-items-20261007/DEEP-SCORECARD.md` holds both stacks' facts lists and full papers
+worth reading. [DEEP-SCORECARD.md](instruments/new-items-20261007/DEEP-SCORECARD.md) holds both stacks' facts lists and full papers
 relabelled A/B for blind human scoring; the mapping is in the result JSONs. Instrument design, every
 pass, the parse lesson and the caveats: [KNOWLEDGE-DEEP-2026-10-10.md](KNOWLEDGE-DEEP-2026-10-10.md).
 
@@ -356,6 +362,11 @@ say what the lab wanted to probe, not what the task is:
 | `provisioned` | the declared llama.cpp flag set: context 131,072, reply cap 32,768, thinking budget 6,144, `--cpu-moe --load-mode none` |
 | `ext-v12`, `ctx-v8` | run-root names in the lab's working tree, so a table row can be traced to one session |
 | the declared context exemption | Swift Bonsai 2 is served at 32,768 because it trips the GPU floor at 65,536 and above |
+| Strata | a streaming inference engine (`Niko1221/Strata`) that keeps a small resident budget and streams expert weights from disk; not a model, and unrelated to llama.cpp or Ollama |
+| `A3B` | "35B-A3B" reads as 35 billion parameters total, ~3 billion active per token - the property that makes CPU offload usable |
+| `--load-mode none` | llama.cpp: do not preload the MoE experts into RAM; let them stream |
+| Bespoke | a third party who published a 3,880-record decision suite; the lab re-measured it rather than trusting the tables |
+| `nimble`, `kev4`, `kev0`, `lev`, `laya` | small decision models scored on that suite (nimble 9B, kev4 4B; sizes for the others are in the suite's own report) |
 
 One name collision worth stating plainly, because it has confused this lab's own notes: **Kolibri**-1 78B
 is a *model* measured here; **Colibri** (`JustVugg/colibri`, v2.0.0) is an unrelated *engine*. They share
@@ -411,9 +422,11 @@ Nothing measured here was produced through that path: it is a way to see the box
 reproduce a row of the table.
 ## Reports
 
-Reports tracked in this repo link directly. A few link into `../ai_bench/…`, the lab's working tree, which
-is **not** this repository - those do not resolve on GitHub. The files behind them are mirrored under
-[`instruments/`](instruments/), which is the copy that ships.
+Reports tracked in this repo link directly. Four link into `../ai_bench/…`, the lab's working tree, which
+is **not** this repository, so they do not resolve on GitHub. Exactly one of those four is mirrored here:
+the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPORT.md`](instruments/overnight-20261011/REPORT.md).
+The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
+they exist only in the working tree.
 
 **2026-10-16 &middot; [Daily news scan: the expert cache was already upstream](NEWS-2026-10-16.md)**
 &ndash; the first entry of a **daily** scan, and it corrects the one before it: llama.cpp's MoE expert
@@ -456,13 +469,15 @@ reversed four readings, and four nine-task profiles with `repo2` as the new disc
 &ndash; the 414-check ranking (events/paths retired), Swift's context ladder (32,768 or nothing), the
 Strata port and the two bugs it had to fix, and the variance work.
 
+### Earlier reports (September 2026)
+
 September 23: [completed follow-up results](FOLLOWUP-RESULTS-2026-09-23.md),
 [trace review](COMPLETION-REVIEW-2026-09-23.md) and
 [fixed completion experiment](COMPLETION-PLAN-2026-09-23.md).
-Check the [current report](../ai_bench/completion-20260923-v1/REPORT.md) and
-status.json before inference. The completion and overnight v3 queues are complete with cleanup
-verified. [Memory-qualified CPU reruns](CPU-HEADROOM-PLAN-2026-09-23.md) are
-prepared and held for headroom; original results remain separate.
+The [report for that cycle](../ai_bench/completion-20260923-v1/REPORT.md) and its status.json are where to
+look before re-running any of it. The completion and overnight v3 queues finished with cleanup verified.
+[Memory-qualified CPU reruns](CPU-HEADROOM-PLAN-2026-09-23.md) are prepared and held for headroom; the
+original results remain separate.
 
 September 22 continuation: [Go comparison evidence](CONTINUATION-RESULTS-2026-09-22.md),
 [staged versus one-shot smoke](STAGING-RESULTS-2026-09-22.md), and
@@ -471,9 +486,9 @@ The staging smoke hit its wall limit in both treatments, so the 30-run main
 comparison remains held. Read each report's run status and limitations before
 using its measurements.
 
-Current experiments: [September 20 results](RESULTS-2026-09-20.md) track evaluator v2, the current Ollama replay, a pinned Pi comparison, and Bonsai 2 compatibility. Check the report's status before treating the round as complete.
+September 20: [results](RESULTS-2026-09-20.md) tracked evaluator v2, the Ollama replay of that week, a pinned Pi comparison, and Bonsai 2 compatibility. Read that report's status before treating the round as complete.
 
-Latest review: [September 20 research and audit](REVIEW-2026-09-20.md) covers this week's releases and corrects the historical cycle-failure explanation. Rechecking archived programs also exposed a self-test data overwrite in the Claude artifact; original scores are preserved.
+September 20 review: [research and audit](REVIEW-2026-09-20.md) covers that week's releases and corrects the historical cycle-failure explanation. Rechecking archived programs also exposed a self-test data overwrite in the Claude artifact; original scores are preserved.
 
 ## Background and history (September 2026)
 
