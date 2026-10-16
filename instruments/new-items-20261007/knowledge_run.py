@@ -272,12 +272,15 @@ def main():
     # A run whose every reply is a transport error is UNSCORED, not a zero. On 2026-10-15 the Colibri item
     # named a model the engine does not serve (the engine advertises `qwen3.6-colibri`; the request said
     # `qwen36-35b`), so all 1,100 requests came back `404 model_not_found` in 13 s - and this script exited
-    # 0 with a 0/1100 that read like a model verdict. Partial transport failure is reported but still scored,
-    # because the surviving items are real samples.
+    # 0 with a 0/1100 that read like a model verdict. Partial transport failure is worse than obvious,
+    # because the items that *did* answer are the ones that ran before the engine died: the survivors are
+    # positional, not a sample (the 2026-10-15 orphaned run scored 102/1100 that way, 989 of them
+    # connection errors after the driver cleared the port under it). So ANY transport failure marks the
+    # run unscored and exits nonzero; a usable result is one with no gap in it.
     transport = [f for f in result['failures'] if str(f.get('reply', '')).startswith('TRANSPORT:')]
     dead = bool(result['total']) and len(transport) == result['total']
     result['transport_failures'] = len(transport)
-    result['scored'] = not dead
+    result['scored'] = not transport
     out.write_text(json.dumps(result, indent=1), encoding='ascii')
     print('%-24s %4d/%-4d rate %.3f  (%.1fs)  -> %s' % (
         args.model, result['passed'], result['total'], result['rate'], result['seconds'], out.name))
@@ -288,8 +291,8 @@ def main():
     if transport:
         print('        %d of %d replies failed at the transport level, e.g. %s'
               % (len(transport), result['total'], transport[0]['reply']))
-    if dead:
-        print('        UNSCORED: every reply failed at the transport level - not a model score')
+        print('        UNSCORED: %s - the items that answered are positional, not a sample'
+              % ('every reply failed' if dead else 'the run has a gap in it'))
         return 2
     return 0
 

@@ -576,10 +576,6 @@
    "bytes": 541561,
    "sha256": "e28d2fdb87cdcb3445184780806cfd976097518a79b4a7759892e869ffba3985"
   },
-  "new-items-20261007/knowledge-result-colibri-qwen36-131072.json": {
-   "bytes": 245469,
-   "sha256": "47c21bbd7be7d002eab3c0ffd00810aa9804186f2a9e74d6e4c697097692676b"
-  },
   "new-items-20261007/knowledge-result-colibri-smoke-baseline.json": {
    "bytes": 377,
    "sha256": "5910ad917579283670ef9a924baed24408b3646a99cc26a6c62f999390a2dee3"
@@ -617,8 +613,8 @@
    "sha256": "22f0ee796c4f4a7df81ff4ca27ecb5398f2fc74df8e07f384343c15bbbbd9254"
   },
   "new-items-20261007/knowledge_run.py": {
-   "bytes": 13758,
-   "sha256": "d94670ed1b4a8755307a28c7f55c680f5508a1d6522b7620b3d0c0123aaa75ae"
+   "bytes": 14156,
+   "sha256": "ba7148cd207b7f0f506da2920f4ddb01ae126ee915b8d131b7915643e9641f32"
   },
   "new-items-20261007/ledger_budget.py": {
    "bytes": 5840,
@@ -1049,8 +1045,12 @@
    "sha256": "988ae78330611a1646296b4d8568754b408f2b12f8fb7342c5ae499be82bf669"
   },
   "overnight-20261011/REPORT.md": {
-   "bytes": 18396,
-   "sha256": "efb2558c50c8803da73e30c37e82d5c1c6b8f88b1dfbb82cffaa7e6437bff545"
+   "bytes": 19901,
+   "sha256": "23450f4ece1a39c6d75654803a1d7c0fa3f5966aae7ee559a885f34e3e45ae38"
+  },
+  "overnight-20261011/contaminated-i3-orphan-20261015.json": {
+   "bytes": 245469,
+   "sha256": "47c21bbd7be7d002eab3c0ffd00810aa9804186f2a9e74d6e4c697097692676b"
   },
   "overnight-20261011/dead-i3-model-not-found-20261015.json": {
    "bytes": 154651,
@@ -1077,8 +1077,8 @@
    "sha256": "33e91f2a09fe02e47037177bd7e7f1f2e14cc09ccb969d79610d93ce7d2b4c42"
   },
   "overnight-20261011/logs/engine-colibri-qwen36.log": {
-   "bytes": 100169,
-   "sha256": "6b41bac7ce8a6a98d3084f334130fcbb083e5b73073c030966da7a773c85beb5"
+   "bytes": 100803,
+   "sha256": "8f93eca039db60163d5a2a14ab93bf0f35b7b3eef0419e2ff86bb2ab8511a2cb"
   },
   "overnight-20261011/logs/engine-kolibri-1.log": {
    "bytes": 937000,

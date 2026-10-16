@@ -19,6 +19,16 @@
   - The item runs with `--cap 32` (45.1 s/item vs 65.7 at the engine default), reads the model id from
     `/v1/models` (`qwen3.6-colibri`), and writes `knowledge-result-colibri-qwen36-ctx8192-cap32.json` - the
     label names the context the engine actually serves (8192), not the 131,072 the old label claimed.
+  - **Found while sweeping up: the driver's timeout does not stop the instrument.** The 12:55 attempt ran
+    **10,137 s (2.82 h)** - the driver killed the wrapper and cleared port 8000 at 14:55:23, and the
+    instrument kept posting to a dead port until 15:44:22. Its file claims **102/1100 = 9.3 %**, with 989
+    connection errors (`10054`/`10061`): the 111 items that answered are the ones that ran before the port
+    was cleared, so they are positional, not a sample. Preserved as
+    `overnight-20261011/contaminated-i3-orphan-20261015.json` and moved out of the instrument's directory.
+    This is the second instance - `supervise.py`'s docstring records the 2026-10-12 orphan - so the item now
+    sets its own 15 h wall against the driver's 16 h, and the instrument marks any run with a transport gap
+    `scored: false` and exits 2 rather than publishing a 9.3 % that reads like a weak model. The three
+    `knowledge-result-colibri-smoke-*.json` files are 4-item smoke samples used to price the run.
 - October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
   STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
   through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was

@@ -267,6 +267,25 @@ spend ~14 h on it is Kevin's call, so the item waits with its measurements recor
 (7 200 s of work produced no artifact). That is the argument for a `--limit` smoke first, which the
 `OVERNIGHT_LIMIT` env var already supports, and for a checkpointing result file if this item runs again.
 
+## A run with a gap in it is not a score (2026-10-16)
+
+The 2026-10-15 12:55 attempt did not stop when the driver reported it timed out. The driver's per-item
+timeout killed the wrapper and cleared port 8000 at 14:55:23; the instrument itself survived as an **orphan**
+and kept posting to a dead port until 15:44:22, having run **10,137 s (2.82 h)** - more than the 7,200 s the
+driver believed it had run. Its file claims **102/1100 = 9.3 %**, and 989 of those failures are connection
+errors (`10054` reset, `10061` refused): the 111 items that did answer are simply the ones that ran before
+the port was cleared, i.e. *positional*, not a sample. Preserved as
+`contaminated-i3-orphan-20261015.json`, moved out of the instrument's directory so it cannot be mistaken for
+a result. This is the second instance of the same quirk - `supervise.py`'s docstring records the 2026-10-12
+orphan - so the driver's timeout is not, by itself, a stop.
+
+Two consequences, both applied: the instrument now marks a run `scored: false` and exits **2** when **any**
+reply fails at the transport level (the ambiguity is worse than an obvious zero - a 9.3 % reads like a weak
+model), and the 2026-10-16 run's own wall is 15 h against the driver's 16 h, so the instrument finishes
+before the driver can orphan it. The three `knowledge-result-colibri-smoke-*.json` files in the instrument
+directory are 4-item smoke samples (baseline / `--no-think` / `--cap 32`) used to price the run, not
+comparison results.
+
 ## i3-colibri-qwen36 - The same model on a second engine
 
 Colibri v2.0.0 serving its own Qwen3.6-35B-A3B build on the same 1,100 items. Same model family as our best configuration, different engine, different quantisation and packing, no GPU required.
