@@ -576,6 +576,10 @@
    "bytes": 541561,
    "sha256": "e28d2fdb87cdcb3445184780806cfd976097518a79b4a7759892e869ffba3985"
   },
+  "new-items-20261007/knowledge-result-colibri-qwen36-ctx8192-cap32.json": {
+   "bytes": 577,
+   "sha256": "30ae1a02a97b6748288547437dff7606d652e8c1c116cfab3356ce0de6c38ee2"
+  },
   "new-items-20261007/knowledge-result-colibri-smoke-baseline.json": {
    "bytes": 377,
    "sha256": "5910ad917579283670ef9a924baed24408b3646a99cc26a6c62f999390a2dee3"
@@ -1077,8 +1081,8 @@
    "sha256": "33e91f2a09fe02e47037177bd7e7f1f2e14cc09ccb969d79610d93ce7d2b4c42"
   },
   "overnight-20261011/logs/engine-colibri-qwen36.log": {
-   "bytes": 100803,
-   "sha256": "8f93eca039db60163d5a2a14ab93bf0f35b7b3eef0419e2ff86bb2ab8511a2cb"
+   "bytes": 107859,
+   "sha256": "b5235483d7c726e5226601012bd231b064717ba7d0c9c89d5819667a4d5b2ebe"
   },
   "overnight-20261011/logs/engine-kolibri-1.log": {
    "bytes": 937000,

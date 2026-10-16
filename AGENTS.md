@@ -14,8 +14,10 @@
     race. (2) The knowledge instrument now **checkpoints**: `score()` takes the result path and rewrites it
     with `partial: true`, `scored_items` and `declared_items` every 25 items, so a wall-clock kill leaves the
     finished items instead of nothing - the failure that cost 7,200 s of work on 10-15. Verified offline
-    before the run: a 60-item gold-responder pass wrote at items 25 and 50 and returned a complete summary,
-    and `--check` still reports gold perfect and random at chance (0.253).
+    before the run (a 60-item gold-responder pass wrote at items 25 and 50, and `--check` still reports gold
+    perfect and random at chance, 0.253) and **live at item 25** on 10-16: the file landed with
+    `partial: true`, `scored_items: 25`, `declared_items: 1100`, **23/25 passed at 45.8 s/item** and no
+    transport failures, which projects the full run at 50,380 s = **14.0 h**, i.e. finishing ~22:02.
   - The item runs with `--cap 32` (45.1 s/item vs 65.7 at the engine default), reads the model id from
     `/v1/models` (`qwen3.6-colibri`), and writes `knowledge-result-colibri-qwen36-ctx8192-cap32.json` - the
     label names the context the engine actually serves (8192), not the 131,072 the old label claimed.
