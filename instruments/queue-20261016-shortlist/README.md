@@ -115,6 +115,9 @@ touch QUEUE-STOP                           # cancels before the next item
   ports between items, so a crashed item cannot leave a model resident.
 - **Items q6 and q7 are skipped by their declared status** (`parked`, `gated`) with the reason written into
   `REPORT.md`, rather than being attempted and failing.
+- **It is started by `wait_for_slot.py` while the slot is busy**: that waits for the Colibri item to release
+  the inference slot (one check a minute, up to 16 h) and then runs `runner.py` once, writing
+  `logs/wait_for_slot.log`. That is how this queue was launched on 2026-10-16.
 - `REPORT.md` is the record: each item's question and prediction are written into it before the run, and the
   outcome after. `status.json` is where the queue is. Logs land in `logs/` (`runner.log`, one per item, and
   one per engine start).

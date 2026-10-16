@@ -1,9 +1,9 @@
 {
  "responder": "qwen3.6-colibri",
- "passed": 138,
- "total": 150,
- "rate": 0.92,
- "seconds": 5149.0,
+ "passed": 160,
+ "total": 175,
+ "rate": 0.9143,
+ "seconds": 5434.0,
  "sampling": {
   "temperature": 0,
   "seed": 20261009
@@ -14,8 +14,8 @@
    "passed": 91
   },
   "high_school_geography": {
-   "n": 50,
-   "passed": 47
+   "n": 75,
+   "passed": 69
   }
  },
  "failures": [
@@ -90,9 +90,27 @@
    "expected": "A",
    "parsed": "C",
    "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/55",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_geography/60",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/68",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
   }
  ],
  "partial": true,
- "scored_items": 150,
+ "scored_items": 175,
  "declared_items": 1100
 }

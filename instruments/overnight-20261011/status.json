@@ -1,9 +1,12 @@
 {
  "declared": "2026-10-11, overnight",
+ "note": "Rewritten 2026-10-16 09:40 after a phantom start clobbered this file. Cause: a test snippet inserted two sibling roots on sys.path and then said 'import supervise', which bound the WRONG module - this root's historical supervisor, not the new queue's. Its driver therefore ran here at 09:30:48 with queue [i4, i6], cleared the engine ports and logged a start; it was killed within minutes and no item ever began. Nothing of the 10-15 work was lost: outcomes live in REPORT.md and result-*.json (this file only ever shows the newest driver invocation, by design).",
  "started": "2026-10-16 08:02:51",
  "queue": [
   "i3-colibri-qwen36"
  ],
  "results": [],
- "stopped": null
+ "stopped": null,
+ "in_flight": "i3-colibri-qwen36 (label colibri-qwen36-ctx8192-cap32): 175/1100 items at 09:33:40, 160 passed, 31.1 s/item, no transport failures, checkpointing every 25 items; engine alive on port 8000 since 08:02:57",
+ "phantom_start": "2026-10-16 09:30:48 queue [i4-reason-repeat, i6-gliner-replay], killed within minutes, no item ran"
 }

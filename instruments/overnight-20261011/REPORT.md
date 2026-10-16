@@ -286,9 +286,27 @@ before the driver can orphan it. The three `knowledge-result-colibri-smoke-*.jso
 directory are 4-item smoke samples (baseline / `--no-think` / `--cap 32`) used to price the run, not
 comparison results.
 
+**A phantom start, from my own test (2026-10-16 09:30).** While testing the new queue's supervisor, a test
+snippet put two sibling roots on `sys.path` and then wrote `import supervise` - which bound *this* root's
+historical `supervise.py`, not the new one. That module's job is to wait for an orphan and then drive
+i4/i6, so it cleared the engine ports and logged a start of `[i4-reason-repeat, i6-gliner-replay]`; it was
+killed within minutes and **no item ever began**, which is why a duplicate i4 block appears above this note
+and why `status.json` briefly claimed a run that never happened (it has been rewritten and says so). Two
+things came out of it: the new queue's module is now `wait_for_slot.py`, so no two sibling roots share a
+module name, and the run in flight was **not harmed** - port 8000 is the same engine process from 08:02:57
+and the item kept checkpointing through 09:33:40 (175/1100, zero transport failures). Recorded because "a
+run that appears in a log and never happened" is exactly the class of artifact this lab keeps finding in
+other people's reports.
+
 ## i3-colibri-qwen36 - The same model on a second engine
 
 Colibri v2.0.0 serving its own Qwen3.6-35B-A3B build on the same 1,100 items. Same model family as our best configuration, different engine, different quantisation and packing, no GPU required.
 
 Prediction recorded before the run: Accuracy inside 2 points of our llama.cpp number (88.5%), and the interesting number is wall time per item rather than accuracy.
+
+## i4-reason-repeat - Repeat rule on our own instrument
+
+The format-fixed 93-item reasoning run, again, both stacks. The lab's rule is that single runs are samples; this is the first repeat of this instrument across runs.
+
+Prediction recorded before the run: Qwen3.6 90/93 again and Strata 92/93 again, because within a run the replies were byte-identical.
 

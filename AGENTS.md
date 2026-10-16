@@ -94,6 +94,27 @@
     installed Ollama is already **0.40.4** - item 6's pack measures **54.40 GiB** (fits D:'s 252.8 GiB, leaves
     ~4 GiB of 58.46 GiB usable RAM, so it is parked rather than started), and item 7 stays gated on the OOM
     issue **#2747**, re-checked open at 09:31:46Z today.
+  - **The queue is executable and is waiting for the slot on its own.** `runner.py` mirrors the 10-11 driver
+    (STOP file, `status.json`, `REPORT.md`, gates between items, engine ports cleared, no blind retries) and
+    adds a **slot check**: while anything listens on the lab's Colibri port it refuses to start an engine, so
+    the one-workload rule is enforced rather than remembered. `wait_for_slot.py` waited on that port and was
+    launched at 09:36 to run the queue the moment the Colibri item stops. Verified without engines: dry run
+    (gates 28.75 GiB free / 19.18 GiB headroom, plan in order, q6/q7 skipped with reasons), the refusal path
+    against the live run, both supervisor branches, and q1's arm construction (identical except the
+    `--kv-resident` flag). Item 4 also got sharper while implementing: the engine *does* have
+    `--expert-profile-save` / `--expert-profile-save-every`, and the server says the next start begins from a
+    saved profile - which our 10-11 warm test never asked for, so its "nothing persisted" reading was a
+    missing flag, not a missing mechanism.
+  - **An incident worth more than the code it cost: I ran the wrong `supervise.py`.** Testing the new
+    queue's supervisor, a snippet put two sibling roots on `sys.path` and then said `import supervise`, which
+    bound the *overnight* root's historical `supervise.py`. Its job is to wait for an orphan and then drive
+    i4/i6, so it cleared the engine ports and logged a start of `[i4-reason-repeat, i6-gliner-replay]` at
+    09:30:48 - **no item ever ran** (it was killed within minutes), and the only casualties are bookkeeping:
+    a duplicate i4 block in that root's `REPORT.md` (annotated) and a `status.json` that briefly claimed a
+    run that never happened (rewritten with the note). The engine in flight was unharmed - port 8000 is the
+    same process from 08:02:57 and the item kept checkpointing through the incident. The new module is now
+    `wait_for_slot.py` so no two sibling roots share a module name, and the rule this lab already applies to
+    shells now applies to imports: name the module you mean, do not let `sys.path` order pick it for you.
 - October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
   STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
   through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was
