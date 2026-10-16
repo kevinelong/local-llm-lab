@@ -79,13 +79,19 @@ def colibri_model_id(url, default='qwen3.6-colibri'):
         return default
 
 
-def knowledge(name, url, model, label, timeout=240, limit=0):
+def knowledge(name, url, model, label, timeout=240, limit=0, wall=6 * 3600):
+    """Run the knowledge instrument. `timeout` is per request; `wall` bounds the whole run.
+
+    The 1,100-item Colibri item measures ~45 s/item, i.e. ~14 h, so it passes a bigger `wall` instead of
+    letting this default kill the run mid-flight (the instrument writes its result only at the end, so a
+    wall-clock kill loses every item).
+    """
     command = [sys.executable, KNOWLEDGE_ROOT / 'knowledge_run.py', '--url', url, '--model', model,
                '--label', label, '--timeout', str(timeout)]
     limit = item_limit(limit)
     if limit:
         command += ['--limit', str(limit)]
-    return run(name, command, cwd=KNOWLEDGE_ROOT, timeout=6 * 3600)
+    return run(name, command, cwd=KNOWLEDGE_ROOT, timeout=wall)
 
 
 def deep(name, forms, label, url, model, limit=93, pool='shared', seeds=3):
@@ -210,7 +216,7 @@ def i3_colibri_qwen36(name='i3-colibri-qwen36'):
     with shared.colibri_engine('colibri-qwen36', model_dir, extra=['--cap', '32']):
         model_id = colibri_model_id('http://127.0.0.1:8000')
         shared.log(name, 'engine advertises model id %r' % model_id)
-        code = knowledge(name, 'http://127.0.0.1:8000', model_id, label, timeout=200)
+        code = knowledge(name, 'http://127.0.0.1:8000', model_id, label, timeout=200, wall=15 * 3600)
     shared.write_result(name, {'item': name, 'setup_exit': setup_code, 'model_dir': str(model_dir),
                                'model_id': model_id, 'label': label, 'context': 8192, 'cap': 32,
                                'result': str(KNOWLEDGE_ROOT / ('knowledge-result-%s.json' % label))})

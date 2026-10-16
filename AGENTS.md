@@ -1,5 +1,24 @@
 # Local AI lab working instructions
 
+- October 16 (morning): **the owed Colibri comparison is running, and it is a daytime run rather than a
+  night one.** Kevin said "run it now, overnight" on 10-15 at ~15:15; the machine's clock only reached the
+  launch at **08:02 on 10-16** (the gap is the session, not the lab), so the 15-hour item now occupies today
+  and should finish ~22:00. Gates at launch: free physical **31.38 GiB**, commit headroom **30.37 GiB** -
+  both far above the 9/8 GiB floors - and nothing else loads a model meanwhile. It is the only inference
+  workload on the box; if the machine is needed for product work today it should be stopped and restarted
+  tonight, because an abort costs at most the items since the last checkpoint.
+  - **Two declared changes made before it started, both declared in the queue rather than improvised.**
+    (1) `i3-colibri-qwen36`'s timeout is **57,600 s (16 h)**, raised from 7200 with a `timeout_note` in
+    `queue.json` recording why (measured 45.1 s/item at `--cap 32`; the correctness run answered 86 items in
+    7,200 s before the old timeout killed it), and the item's own instrument wall is 15 h so the two cannot
+    race. (2) The knowledge instrument now **checkpoints**: `score()` takes the result path and rewrites it
+    with `partial: true`, `scored_items` and `declared_items` every 25 items, so a wall-clock kill leaves the
+    finished items instead of nothing - the failure that cost 7,200 s of work on 10-15. Verified offline
+    before the run: a 60-item gold-responder pass wrote at items 25 and 50 and returned a complete summary,
+    and `--check` still reports gold perfect and random at chance (0.253).
+  - The item runs with `--cap 32` (45.1 s/item vs 65.7 at the engine default), reads the model id from
+    `/v1/models` (`qwen3.6-colibri`), and writes `knowledge-result-colibri-qwen36-ctx8192-cap32.json` - the
+    label names the context the engine actually serves (8192), not the 131,072 the old label claimed.
 - October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
   STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
   through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was
@@ -47,8 +66,10 @@
     prompt is anywhere near 8k).
   - **Carried forward:** the knowledge instrument writes its result only at the end, so a timeout loses the
     whole run - 7 200 s produced no artifact. Smoke with `OVERNIGHT_LIMIT` first, and give it a
-    checkpointing result file before it runs again. One stale process was left alone deliberately: a second
-    `fifteenball-server.exe` on 8199 (a private-copy DB) that the score work reported as stopped.
+    checkpointing result file before it runs again (done the next morning, see the October 16 entry). One
+    stale process was killed on Kevin's word: a second `fifteenball-server.exe` on 8199 (a private-copy DB)
+    that the score work reported as stopped. The demo stack on 8093/8094/8123 is the one that matters, and
+    the 8080 nginx mirror was restarted once the queue had released the port.
 - October 12 (paused): **testing is paused until tonight, at Kevin's request.** The overnight queue's second
   pass is stopped, not abandoned: `ai_bench/overnight-20261011/OVERNIGHT-STOP` is in place so the driver
   starts nothing, the supervisor and its runner/item were killed by hand, and the engine ports were cleared.

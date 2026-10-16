@@ -22,7 +22,8 @@
    "title": "The same model on a second engine",
    "question": "Colibri v2.0.0 serving its own Qwen3.6-35B-A3B build on the same 1,100 items. Same model family as our best configuration, different engine, different quantisation and packing, no GPU required.",
    "prediction": "Accuracy inside 2 points of our llama.cpp number (88.5%), and the interesting number is wall time per item rather than accuracy.",
-   "timeout": 7200
+   "timeout": 57600,
+   "timeout_note": "Raised from 7200 on 2026-10-15, declared before the run: measured 45.1 s/item at --cap 32 (65.7 at the engine default), so 1,100 items need ~14 h. The corrected 2026-10-15 attempt answered 86 items in 7200 s before this timeout killed it (exit -9). The item's own wall is 15 h; gates and everything else are unchanged."
   },
   {
    "id": "i4-reason-repeat",

@@ -267,3 +267,9 @@ spend ~14 h on it is Kevin's call, so the item waits with its measurements recor
 (7 200 s of work produced no artifact). That is the argument for a `--limit` smoke first, which the
 `OVERNIGHT_LIMIT` env var already supports, and for a checkpointing result file if this item runs again.
 
+## i3-colibri-qwen36 - The same model on a second engine
+
+Colibri v2.0.0 serving its own Qwen3.6-35B-A3B build on the same 1,100 items. Same model family as our best configuration, different engine, different quantisation and packing, no GPU required.
+
+Prediction recorded before the run: Accuracy inside 2 points of our llama.cpp number (88.5%), and the interesting number is wall time per item rather than accuracy.
+

@@ -172,8 +172,30 @@ class EngineResponder:
         return message.get('content') or message.get('reasoning_content') or ''
 
 
-def score(items, responder, verbose=False):
-    per_subject, failures, started = {}, [], time.monotonic()
+def score(items, responder, verbose=False, checkpoint=None, every=25):
+    """Score every item, optionally rewriting a partial result file as it goes.
+
+    `checkpoint` is the path the finished result is written to; every `every` items the same JSON shape
+    lands there with `partial: true`, so a run killed at the wall (or by a timeout) leaves the items it did
+    finish rather than nothing. That is not hypothetical: on 2026-10-15 a 7,200 s Colibri run produced no
+    artifact at all, because the file was only written after the last item.
+    """
+    per_subject, failures, started, done = {}, [], time.monotonic(), 0
+
+    def summary(partial):
+        passed = sum(b['passed'] for b in per_subject.values())
+        total = sum(b['n'] for b in per_subject.values())
+        out = {'responder': responder.name, 'passed': passed, 'total': total,
+               'rate': round(passed / total, 4) if total else None,
+               'seconds': round(time.monotonic() - started, 1),
+               'sampling': {'temperature': TEMPERATURE, 'seed': SEED},
+               'per_subject': per_subject, 'failures': failures}
+        if partial:
+            out['partial'] = True
+            out['scored_items'] = done
+            out['declared_items'] = len(items)
+        return out
+
     for item in items:
         prompt, _ = render(item)
         try:
@@ -190,13 +212,10 @@ def score(items, responder, verbose=False):
         if verbose and not ok:
             print('  miss %-42s expected %-6s parsed %-6s | %s' % (
                 item['id'], item['answer'], given, reply[:60].replace('\n', ' ')))
-    passed = sum(b['passed'] for b in per_subject.values())
-    total = sum(b['n'] for b in per_subject.values())
-    return {'responder': responder.name, 'passed': passed, 'total': total,
-            'rate': round(passed / total, 4) if total else None,
-            'seconds': round(time.monotonic() - started, 1),
-            'sampling': {'temperature': TEMPERATURE, 'seed': SEED},
-            'per_subject': per_subject, 'failures': failures}
+        done += 1
+        if checkpoint is not None and every and done % every == 0 and done < len(items):
+            Path(checkpoint).write_text(json.dumps(summary(True), indent=1), encoding='ascii')
+    return summary(False)
 
 
 def main():
@@ -246,7 +265,10 @@ def main():
         return 0 if ok else 1
 
     responder = EngineResponder(args.url, args.model, args.timeout)
-    result = score(items, responder, verbose=args.verbose)
+    out = HERE / ('knowledge-result-%s.json' % args.label)
+    # The result path doubles as the checkpoint: every 25 items a partial file (partial: true) is written
+    # there, so a wall-clock kill leaves the finished items instead of nothing.
+    result = score(items, responder, verbose=args.verbose, checkpoint=out)
     # A run whose every reply is a transport error is UNSCORED, not a zero. On 2026-10-15 the Colibri item
     # named a model the engine does not serve (the engine advertises `qwen3.6-colibri`; the request said
     # `qwen36-35b`), so all 1,100 requests came back `404 model_not_found` in 13 s - and this script exited
@@ -256,7 +278,6 @@ def main():
     dead = bool(result['total']) and len(transport) == result['total']
     result['transport_failures'] = len(transport)
     result['scored'] = not dead
-    out = HERE / ('knowledge-result-%s.json' % args.label)
     out.write_text(json.dumps(result, indent=1), encoding='ascii')
     print('%-24s %4d/%-4d rate %.3f  (%.1fs)  -> %s' % (
         args.model, result['passed'], result['total'], result['rate'], result['seconds'], out.name))
