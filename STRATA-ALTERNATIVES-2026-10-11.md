@@ -242,5 +242,16 @@ the same idea, and we already characterise its knobs (`--expert-cache`, `STRATA_
 lands: look for `-ehs`/`--expert-hot-s`, and test it on the frozen suite at **one** setting, because the
 cache changes numerics by construction.
 
+> **Correction, 2026-10-16 - the middle clause is wrong: there IS an upstream flag, and it merged the same
+> day.** PR **#29887** ("llama : add a GPU cache for MoE experts kept in host memory") merged
+> **2026-10-07T18:07:46Z**, roughly eleven hours *after* b11461 was published, and `--moe-cache-mib N` first
+> ships in **b11480** (2026-10-08T01:36). Verified two ways: the PR's `merged_at`/merge commit from the API,
+> and `common/arg.cpp` fetched at both tags - the flag is **absent at b11461 and present at b11480**. So
+> route (a) already happened rather than being something to wait for, and #26563 is now superseded by the
+> merged cache (with #30059 `--moe-cache-layers` and an SLRU variant on top). The negative control above
+> stands as written - *our* build has no such flag - which is exactly why the conclusion drawn from it was
+> one day and one build out of date. Keep the rest of the advice: the effect is non-monotonic, so ladder the
+> value, and score it, because the cache changes numerics by construction. See `NEWS-2026-10-16.md` §1.
+
 **Vocabulary lesson, second instance:** the same idea is written "expert cache", "expert-hot slots",
 "MoE disk offloading", "bandwidth-adaptive", "models larger than RAM". One query finds one of them.

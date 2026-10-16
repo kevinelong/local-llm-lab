@@ -212,7 +212,9 @@
   unrelated engine.** StrataFlow (Coaade, 2026-10-05) is the same thesis - `.strata` format built from GGUF -
   but source-available (not OSI), CPU-only, no HTTP server, no release: watch only, plus an open lineage
   question about whether our MIT Strata shares its code. The unmerged llama.cpp proposal #27149 is still
-  worth reading for its measurements: GGUF expert interleaving costs **111x page amplification** (36x after
+  worth reading for its measurements [corrected 2026-10-16: it is **Discussion** #27149, not a PR -
+  `pulls/27149` 404s - so "proposal" is the right word and "PR" was not; the interleaving findings stand]:
+  GGUF expert interleaving costs **111x page amplification** (36x after
   a contiguous re-layout), and calibrating the hot set from real text lifts the hit rate from **6 % to 42 %**
   (56 % with LRU) - the next lever for our own expert cache. **Disk note, resolved the same day: free space
   fell 103 -> 81 -> 61 GiB across three measurements, and the cause is the pagefile.** `pagefile.sys` read
