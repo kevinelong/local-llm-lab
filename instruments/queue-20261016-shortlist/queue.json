@@ -67,7 +67,8 @@
    "instrument": "the ranked batteries plus the knowledge instrument",
    "pack": "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF IQ1_M 27.58 + 26.82 = 54.40 GiB (+0.85 mmproj)",
    "download": "needs ~54.40 GiB; fits D: (252.8 GiB free) but leaves ~4 GiB of the 58.46 GiB usable RAM",
-   "status": "parked until Kevin says the disk and the tight RAM are worth it",
+   "status": "parked",
+   "parked_reason": "needs a ~54.40 GiB download and leaves only ~4 GiB of the 58.46 GiB usable RAM; item 6 of 7",
    "timeout": 7200
   },
   {
@@ -77,7 +78,8 @@
    "prediction": "Not runnable yet: the route currently OOMs on this model on this box.",
    "gate": "open issue Niko1221/Strata#2747 (2026-10-16T09:31:46Z): Qwen3.6A3B fails with out of memory with recommended configs",
    "download": "needs a 20.98 GiB pack",
-   "status": "gated - do not run until the OOM is resolved or explained",
+   "status": "gated",
+   "gate_reason": "the route currently OOMs on this model on this box; re-check the issue before running",
    "timeout": 7200,
    "instrument": "the ranked batteries and the knowledge instrument, once the route runs at all"
   }

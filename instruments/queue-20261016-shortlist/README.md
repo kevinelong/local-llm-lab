@@ -94,6 +94,31 @@ scored afterwards, including the ones that turn out wrong - this lab's own rule.
   exactly the route this item would take, so it waits for the OOM to be resolved or explained. Also needs a
   20.98 GiB pack download.
 
+## How to run it
+
+```sh
+cd C:/Users/kevin/ai_bench/queue-20261016-shortlist
+python runner.py --dry-run                 # gates, slot check, plan, status.json and REPORT.md; no engines
+python runner.py                           # the whole queue, in order, serially
+python runner.py --only q2-moe-cache-mib-ladder
+python runner.py --from q3-noise-floor
+python items.py q1-strata-kv-residency     # one item by hand (rarely; the driver owns the gates)
+touch QUEUE-STOP                           # cancels before the next item
+```
+
+- **The driver refuses to start while another measured run holds the slot.** Mechanically: if anything is
+  listening on the lab's Colibri port, it records `inference slot busy` and exits without starting an engine.
+  That is the rule about one inference workload at a time, enforced rather than remembered - verified
+  on 2026-10-16 while the Colibri knowledge item was still running.
+- **It checks the same gates** as the 2026-10-11 queue (free physical >= 9 GiB, commit headroom >= 8 GiB)
+  before every item, and a trip stops the queue rather than lowering a bar. It also clears the three engine
+  ports between items, so a crashed item cannot leave a model resident.
+- **Items q6 and q7 are skipped by their declared status** (`parked`, `gated`) with the reason written into
+  `REPORT.md`, rather than being attempted and failing.
+- `REPORT.md` is the record: each item's question and prediction are written into it before the run, and the
+  outcome after. `status.json` is where the queue is. Logs land in `logs/` (`runner.log`, one per item, and
+  one per engine start).
+
 ## What this queue deliberately does not do
 
 - It does not re-run anything the 10-14 or 10-16 scans settled.

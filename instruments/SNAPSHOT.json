@@ -577,8 +577,8 @@
    "sha256": "e28d2fdb87cdcb3445184780806cfd976097518a79b4a7759892e869ffba3985"
   },
   "new-items-20261007/knowledge-result-colibri-qwen36-ctx8192-cap32.json": {
-   "bytes": 1562,
-   "sha256": "d4fbfaadd72d1d36351ecaaccfb3a37310d6fbcbbc02fb6f9573b715d08ebd35"
+   "bytes": 1784,
+   "sha256": "da21d4051ba8c5dac8978c55857d816842c1338c15823c52ded89aff95e6d5ad"
   },
   "new-items-20261007/knowledge-result-colibri-smoke-baseline.json": {
    "bytes": 377,
@@ -1081,8 +1081,8 @@
    "sha256": "33e91f2a09fe02e47037177bd7e7f1f2e14cc09ccb969d79610d93ce7d2b4c42"
   },
   "overnight-20261011/logs/engine-colibri-qwen36.log": {
-   "bytes": 140134,
-   "sha256": "0612d6375cf064e111df12ceb4fa946d42eb1ea71c10f621b5d39db8e18d1c48"
+   "bytes": 147838,
+   "sha256": "3c4e92184b735f80c5d4d713dd92566643e03408bc6082eb838a5a05cee88fa9"
   },
   "overnight-20261011/logs/engine-kolibri-1.log": {
    "bytes": 937000,
@@ -1241,16 +1241,36 @@
    "sha256": "7881e1e5d4ee687d75ccd9c3a5ef5da9f727537a79bdeff2f9e2456b8b465110"
   },
   "queue-20261016-shortlist/README.md": {
-   "bytes": 7475,
-   "sha256": "57f73d09e7faf7c8a011c40abf5826155ac1704cac8528ea6245ffd669144f5b"
+   "bytes": 9083,
+   "sha256": "b6a109fdede73a0173d78481c4ae83a7df58b966ba91d216ff0e4d931b5f67a7"
+  },
+  "queue-20261016-shortlist/REPORT.md": {
+   "bytes": 2876,
+   "sha256": "a29f1d7f1e9a037978342432066319bbf3fc0b75966b83baa2840edeb034be20"
+  },
+  "queue-20261016-shortlist/items.py": {
+   "bytes": 14358,
+   "sha256": "e7651721de0eb92a5f28243e5b1a110ecbb4ba3bb81be2963b2a0e2143956480"
+  },
+  "queue-20261016-shortlist/logs/guard.log": {
+   "bytes": 345,
+   "sha256": "50c5349f669105f035960a56dd3338065cc9f18f3f5defed7cec658c26ccf911"
+  },
+  "queue-20261016-shortlist/logs/runner.log": {
+   "bytes": 1057,
+   "sha256": "cb09ee654ed06d7ee56fa4e53ae3b847b5955dd1857c470ac4e3489bde72ed2e"
   },
   "queue-20261016-shortlist/queue.json": {
-   "bytes": 5093,
-   "sha256": "05f0c5b50f6b27a09495010b0be2d5c7766bb051c7172263be194ed2e20bb1ed"
+   "bytes": 5208,
+   "sha256": "00dc0d65d853da773baaffc6aff4e4d5d84b056c300b282d35ce9bcb8e70e783"
+  },
+  "queue-20261016-shortlist/runner.py": {
+   "bytes": 6991,
+   "sha256": "3799e281d5e86134516f9cd7716728c0b9a7ba51aff86d7639f224f86dab6695"
   },
   "queue-20261016-shortlist/status.json": {
-   "bytes": 1192,
-   "sha256": "7491758ec52ef9de23e687c0de40aedc20fbc5aa53466b27590d737d0181ee5a"
+   "bytes": 281,
+   "sha256": "aa6a46633c30755d71be19ec27c419cf4b9ce84eff6bb6724a0b62c8fb463f18"
   },
   "strata-20261005-v1/FLAGS.md": {
    "bytes": 8365,

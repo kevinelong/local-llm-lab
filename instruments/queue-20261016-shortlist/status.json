@@ -1,23 +1,9 @@
 {
  "declared": "2026-10-16, from the news scan's ranked shortlist",
- "started": null,
+ "started": "2026-10-16 09:28:29",
  "queue": [
-  "q1-strata-kv-residency",
-  "q2-moe-cache-mib-ladder",
-  "q3-noise-floor",
-  "q4-calibrated-warm-cache",
-  "q5-ollama-decision-path",
-  "q6-coder-iq1-m",
-  "q7-reference-on-strata-0144"
+  "q2-moe-cache-mib-ladder"
  ],
  "results": [],
- "stopped": null,
- "hold": "Waiting for the inference slot: the Colibri knowledge item (overnight-20261011, label colibri-qwen36-ctx8192-cap32) runs until ~21:45 on 2026-10-16. Nothing here starts an engine before it stops.",
- "prepared_read_only": {
-  "q1": "launch args read from staged-strata-20261007/engine-src-v0.1.40.3/strata-q2_0.json; the engine exposes --kv, --kv-resident, --kv-streaming",
-  "q2": "ai_bench/staged-llamacpp-b11480 staged (sha256 in its SHA256SUMS.txt): --version reports build 11480, commit d6cf9acb2; --help lists --moe-cache-mib; control b11461 has no such flag",
-  "q5": "installed Ollama is 0.40.4, so the native decision path needs no download",
-  "q6": "pack size measured from the Hub API: IQ1_M 27.58 + 26.82 = 54.40 GiB, plus 0.85 GiB mmproj",
-  "q7": "gate re-checked 2026-10-16: issue Niko1221/Strata#2747 open, created 2026-10-16T09:31:46Z"
- }
+ "stopped": "inference slot busy: an engine is listening on port 8000, so a measured run is still in flight"
 }
