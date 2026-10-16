@@ -131,6 +131,17 @@ pass, the parse lesson and the caveats: [KNOWLEDGE-DEEP-2026-10-10.md](KNOWLEDGE
 
 ## Reports
 
+**2026-10-16 &middot; [Daily news scan: the expert cache was already upstream](NEWS-2026-10-16.md)**
+&ndash; the first entry of a **daily** scan, and it corrects the one before it: llama.cpp's MoE expert
+cache is not blocked on an unmerged PR at all &mdash; **`--moe-cache-mib` merged 2026-10-07** (PR
+#29887, first shipped in **b11480**), one day after our pinned b11461 and one day before the 10-11
+note concluded there was no upstream flag to set, and the community numbers on 12 GB cards say the
+cache size is **non-monotonic** (32 &rarr; 12 tok/s at 8 GB, 35 &rarr; 45 at 2.4 GB), so a test is a
+ladder. Also: the KV-residency-versus-expert-cache trade now has other people's measurements on
+10-12 GB cards; Ollama 0.40.4 made decision models a first-class type (and `clef:cloud` exists);
+the core HF packs did not move and gpt-oss-120b is still 59 GiB against 58.46 usable. Seven ranked
+items, the "nothing moved" list, and no download, engine, inference or benchmark. Reading only.
+
 **2026-10-15 &middot; [The paused queue's remainder, and what a second engine costs](../ai_bench/overnight-20261011/REPORT.md)**
 &ndash; the two owed repeats came back exactly as predicted (**Qwen3.6 90/93, Strata 92/93**, the same counts
 as night 1, letters identical, prose moved 1.90 &rarr; 1.89), which is the first *repeat* of the reasoning

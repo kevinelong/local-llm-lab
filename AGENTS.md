@@ -1,5 +1,53 @@
 # Local AI lab working instructions
 
+- October 16 (news scan, first of a daily series): **`NEWS-2026-10-16.md` is written against the
+  `NEWS-2026-10-14.md` baseline, and its first finding corrects the note before it.** Reading only:
+  nothing downloaded, installed, built or run, no engine started, no inference, no benchmark, and
+  nothing read or touched under `C:/Users/kevin/ai_bench` while the Colibri run owns the slot.
+  - **The standing rule, and the mechanism that carries it.** A news scan is **daily** from here on,
+    written to `NEWS-YYYY-MM-DD.md` in this repo and **never over an earlier day's scan**. It is
+    **reading-only** - no downloads, no installs, no builds, no engine, no inference, no benchmark,
+    and **nothing under `C:/Users/kevin/ai_bench` at all while a measured run is in flight**. Its job
+    is to **feed the queue, not to re-cover what yesterday already checked**: a release, a pack or a
+    paper already covered earns a line only when its *state* changes (a release landed, a PR merged,
+    a blocked item unblocked).
+    - **Launcher:** `tools/daily-news-scan.cmd` - one `omp -p` run with `--cwd` this repo and
+      `--max-time 60m`, logging to `%TEMP%\daily-news-scan.log`. Its prompt points at this AGENTS.md
+      entry rather than carrying the procedure, so the procedure cannot drift from the notes. It
+      works out of `%USERPROFILE%\.local\bin\omp.exe` and was verified non-interactive (exit 0).
+    - **Trigger:** the Windows scheduled task **`omp daily lab news scan`**, daily at **07:30**,
+      `StartWhenAvailable` (a scan missed because the box was off runs when it next wakes), with a
+      90-minute execution limit. Verified 2026-10-16 with `schtasks /query /tn "omp daily lab news
+      scan" /v /fo list`: `Status: Ready`, `Next Run Time: 10/17/2026 7:30:00 AM`, `Task To Run:
+      C:\Users\kevin\local-llm-lab\tools\daily-news-scan.cmd`, `Stop Task If Runs X Hours and X Mins:
+      01:30:00`.
+    - **Test it without running a scan:** `daily-news-scan.cmd "Reply with exactly: SCAN-OK"`
+      (verified 2026-10-16 - the log runs start, the reply, exit 0, repo untouched).
+    - **Commit rule for a scan:** add only the three paths it owns - `NEWS-<date>.md`, `README.md`,
+      `AGENTS.md` - and **never `git add -A`**, so a scan can never sweep someone else's uncommitted
+      change into its commit.
+  - **What the first entry found, because it changes a decision.** llama.cpp's MoE expert cache is
+    **already upstream**: PR **#29887** merged **2026-10-07T18:07:46Z** adding **`--moe-cache-mib N`**
+    - a GPU cache for the routed experts kept in host memory, which is exactly our `--cpu-moe` case -
+    shipping from **b11480**, with PR #30112 extending it across GPUs on 2026-10-08. That is one day
+    after our pinned `b11461` and one day before `STRATA-ALTERNATIVES-2026-10-11.md` concluded "we
+    cannot get this by bumping our pinned build - there is no upstream flag to set". The correct
+    statement is that **our build predates it**. Its own numbers: RTX 4090 25.0 -> 39.4-40.7 tok/s
+    (72-77% hit), RTX 5090 30.8 -> 54.5-67.8 (up to 2.20x, 89%). The cache size is **non-monotonic**
+    (community reports on 12 GB cards include 32 -> 12 tok/s at an 8 GB cache and 35 -> 45 at
+    2.4 GB), so the test is a **ladder**, not one setting. Same note, same class of correction:
+    **#27149 is a Discussion, not a PR** (`pulls/27149` and `issues/27149` both 404), and two of our
+    notes call it an unmerged PR.
+  - **The ranked shortlist it hands the queue, cheapest first:** the Strata KV-residency A/B at fixed
+    capacity (no download); the llama.cpp `--moe-cache-mib` ladder; a per-workload noise floor for
+    every tune - Profile Studio measured `setup.py --calibrate` making agent turns **5.2% slower, 6
+    of 6, p = 0.031**, because it tunes on 128- and 512-token chats, and a 2026-10-15 video watched a
+    203 tok/s agent-written benchmark fall to ~140 on re-test; a warm expert cache at fixed capacity
+    (Colibri #2109 asks for the same thing); Ollama's new native decision-model path (0.40.4);
+    the Coder IQ1_M pack at n >= 3 against a 12 GB community report; and the reference model on the
+    second engine, gated on Strata #2747's Qwen3.6 OOM.
+  - The task's first automatic run is tomorrow, 07:30.
+
 - October 16 (morning): **the owed Colibri comparison is running, and it is a daytime run rather than a
   night one.** Kevin said "run it now, overnight" on 10-15 at ~15:15; the machine's clock only reached the
   launch at **08:02 on 10-16** (the gap is the session, not the lab), so the 15-hour item now occupies today
