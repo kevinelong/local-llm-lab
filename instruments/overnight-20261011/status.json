@@ -1,25 +1,9 @@
 {
  "declared": "2026-10-11, overnight",
- "started": "2026-10-16 08:02:51",
+ "started": "2026-10-16 13:23:19",
  "queue": [
   "i3-colibri-qwen36"
  ],
- "results": [
-  {
-   "id": "i3-colibri-qwen36",
-   "exit": 4294967295,
-   "seconds": 12838.2,
-   "tail": [
-    "2026-10-16 08:03:06  healthy",
-    "2026-10-16 08:03:06  engine advertises model id 'qwen3.6-colibri'",
-    "2026-10-16 08:03:06  run: C:\\Program Files\\Python311\\python.exe C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge_run.py --url http://127.0.0.1:8000 --model qwen3.6-colibri --label colibri-qwen36-ctx8192-cap32 --timeout 200",
-    "2026-10-16 11:36:44    | instrument: 1100 items (gsm8k 300, mmlu 800)",
-    "2026-10-16 11:36:44  exit code 4294967295",
-    "2026-10-16 11:36:53  wrote result-i3-colibri-qwen36.json"
-   ],
-   "result_file": "C:\\Users\\kevin\\ai_bench\\overnight-20261011\\result-i3-colibri-qwen36.json"
-  }
- ],
- "stopped": "queue complete",
- "finished": "2026-10-16 11:37:09"
+ "results": [],
+ "stopped": null
 }

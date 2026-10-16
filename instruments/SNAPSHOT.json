@@ -556,6 +556,10 @@
    "bytes": 108156,
    "sha256": "b1f99d757c21747e6e7a8fffc36877d32633224fe549f512e3d8bb7c4551840a"
   },
+  "new-items-20261007/knowledge-deep-result-q4-from-saved.json": {
+   "bytes": 88317,
+   "sha256": "3dcd5243fd681ae846bab5d075b34bb1de416d7a10a33a3599d478c8745403d0"
+  },
   "new-items-20261007/knowledge-deep-result-qwen36-deep-93.json": {
    "bytes": 89961,
    "sha256": "fa6408634fe97fa37ac595370d640a09a7020ee36bb524465a96d271840b27c8"
@@ -1068,10 +1072,6 @@
    "bytes": 448,
    "sha256": "5231b5ac154d7691fb6c966341629e347186aeb26f626a2bf1d3bc611c6e94a1"
   },
-  "overnight-20261011/OVERNIGHT-STOP": {
-   "bytes": 0,
-   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  },
   "overnight-20261011/README.md": {
    "bytes": 4256,
    "sha256": "e14508ec78ec3026222f1300ebf6b2a9f23cff4ddcae9db6d0ab14f60b957122"
@@ -1197,8 +1197,8 @@
    "sha256": "28bb64c01c65ec7bc1367fe5c571236edf4e66e39cf70dd6ffabc51ba60e1267"
   },
   "overnight-20261011/logs/runner.log": {
-   "bytes": 2963,
-   "sha256": "0ab43e7c413840fe41f1bb5a2750655a5fb6a87115630696d4d9718edcf7f0f1"
+   "bytes": 3021,
+   "sha256": "d30306eab468f6fc34d12c063fda8ecfd8efba56ce72059be501ec65be8faeaa"
   },
   "overnight-20261011/logs/smoke.log": {
    "bytes": 120,
@@ -1269,8 +1269,8 @@
    "sha256": "1c06460b0681c1214ba5b489171ea9a104aa6781e13acaff7485146319e75ad4"
   },
   "overnight-20261011/status.json": {
-   "bytes": 962,
-   "sha256": "78d10dc5ded7e90ebf7ebe4cd9cc5fcf69d44ca782a5fdecd315b407162eb883"
+   "bytes": 155,
+   "sha256": "f9b99cb0d7e7a3cb7383a544b5e4dcdd19b45888edc25a01b61bf0f028cb4d25"
   },
   "overnight-20261011/strata-cfg-resident2.json": {
    "bytes": 1791,
@@ -1289,8 +1289,8 @@
    "sha256": "65fa8fa1a2deaa9854c5f2d83e11e7f2c9ed54e5ad02fd6487372dff70b206fd"
   },
   "queue-20261016-shortlist/REPORT.md": {
-   "bytes": 12082,
-   "sha256": "3d17534a4fce19445e24716d9506c8f3433af1bc9fbd481badb24a7567050a66"
+   "bytes": 14914,
+   "sha256": "1f4d853ba9c459d50b801432ce3d90320521fe3fa158cbb9796c21d1a09a2afa"
   },
   "queue-20261016-shortlist/items.py": {
    "bytes": 15574,
@@ -1336,9 +1336,13 @@
    "bytes": 2078,
    "sha256": "c45fdd4b208464a704f0bb934e6a1d6bb85cdad331f15e26f741cdf51e397adf"
   },
+  "queue-20261016-shortlist/logs/engine-q4-from-saved.log": {
+   "bytes": 26235,
+   "sha256": "e0c86462436304d6b1cf12292b41854af8de827c18237039b7abae83324037ab"
+  },
   "queue-20261016-shortlist/logs/engine-q4-warm.log": {
-   "bytes": 16447,
-   "sha256": "fb596ddd526f2f4502661196c892b8bbae3730f43d8a91a46cbe95e110159966"
+   "bytes": 22522,
+   "sha256": "77421ae373258e2883dad42ad6f39a9a8855590c93e0c29c26ba90e80a221ada"
   },
   "queue-20261016-shortlist/logs/guard.log": {
    "bytes": 759,
@@ -1397,20 +1401,24 @@
    "sha256": "a0fdfde720e61d059a2eb8d24d224fce5a1d3bad5ac76cee275f02af243a9d13"
   },
   "queue-20261016-shortlist/logs/q4-calibrated-warm-cache.log": {
-   "bytes": 664,
-   "sha256": "4b3e305354f6a61447bd8ff5455f09d8986f47d51d9bb73e91a28c43e2c8c889"
+   "bytes": 1454,
+   "sha256": "8981b565a2170196cffc85d1ce17db1850c93198f86bf15aca63cd3e9de49b17"
+  },
+  "queue-20261016-shortlist/logs/q4-from-saved.log": {
+   "bytes": 70,
+   "sha256": "a7a71b5e864f52bc39daa12ad5d63afd8152d2b4d164fc96b9af0e8c41de9dfd"
   },
   "queue-20261016-shortlist/logs/q4-warm.log": {
-   "bytes": 100,
-   "sha256": "337b099c52d51947d495d38d934f61d380514cf872f22a30a73be535aba13acd"
+   "bytes": 140,
+   "sha256": "655628b22d11d0465772ed623729b6dbfc4c6d253a0052e3d9ab6285b5752409"
   },
   "queue-20261016-shortlist/logs/q5-ollama-decision-path.log": {
    "bytes": 64,
    "sha256": "1aa019eeb9e184063381cf068c5429211f1eaa0c32df3882a5ee39feb4bcd229"
   },
   "queue-20261016-shortlist/logs/runner.log": {
-   "bytes": 2306,
-   "sha256": "8aae5cd0aaf45bb5cf9e7ed69d1d1bdb500720dd68c67f5165f556acd6a2b8b3"
+   "bytes": 2405,
+   "sha256": "eec9645faec0c69ba3a6ead8ae1c8a12bc1eed1a8266035c072e725ea015d2da"
   },
   "queue-20261016-shortlist/logs/supervise.log": {
    "bytes": 78,
@@ -1437,8 +1445,8 @@
    "sha256": "9d2a8352784808bda3991d64c7564e693f6920fbe599f929951884b9b57f6e01"
   },
   "queue-20261016-shortlist/result-q4-calibrated-warm-cache.json": {
-   "bytes": 2932,
-   "sha256": "7424fb4d856e4a0947d969b22fe3f65cc108d72216cf37c85b4fd5a66ad70a86"
+   "bytes": 5930,
+   "sha256": "eba2d9dde8f12c8e0a8105948caa0b852e9dde1e088a0c7a0fd2d53c34fe6a75"
   },
   "queue-20261016-shortlist/result-q5-ollama-decision-path.json": {
    "bytes": 186,
@@ -1449,8 +1457,8 @@
    "sha256": "609ef65f9c29aa45617450f97d8eb9e5626f83e74eff5d41fb322ff1c8f2145c"
   },
   "queue-20261016-shortlist/status.json": {
-   "bytes": 190,
-   "sha256": "38ace296d8eb74aaab17d3933dc4add53baa4f56a28185f9329f2280a7b785d5"
+   "bytes": 1210,
+   "sha256": "9a41a678cb17436da662b4b7d6c9281fff9451006344cb8d9e3e96111df5b878"
   },
   "queue-20261016-shortlist/strata-cfg-base.json": {
    "bytes": 1812,
@@ -1459,6 +1467,10 @@
   "queue-20261016-shortlist/strata-cfg-kv-resident-32768.json": {
    "bytes": 1844,
    "sha256": "e33b92ddc9910efd878a00898d48a454164ccffbbaccfa4c4b68d369fa9285a9"
+  },
+  "queue-20261016-shortlist/strata-cfg-q4-saved.json": {
+   "bytes": 1950,
+   "sha256": "28033ee33cd7cee674d18f98ae1e28d6d49be3567e5e68daa02614de08b241ab"
   },
   "queue-20261016-shortlist/strata-cfg-q4-warm.json": {
    "bytes": 1950,

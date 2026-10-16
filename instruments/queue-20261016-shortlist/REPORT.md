@@ -205,3 +205,41 @@ Our 2026-10-11 warm test warmed with prompts and persisted nothing; does a calib
 
 Prediction recorded before the run: Hit rate up (toward the 42% the calibration literature reports from 6% random) and decode better; letters unchanged.
 
+- finished in 415 s: ok
+
+  - 2026-10-16 13:17:37  warm-up 40 sent (106 s in), profile present: True
+  - 2026-10-16 13:17:50  port 8080 cleared
+  - 2026-10-16 13:17:58  healthy
+  - 2026-10-16 13:18:03  run: C:\Program Files\Python311\python.exe C:\Users\kevin\ai_bench\new-items-20261007\knowledge_deep.py --url http://127.0.0.1:8080 --model strata-coder --label q4-from-saved --forms reason --limit 93 --pool shared --seeds 1 --timeout 300
+  - 2026-10-16 13:22:27    | strata-coder             -> knowledge-deep-result-q4-from-saved.json
+  - 2026-10-16 13:22:27    |   reason : letters 92/93  mean distractors addressed 1.95
+  - 2026-10-16 13:22:38  port 8080 cleared
+  - 2026-10-16 13:22:38  wrote result-q4-calibrated-warm-cache.json
+
+
+**Queue complete** at 2026-10-16 13:22:44.
+
+## q4, second attempt (fixed): the mechanism is demonstrated, the effect is not yet measured
+
+The fix worked and the run is now a real one - 415 s, profile written, the from-profile half executed:
+
+- **The engine does learn and persist a profile when asked properly.** 40 warm-ups over 106 s produced a
+  **196,632-byte `STRP`** file whose header reads 48 layers x 512 experts, saved at the one-minute interval
+  *during* the run. That settles the 2026-10-11 reading: `expert-profile.bin` stayed byte-identical because
+  the engine was never asked to save one (the configuration key was absent, and a QUIT-time save cannot
+  survive `taskkill /F`), not because the engine cannot learn.
+- **The learned profile is not a copy of the shipped one**: sha256 `3acf05d1...` against the pinned
+  `8f59b4aa...`, same 196,632 bytes, different content. So the engine learned something specific here.
+- **The effect is UNMEASURED, and saying otherwise would be the error this lab keeps finding elsewhere.**
+  The from-profile start ran **cold** (a fresh engine, no warm-ups) and read 53.3 tok/s at a 50.6 % cache
+  hit, against the warm engine's 64.3 tok/s at 56.1 % - two different conditions, so the pair says nothing
+  about the profile. The prediction ("hit rate up, decode better, letters unchanged") is therefore
+  **untested**, not confirmed; only its last clause is answered, and answered as before: letters 92/93.
+- The experiment that would settle it is a **cold-vs-cold pair**: the same probe sequence on a fresh engine
+  using the shipped profile and on a fresh engine using the learned one, or both warmed identically. That
+  is one item, and it now has a working mechanism to drive.
+
+One number worth keeping for scale: Strata's own adaptive tier already sits at ~50-56 % hit rate here, far
+above the 6 % random / 42 % calibrated figures quoted from the llama.cpp discussion - so for this engine the
+open question is narrower than the literature's, and is "does the *learned* profile beat the *shipped* one".
+

@@ -4,6 +4,24 @@
  "queue": [
   "q4-calibrated-warm-cache"
  ],
- "results": [],
- "stopped": null
+ "results": [
+  {
+   "id": "q4-calibrated-warm-cache",
+   "exit": 0,
+   "seconds": 415.0,
+   "tail": [
+    "2026-10-16 13:17:37  warm-up 40 sent (106 s in), profile present: True",
+    "2026-10-16 13:17:50  port 8080 cleared",
+    "2026-10-16 13:17:58  healthy",
+    "2026-10-16 13:18:03  run: C:\\Program Files\\Python311\\python.exe C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge_deep.py --url http://127.0.0.1:8080 --model strata-coder --label q4-from-saved --forms reason --limit 93 --pool shared --seeds 1 --timeout 300",
+    "2026-10-16 13:22:27    | strata-coder             -> knowledge-deep-result-q4-from-saved.json",
+    "2026-10-16 13:22:27    |   reason : letters 92/93  mean distractors addressed 1.95",
+    "2026-10-16 13:22:38  port 8080 cleared",
+    "2026-10-16 13:22:38  wrote result-q4-calibrated-warm-cache.json"
+   ],
+   "result_file": "C:\\Users\\kevin\\ai_bench\\queue-20261016-shortlist\\result-q4-calibrated-warm-cache.json"
+  }
+ ],
+ "stopped": "queue complete",
+ "finished": "2026-10-16 13:22:44"
 }

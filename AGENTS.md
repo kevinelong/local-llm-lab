@@ -152,7 +152,16 @@
     item now uses the config keys, sets the interval to a minute, keeps the warm phase long enough to cross
     it, and **fails** when the profile is absent. Re-running it was the first thing done with the slot free.
     The general rule this restates: an item must verify that the experiment it claims to have run actually
-    ran, and exit non-zero when it did not.
+    ran, and exit non-zero when it did not. **The fixed re-run then produced a real answer and an explicit
+    non-answer.** Real: the engine *does* learn and persist a profile - 40 warm-ups over 106 s wrote a
+    196,632-byte `STRP` file (48 layers x 512 experts) at the one-minute interval, and it differs from the
+    shipped profile (sha256 `3acf05d1...` vs `8f59b4aa...`), so the 2026-10-11 "nothing persisted" reading is
+    settled as a missing configuration key, not a missing mechanism. Not answered: whether the learned
+    profile *helps*, because the from-profile start ran cold (53.3 tok/s, 50.6 % hit) against a warm engine
+    (64.3 tok/s, 56.1 %) - two conditions, no comparison. That needs a cold-vs-cold pair, and it is one item
+    with a working mechanism behind it now. Note for scale: this engine's adaptive tier already sits at
+    ~50-56 %, far above the 6 % random / 42 % calibrated figures from the llama.cpp discussion, so the open
+    question here is narrower - learned against shipped.
 - October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
   STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
   through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was
