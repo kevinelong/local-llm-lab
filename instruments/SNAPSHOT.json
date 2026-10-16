@@ -577,8 +577,8 @@
    "sha256": "e28d2fdb87cdcb3445184780806cfd976097518a79b4a7759892e869ffba3985"
   },
   "new-items-20261007/knowledge-result-colibri-qwen36-ctx8192-cap32.json": {
-   "bytes": 807,
-   "sha256": "481c926125123c97c8a800f4f9c588160e86ae22c9327508e4f0e147563750f3"
+   "bytes": 1562,
+   "sha256": "d4fbfaadd72d1d36351ecaaccfb3a37310d6fbcbbc02fb6f9573b715d08ebd35"
   },
   "new-items-20261007/knowledge-result-colibri-smoke-baseline.json": {
    "bytes": 377,
@@ -1081,8 +1081,8 @@
    "sha256": "33e91f2a09fe02e47037177bd7e7f1f2e14cc09ccb969d79610d93ce7d2b4c42"
   },
   "overnight-20261011/logs/engine-colibri-qwen36.log": {
-   "bytes": 117110,
-   "sha256": "c6f7f360765d3d61fae17343c9df85aee4bfccb7e112b3fea03121e14dcc1627"
+   "bytes": 139813,
+   "sha256": "e54cfe3dfaf1481eaee666ebed12ffdd023ed504abece3132529d6fbaba37ac8"
   },
   "overnight-20261011/logs/engine-kolibri-1.log": {
    "bytes": 937000,
@@ -1239,6 +1239,18 @@
   "overnight-20261011/supervise.py": {
    "bytes": 2069,
    "sha256": "7881e1e5d4ee687d75ccd9c3a5ef5da9f727537a79bdeff2f9e2456b8b465110"
+  },
+  "queue-20261016-shortlist/README.md": {
+   "bytes": 7475,
+   "sha256": "57f73d09e7faf7c8a011c40abf5826155ac1704cac8528ea6245ffd669144f5b"
+  },
+  "queue-20261016-shortlist/queue.json": {
+   "bytes": 4883,
+   "sha256": "d876065cbcff25ff2b265fff9da3b45f3b2e1dfbae5620ea4a36ed487b310575"
+  },
+  "queue-20261016-shortlist/status.json": {
+   "bytes": 1192,
+   "sha256": "7491758ec52ef9de23e687c0de40aedc20fbc5aa53466b27590d737d0181ee5a"
   },
   "strata-20261005-v1/FLAGS.md": {
    "bytes": 8365,

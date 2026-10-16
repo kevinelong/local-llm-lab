@@ -79,6 +79,21 @@
     sets its own 15 h wall against the driver's 16 h, and the instrument marks any run with a transport gap
     `scored: false` and exits 2 rather than publishing a 9.3 % that reads like a weak model. The three
     `knowledge-result-colibri-smoke-*.json` files are 4-item smoke samples used to price the run.
+  - **The scan's shortlist is declared as a queue**, on Kevin's instruction ("proceed with that plan now all
+    in order"): `ai_bench/queue-20261016-shortlist/` (README + queue.json + status.json), seven items in the
+    scan's order, each with its question, **prediction recorded before the run**, instrument, cost and
+    readiness. The serial rule, the gates and the STOP file carry over unchanged, and nothing in it starts an
+    engine while the Colibri item holds the one inference slot (~21:45).
+  - **Two items were prepared read-only and are ready to run.** Item 2's build is staged at
+    `ai_bench/staged-llamacpp-b11480` from the win-cuda-13.4 release archives (sha256 recorded):
+    `--version` reports **build 11480, commit `d6cf9acb2`** - PR #29887's own merge commit - and `--help`
+    lists **`--moe-cache-mib N`**, while the pinned b11461 lists no such flag. b11480 is the *first* build
+    carrying it, so the A/B drifts by one build rather than by two days of unrelated commits. Item 1's arms
+    are pinned too: `--kv-resident` versus `--kv-streaming` with `--kv int8 --max-context 65536
+    --resident-budget-gib 2` fixed, so capacity is not the variable. Item 5 needs no download at all - the
+    installed Ollama is already **0.40.4** - item 6's pack measures **54.40 GiB** (fits D:'s 252.8 GiB, leaves
+    ~4 GiB of 58.46 GiB usable RAM, so it is parked rather than started), and item 7 stays gated on the OOM
+    issue **#2747**, re-checked open at 09:31:46Z today.
 - October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
   STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
   through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was

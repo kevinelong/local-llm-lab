@@ -31,6 +31,7 @@ INCLUDE = {
     'decision-signal-20261011': ['*'],
     'strata-warmcache-20261011': ['*'],
     'overnight-20261011': ['*.py', '*.json', '*.md', 'logs/*.log', 'OVERNIGHT-STOP'],
+    'queue-20261016-shortlist': ['*.py', '*.json', '*.md'],
     'bespoke-suite-20261010-v1': ['*.py', '*.md', 'evidence/*.json', 'evidence/*/runs/*/rows.jsonl'],
     'local-decisions-followup-20260925-v1': ['*.py', '*.json', '*.md'],
     'strata-20261005-v1': ['*.md'],

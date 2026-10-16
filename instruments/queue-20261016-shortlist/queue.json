@@ -1,0 +1,77 @@
+{
+ "declared": "2026-10-16, from the news scan's ranked shortlist",
+ "purpose": "Execute local-llm-lab/NEWS-2026-10-16.md section 8 in order: the Strata KV-residency A/B, the llama.cpp --moe-cache-mib ladder on a staged b11480 build, a per-workload noise floor, a calibrated expert-cache warm test, Ollama 0.40.4's native decision-model path, Coder IQ1_M, and the reference model on Strata 0.1.44 (gated). Serial, one inference workload at a time, gates checked and never lowered, predictions recorded before each run and scored after.",
+ "stop_file": "QUEUE-STOP",
+ "declared_hold": "Nothing starts an engine until the Colibri knowledge item (overnight-20261011, label colibri-qwen36-ctx8192-cap32) stops; it owns the inference slot until ~21:45 on 2026-10-16. Read-only preparation is done in the meantime.",
+ "items": [
+  {
+   "id": "q1-strata-kv-residency",
+   "title": "Does KV residency change the numbers at fixed capacity?",
+   "question": "Strata pinned at --kv int8 --max-context 65536 --resident-budget-gib 2, --kv-resident versus --kv-streaming: do the answers move, or only the rate?",
+   "prediction": "Letters unchanged; rate better with residency; if letters move, determinism outranks speed.",
+   "instrument": "engine cold/warm rates plus ledger (70 checks) plus knowledge_deep --forms reason (93 letters)",
+   "download": false,
+   "timeout": 3600
+  },
+  {
+   "id": "q2-moe-cache-mib-ladder",
+   "title": "Ladder --moe-cache-mib on the staged b11480 build",
+   "question": "On --cpu-moe Qwen3.6-35B-A3B Q4_K_M with 12 GB VRAM, what does each rung buy?",
+   "prediction": "Non-monotonic, peaking in the low thousands of MiB: 0 -> ~35-40 tok/s, a rung at 256-2048 best, the top rung at or below the control.",
+   "instrument": "ledger + ledger2 (the cache changes numerics, so speed alone is not a result) and the engine decode rate",
+   "ladder_mib": [0, 256, 512, 1024, 2048, 4096],
+   "staged": "ai_bench/staged-llamacpp-b11480 (build 11480, commit d6cf9acb2; control b11461 has no such flag)",
+   "download": false,
+   "timeout": 5400
+  },
+  {
+   "id": "q3-noise-floor",
+   "title": "A per-workload noise floor before trusting any tune",
+   "question": "How much do two identical runs differ, in wall time and in checks?",
+   "prediction": "Small in checks for the deterministic tasks, large enough in wall time to swallow a 5% speed claim.",
+   "instrument": "the same config run twice, scored identically",
+   "download": false,
+   "timeout": 5400
+  },
+  {
+   "id": "q4-calibrated-warm-cache",
+   "title": "Warm the expert cache from a calibrated hot set at fixed capacity",
+   "question": "Our 2026-10-11 warm test warmed with prompts and persisted nothing; does a calibrated hot set raise the hit rate and move decode, and does it move the letters?",
+   "prediction": "Hit rate up (toward the 42% the calibration literature reports from 6% random) and decode better; letters unchanged.",
+   "instrument": "ledger2 plus the engine's own hit-rate line, capacity fixed",
+   "download": false,
+   "timeout": 3600
+  },
+  {
+   "id": "q5-ollama-decision-path",
+   "title": "Ollama 0.40.4's native decision-model path",
+   "question": "Does the native path change the 0/4 stall catch rate or the latency on the frozen 18 windows?",
+   "prediction": "Catch rate stays 0/4 (the model is the failure, now measured on two engines); latency nearer Colibri's 1.7-2.1 s median than our 27.56 s p95.",
+   "instrument": "colibri-laya-20261011/laya_replay.py at the frozen 0.85 threshold",
+   "note": "installed Ollama is already 0.40.4, so no upgrade is needed",
+   "download": false,
+   "timeout": 3600
+  },
+  {
+   "id": "q6-coder-iq1-m",
+   "title": "Coder IQ1_M against the published 12 GB / 32 GB figures",
+   "question": "Does a 54.40 GiB IQ1_M pack run here at all, and what does it score?",
+   "prediction": "Accuracy in the same band as the Q2_0/Q4_K_M stacks; chat near the quoted 20.5 tok/s.",
+   "instrument": "the ranked batteries plus the knowledge instrument",
+   "pack": "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF IQ1_M 27.58 + 26.82 = 54.40 GiB (+0.85 mmproj)",
+   "download": "needs ~54.40 GiB; fits D: (252.8 GiB free) but leaves ~4 GiB of the 58.46 GiB usable RAM",
+   "status": "parked until Kevin says the disk and the tight RAM are worth it",
+   "timeout": 7200
+  },
+  {
+   "id": "q7-reference-on-strata-0144",
+   "title": "The reference model on Strata 0.1.44's Qwen3.6 route",
+   "question": "Can our reference config be served by the newer engine, and does it score the same?",
+   "prediction": "Not runnable yet: the route currently OOMs on this model on this box.",
+   "gate": "open issue Niko1221/Strata#2747 (2026-10-16T09:31:46Z): Qwen3.6A3B fails with out of memory with recommended configs",
+   "download": "needs a 20.98 GiB pack",
+   "status": "gated - do not run until the OOM is resolved or explained",
+   "timeout": 7200
+  }
+ ]
+}
