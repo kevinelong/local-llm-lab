@@ -310,3 +310,15 @@ The format-fixed 93-item reasoning run, again, both stacks. The lab's rule is th
 
 Prediction recorded before the run: Qwen3.6 90/93 again and Strata 92/93 again, because within a run the replies were byte-identical.
 
+- finished in 12838 s: exit 4294967295
+
+  - 2026-10-16 08:03:06  healthy
+  - 2026-10-16 08:03:06  engine advertises model id 'qwen3.6-colibri'
+  - 2026-10-16 08:03:06  run: C:\Program Files\Python311\python.exe C:\Users\kevin\ai_bench\new-items-20261007\knowledge_run.py --url http://127.0.0.1:8000 --model qwen3.6-colibri --label colibri-qwen36-ctx8192-cap32 --timeout 200
+  - 2026-10-16 11:36:44    | instrument: 1100 items (gsm8k 300, mmlu 800)
+  - 2026-10-16 11:36:44  exit code 4294967295
+  - 2026-10-16 11:36:53  wrote result-i3-colibri-qwen36.json
+
+
+**Queue complete** at 2026-10-16 11:37:09.
+

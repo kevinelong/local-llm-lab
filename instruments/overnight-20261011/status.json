@@ -1,12 +1,25 @@
 {
  "declared": "2026-10-11, overnight",
- "note": "Rewritten 2026-10-16 09:40 after a phantom start clobbered this file. Cause: a test snippet inserted two sibling roots on sys.path and then said 'import supervise', which bound the WRONG module - this root's historical supervisor, not the new queue's. Its driver therefore ran here at 09:30:48 with queue [i4, i6], cleared the engine ports and logged a start; it was killed within minutes and no item ever began. Nothing of the 10-15 work was lost: outcomes live in REPORT.md and result-*.json (this file only ever shows the newest driver invocation, by design).",
  "started": "2026-10-16 08:02:51",
  "queue": [
   "i3-colibri-qwen36"
  ],
- "results": [],
- "stopped": null,
- "in_flight": "i3-colibri-qwen36 (label colibri-qwen36-ctx8192-cap32): 175/1100 items at 09:33:40, 160 passed, 31.1 s/item, no transport failures, checkpointing every 25 items; engine alive on port 8000 since 08:02:57",
- "phantom_start": "2026-10-16 09:30:48 queue [i4-reason-repeat, i6-gliner-replay], killed within minutes, no item ran"
+ "results": [
+  {
+   "id": "i3-colibri-qwen36",
+   "exit": 4294967295,
+   "seconds": 12838.2,
+   "tail": [
+    "2026-10-16 08:03:06  healthy",
+    "2026-10-16 08:03:06  engine advertises model id 'qwen3.6-colibri'",
+    "2026-10-16 08:03:06  run: C:\\Program Files\\Python311\\python.exe C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge_run.py --url http://127.0.0.1:8000 --model qwen3.6-colibri --label colibri-qwen36-ctx8192-cap32 --timeout 200",
+    "2026-10-16 11:36:44    | instrument: 1100 items (gsm8k 300, mmlu 800)",
+    "2026-10-16 11:36:44  exit code 4294967295",
+    "2026-10-16 11:36:53  wrote result-i3-colibri-qwen36.json"
+   ],
+   "result_file": "C:\\Users\\kevin\\ai_bench\\overnight-20261011\\result-i3-colibri-qwen36.json"
+  }
+ ],
+ "stopped": "queue complete",
+ "finished": "2026-10-16 11:37:09"
 }

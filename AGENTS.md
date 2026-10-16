@@ -115,6 +115,23 @@
     same process from 08:02:57 and the item kept checkpointing through the incident. The new module is now
     `wait_for_slot.py` so no two sibling roots share a module name, and the rule this lab already applies to
     shells now applies to imports: name the module you mean, do not let `sys.path` order pick it for you.
+  - **The public README is restructured and then reader-tested** (Kevin: "how best to present our work ...
+    recommendations and conclusions first followed by supporting logic and then finally the nitty gritty
+    details? visuals?"). It is now six numbered sections - what we would run, how to read any number here
+    (with the measurement loop **diagrammed** in mermaid, because the branches are the point: a gate trip
+    stops the queue, an artifact equal to the starter is unscored, any transport gap is unscored), the
+    numbers with two SVG figures (knowledge with its standard-error whiskers; placement moving 65/93
+    justifications and 0/93 letters), what we got wrong, where the numbers come from, the mechanics - with
+    every earlier section preserved verbatim behind that spine. Then the step that mattered: a fresh reader
+    with no context read the file and came back with **ten line-referenced defects**, all now fixed, which
+    is the strongest argument yet for treating a README as something to test rather than to admire. The
+    ones worth remembering: the document was two documents stapled together (a September block with no
+    declared edge); the ranked table separated rows by 1-3 checks while the lab's own noise rule says
+    sub-19-check differences are noise, so the rule is now applied *to the table*; the fast-models bullet
+    mixed two different runs of gpt-oss (0/78 on its first sweep, 377 on a later one) in one sentence; the
+    reproduce section told the reader to pull a model that appears in no ranked number; nine battery names
+    and a page of jargon were undefined (there is now a battery table and a glossary); and `status: lead`
+    was promised as a convention while appearing nowhere in the file.
 - October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
   STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
   through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was

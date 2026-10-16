@@ -1,9 +1,15 @@
 {
  "declared": "2026-10-16, from the news scan's ranked shortlist",
- "started": "2026-10-16 09:28:29",
+ "started": "2026-10-16 11:37:37",
  "queue": [
-  "q2-moe-cache-mib-ladder"
+  "q1-strata-kv-residency",
+  "q2-moe-cache-mib-ladder",
+  "q3-noise-floor",
+  "q4-calibrated-warm-cache",
+  "q5-ollama-decision-path",
+  "q6-coder-iq1-m",
+  "q7-reference-on-strata-0144"
  ],
  "results": [],
- "stopped": "inference slot busy: an engine is listening on port 8000, so a measured run is still in flight"
+ "stopped": null
 }

@@ -55,3 +55,9 @@ Declared not runnable: open issue Niko1221/Strata#2747 (2026-10-16T09:31:46Z): Q
 
 **Not started:** inference slot busy: an engine is listening on port 8000, so a measured run is still in flight. Wait for it, then run this queue unchanged.
 
+## q1-strata-kv-residency - Does KV residency change the numbers at fixed capacity?
+
+Strata pinned at --kv int8 --max-context 65536 --resident-budget-gib 2, --kv-resident versus --kv-streaming: do the answers move, or only the rate?
+
+Prediction recorded before the run: Letters unchanged; rate better with residency; if letters move, determinism outranks speed.
+

@@ -86,6 +86,12 @@ def main():
         shared.log('runner', state['stopped'])
         return 0
 
+    if not args.dry_run:
+        # Clear the engine ports BEFORE the first item as well as between items. The 2026-10-11 driver only
+        # cleared them between items, and that cost its i4 its Strata arm: a dev-server was holding port 8080
+        # (this lab's own STRATA_PORT), so the arm refused to start while the other arm ran fine.
+        kill_engine_trees()
+
     for item in items:
         status = item.get('status')
         if status in ('parked', 'gated') or 'gate' in item:

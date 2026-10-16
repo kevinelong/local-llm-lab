@@ -172,15 +172,20 @@ class EngineResponder:
         return message.get('content') or message.get('reasoning_content') or ''
 
 
-def score(items, responder, verbose=False, checkpoint=None, every=25):
+def score(items, responder, verbose=False, checkpoint=None, every=25, carry=None, declared=None):
     """Score every item, optionally rewriting a partial result file as it goes.
 
     `checkpoint` is the path the finished result is written to; every `every` items the same JSON shape
     lands there with `partial: true`, so a run killed at the wall (or by a timeout) leaves the items it did
     finish rather than nothing. That is not hypothetical: on 2026-10-15 a 7,200 s Colibri run produced no
     artifact at all, because the file was only written after the last item.
+
+    `carry` is an optional (per_subject, failures) pair from such a partial run: a resumed run adds to it
+    instead of starting from zero, and `declared` names the full item count when only part is being run.
     """
-    per_subject, failures, started, done = {}, [], time.monotonic(), 0
+    per_subject, failures = ({}, []) if carry is None else (carry[0], carry[1])
+    started, done = time.monotonic(), sum(b.get('n', 0) for b in per_subject.values())
+    declared_total = declared if declared is not None else done + len(items)
 
     def summary(partial):
         passed = sum(b['passed'] for b in per_subject.values())
@@ -193,7 +198,7 @@ def score(items, responder, verbose=False, checkpoint=None, every=25):
         if partial:
             out['partial'] = True
             out['scored_items'] = done
-            out['declared_items'] = len(items)
+            out['declared_items'] = declared_total
         return out
 
     for item in items:
@@ -213,9 +218,33 @@ def score(items, responder, verbose=False, checkpoint=None, every=25):
             print('  miss %-42s expected %-6s parsed %-6s | %s' % (
                 item['id'], item['answer'], given, reply[:60].replace('\n', ' ')))
         done += 1
-        if checkpoint is not None and every and done % every == 0 and done < len(items):
+        if checkpoint is not None and every and done % every == 0 and done < declared_total:
             Path(checkpoint).write_text(json.dumps(summary(True), indent=1), encoding='ascii')
     return summary(False)
+
+
+def resume_from(path, items):
+    """(carry, remaining items, declared, skipped) read from a partial result at `path`.
+
+    Items are scored in a stable file order, so a partial run's per-subject counts say exactly how many to
+    skip: the first N of the same list. Returns carry=None when there is nothing to resume, so a fresh run is
+    unaffected by the flag. Credit is carried, not re-earned: the counts and failures from the partial run
+    seed the new accumulators, which is why the finished file is the same 1,100-item result either way.
+    """
+    path = Path(path)
+    if not path.exists():
+        return None, items, len(items), 0
+    try:
+        prior = json.loads(path.read_text(encoding='ascii'))
+    except Exception:
+        return None, items, len(items), 0
+    if not prior.get('partial'):
+        return None, items, len(items), 0
+    counts = prior.get('per_subject') or {}
+    skipped = sum(b.get('n', 0) for b in counts.values())
+    if not skipped or skipped >= len(items):
+        return None, items, len(items), 0
+    return (counts, prior.get('failures') or []), items[skipped:], len(items), skipped
 
 
 def main():
@@ -227,6 +256,8 @@ def main():
     parser.add_argument('--limit', type=int, default=0, help='items per suite (0 = all)')
     parser.add_argument('--timeout', type=int, default=180)
     parser.add_argument('--verbose', action='store_true')
+    parser.add_argument('--resume', action='store_true',
+                        help='continue a partial result for this label instead of starting over')
     args = parser.parse_args()
 
     items = load_items()
@@ -267,8 +298,18 @@ def main():
     responder = EngineResponder(args.url, args.model, args.timeout)
     out = HERE / ('knowledge-result-%s.json' % args.label)
     # The result path doubles as the checkpoint: every 25 items a partial file (partial: true) is written
-    # there, so a wall-clock kill leaves the finished items instead of nothing.
-    result = score(items, responder, verbose=args.verbose, checkpoint=out)
+    # there, so a wall-clock kill leaves the finished items instead of nothing. With --resume that same
+    # partial file is the base a restarted run continues from, so a pause costs the engine's warm cache but
+    # not the items already scored.
+    carry, declared, skipped = None, len(items), 0
+    if args.resume:
+        carry, items, declared, skipped = resume_from(out, items)
+        if skipped:
+            print('resuming %s: %d of %d items already scored, %d to go'
+                  % (out.name, skipped, declared, len(items)))
+    result = score(items, responder, verbose=args.verbose, checkpoint=out, carry=carry, declared=declared)
+    if skipped:
+        result['resumed_from'] = skipped
     # A run whose every reply is a transport error is UNSCORED, not a zero. On 2026-10-15 the Colibri item
     # named a model the engine does not serve (the engine advertises `qwen3.6-colibri`; the request said
     # `qwen36-35b`), so all 1,100 requests came back `404 model_not_found` in 13 s - and this script exited
