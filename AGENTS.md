@@ -4,6 +4,15 @@
   corrects one line of yesterday's "nothing moved" list.** Reading only - nothing downloaded,
   installed, built or run, no engine started, no inference, no benchmark, and nothing under
   `C:/Users/kevin/ai_bench` read or touched while the Colibri knowledge run owns the slot.
+  **Corrected the same day by Main, independently against the APIs:** section 4 called Ollama v0.40.6 a
+  prerelease - it is not (`prerelease: false`, and it is `releases/latest`), so the latest stable is
+  **0.40.6** and the shortlist's Ollama replay costs one upgrade from the installed **0.40.4** rather
+  than a decision about a release candidate. Verified at the same time: llama.cpp **PR #30673**
+  (Kolibri-1 upstream support) merged 2026-10-17T11:00:18Z, **#29181** (CUDA grouped-expert fusion)
+  merged 11:55:34Z - yesterday's file listed it as still open - **#30697** (`--moe-cache-mib` crashes at
+  load on Vulkan, RX 6900 XT) open, Strata **v0.1.45** published 06:53:17Z with **#2894** (Qwen3.6
+  setup fails on Windows with the prebuilt) open, and the newest llama.cpp tags are **b11715/b11714**.
+  The scan's own schedule held: the 07:30 task ran unattended and exited 0.
   - **Three state changes, each with a decision attached.** (1) **llama.cpp merged Kolibri-1 upstream**
     - PR **#30673, merged 2026-10-17T11:00:18Z** (78B / 3.46B active, 50 layers, 384 routed experts +
       1 shared, the fork's own architecture). **Every Kolibri number this lab has recorded came from the
@@ -15,10 +24,10 @@
     hours: **#2894** Qwen3.6-35B-A3B setup refuses the prebuilt 0.1.45 engine on Windows even though it
     advertises sm_120 (RTX 5070 Ti; workaround is `--build`), **#2856** a regression on 32 GB RAM + 6 GB
     VRAM, **#2897** an OOM after the update. So **the "reference model on the second engine" item is
-    blocked on Windows prebuilt**, and 0.1.45 is not a bump for a measurement run. (3) **Ollama
-    v0.40.6 is a prerelease** (2026-10-16T22:00:46Z) carrying `gguf: add the q2_0 tensor and file types`
-    (#18967) and `win: prevent orphaned runners` (#18500) - the failure mode we cleaned by hand on
-    2026-10-09. Stable is still 0.40.5.
+    blocked on Windows prebuilt**, and 0.1.45 is not a bump for a measurement run. (3) **Ollama 0.40.6**
+    carries `gguf: add the q2_0 tensor and file types` (#18967) and `win: prevent orphaned runners`
+    (#18500) - the failure mode we cleaned by hand on 2026-10-09. *(It is a **stable** release, not a
+    prerelease, and it is `releases/latest` - see the correction above; the installed build is 0.40.4.)*
   - **0.1.45 read against our own geometry, and it contains two traps.** `--parallel N` is *not* for
     us and the release prices it: on a card that cannot hold every expert the slots take VRAM from the
     expert cache - **a request alone runs 4-11% slower**, and 12 GB allows 4 slots at 8K but **none at
