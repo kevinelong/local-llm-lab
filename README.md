@@ -451,6 +451,22 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-17 &middot; [Daily news scan: Kolibri-1 left the fork, and Strata 0.1.45 landed with regressions](NEWS-2026-10-17.md)**
+&ndash; three state changes, each forcing a decision. **llama.cpp merged Kolibri-1 upstream** (PR #30673,
+2026-10-17T11:00Z) &mdash; our Kolibri rows came from the community `hob-b11434` patch, and whether the
+staged Q3_K_M file loads in the upstream loader is the untested question. **Strata v0.1.45** shipped the
+same morning and had three regression reports within eight hours, including a Windows setup that refuses
+the prebuilt engine for Qwen3.6-35B-A3B even though it advertises sm_120, so the reference model on the
+second engine is blocked on a source build; the release also prices `--parallel` against a 12 GB card
+(a lone request 4-11% slower, no slots at 32K), changes long-prompt text with its bigger prompt chunk,
+and its byte-identity tests never touched sm_120 or the RTX 5070. An older report (**#2453**) has a
+repeatable **69.2 &rarr; 55-58.8 tok/s** Windows/NVIDIA regression between 0.1.42 and 0.1.44.1, which
+bounds our own "the engine bump is speed-neutral" note. Also: Colibri can now **read GGUF natively with
+16-row CPU interleaving** (#2130), Strata **#1928** explains with line references why greedy output can
+depend on wall-clock timing, and **#2901** gives the first external count of our own loop class (11% of
+>3K-token sessions, 5.7% of tokens). Seven-ranked shortlist, the "nothing moved" list, and no download,
+engine, inference or benchmark. Reading only.
+
 **2026-10-16 &middot; [Daily news scan: the expert cache was already upstream](NEWS-2026-10-16.md)**
 &ndash; the first entry of a **daily** scan, and it corrects the one before it: llama.cpp's MoE expert
 cache is not blocked on an unmerged PR at all &mdash; **`--moe-cache-mib` merged 2026-10-07** (PR

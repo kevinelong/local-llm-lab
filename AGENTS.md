@@ -1,5 +1,93 @@
 # Local AI lab working instructions
 
+- October 17 (news scan): **`NEWS-2026-10-17.md` is written against `NEWS-2026-10-16.md` and it
+  corrects one line of yesterday's "nothing moved" list.** Reading only - nothing downloaded,
+  installed, built or run, no engine started, no inference, no benchmark, and nothing under
+  `C:/Users/kevin/ai_bench` read or touched while the Colibri knowledge run owns the slot.
+  - **Three state changes, each with a decision attached.** (1) **llama.cpp merged Kolibri-1 upstream**
+    - PR **#30673, merged 2026-10-17T11:00:18Z** (78B / 3.46B active, 50 layers, 384 routed experts +
+      1 shared, the fork's own architecture). **Every Kolibri number this lab has recorded came from the
+    community `hob-b11434` build**; that dependency now has an upstream replacement. Unverified and the
+    whole question: whether our staged **Q3_K_M 37.5 GB** (Hob-forge layout) loads in the upstream
+    loader - the PR adds three tensor names (`post_attn_norm`, `post_ffn_norm`,
+    `moe.router.expert_bias`). The cheap test is a load, and it costs one engine download past b11712.
+    (2) **Strata v0.1.45 shipped 2026-10-17T06:53:17Z** and had three regression reports within eight
+    hours: **#2894** Qwen3.6-35B-A3B setup refuses the prebuilt 0.1.45 engine on Windows even though it
+    advertises sm_120 (RTX 5070 Ti; workaround is `--build`), **#2856** a regression on 32 GB RAM + 6 GB
+    VRAM, **#2897** an OOM after the update. So **the "reference model on the second engine" item is
+    blocked on Windows prebuilt**, and 0.1.45 is not a bump for a measurement run. (3) **Ollama
+    v0.40.6 is a prerelease** (2026-10-16T22:00:46Z) carrying `gguf: add the q2_0 tensor and file types`
+    (#18967) and `win: prevent orphaned runners` (#18500) - the failure mode we cleaned by hand on
+    2026-10-09. Stable is still 0.40.5.
+  - **0.1.45 read against our own geometry, and it contains two traps.** `--parallel N` is *not* for
+    us and the release prices it: on a card that cannot hold every expert the slots take VRAM from the
+    expert cache - **a request alone runs 4-11% slower**, and 12 GB allows 4 slots at 8K but **none at
+    32K**, so our one-agent 65,536 configuration stays at one. The bigger default prompt chunk (4096 /
+    2048 / 1024, `--prefill 512` restores) **changes text on long prompts** (mean KL 0.004 against
+    chunk 512) - an output change, so any chunk A/B must score answers, not strings. Worth keeping:
+    a resident-RAM copy that keeps the lend region (**#1896: +7% decode, +2.5% prompt on a 3060**), and
+    a do-not-combine that names our own arm - `STRATA_EXCHANGE_ROTATE=1` must not be used with the
+    resident copy **under `--expert-cache 1500`** (our arm B), where the engine did not start on one
+    3060. And the identity claim ("byte-identical on every GPU machine we tested") lists **sm_60 /
+    sm_86 / HIP gfx1201 / A750 / M4 - not sm_120**, with **the RTX 5070 explicitly not run**.
+  - **A Windows/NVIDIA regression that predates the release, and it bounds our own note.** **#2453**
+    (open since 2026-10-14, 7 comments): RTX 5060 Ti 16 GB, Qwen3.8-Flash-Next IQ3_S, 64K, int8 KV -
+    **v0.1.42 69.2 tok/s against v0.1.44.1 55-58.8, repeatable** (`expert cache 4269 slots, 8.14 GiB`,
+    91.1% hit, KV streaming 99.93%). Our 2026-10-08 "the engine bump is speed-neutral" covered
+    0.1.39 -> 0.1.41; the ladder has moved since, and on Windows the direction is down.
+  - **Strata #1928 explains a boundary on our determinism claims, with line references.** Greedy output
+    depends on wall-clock timing because `DraftPolicy::choose` picks the verify window from an **EMA of
+    measured round times** (`src/spec/draft_policy.cpp:60-89`, suffix drafter on by default,
+    `suffix_draft = 3`) and a CPU expert rounds differently for one token than for two or more
+    (`src/kernels/cpu/native_expert.cpp:115-131`). So the 2026-10-11 "the decision endpoint is
+    deterministic" and "three byte-identical probes" readings stand **as measured** and are now
+    conditional: declare the drafter state in any A/B whose claim rests on "same flags, same answer".
+  - **#2901 is the first external count of our own loop class:** `STRATA_LOOP_BREAK=1` (opt-in) exists
+    because across **4.06M tokens of one user's opencode sessions** (Swift 1.5 IQ3_XXS, 12 GB laptop)
+    **11% of sessions longer than 3K tokens had a hard loop and 5.7% of all tokens were repetition**,
+    one regex task running a 29K-token loop. It changes generated text, so it cannot be on during a
+    scored run. Also filed today: **#2902** (setup's SHA-256 check is wrong for large shards and
+    deletes correct files) - read it before any `setup.py` on a multi-shard pack.
+  - **Other llama.cpp merges worth the line:** **#29181 grouped-experts top-k fusion merged
+    2026-10-17T11:55Z** (bailingmoe2 16B.A1B Q8_0 tg128 **359.26 -> 432.82 tok/s, 1.20x**) - which
+    also corrects yesterday's list, where it sat as "open with no update since 2026-09-24" - and
+    **#30517 CUDA MMVQ low-bit** (q2_K 1.13-1.26 on a 5090, q4_K/q8_0 as the unchanged control; not our
+    Strata-native pack). New bug reports: **#30697 `--moe-cache-mib` crashes at load on Vulkan
+    (Windows)** - the flag our ladder item rests on is nine days old and still failing on another
+    backend - and **#30675 `llama-server` can hang for tens of seconds with keep-alive connections**.
+  - **Colibri's GGUF door opened:** **#2130 merged 2026-10-16T23:10Z, "GGUF models read natively, CPU
+    kernels interleaved by 16 rows"** - our own Q4_K_M Qwen3.6 weights can be served without a
+    conversion, and 16-row interleaving is exactly the remedy discussion #27149 measured (111x page
+    amplification, 36x after a contiguous re-layout). **#2131** landed a warm-start fix for #2109
+    (prefill the expert RAM cache, our calibrated-hot-set idea, issue still open); **#2103** is a fix in
+    progress for the #2096 silent KV_SHARE corruption; **#2132** reports an engine exiting with
+    *"cache served expert X for requested expert Y"* - an expert cache that can serve the wrong expert
+    is the hazard that makes a knowledge run quietly wrong. No release since v2.0.0.
+  - **Research:** **2610.21500** (2026-10-15) measures a remote KV tier leaving median TTFT unchanged
+    while raising 16k p99 TTFT **3.96 -> 17.3 s**, a remote hit costing **0.88 s against 0.31 s to
+    recompute** - the measurement that should make us refuse Strata #2734's LMCache integration without
+    a tail-latency gate, and a third instance of "a cache that helps the mean can hurt the tail".
+    **2610.22016** (2026-10-15): a frozen reader reads only caches near its own, similarity does not
+    predict usability, and the failure is not gradual. Two eval designs (Kolab 115+ h of professional
+    sessions; FDE-Gym 95 delivery tasks scored by the customer's own metric) and DropKV (engine work).
+  - **Packs:** the core set did not move (ISTA 2026-09-29 `ed59f920`, Coder-Uncen IQ1_M 2026-10-12
+    `b1478129`, Myric Kolibri APEX 2026-10-09 `ed6030d7`, Qwen3.6 APEX-MTP-Strata 2026-10-09
+    `30e1a1c8`). `Aleph-Alpha/Kolibri-1` itself moved **2026-10-16T10:14Z**, the day the llama.cpp PR
+    was opened. Two new giants are out of reach: `DeepSeek-V4.1-Flash-GSQ-Uncensored` **164.89 GiB**,
+    `GLM-5.3-Flash-Strata-Q2Q3-Experts` **447.99 GiB**. gpt-oss-120b stays blocked (no verified build
+    under 59 GiB). New engine lead, unverified: `magnitudedev/magnitude` (Apache-2.0, 7,048 stars, CLI
+    0.2.9 on 2026-10-15) claims 2x Ollama and targets Pi/OpenCode/Codex on Windows/NVIDIA.
+  - **The ranked shortlist it hands the queue, cheapest first:** the Ollama native decision replay
+    (0.40.4/0.40.5, not the `-rc0`); a **cold-vs-cold** expert-profile pair (q4's open half); the
+    `--moe-cache-mib` ladder **extended upward** (4096 was best and still rising); the warm/calibrated
+    expert-cache seed at fixed capacity (owed, and now with three sources behind it); Coder IQ1_M at
+    n >= 3 against #2763's 12 GB line; **price our own GGUF on Colibri natively before any scoring**;
+    and **Kolibri Q3_K_M on stock llama.cpp >= b11712** - the highest-value item, ranked last only
+    because it costs a download. Also owed and not ranked: the eight Colibri arithmetic items at
+    `--timeout 400` (~1 h), which narrows the published 88.4-89.1% bracket.
+  - **No video was mined today**, deliberately - the four already covered are in the 10-16 file, and
+    re-reading them is the re-coverage the standing rule forbids.
+
 - October 16 (news scan, first of a daily series): **`NEWS-2026-10-16.md` is written against the
   `NEWS-2026-10-14.md` baseline, and its first finding corrects the note before it.** Reading only:
   nothing downloaded, installed, built or run, no engine started, no inference, no benchmark, and
