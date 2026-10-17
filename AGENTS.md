@@ -13,6 +13,23 @@
   load on Vulkan, RX 6900 XT) open, Strata **v0.1.45** published 06:53:17Z with **#2894** (Qwen3.6
   setup fails on Windows with the prebuilt) open, and the newest llama.cpp tags are **b11715/b11714**.
   The scan's own schedule held: the 07:30 task ran unattended and exited 0.
+  - **Magnitude tried first, at Kevin's word, and it is real - but not on our workload**
+    (`MAGNITUDE-2026-10-17.md`). Getting it to run cost four findings worth keeping: the CLI tarball fails
+    a layout check (the executable must be `magnitude.exe` *inside* a directory named `resources`); on
+    Windows `serve` additionally requires `native.guardParent(0)`, so only the installed `Magnitude CLI`
+    launcher can start it; the supported path is the silent user-scope installer (`/S`, 23 s, no UAC); and
+    **discovery rejects a synthetic HF-cache entry** - our Qwen3.6-35B-A3B Q4_K_M, hardlinked into a
+    Hub-shaped layout, stayed invisible across two restarts, so our reference model cannot be served by
+    this engine at all. Its own assessment offers **22 of 73** catalog models here, every one Gemma-4-12B
+    class or smaller: nothing in the 35B-A3B class. Measured on the one model we share with its catalog
+    (MiniCPM5-2B, same fixed prompt, one workload at a time): **Magnitude Q4 300.8 / 379.1 tok/s and Q8
+    297.5 / 317.9, against llama.cpp b11461 Q8_0 163.4 / 172.3** - **~1.8x at equal quantisation**, so the
+    vendor's claim survives and **my own recorded prediction (94-135, refuted above ~244) failed twice**.
+    Separately, the engine's assessment tool **underestimates its own engine by ~3x** (81-110 predicted
+    against 298-318 measured). What it does not show: anything about the 35B MoE case, which is unrunnable
+    there and is exactly where this lab's bottleneck (expert streaming) lives. Next if it matters: their
+    largest catalog entry (Gemma 4 12B) plus a `ledger` run, to see whether the speed costs answers.
+
   - **Three state changes, each with a decision attached.** (1) **llama.cpp merged Kolibri-1 upstream**
     - PR **#30673, merged 2026-10-17T11:00:18Z** (78B / 3.46B active, 50 layers, 384 routed experts +
       1 shared, the fork's own architecture). **Every Kolibri number this lab has recorded came from the

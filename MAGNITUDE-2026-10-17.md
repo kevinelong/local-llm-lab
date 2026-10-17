@@ -102,6 +102,42 @@ the generated text is not identical - the rate comparison stands, but this is no
 llama.cpp's prefill on a warm prompt was 178.6 tok/s against Magnitude's 34-token prompt in 23 ms
 (~1,480 tok/s), which is where a tuned kernel shows up.
 
-**Pending:** the quant-controlled pair - `minicpm5-2b:gguf:q8` from their catalog against the Q8_0 above -
-because a Q4-vs-Q8 comparison cannot settle a 2x claim.
+**The quant-controlled pair settled it** - their Q8 against our Q8_0, same model, same prompt, one
+workload at a time:
+
+| engine | model | quant | wall | tokens | rate |
+|---|---|---|---|---|---|
+| Magnitude 0.2.9 | MiniCPM5-2B | **Q8** | 0.48 / 0.45 s | 144 | **297.5 / 317.9** (mean 307.7) |
+| llama.cpp b11461 (`-ngl 99`, 32k, greedy) | MiniCPM5-2B | **Q8_0** | 0.91 / 0.86 s | 148 | **163.4 / 172.3** |
+
+**Verdict: the vendor's claim survives, at about 1.8x.** 307.7 against 167.9 wall-clock is **1.83x**, and
+against llama.cpp's own reported decode rate (175-177) it is **1.75x** - not the "over 2x" of the headline,
+but the same shape, and measured rather than repeated. My prediction was refuted twice: I expected 94-135
+and set ~244 as the refutation threshold, and the measurement cleared it on both quantisations. Two further
+observations worth keeping:
+
+- **Their assessment tool underestimates their own engine by about 3x** here (it predicted 81-110 for the
+  Q8 against 298-318 measured). Anyone choosing a model with that tool is being told the wrong number.
+- **Quantisation barely moves it**: their Q8 (307.7) is within ~10% of their Q4 (339.9), where llama.cpp's
+  own Q8 sits at 168. Whatever their tuning does, it is not the usual "smaller quant, more speed" curve.
+
+## What this does and does not establish
+
+- **Establishes:** on this box, for a model in its catalog, this engine is materially faster than llama.cpp
+  b11461 on the same work - ~1.8x decode - which is the first engine in this lab's record to beat the
+  reference stack on throughput at equal quantisation.
+- **Does not establish anything about our workload.** Our reference configuration is Qwen3.6-35B-A3B
+  (MoE, `--cpu-moe`, experts in RAM). It is **not in Magnitude's catalog** (22 compatible models, all
+  Gemma-4-12B class or smaller), and **our GGUF is not discoverable** by it, so the 35B case - the one the
+  whole ranking rests on, and the one where the bottleneck is expert streaming rather than kernels - is
+  untested and currently untestable. A 2B dense model on a warm GPU is the best case for kernel tuning and
+  the least relevant case for this lab.
+- **Cost of finding out:** 390 MB of release assets (three tarballs + the installer, all sha256-verified
+  against the release), a ~1 GB user-scope install under `%LOCALAPPDATA%\Programs\Magnitude`, and 2.1 GB
+  of downloaded models in `~\.magnitude\models`. Uninstall is theirs (`Uninstall Magnitude.exe`).
+- **Next step if it matters:** the claim is worth re-testing on a model we rank - their catalog's largest
+  quantised entries (Gemma 4 12B) would say whether the gain survives a model that does not fit trivially
+  in 12 GB, and a knowledge/`ledger` run on one of them would say whether speed came with any cost in
+  answers. That is a download decision, not a step.
+
 
