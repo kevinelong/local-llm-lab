@@ -162,6 +162,23 @@
     with a working mechanism behind it now. Note for scale: this engine's adaptive tier already sits at
     ~50-56 %, far above the 6 % random / 42 % calibrated figures from the llama.cpp discussion, so the open
     question here is narrower - learned against shipped.
+  - **The Colibri comparison landed: the same knowledge, ~13x the wall.** The resumed run finished all 1,100
+    items in 28,383 s (on top of the 12,616 s the first segment had already spent) and returned
+    **967/1,100 = 87.9 %** with 17 requests lost to `ConnectionResetError`, i.e. my strict rule marked it
+    unscored and the honest statement was a bracket. A declared repair item (`i3b-colibri-fill`) then split
+    those 17 by cause: the **9 virology** items were transient (all answered on re-ask, 5 correct) while the
+    **8 grade-school-math** items are *not* transport at all - they exceed the instrument's 200 s
+    per-request budget (a 1024-token answer at ~4 tok/s needs ~256 s) and, because the server is single-slot,
+    each retry queued behind the abandoned request, so four attempts compounded instead of recovering
+    (6,678 s for 17 items, 835 s per GSM8K item). **Combined: 972/1,100 = 88.4 %**, with 8 items (0.73 %)
+    unmeasured, so the bracket is 88.4-89.1 % - against llama.cpp's 974/1,100 = 88.5 % on the same items and
+    the same model family, i.e. 0.14 points apart and far inside the 1.33-point paired standard error. **The
+    i3 prediction is confirmed either way, and its second clause is confirmed emphatically: the interesting
+    number was the wall time, and it is 11.4 h against 51 min - about 13x.** Three engines on one instrument
+    now agree on knowledge (87.9 %, 88.5 %, 89.7 %) and differ by 19x in cost, which is the lab's "run a
+    knowledge benchmark before claiming a model is smarter" plus its second half: serve it on the cheapest
+    engine that can hold it. Closing the last 0.73 % needs `--timeout 400` on the eight arithmetic items
+    (~an hour of Colibri), a declared follow-up rather than a third pass tonight.
 - October 15: **the paused queue's remainder ran, and both repeats came back exactly as predicted.** The
   STOP file was deleted on Kevin's go-ahead ("after the fleet's builds stop") and the owed items ran serially
   through the driver's own gates (free physical 33.5-42.9 GiB, commit headroom 40.0-45.2 GiB); no gate was

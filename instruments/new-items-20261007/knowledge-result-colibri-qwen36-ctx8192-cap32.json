@@ -1,9 +1,9 @@
 {
  "responder": "qwen3.6-colibri",
- "passed": 575,
- "total": 675,
- "rate": 0.8519,
- "seconds": 12808.6,
+ "passed": 967,
+ "total": 1100,
+ "rate": 0.8791,
+ "seconds": 28383.0,
  "sampling": {
   "temperature": 0,
   "seed": 20261009
@@ -34,8 +34,16 @@
    "passed": 87
   },
   "virology": {
-   "n": 75,
-   "passed": 37
+   "n": 100,
+   "passed": 51
+  },
+  "international_law": {
+   "n": 100,
+   "passed": 91
+  },
+  "grade_school_math": {
+   "n": 300,
+   "passed": 287
   }
  },
  "failures": [
@@ -638,9 +646,207 @@
    "expected": "A",
    "parsed": null,
    "reply": "TRANSPORT: URLError(ConnectionRefusedError(10061, 'No connection could be made because the target machine actively refused it', None, 10061, None))"
+  },
+  {
+   "id": "mmlu/virology/77",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/80",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/81",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/83",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/84",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/86",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/88",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/90",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/91",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/94",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/97",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/14",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/19",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/30",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/31",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/51",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/69",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/71",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/74",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/95",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "gsm8k/45",
+   "expected": "104",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/87",
+   "expected": "9360",
+   "parsed": "5",
+   "reply": "To solve this problem, we need to determine Sylvie's salary at a specific point in time based on the company's policy.\n\n**Step 1: Determine Sylvie's initial monthly salary.**\nThe problem states that t"
+  },
+  {
+   "id": "gsm8k/93",
+   "expected": "36",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/119",
+   "expected": "95200",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/161",
+   "expected": "32",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/163",
+   "expected": "50",
+   "parsed": "54",
+   "reply": "To find the total value of all the toys, we need to determine the cost of each type of toy and then sum them up based on the quantities given.\n\n**1. Identify the quantities:**\n*   Red cars: 5\n*   Acti"
+  },
+  {
+   "id": "gsm8k/182",
+   "expected": "23",
+   "parsed": "24",
+   "reply": "To find Jean's age, we need to work through the information given step-by-step, starting with the known value.\n\n**Step 1: Determine Jan's age.**\nThe problem states that Jan is 30 years old.\n$$Jan = 30"
+  },
+  {
+   "id": "gsm8k/184",
+   "expected": "25",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/205",
+   "expected": "98",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/234",
+   "expected": "21",
+   "parsed": "14",
+   "reply": "To determine how many vines Steve needs, we must first calculate the total number of tomatoes he consumes over a specific period and then determine how many vines are required to produce that amount.\n"
+  },
+  {
+   "id": "gsm8k/255",
+   "expected": "192",
+   "parsed": "176",
+   "reply": "Here is the step-by-step solution to the problem:\n\n1.  **Determine the number of new cows per stall:**\n    Mr. Sylas buys 40 cows and divides them equally among 20 stalls.\n    $$ \\text{New cows per st"
+  },
+  {
+   "id": "gsm8k/288",
+   "expected": "3",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/298",
+   "expected": "500",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
   }
  ],
- "partial": true,
- "scored_items": 675,
- "declared_items": 1100
+ "resumed_from": 675,
+ "transport_failures": 17,
+ "scored": false
 }

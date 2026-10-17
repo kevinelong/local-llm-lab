@@ -1,0 +1,97 @@
+{
+ "responder": "qwen3.6-colibri",
+ "passed": 5,
+ "total": 17,
+ "rate": 0.2941,
+ "seconds": 6678.6,
+ "sampling": {
+  "temperature": 0,
+  "seed": 20261009
+ },
+ "per_subject": {
+  "virology": {
+   "n": 9,
+   "passed": 5
+  },
+  "grade_school_math": {
+   "n": 8,
+   "passed": 0
+  }
+ },
+ "failures": [
+  {
+   "id": "mmlu/virology/68",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/69",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/71",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/74",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "gsm8k/45",
+   "expected": "104",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/93",
+   "expected": "36",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/119",
+   "expected": "95200",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/161",
+   "expected": "32",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/184",
+   "expected": "25",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/205",
+   "expected": "98",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/288",
+   "expected": "3",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  },
+  {
+   "id": "gsm8k/298",
+   "expected": "500",
+   "parsed": null,
+   "reply": "TRANSPORT: TimeoutError('timed out')"
+  }
+ ],
+ "transport_failures": 8,
+ "scored": false
+}

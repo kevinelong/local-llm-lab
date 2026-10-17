@@ -177,7 +177,24 @@ the per-topic split, and the one topic whose gap clears noise, follow underneath
 
 ![Knowledge accuracy on 1,100 pinned items for three stacks, with one-standard-error whiskers](figures/knowledge-with-se.svg)
 
+### The same model, served by a second engine
+
+The 1,100 items were asked of a second engine as well: **Colibri v2.0.0** serving the *same*
+Qwen3.6-35B-A3B pack on the CPU, streaming int4 experts. It scored **972/1,100 = 88.4 %** - 967 measured
+plus 5 recovered by a declared re-ask of the 17 requests the network dropped; 8 arithmetic items remain
+unmeasured, so the bracket is 88.4-89.1 %. Against llama.cpp's 88.5 % on the same items that is **0.14
+points apart**, far inside the 1.33-point paired standard error.
+
+What differed was cost: **11.4 h against 51 min, about 13x**. And the eight unmeasured items have a
+diagnosed cause rather than a vague one - at ~4 tok/s a 1,024-token arithmetic answer needs ~256 s, past the
+instrument's 200 s per-request budget, and a single-slot server makes a retry queue behind the abandoned
+request instead of recovering.
+
+Knowledge is the invariant across three engines on this box (87.9 %, 88.5 %, 89.7 %); cost is not - the
+same items take 1.93 s each on Strata, 2.80 on llama.cpp and ~37 on Colibri.
+
 ### Note: knowledge breadth, the top two stacks (measured 2026-10-10)
+
 
 1,100 pinned items each (800 MMLU over 8 subjects for recall + 300 GSM8K as the procedural control),
 sampling pinned at temperature 0 / seed 20261009. This is the lab's first knowledge instrument; before

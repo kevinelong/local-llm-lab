@@ -223,6 +223,45 @@ def score(items, responder, verbose=False, checkpoint=None, every=25, carry=None
     return summary(False)
 
 
+def fill_selection(prior_path, items):
+    """(items a prior result lost to the transport, how many ids it named) - the --fill-from selector.
+
+    Separate from main() so it can be tested without an engine: the ids come from the prior file's
+    failures, the items from the frozen list, and anything named but no longer present is counted rather
+    than silently dropped.
+    """
+    prior = json.loads(Path(prior_path).read_text(encoding='ascii'))
+    lost = [f['id'] for f in (prior.get('failures') or [])
+            if str(f.get('reply', '')).startswith('TRANSPORT')]
+    by_id = {item['id']: item for item in items}
+    return [by_id[i] for i in lost if i in by_id], len(lost)
+
+
+class RetryingResponder:
+    """Wraps a responder and retries a failed request, for the fill mode only.
+
+    A connection reset is a transport event, not an answer: re-asking is the correct response to it, and
+    doing so is why a fill run can turn "17 items the network dropped" into a scorable number. It is opt-in
+    because a *measured* run must record a failure as a failure - retrying silently would hide exactly the
+    gaps the strict rule exists to expose.
+    """
+
+    def __init__(self, inner, attempts=3):
+        self.inner = inner
+        self.attempts = max(1, attempts)
+        self.name = inner.name
+
+    def answer(self, item, prompt):
+        last = None
+        for attempt in range(self.attempts):
+            try:
+                return self.inner.answer(item, prompt)
+            except Exception as error:
+                last = error
+                time.sleep(2 * (attempt + 1))
+        raise last
+
+
 def resume_from(path, items):
     """(carry, remaining items, declared, skipped) read from a partial result at `path`.
 
@@ -258,6 +297,10 @@ def main():
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--resume', action='store_true',
                         help='continue a partial result for this label instead of starting over')
+    parser.add_argument('--fill-from', default=None,
+                        help='re-run only the items a prior result lost to a transport failure')
+    parser.add_argument('--attempts', type=int, default=3,
+                        help='transport retries per item in --fill-from mode (default 3)')
     args = parser.parse_args()
 
     items = load_items()
@@ -296,6 +339,14 @@ def main():
         return 0 if ok else 1
 
     responder = EngineResponder(args.url, args.model, args.timeout)
+    if args.fill_from:
+        # A fill run re-asks only what a prior run lost to the network. Its result file covers just those
+        # items and says so, so the combined score is arithmetic on two honest files rather than a
+        # corrected copy of one - the original stays exactly as the measured run left it.
+        items, named = fill_selection(args.fill_from, items)
+        print('fill: %d of %d transport-lost items selected from %s, %d attempts each'
+              % (len(items), named, Path(args.fill_from).name, args.attempts))
+        responder = RetryingResponder(responder, args.attempts)
     out = HERE / ('knowledge-result-%s.json' % args.label)
     # The result path doubles as the checkpoint: every 25 items a partial file (partial: true) is written
     # there, so a wall-clock kill leaves the finished items instead of nothing. With --resume that same

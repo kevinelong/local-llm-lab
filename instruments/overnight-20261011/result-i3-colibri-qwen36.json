@@ -6,5 +6,6 @@
  "label": "colibri-qwen36-ctx8192-cap32",
  "context": 8192,
  "cap": 32,
+ "resumed": true,
  "result": "C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge-result-colibri-qwen36-ctx8192-cap32.json"
 }

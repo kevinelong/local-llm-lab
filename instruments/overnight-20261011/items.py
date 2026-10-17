@@ -25,6 +25,7 @@ LAYA_REPLAY = BASE / 'colibri-laya-20261011' / 'laya_replay.py'
 KOLIBRI_GGUF = BASE / 'staged-kolibri-20261007' / 'Kolibri-1-Q3_K_M.gguf'
 COLIBRI_DIR = BASE / 'staged-colibri-20261011'
 GLINER_DIR = Path(r'D:\ai_bench-staged\models\GLiNER2.5-Decide')
+COLIBRI_LABEL = 'colibri-qwen36-ctx8192-cap32'
 
 
 def run(name, command, cwd=None, timeout=7200):
@@ -198,7 +199,7 @@ def i3_colibri_qwen36(name='i3-colibri-qwen36'):
     advertises `qwen3.6-colibri` and 404s a request naming the setup name `qwen36-35b`.
     """
     shared.COLIBRI_MODELS.mkdir(parents=True, exist_ok=True)
-    label = 'colibri-qwen36-ctx8192-cap32'
+    label = COLIBRI_LABEL
     setup_code = None
     model_dir, staged_bytes = colibri_staged_model(shared.COLIBRI_MODELS)
     if model_dir is not None:
@@ -225,6 +226,36 @@ def i3_colibri_qwen36(name='i3-colibri-qwen36'):
                                'model_id': model_id, 'label': label, 'context': 8192, 'cap': 32,
                                'resumed': True,
                                'result': str(KNOWLEDGE_ROOT / ('knowledge-result-%s.json' % label))})
+    return code
+
+
+def i3b_colibri_fill(name='i3b-colibri-fill'):
+    """Re-ask only the items the 2026-10-16 run lost to connection resets, and nothing else.
+
+    The 13:23 run answered every item but 17 requests died on `ConnectionResetError 10054`, so the strict
+    rule marks its file unscored and the accuracy is a bracket rather than a number. The 17 resolve to 9
+    virology and 8 grade-school-math items - the last two subject blocks, i.e. clustered late in the run -
+    and the prediction recorded for this repair is that they are transport events, not model answers: the
+    fill should resolve most of them, lifting the total from 967/1100 toward ~984/1100, and either end
+    leaves the accuracy inside 2 points of the llama.cpp 88.5% the i3 prediction named.
+
+    The original result file is NOT edited. This writes `knowledge-result-colibri-qwen36-fill.json`,
+    covering only the re-asked items, so the combined score is arithmetic on two honest files.
+    """
+    prior = KNOWLEDGE_ROOT / ('knowledge-result-%s.json' % COLIBRI_LABEL)
+    model_dir, staged_bytes = colibri_staged_model(shared.COLIBRI_MODELS)
+    if model_dir is None:
+        shared.write_result(name, {'item': name, 'error': 'no model directory'})
+        return 3
+    with shared.colibri_engine('colibri-fill', model_dir, extra=['--cap', '32']):
+        model_id = colibri_model_id('http://127.0.0.1:8000')
+        shared.log(name, 'engine advertises model id %r' % model_id)
+        command = [sys.executable, KNOWLEDGE_ROOT / 'knowledge_run.py', '--url', 'http://127.0.0.1:8000',
+                   '--model', model_id, '--label', 'colibri-qwen36-fill', '--timeout', '200',
+                   '--fill-from', str(prior), '--attempts', '4']
+        code = run(name, command, cwd=KNOWLEDGE_ROOT, timeout=3 * 3600)
+    shared.write_result(name, {'item': name, 'exit': code, 'prior': str(prior), 'model_id': model_id,
+                               'fill': str(KNOWLEDGE_ROOT / 'knowledge-result-colibri-qwen36-fill.json')})
     return code
 
 
@@ -293,8 +324,9 @@ def i6_gliner(name='i6-gliner-replay'):
 
 
 ITEMS = {'i1-strata-placement': i1_strata_placement, 'i2-kolibri-knowledge': i2_kolibri_knowledge,
-         'i3-colibri-qwen36': i3_colibri_qwen36, 'i4-reason-repeat': i4_reason_repeat,
-         'i5-papers-repeat': i5_papers_repeat, 'i6-gliner-replay': i6_gliner}
+         'i3-colibri-qwen36': i3_colibri_qwen36, 'i3b-colibri-fill': i3b_colibri_fill,
+         'i4-reason-repeat': i4_reason_repeat, 'i5-papers-repeat': i5_papers_repeat,
+         'i6-gliner-replay': i6_gliner}
 
 
 if __name__ == '__main__':

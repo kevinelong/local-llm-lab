@@ -1,9 +1,25 @@
 {
  "declared": "2026-10-11, overnight",
- "started": "2026-10-16 13:23:19",
+ "started": "2026-10-16 21:18:11",
  "queue": [
-  "i3-colibri-qwen36"
+  "i3b-colibri-fill"
  ],
- "results": [],
- "stopped": null
+ "results": [
+  {
+   "id": "i3b-colibri-fill",
+   "exit": 2,
+   "seconds": 6699.0,
+   "tail": [
+    "2026-10-16 23:09:45    |         grade_school_math                    0/8     0.000",
+    "2026-10-16 23:09:45    |         virology                             5/9     0.556",
+    "2026-10-16 23:09:45    |         8 of 17 replies failed at the transport level, e.g. TRANSPORT: TimeoutError('timed out')",
+    "2026-10-16 23:09:45    |         UNSCORED: the run has a gap in it - the items that answered are positional, not a sample",
+    "2026-10-16 23:09:45  exit code 2",
+    "2026-10-16 23:09:54  wrote result-i3b-colibri-fill.json"
+   ],
+   "result_file": "C:\\Users\\kevin\\ai_bench\\overnight-20261011\\result-i3b-colibri-fill.json"
+  }
+ ],
+ "stopped": "queue complete",
+ "finished": "2026-10-16 23:10:00"
 }

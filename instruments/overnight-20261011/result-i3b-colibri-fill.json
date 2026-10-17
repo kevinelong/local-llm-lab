@@ -1,0 +1,7 @@
+{
+ "item": "i3b-colibri-fill",
+ "exit": 2,
+ "prior": "C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge-result-colibri-qwen36-ctx8192-cap32.json",
+ "model_id": "qwen3.6-colibri",
+ "fill": "C:\\Users\\kevin\\ai_bench\\new-items-20261007\\knowledge-result-colibri-qwen36-fill.json"
+}

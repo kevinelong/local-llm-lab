@@ -322,3 +322,67 @@ Prediction recorded before the run: Qwen3.6 90/93 again and Strata 92/93 again, 
 
 **Queue complete** at 2026-10-16 11:37:09.
 
+## i3-colibri-qwen36 - The same model on a second engine
+
+Colibri v2.0.0 serving its own Qwen3.6-35B-A3B build on the same 1,100 items. Same model family as our best configuration, different engine, different quantisation and packing, no GPU required.
+
+Prediction recorded before the run: Accuracy inside 2 points of our llama.cpp number (88.5%), and the interesting number is wall time per item rather than accuracy.
+
+- finished in 28403 s: exit 2
+
+  - 2026-10-16 21:16:37    |         virology                            51/100   0.510
+  - 2026-10-16 21:16:37    |         world_religions                     85/100   0.850
+  - 2026-10-16 21:16:37    |         17 of 1100 replies failed at the transport level, e.g. TRANSPORT: ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)
+  - 2026-10-16 21:16:37    |         UNSCORED: the run has a gap in it - the items that answered are positional, not a sample
+  - 2026-10-16 21:16:37  exit code 2
+  - 2026-10-16 21:16:46  wrote result-i3-colibri-qwen36.json
+
+
+**Queue complete** at 2026-10-16 21:16:52.
+
+## i3b-colibri-fill - Re-ask what the network dropped
+
+The 13:23 Colibri run answered a 1,100 items but lost 17 requests to ConnectionResetError 10054 (9 virology, 8 grade-school math), which the strict rule treats as a gap. Are those 17 transport events rather than model answers?
+
+Prediction recorded before the run: Yes: the fill resolves most of them, lifting the total from 967/1100 toward ~984/1100, and either end leaves accuracy inside 2 points of the llama.cpp 88.5% the i3 prediction named.
+
+- finished in 6699 s: exit 2
+
+  - 2026-10-16 23:09:45    |         grade_school_math                    0/8     0.000
+  - 2026-10-16 23:09:45    |         virology                             5/9     0.556
+  - 2026-10-16 23:09:45    |         8 of 17 replies failed at the transport level, e.g. TRANSPORT: TimeoutError('timed out')
+  - 2026-10-16 23:09:45    |         UNSCORED: the run has a gap in it - the items that answered are positional, not a sample
+  - 2026-10-16 23:09:45  exit code 2
+  - 2026-10-16 23:09:54  wrote result-i3b-colibri-fill.json
+
+
+**Queue complete** at 2026-10-16 23:10:00.
+
+## i3b's outcome: the 17 losses were two different things, and the cause of the second is a timeout
+
+The fill answered 9 of the 17 and lost 8 again - but the split is the finding, and it falls on the subject
+boundary:
+
+- **The 9 virology items were transient.** All nine answered on the re-ask (5 correct, 4 wrong), so the main
+  run's `ConnectionResetError` there was the network, exactly as predicted.
+- **The 8 grade-school-math items are not transport events.** All eight failed four attempts each, now with
+  `TimeoutError('timed out')` at the instrument's **200 s per-request budget**, and the engine's log shows
+  9 requests served - i.e. the eight GSM8K generations were still in flight when the client gave up. At
+  ~4 tok/s a 1024-token arithmetic answer needs ~256 s, so these cannot complete inside 200 s on this
+  engine; and because the server is single-slot, a retry queues *behind* the abandoned request, so four
+  attempts compound instead of recovering. The fill spent 6,678 s on 17 items - 835 s per GSM8K item - which
+  is that compounding, measured.
+- **So the prediction is half-right and the half that is wrong is the useful half.** "These are transport
+  events, not model answers" holds for virology and fails for grade-school math, whose cause is a declared
+  timeout that is too small for this engine's arithmetic items. A retry cannot fix a budget.
+
+**The combined number, with its gap stated rather than smoothed:** 967 from the main run plus 5 from the
+fill = **972/1,100 = 88.4 %**, with **8 items (0.73 %) unmeasured**. Bracket: 972 to 980 (all eight right) =
+**88.4 % to 89.1 %**. Against llama.cpp's 974/1,100 = 88.5 % on the same items and the same model family:
+0.14 points apart at the measured end, 0.6 the other way, both far inside the 1.33-point paired standard
+error. The i3 prediction - "accuracy inside 2 points of 88.5 %" - is confirmed at either end, and the
+headline is not in doubt: **the same knowledge, and about 13x the wall time** (11.4 h against 51 min).
+
+Closing the last 0.73 % needs `--timeout 400` on the eight arithmetic items: roughly an hour of Colibri
+time, a declared follow-up rather than a third pass tonight.
+

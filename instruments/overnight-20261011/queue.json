@@ -26,6 +26,13 @@
    "timeout_note": "Raised from 7200 on 2026-10-15, declared before the run: measured 45.1 s/item at --cap 32 (65.7 at the engine default), so 1,100 items need ~14 h. The corrected 2026-10-15 attempt answered 86 items in 7200 s before this timeout killed it (exit -9). The item's own wall is 15 h; gates and everything else are unchanged."
   },
   {
+   "id": "i3b-colibri-fill",
+   "title": "Re-ask what the network dropped",
+   "question": "The 13:23 Colibri run answered a 1,100 items but lost 17 requests to ConnectionResetError 10054 (9 virology, 8 grade-school math), which the strict rule treats as a gap. Are those 17 transport events rather than model answers?",
+   "prediction": "Yes: the fill resolves most of them, lifting the total from 967/1100 toward ~984/1100, and either end leaves accuracy inside 2 points of the llama.cpp 88.5% the i3 prediction named.",
+   "timeout": 7200
+  },
+  {
    "id": "i4-reason-repeat",
    "title": "Repeat rule on our own instrument",
    "question": "The format-fixed 93-item reasoning run, again, both stacks. The lab's rule is that single runs are samples; this is the first repeat of this instrument across runs.",
