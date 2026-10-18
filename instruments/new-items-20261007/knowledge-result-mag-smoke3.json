@@ -1,0 +1,31 @@
+{
+ "responder": "minicpm5-2b:gguf:q8",
+ "passed": 9,
+ "total": 10,
+ "rate": 0.9,
+ "seconds": 5.1,
+ "sampling": {
+  "temperature": 0,
+  "seed": 20261009
+ },
+ "per_subject": {
+  "high_school_world_history": {
+   "n": 5,
+   "passed": 5
+  },
+  "grade_school_math": {
+   "n": 5,
+   "passed": 4
+  }
+ },
+ "failures": [
+  {
+   "id": "gsm8k/4",
+   "expected": "20",
+   "parsed": "15",
+   "reply": "To find the number of cups of feed needed for the final meal, we first need to determine the total amount of feed required for all meals for the entire flock.\n\n1.  **Determine the feed per chicken per"
+  }
+ ],
+ "transport_failures": 0,
+ "scored": true
+}

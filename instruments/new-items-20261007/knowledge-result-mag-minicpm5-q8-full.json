@@ -1,0 +1,1538 @@
+{
+ "responder": "minicpm5-2b:gguf:q8",
+ "passed": 552,
+ "total": 800,
+ "rate": 0.69,
+ "seconds": 63.2,
+ "sampling": {
+  "temperature": 0,
+  "seed": 20261009
+ },
+ "per_subject": {
+  "high_school_world_history": {
+   "n": 100,
+   "passed": 77
+  },
+  "high_school_geography": {
+   "n": 100,
+   "passed": 69
+  },
+  "astronomy": {
+   "n": 100,
+   "passed": 76
+  },
+  "world_religions": {
+   "n": 100,
+   "passed": 70
+  },
+  "philosophy": {
+   "n": 100,
+   "passed": 65
+  },
+  "prehistory": {
+   "n": 100,
+   "passed": 68
+  },
+  "virology": {
+   "n": 100,
+   "passed": 52
+  },
+  "international_law": {
+   "n": 100,
+   "passed": 75
+  }
+ },
+ "failures": [
+  {
+   "id": "mmlu/high_school_world_history/11",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_world_history/24",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/25",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/26",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/27",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/33",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_world_history/35",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/36",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/43",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_world_history/50",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/55",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/60",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/62",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_world_history/64",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_world_history/67",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/68",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/69",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/79",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_world_history/80",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/81",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/82",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_world_history/91",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_world_history/93",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/3",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/4",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/6",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/7",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_geography/8",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/12",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/14",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/15",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/23",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/27",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/30",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/31",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/34",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_geography/38",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/39",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/41",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/46",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/47",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/52",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/53",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/55",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/57",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/60",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/72",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/74",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/78",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/82",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/high_school_geography/86",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/high_school_geography/89",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/high_school_geography/91",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/high_school_geography/94",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/astronomy/0",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/6",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/8",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/17",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/19",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/23",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/24",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/26",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/28",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/astronomy/30",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/42",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/43",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/50",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/53",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/57",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/58",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/63",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/68",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/74",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/77",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/79",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/astronomy/91",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/astronomy/94",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/astronomy/98",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/world_religions/0",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/1",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/5",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/10",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/11",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/21",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/23",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/world_religions/24",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/27",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/29",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/30",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/48",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/52",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/world_religions/53",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/55",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/58",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/59",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/63",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/world_religions/65",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/67",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/75",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/83",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/84",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/90",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/world_religions/91",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/92",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/94",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/world_religions/95",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/world_religions/97",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/world_religions/99",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/5",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/7",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/12",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/14",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/16",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/18",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/19",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/21",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/22",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/26",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/28",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/29",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/30",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/32",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/34",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/37",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/40",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/42",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/43",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/46",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/51",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/52",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/73",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/74",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/philosophy/75",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/77",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/78",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/82",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/83",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/philosophy/87",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/90",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/94",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/96",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/philosophy/98",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/philosophy/99",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/1",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/3",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/prehistory/4",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/5",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/prehistory/6",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/8",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/9",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/prehistory/15",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/16",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/19",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/prehistory/20",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/21",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/24",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/27",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/29",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/34",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/44",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/46",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/prehistory/48",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/49",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/50",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/prehistory/52",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/57",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/61",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/74",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/79",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/prehistory/81",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/prehistory/83",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/prehistory/85",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/prehistory/87",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/97",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/prehistory/99",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/0",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/2",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/6",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/9",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/10",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/11",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/13",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/15",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/16",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/17",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/22",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/23",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/27",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/28",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/29",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/30",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/32",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/34",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/35",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/36",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/40",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/41",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/42",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/45",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/46",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/49",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/54",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/57",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/61",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/62",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/63",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/64",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/65",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/69",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/70",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/74",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/76",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/77",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/78",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/80",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/81",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/83",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/86",
+   "expected": "B",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/virology/90",
+   "expected": "D",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/virology/91",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/92",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/virology/94",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/virology/99",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/15",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/19",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/25",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/30",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/31",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/34",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/41",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/44",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/50",
+   "expected": "D",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/51",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/53",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/61",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/63",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/65",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/69",
+   "expected": "C",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/71",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/72",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/74",
+   "expected": "A",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/78",
+   "expected": "A",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/79",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "D"
+  },
+  {
+   "id": "mmlu/international_law/80",
+   "expected": "A",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/82",
+   "expected": "C",
+   "parsed": "B",
+   "reply": "B"
+  },
+  {
+   "id": "mmlu/international_law/85",
+   "expected": "D",
+   "parsed": "C",
+   "reply": "C"
+  },
+  {
+   "id": "mmlu/international_law/86",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "A"
+  },
+  {
+   "id": "mmlu/international_law/87",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "D"
+  }
+ ],
+ "partial": true,
+ "scored_items": 800,
+ "declared_items": 1100
+}

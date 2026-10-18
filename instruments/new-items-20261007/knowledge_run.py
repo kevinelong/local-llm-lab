@@ -139,12 +139,13 @@ class RandomResponder:
 
 
 class EngineResponder:
-    def __init__(self, url, model, timeout, max_tokens_mcq=512, max_tokens_math=1024):
+    def __init__(self, url, model, timeout, max_tokens_mcq=512, max_tokens_math=1024, reasoning_knob='nested'):
         self.url = url.rstrip('/')
         self.model = model
         self.timeout = timeout
         self.max_mcq = max_tokens_mcq
         self.max_math = max_tokens_math
+        self.reasoning_knob = reasoning_knob
         self.name = model
 
     def answer(self, item, prompt):
@@ -155,13 +156,20 @@ class EngineResponder:
             'seed': SEED,
             'stream': False,
             'max_tokens': self.max_mcq if item['suite'] == 'mmlu' else self.max_math,
-            # Both engines otherwise let a reasoning block eat the whole allowance, which returns an
-            # EMPTY content field - measured, twice: 0/6 then 2/6 with the answers never emitted. The
-            # knobs are per request, so no pinned engine config is touched: llama.cpp reads the template
-            # kwarg, the Strata engine reads reasoning_budget_tokens from the request body.
-            'chat_template_kwargs': {'reasoning_effort': 'none'},
-            'reasoning_budget_tokens': 0,
         }
+        # Engines disagree about where "do not think" lives, and one of them refuses to be told twice.
+        # Measured 2026-10-18: llama.cpp reads the nested template kwarg, the Strata engine reads
+        # reasoning_budget_tokens from the body, and Magnitude reads a TOP-LEVEL reasoning_effort and
+        # answers 400 "reasoning_effort conflicts with reasoning controls in chat_template_kwargs" if it
+        # is sent both ways. All of them otherwise let a reasoning block eat the whole allowance and
+        # return an EMPTY content field - measured, twice: 0/6 then 2/6 with the answers never emitted.
+        # The knob is per request, so no pinned engine config is touched. `nested` is the historical
+        # default every recorded run used; `top` is for strict OpenAI-style servers (Magnitude).
+        if self.reasoning_knob == 'nested':
+            body['chat_template_kwargs'] = {'reasoning_effort': 'none'}
+            body['reasoning_budget_tokens'] = 0
+        elif self.reasoning_knob == 'top':
+            body['reasoning_effort'] = 'none'
         request = urllib.request.Request(
             self.url + '/v1/chat/completions', data=json.dumps(body).encode('utf-8'),
             headers={'Content-Type': 'application/json'})
@@ -301,6 +309,10 @@ def main():
                         help='re-run only the items a prior result lost to a transport failure')
     parser.add_argument('--attempts', type=int, default=3,
                         help='transport retries per item in --fill-from mode (default 3)')
+    parser.add_argument('--reasoning-knob', default='nested', choices=['nested', 'top', 'none'],
+                        help='where to say "do not think": nested template kwargs (llama.cpp, the default '
+                             'every recorded run used), a top-level reasoning_effort (strict OpenAI-style '
+                             'servers such as Magnitude), or neither')
     args = parser.parse_args()
 
     items = load_items()
@@ -338,7 +350,7 @@ def main():
                       'PASS' if sane else 'FAIL', '(%.3f)' % chance)
         return 0 if ok else 1
 
-    responder = EngineResponder(args.url, args.model, args.timeout)
+    responder = EngineResponder(args.url, args.model, args.timeout, reasoning_knob=args.reasoning_knob)
     if args.fill_from:
         # A fill run re-asks only what a prior run lost to the network. Its result file covers just those
         # items and says so, so the combined score is arithmetic on two honest files rather than a

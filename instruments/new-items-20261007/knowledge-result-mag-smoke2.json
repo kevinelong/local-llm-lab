@@ -1,0 +1,85 @@
+{
+ "responder": "minicpm5-2b:gguf:q8",
+ "passed": 0,
+ "total": 10,
+ "rate": 0.0,
+ "seconds": 0.2,
+ "sampling": {
+  "temperature": 0,
+  "seed": 20261009
+ },
+ "per_subject": {
+  "high_school_world_history": {
+   "n": 5,
+   "passed": 0
+  },
+  "grade_school_math": {
+   "n": 5,
+   "passed": 0
+  }
+ },
+ "failures": [
+  {
+   "id": "mmlu/high_school_world_history/0",
+   "expected": "A",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "mmlu/high_school_world_history/1",
+   "expected": "B",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "mmlu/high_school_world_history/2",
+   "expected": "D",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "mmlu/high_school_world_history/3",
+   "expected": "C",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "mmlu/high_school_world_history/4",
+   "expected": "D",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "gsm8k/0",
+   "expected": "18",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "gsm8k/1",
+   "expected": "3",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "gsm8k/2",
+   "expected": "70000",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "gsm8k/3",
+   "expected": "540",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  },
+  {
+   "id": "gsm8k/4",
+   "expected": "20",
+   "parsed": null,
+   "reply": "TRANSPORT: <HTTPError 400: 'Bad Request'>"
+  }
+ ],
+ "transport_failures": 10,
+ "scored": false
+}

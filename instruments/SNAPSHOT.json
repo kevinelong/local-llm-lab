@@ -636,6 +636,18 @@
    "bytes": 24083,
    "sha256": "872c73dbf3597388124c74f32d98c8b69d3b95d83828609d2d58c6f41ccecf0a"
   },
+  "new-items-20261007/knowledge-result-mag-minicpm5-q8-full.json": {
+   "bytes": 26432,
+   "sha256": "a3506f25e4192b0feb36fa53c4ee3c431b54e9941c7a14dc70ba2703ad7cefbd"
+  },
+  "new-items-20261007/knowledge-result-mag-smoke2.json": {
+   "bytes": 1817,
+   "sha256": "1b35c455058153679b1497d508ae1921f9337ad2852f906558b515ce0979a8c2"
+  },
+  "new-items-20261007/knowledge-result-mag-smoke3.json": {
+   "bytes": 674,
+   "sha256": "e622397ef7f926c646c4324ddc2d911319fb9990c8d178a6cec84af27cfe9169"
+  },
   "new-items-20261007/knowledge-result-qwen36-131072.json": {
    "bytes": 16322,
    "sha256": "1471b26423955a0b472e91fcbac3123f5506a8829bb6ba7c4c40f94b1d6c8f34"
@@ -657,8 +669,8 @@
    "sha256": "22f0ee796c4f4a7df81ff4ca27ecb5398f2fc74df8e07f384343c15bbbbd9254"
   },
   "new-items-20261007/knowledge_run.py": {
-   "bytes": 19029,
-   "sha256": "0ff27fe2e40f0e275147dba1c565442132c8c002963e8f0f7b85cafed8900655"
+   "bytes": 20087,
+   "sha256": "2b127d480d9191e2d5936824ac5bbf7f1723ffa4e4e4571896a4bf4146db491c"
   },
   "new-items-20261007/ledger_budget.py": {
    "bytes": 5840,
