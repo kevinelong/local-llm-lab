@@ -636,9 +636,13 @@
    "bytes": 24083,
    "sha256": "872c73dbf3597388124c74f32d98c8b69d3b95d83828609d2d58c6f41ccecf0a"
   },
+  "new-items-20261007/knowledge-result-lcpp-minicpm5-q8-full.json": {
+   "bytes": 2228,
+   "sha256": "3e4cb68b9998cd39e8a9638c11d419b889cbe1b9ddccf371f30135ee505fd1c8"
+  },
   "new-items-20261007/knowledge-result-mag-minicpm5-q8-full.json": {
-   "bytes": 26432,
-   "sha256": "a3506f25e4192b0feb36fa53c4ee3c431b54e9941c7a14dc70ba2703ad7cefbd"
+   "bytes": 35499,
+   "sha256": "6cd6c8fd3f0f6c2b6eb53c6f68631722f879327ad39c3e0675d0d040e5fab851"
   },
   "new-items-20261007/knowledge-result-mag-smoke2.json": {
    "bytes": 1817,

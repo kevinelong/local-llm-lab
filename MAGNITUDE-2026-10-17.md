@@ -121,6 +121,34 @@ observations worth keeping:
 - **Quantisation barely moves it**: their Q8 (307.7) is within ~10% of their Q4 (339.9), where llama.cpp's
   own Q8 sits at 168. Whatever their tuning does, it is not the usual "smaller quant, more speed" curve.
 
+## Accuracy: the first number, and the landmine that had to be cleared first
+
+Kevin: "how accurate was magnitude?" Speed and accuracy are different questions, and the accuracy one
+needed two engine-behaviour fixes before it could be asked at all:
+
+- **Magnitude ignores llama.cpp's nested `chat_template_kwargs`** and only honours a **top-level**
+  `reasoning_effort`. As written, this instrument would have measured *thinking mode*: `content: null`,
+  117 characters of `reasoning_content`, `finish_reason: length`.
+- **Telling it both ways is a 400** - `reasoning_effort conflicts with reasoning controls in
+  chat_template_kwargs`. Strict and correct on their side; a real landmine for an instrument shared between
+  engines.
+
+So `EngineResponder` gained `reasoning_knob = nested | top | none` (CLI `--reasoning-knob`), default
+`nested` so every recorded run keeps its meaning. With `top`, MiniCPM5-2B Q8 through Magnitude:
+
+| run | items | score | rate | wall | per item |
+|---|---|---|---|---|---|
+| Magnitude 0.2.9, MiniCPM5-2B **Q8**, `reasoning_effort: none` | 1,100 | **821 = 74.6 %** | 0.746 | **289.9 s** | **0.26 s** |
+
+Per subject: grade-school math 269/300 (89.7 %), world history 77, astronomy 76, international law 75,
+geography 69, prehistory 68, religions 70, philosophy 65, **virology 52** - the same virology floor the
+35B and 78B models hit, so that is the item set, not this model.
+
+The same 1,100 items are now running through llama.cpp b11461 on the **identical Q8_0 file** (nested knob,
+as every recorded run used). The comparison that matters is not the two totals but the **per-item
+agreement**: same weights, same items, greedy, so any discordance is engine numerics rather than model
+knowledge.
+
 ## What this does and does not establish
 
 - **Establishes:** on this box, for a model in its catalog, this engine is materially faster than llama.cpp

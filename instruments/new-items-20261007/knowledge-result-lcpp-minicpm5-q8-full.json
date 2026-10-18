@@ -1,0 +1,58 @@
+{
+ "responder": "minicpm5-2b",
+ "passed": 19,
+ "total": 25,
+ "rate": 0.76,
+ "seconds": 51.3,
+ "sampling": {
+  "temperature": 0,
+  "seed": 20261009
+ },
+ "per_subject": {
+  "high_school_world_history": {
+   "n": 25,
+   "passed": 19
+  }
+ },
+ "failures": [
+  {
+   "id": "mmlu/high_school_world_history/1",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "We are given a multiple-choice question about a passage on gunpowder weaponry in Europe vs. China. The question asks: \"The argument in this passage most closely relates to which of the following large"
+  },
+  {
+   "id": "mmlu/high_school_world_history/5",
+   "expected": "C",
+   "parsed": "D",
+   "reply": "We need to answer the multiple-choice question. The question refers to the French Revolution, and we have two quotes from Dickens and Wordsworth. The question asks: \"Dickens's and Wordsworth's differi"
+  },
+  {
+   "id": "mmlu/high_school_world_history/7",
+   "expected": "B",
+   "parsed": "D",
+   "reply": "We need to answer a multiple-choice question based on the provided text. The text is a quote from Walter Rodney about who is responsible for African underdevelopment, focusing on imperialist system, W"
+  },
+  {
+   "id": "mmlu/high_school_world_history/9",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "We are given a multiple-choice question based on two passages. The question asks: \"According to the second passage, the Cawnpore Massacre\" and then four options. We need to select the correct answer b"
+  },
+  {
+   "id": "mmlu/high_school_world_history/17",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "We need to answer a multiple-choice question about an Egyptian poem from the Middle Kingdom. The question asks: \"The text of this passage is best seen as evidence of which of the following in Egyptian"
+  },
+  {
+   "id": "mmlu/high_school_world_history/24",
+   "expected": "B",
+   "parsed": "A",
+   "reply": "We need to answer a multiple-choice question based on the provided text. The question: \"Which of the following led directly to the development of the economic system described in the journal?\" Options"
+  }
+ ],
+ "partial": true,
+ "scored_items": 25,
+ "declared_items": 1100
+}

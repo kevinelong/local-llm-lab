@@ -1,9 +1,9 @@
 {
  "responder": "minicpm5-2b:gguf:q8",
- "passed": 552,
- "total": 800,
- "rate": 0.69,
- "seconds": 63.2,
+ "passed": 821,
+ "total": 1100,
+ "rate": 0.7464,
+ "seconds": 289.9,
  "sampling": {
   "temperature": 0,
   "seed": 20261009
@@ -40,6 +40,10 @@
   "international_law": {
    "n": 100,
    "passed": 75
+  },
+  "grade_school_math": {
+   "n": 300,
+   "passed": 269
   }
  },
  "failures": [
@@ -1530,9 +1534,194 @@
    "expected": "B",
    "parsed": "D",
    "reply": "D"
+  },
+  {
+   "id": "gsm8k/4",
+   "expected": "20",
+   "parsed": "140",
+   "reply": "To find the number of cups of feed needed for the final meal, we first need to determine the total amount of feed required for all meals for the entire flock.\n\n1.  **Determine the feed per chicken per"
+  },
+  {
+   "id": "gsm8k/8",
+   "expected": "45",
+   "parsed": "115",
+   "reply": "To find the distance John is from home at the end of the 4 hours, we need to track his position relative to home throughout the entire scenario.\n\nLet's define the starting point (home) as position 0.\n"
+  },
+  {
+   "id": "gsm8k/12",
+   "expected": "13",
+   "parsed": "1",
+   "reply": "To find out how many years it will take for Carlos to start earning money, we need to calculate his net profit (or loss) each year and see when the cumulative earnings exceed the initial cost.\n\n**1. C"
+  },
+  {
+   "id": "gsm8k/20",
+   "expected": "15",
+   "parsed": "3",
+   "reply": "We start with 10 liters of orange drink that is two-thirds water. So the amount of water in the orange drink is $\\frac{2}{3} \\times 10 = \\frac{20}{3}$ liters.\n\nWe also have 15 liters of pineapple drin"
+  },
+  {
+   "id": "gsm8k/21",
+   "expected": "14",
+   "parsed": "2",
+   "reply": "To find out how many years ago Raymond's son was born, we need to determine the current age of Raymond's son.\n\n1.  **Find Raymond's current age:**\n    *   Samantha is currently 31 years old.\n    *   R"
+  },
+  {
+   "id": "gsm8k/37",
+   "expected": "2",
+   "parsed": "11",
+   "reply": "To solve this problem, we need to track the number of lego sets John has and the money he has.\n\n1.  **Initial Lego Sets:** John starts with 13 lego sets.\n2.  **Selling Lego Sets:** He sells all his le"
+  },
+  {
+   "id": "gsm8k/39",
+   "expected": "18",
+   "parsed": "2",
+   "reply": "To solve this problem, we need to determine Dana's speeds for running, walking, and skipping, and then calculate the total distance based on the time spent in each activity.\n\n**1. Determine the speeds"
+  },
+  {
+   "id": "gsm8k/46",
+   "expected": "163",
+   "parsed": "140",
+   "reply": "To find the number of Post-it notes in the package, we can set up an equation based on the total number of notes, the notes used, and the notes remaining.\n\n1.  **Identify the known values:**\n    *   I"
+  },
+  {
+   "id": "gsm8k/62",
+   "expected": "25000",
+   "parsed": "52500",
+   "reply": "To solve this problem, we need to understand the structure of Marcy's pension and how it changes based on her tenure.\n\n1.  **Initial Pension:** Marcy works for 40 years and gets an annual pension of $"
+  },
+  {
+   "id": "gsm8k/75",
+   "expected": "60",
+   "parsed": "7.5",
+   "reply": "To find the average square footage of a level in Luke's sandcastle, we first need to determine the square footage of each individual level.\n\nThe problem states that there are 4 levels.\nThe top level ("
+  },
+  {
+   "id": "gsm8k/85",
+   "expected": "44",
+   "parsed": "48",
+   "reply": "To find the total number of quilt blocks, we need to determine how many shirts (blocks) Gene has collected.\n\n1.  **Calculate the number of years he has been vacationing:**\n    Gene has been vacationin"
+  },
+  {
+   "id": "gsm8k/86",
+   "expected": "22",
+   "parsed": "6",
+   "reply": "To solve this problem, let's break down the duration of each ringing event and the total number of rings.\n\n1.  **First Alarm:**\n    The problem states that the first time the alarm went off today, it "
+  },
+  {
+   "id": "gsm8k/87",
+   "expected": "9360",
+   "parsed": "7380",
+   "reply": "To find Sylvie's annual salary after three more years, we need to calculate the salary increase based on the given policy.\n\n1.  **Initial Salary:** $600 per month.\n2.  **Annual Salary Calculation:** T"
+  },
+  {
+   "id": "gsm8k/89",
+   "expected": "24",
+   "parsed": "4",
+   "reply": "To find out how much Christina will spend, we need to determine the total number of gift bags she needs to prepare.\n\n1.  **Calculate the expected number of attendees:**\n    Christina invited 16 friend"
+  },
+  {
+   "id": "gsm8k/119",
+   "expected": "95200",
+   "parsed": "40",
+   "reply": "To find the total salary the two were receiving four years later, we need to calculate Adrien's salary and Lylah's salary at that time.\n\n**Step 1: Calculate Adrien's salary four years later.**\n*   Adr"
+  },
+  {
+   "id": "gsm8k/146",
+   "expected": "2,125",
+   "parsed": "40",
+   "reply": "To find the total number of Lego pieces Johnny picks up, we need to calculate the number of pieces in each set and then sum them up.\n\n1.  **First set:** The problem states there is a set with 500 piec"
+  },
+  {
+   "id": "gsm8k/157",
+   "expected": "80",
+   "parsed": "2820",
+   "reply": "To solve this problem, we need to calculate the total distance run by both Blake and Kelly.\n\n**1. Analyze Blake's run:**\n*   The football field is 100 yards long.\n*   Blake runs back and forth 15 time"
+  },
+  {
+   "id": "gsm8k/175",
+   "expected": "15",
+   "parsed": "150",
+   "reply": "To find out how much they spent on lemons, we need to determine the total number of gallons they sold and then calculate the cost of lemons for that amount.\n\nFirst, let's find the total number of gall"
+  },
+  {
+   "id": "gsm8k/186",
+   "expected": "5",
+   "parsed": "10",
+   "reply": "To find the number of rats in each cage, we need to determine the total number of rats and then divide by the number of cages.\n\nFirst, let's analyze the distribution of straw for the rats.\nWe are told"
+  },
+  {
+   "id": "gsm8k/187",
+   "expected": "106",
+   "parsed": "106.1208",
+   "reply": "To find out how much Mandy should give to Benedict, we need to calculate the total amount owed including the interest over 3 months.\n\nThe principal amount is $100.\nThe monthly interest rate is 2%.\nThe"
+  },
+  {
+   "id": "gsm8k/201",
+   "expected": "114,200",
+   "parsed": "104000",
+   "reply": "To solve this problem, we need to calculate the total money John made in a year, considering the initial salary, the 5% raise, and the fact that he received the award on the first day of the year.\n\nFi"
+  },
+  {
+   "id": "gsm8k/205",
+   "expected": "98",
+   "parsed": "367",
+   "reply": "To find the score Brinley needs on the sixth test, let's break down the information given:\n\n1.  **Scores so far:** 89, 71, 92, 100, 86.\n2.  **Number of tests taken:** 5.\n3.  **Condition:** Mr. Bert al"
+  },
+  {
+   "id": "gsm8k/234",
+   "expected": "21",
+   "parsed": "14",
+   "reply": "To solve this problem, we need to determine the total number of tomatoes Steve needs to eat per week and then divide that by the yield of a single vine.\n\n1.  **Determine daily and weekly consumption:*"
+  },
+  {
+   "id": "gsm8k/236",
+   "expected": "31",
+   "parsed": "30",
+   "reply": "To solve this problem, we need to determine how many new pens can be made from the ink of the original pens.\n\n1.  **Understand the ratio:** The problem states that 5 empty pens can be mixed to make 1 "
+  },
+  {
+   "id": "gsm8k/241",
+   "expected": "6",
+   "parsed": "4",
+   "reply": "To solve this, let's break down the number of books each person has and the actions they take.\n\n1.  **Initial Count:**\n    *   Dolly has 2 books.\n    *   Pandora has 1 book.\n    *   Total initial book"
+  },
+  {
+   "id": "gsm8k/255",
+   "expected": "192",
+   "parsed": "176",
+   "reply": "To solve this problem, let's break it down step by step.\n\n1.  **Initial State:**\n    *   There are 20 stalls.\n    *   Each stall has 20 cows.\n    *   Total initial cows = $20 \\text{ stalls} \\times 20 "
+  },
+  {
+   "id": "gsm8k/258",
+   "expected": "6",
+   "parsed": "0.50",
+   "reply": "To find the total amount Nancy has to pay, we need to calculate the cost of the overdue books and add the flat fee.\n\n1.  **Calculate the cost per book:** The problem states she owes \"$0.50 cents\" each"
+  },
+  {
+   "id": "gsm8k/267",
+   "expected": "91",
+   "parsed": "63",
+   "reply": "To find the total time, we need to break the process down into three distinct stages: warming the oil, heating the oil to the target temperature, and cooking the chicken.\n\n**Stage 1: Warming the oil t"
+  },
+  {
+   "id": "gsm8k/272",
+   "expected": "5",
+   "parsed": "4",
+   "reply": "To find the change, we first need to calculate the total cost of the items.\n\n1.  **Calculate the total cost:**\n    *   Cocoa: $4.20\n    *   Laundry: $9.45\n    *   Pasta: $1.35\n    \n    Total = $4.20 +"
+  },
+  {
+   "id": "gsm8k/278",
+   "expected": "40",
+   "parsed": "30",
+   "reply": "The sum of their ages in 10 years will be 30.\n\n#### 30"
+  },
+  {
+   "id": "gsm8k/282",
+   "expected": "195",
+   "parsed": "180",
+   "reply": "To find out how many dollars Maddy will spend, we need to calculate the total number of people who need to be fed and then determine how many pizzas are required.\n\n1.  **Calculate the number of team m"
   }
  ],
- "partial": true,
- "scored_items": 800,
- "declared_items": 1100
+ "transport_failures": 0,
+ "scored": true
 }
