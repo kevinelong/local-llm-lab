@@ -1,5 +1,113 @@
 # Local AI lab working instructions
 
+- October 18 (news scan): **`NEWS-2026-10-18.md` is written against `NEWS-2026-10-17.md`, and it corrects
+  this scan's own habit rather than yesterday's claims.** Reading only - nothing downloaded, installed,
+  built or run, no engine started, no inference, no benchmark, and nothing under `C:/Users/kevin/ai_bench`
+  read or touched while the Colibri knowledge run owns the slot.
+  - **llama.cpp's rolling builds are all `prerelease: true` by construction** - the twelve newest `bNNNNN`
+    tags return it, including b11712, which yesterday's file quoted as "latest tag" without qualification.
+    So the flag carries **no** stability information there, and no future scan should read it as if it
+    did. The Ollama field does mean something (0.40.6 is `prerelease: false` and is `releases/latest`);
+    the two projects use it differently. Newest builds **b11719/b11718/b11717/b11716** (2026-10-18
+    11:11/04:42/02:50Z and 2026-10-17 21:11Z); versioned release still **v0.7.0** (2026-10-15).
+  - **The Strata 0.1.45 regression is now measured, bisected and two-sided.** **#2936**: single RTX 3090,
+    88 GB RAM, arena fully pinned, same Qwen3.8-Flash-Next family, same llama.cpp submodule and cmake pins
+    for all four arms - **0.1.43 102.6/118.4 tok/s, 0.1.45 rebuilt to match A 79.4/86.3 (−23 %/−27 %)**,
+    A vs A' within 1 %, and an added **0.1.44.1** arm at 96.99/109.25 (**−6 %/−8 %**) which puts the start
+    of the regression at **0.1.44**, with 0.1.45 additive on top. Build pins and the CPU expert pool are
+    ruled out with numbers (82-85 µs/expert on both), and the shape is *GPU waiting, not computing slower*:
+    **182 → 166 W** while host CPU busy rises 50.2 → 56.9 %. Suspects are all decode-scheduling (0.1.44's
+    "pipelined-decode and latency work", `STRATA_ROUTE_TAIL_SKIP`, the MTP router guard, `pcie_frac`).
+    **#3056** is the counterweight: sm_75 with `STRATA_SM75_PERF=1`, bitwise verified, **prefill +46 %**
+    0.1.43.1 → 0.1.45 - so 0.1.45 is not uniformly slower, the direction follows what a release optimised.
+  - **A 0.1.45 sampling default changes answers at temperature 0.** **#2940**: non-thinking requests
+    inherit the model card's **`presence_penalty: 1.5`**, including `temperature: 0` requests, for ~25 %
+    of decode; **server-side, not engine-side** (`serve/server.py:4193` merge order, reproduced on Windows
+    + RTX PRO 6000 Blackwell, sm_120), and any repetition penalty also **switches `--pipeline-windows` off**
+    for that request with a message printed once per process. It entered in 0.1.45, and our Strata A/B
+    ladder stops at 0.1.41, so **no recorded number is affected** - it bounds future bumps and it makes
+    "declare the server's default sampling block" part of every experiment declaration.
+  - **A published retraction worth more than the claim it withdrew.** In the same thread a reporter's
+    "second server-side slowdown path" was retracted as a **measurement artifact**: the bench box ran the
+    chat agent on the same model, so **each agent turn reloaded a second 44 GB engine into RAM mid-bench**
+    and the watchdog missed it (a pid-namespace mismatch), after which every `serve/` commit between
+    0.1.44.1 and 0.1.45 measured 42-52 tok/s, identical. That is this lab's one-workload rule violated by
+    someone else, with a whole false regression as the price.
+  - **The byte-identity claim now has a measured counterexample on a card it excludes.** **#2932**
+    (gfx906, 2× Radeon Pro VII, IQ3_S native pack): each version reproduces itself arm-to-arm, and
+    **12 of 12 greedy texts differ between 0.1.43.1 and 0.1.45**, characters 9-259; 32k decode 51.3 → 44.8
+    (−13 %) with 229 vs 208 verify windows; and `STRATA_TOPK_OLD=1` gives a **third** set of texts although
+    #1749's docs say the ids should match. The release's identity gates are sm_60/sm_86/gfx1201/A750/M4 -
+    **sm_120 and gfx906 are both outside** them - so our determinism notes are bounded by evidence now,
+    not only by #1928's mechanism.
+  - **The Colibri "price our own GGUF" item was partly answered by someone else, and the answer is
+    quantisation-specific.** **#2189** (Windows, `qwen4exp` GGUF, 1.5-1.9 tok/s): the maintainer reads the
+    shards' tensor types and reports **IQ4_NL and Q6_K run through 16-row interleaved kernels at 80-87 GB/s**
+    while **IQ2_S runs per-row at ~16 GB/s** (#2198 lifts IQ2_S 2.59 → 3.19 and IQ3_S 2.21 → 4.26 GB/s per
+    core, bit-identical), and his own i5-13500 reference does **9.0-9.4 tok/s decode / ~28 prefill** on
+    IQ2_S experts - so the report is "several times below" what the kernels explain and he says so.
+    **Q4_K, our pack's type, is not named anywhere in that reply**, so whether our experts take the
+    interleaved kernel is unverified and is now a question to ask before a probe. The two Windows import
+    bugs (locale-encoded JSON writes, an absolute `gguf.json` path joined onto the model dir) are fixed in
+    **#2197**. Ten `vk chain` PRs merged in a day, twelve more open, plus thirteen `fix:` PRs filed
+    2026-10-17T19:52-53Z.
+  - **The only measured gain in today's file at our exact class comes from an offered patch, not a
+    release.** **#3059**: Windows 11, 64 GB RAM, 16 GB card, **60,047-token fresh prompt**, same binary,
+    same day, one switch - keeping the initial unbuffered load and then reopening the shards with
+    `FILE_FLAG_OVERLAPPED` only so later expert reads can be served by the Windows file cache - gives
+    **decode 28.5 → 36.0 tok/s (+26.3 %)**, prompt +5.5 %, TTFT −5.4 %, **identical text pair by pair**,
+    with physical reads falling 678.4 → 24.7 MiB/s during decode. It also gives a mechanism to our own
+    2026-10-06 observation that a minimal-startup reboot "was absorbed by the engine's file cache". It is
+    a patch in an issue with no release after 0.1.45, so testing it is a build decision.
+  - **Two pack facts that change what is worth trying.** `bartowski/Kolibri-1-GGUF` appeared
+    **2026-10-18T03:32Z** (87 files, apache-2.0): **Q3_K_M 37,620,641,664 B (35.04 GiB)** and Q4_K_M
+    46.34 GiB, with `.layout.json`/`.tensor-types.txt` per quant - the first **standard-quantizer**
+    Kolibri-1 file, against our Hob-forge Q3_K_M at 37,523,996,640 B, i.e. **96.6 MB (92.2 MiB) apart** for
+    the same quant name. Its published tensor-type map is **502 lines = 50 layers × 10 tensors + 2
+    embeddings, quantized tensors only (no norms, no biases)**, so it **cannot** confirm the three tensor
+    names #30673 added - recorded so nobody spends a request re-reading it. And **gpt-oss-120b's block is
+    now measured**: `SoAIHQ/gpt-oss-120b-VISION-GGUF` is **61.49 GiB** against 58.46 GiB usable, joining
+    the two independent checks. `lte-ai/GLM-5.3-Flash-Strata-Q2Q3-Experts` grew **481.03 → 721.12 GiB**.
+  - **Strata's Windows/WDDM hazard and its QA burst:** **#3036** - parked-conversation snapshot copies
+    corrupt at 262144 on Windows/WDDM, producing all-logits NaN, one-file fix verified on an RX 9070 XT
+    (we serve 65,536, so it is a hazard class, not our config). Twelve same-voice items filed
+    2026-10-18T11:10-13:27Z, two of which matter to us: **#3043** `strata-gguf --check` returns **success
+    for an invalid architecture and wrapped tensor bounds**, and **#3045** a `PleReader` init can wait
+    forever. Also **#1670** closed 2026-10-13 (comments continued today): **layer-major prefill for
+    streamed experts, 4-6× long prompts on a 6 GB card** (62-99 → 378-443 tok/s prompt, 223.7K tokens
+    ~2,500 s → ~520 s, decode unchanged) - the closure's disposition is unstated in the tracker.
+  - **Ollama 0.40.7-rc0 adds nothing for this box:** #19010 OpenAI-Responses effort fallback, #19064
+    letting llama-server infer the draft speculative type, and #19072 **`mlx: add PPLX Decider v1.2`** -
+    a Qwen3.5-backed decision scorer with System One prompt encoding that only runs on **MLX**, i.e. not
+    here. **0.40.6 stays the pin** for the owed decision replay (installed build 0.40.4).
+  - **Research: the arXiv index still reaches only 2026-10-15**, so nothing new to report; two 10-15
+    papers yesterday's file did not read do bear on instruments, though. **2610.22244** (agent guards
+    across five languages with tool calls, observations and labels byte-identical: placebo-adjusted flip
+    rate +1.5 pp French → +4.4 pp Amharic among nine sub-13B guards; recall losses all below 10B, frontier
+    guards ≤ ~1 pp) is a controlled demonstration of the perturb-one-field design our 18-window screen
+    uses. **2610.22187** (rating-scale sensitivity: 2 formats × 4 ranges × 2 signs) is the confound we
+    never controlled in the one failure we localised - lev under-predicting the top of a 5-point scale
+    (2.54 against 3.61 mean target, 121 of 144 targets at level 4).
+  - **The ranked shortlist it hands the queue, cheapest first:** the Ollama native decision replay
+    (0.40.6 - owed a third day); the cold-vs-cold expert-profile pair; the `--moe-cache-mib` ladder
+    **extended upward with an assertion that the cache actually engaged** (today's #30697 comments report
+    loads that print no cache line, i.e. a silent control); the warm/calibrated expert-cache seed; **our
+    own GGUF on Colibri - but ask the Q4_K kernel question first**, since the reported 5x is IQ2_S-specific;
+    **Kolibri Q3_K_M on stock llama.cpp ≥ b11719**, testing our Hob-forge file before paying for
+    bartowski's; and the **#3059 Windows file-cache patch**, ranked last only because it needs a build and
+    carrying the largest measured upside here. Also owed and not ranked: the eight Colibri arithmetic
+    items at `--timeout 400` (~1 h) to close the 88.4-89.1 % bracket.
+  - **Checked and unchanged:** Strata **#2894** (Qwen3.6 on the Windows prebuilt), **#2856**, **#2897**,
+    **#2747** (now a five-report-wide family), **#2733**, **#2742**, **#2719**; llama.cpp **#29922** is
+    still open despite #30673 merging (bookkeeping, not a signal), **#30059** and **#30637** unchanged;
+    Ollama stable 0.40.6; no Colibri release since v2.0.0; the four HF core packs by revision and size;
+    `sglang` v0.5.21, `exllamav2` v0.3.2, `koboldcpp` v1.123.1, Magnitude CLI 0.2.9. **vLLM moved to
+    v0.32.0** (2026-10-18T06:50Z) and does not apply (needs full GPU residency). **`ahwurm/localharness`
+    moved v0.18.1 → v0.19.1** (2026-10-17T15:06Z) with launch pricing from the model's tensor table and
+    one-sentence refusals - our placement problem in someone else's tool. **`linny006/agent-eval-harness`
+    "moved today" is bot noise**: commits every 15 minutes, `+0 added, -0 removed`, 0 files. No video was
+    mined (the corpus is covered in the 10-16 file).
+
 - October 17 (news scan): **`NEWS-2026-10-17.md` is written against `NEWS-2026-10-16.md` and it
   corrects one line of yesterday's "nothing moved" list.** Reading only - nothing downloaded,
   installed, built or run, no engine started, no inference, no benchmark, and nothing under

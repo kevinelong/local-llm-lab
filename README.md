@@ -451,6 +451,26 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-18 &middot; [Daily news scan: Strata 0.1.45's regression is now measured by two more people, and Kolibri-1 got a standard quantizer](NEWS-2026-10-18.md)**
+&ndash; the release's own users have now priced it. **#2936** bisects the decode regression on a single
+RTX 3090 with identical builds, submodule and pins: **&minus;6 %/&minus;8 % at 0.1.44.1** and
+**&minus;23 %/&minus;27 % at 0.1.45**, with build pins and the CPU expert pool ruled out by measurement
+(82-85 &micro;s/expert on both) and the tell-tale shape of a GPU waiting rather than computing slower
+(**182 &rarr; 166 W** while host CPU busy rises 50.2 &rarr; 56.9 %); **#3056** is the counterweight
+(prefill **+46 %** on sm_75, bitwise verified). **#2940** is worse in kind, not degree: 0.1.45's server
+puts the model card's **`presence_penalty: 1.5`** onto non-thinking requests **including
+`temperature: 0`**, for ~25 % of decode, and a reporter's follow-up was **retracted** because a second
+44 GB engine was being reloaded into RAM mid-bench &ndash; our own one-workload rule, priced by someone
+else. **#2932** gives the byte-identity claim its first measured counterexample on a card it excludes
+(**12 of 12 greedy texts differ**, gfx906). Also: the Colibri GGUF question was answered by another
+user and turns out **quantisation-specific** (IQ4_NL/Q6_K interleaved at 80-87 GB/s, IQ2_S per-row at
+~16 GB/s &mdash; our Q4_K is not named), **#3059** offers **+26.3 % decode with identical text** from a
+Windows file-cache patch at our exact RAM/card class, `bartowski` published a **standard-quantizer
+Kolibri Q3_K_M** 96.6 MB from ours, gpt-oss-120b's block is now **measured at 61.49 GiB against 58.46
+usable**, and llama.cpp's rolling builds turn out to be flagged `prerelease` by construction, so that
+field means nothing there. Seven ranked items, the "nothing moved" list, and no download, engine,
+inference or benchmark. Reading only.
+
 **2026-10-17 &middot; [Daily news scan: Kolibri-1 left the fork, and Strata 0.1.45 landed with regressions](NEWS-2026-10-17.md)**
 &ndash; three state changes, each forcing a decision. **llama.cpp merged Kolibri-1 upstream** (PR #30673,
 2026-10-17T11:00Z) &mdash; our Kolibri rows came from the community `hob-b11434` patch, and whether the
