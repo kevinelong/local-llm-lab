@@ -149,6 +149,42 @@ as every recorded run used). The comparison that matters is not the two totals b
 agreement**: same weights, same items, greedy, so any discordance is engine numerics rather than model
 knowledge.
 
+## The two-engine comparison: equally accurate in total, differently wrong item by item
+
+| | Magnitude 0.2.9 | llama.cpp b11461 | difference |
+|---|---|---|---|
+| overall | **821/1100 = 74.6 %** | **797/1100 = 72.5 %** | +24 checks (+2.2 pts) |
+| MMLU (800) | 552 = 69.0 % | **571 = 71.4 %** | llama.cpp +19 |
+| GSM8K (300) | **269 = 89.7 %** | 226 = 75.3 % | Magnitude +43 |
+| wall | **289.9 s** | 2,859.7 s | **9.9x faster** |
+| per item | **0.26 s** | 2.60 s | |
+
+Per item on the same 1,100 items:
+
+- **both right 687 (62.5 %)**, both wrong 169 (15.4 %);
+- **Magnitude only 134** (80 MMLU, 54 GSM8K), **llama.cpp only 110** (99 MMLU, 11 GSM8K);
+- **per-item agreement on correctness 77.8 %**, and **McNemar on the 244 discordant items gives
+  chi-squared 2.17, p ~ 0.12** - the 2.2-point overall difference is *not* significant.
+
+**So the honest one-liner is "equally accurate in total, differently wrong."** Two offerings of the same
+model disagree on **22 % of items**, and the disagreement is not noise spread evenly: Magnitude is +43 on
+grade-school arithmetic and -19 on recall, which cancels into a total inside 1.5 standard errors. That also
+refutes the first explanation I reached for - I predicted the +43 was a token-budget artifact in llama.cpp
+(the class that produced Swift's 7/70 and the reply-cap lesson), and checked it: **every arithmetic failure
+in both runs parsed a real number (0 unparsed of 31 and 74)**, so these are genuine wrong answers, not
+truncations.
+
+**The caveat that keeps this honest:** these are two *independent Q8 conversions* of the model - Magnitude
+pulls its own from its catalog, ours is `candidates-20260929-v1`'s - served through two different chat
+templates. Magnitude will not ingest our file (discovery rejects it), so the 22 % discordance is a fact
+about **the two offerings**, and attributing it to kernels rather than template or conversion is not
+something this experiment can do. What it can say: an engine swap is not a like-for-like substitution, and
+a single total hides a 22-point per-subject trade.
+
+**For the record, MiniCPM5-2B's first knowledge numbers** on this instrument: 74.6 % (Magnitude) and 72.5 %
+(llama.cpp), against Qwen3.6 88.5 %, Strata Q2_0 89.7 % and Kolibri-1 81.9 % - where a 2B model belongs.
+
+
 ## What this does and does not establish
 
 - **Establishes:** on this box, for a model in its catalog, this engine is materially faster than llama.cpp
