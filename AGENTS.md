@@ -11,10 +11,22 @@
     and every run so far used `-t 8`; the honest finding is that 8 was within 6 % of the optimum, not that
     it was wasting 2-3x - dual-channel memory saturates well before 24 threads and 24 oversubscribes.
     **Use `-t 16` for CPU-MoE runs from now on.**
-  - Scoreboard for the session's spend, kept because it reorders the levers: cache reads **$0.660 (55 %)**,
+  - **Scoreboard for the session's spend, kept because it reorders the levers: cache reads **$0.660 (55 %)**,
     output $0.384 (32 %), uncached input $0.166 (14 %), total $1.21. The largest measured gain is not model
     routing or thinking level but **not carrying a 430k median prompt**: re-briefed turns would cut cache
     reads ~14x, i.e. roughly 60-70 % of the total, and remove the compaction risk at the same time.
+  - **`tools/start-lab-session.cmd` exists now, because a bare `omp` auto-resumes** the most recent session
+    for the working directory - i.e. it would re-open the 848k-peak session and continue its shape.
+    `--goal` is the documented bypass for autoResume. The script cds into the repo (per-project session
+    namespace instead of accumulating under `%TEMP%`), passes a goal that names the state notes rather than
+    restating them, and takes `high` (adds `--thinking high` for judgment-heavy work) and `check` (prints
+    the resolved command, starts nothing) in either order. Verified by launching: a fresh session appeared
+    under `sessions/-local-llm-lab/` with `model_change` and `thinking_level_change` records and no inherited
+    turns; the empty test session was then removed.
+  - **The nightly scan now passes `--thinking high` explicitly** (`tools/daily-news-scan.cmd`). Without it
+    the new `defaultThinkingLevel: low` would have quietly downgraded the one job where reasoning keeps
+    earning its keep - it corrected its own headline on 10-18 and recorded a reporter's retraction on 10-19.
+    Verified with the same flag set through `omp -p` (returns SCAN-OK).
 
 - October 19 (reading fidelity + how we work): **a top-group local model read yesterday's 50 KB scan
   faithfully and still made the two errors that matter.** `instruments/reading-fidelity-20261019/`, nine
