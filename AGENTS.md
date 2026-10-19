@@ -1,5 +1,21 @@
 # Local AI lab working instructions
 
+- October 19 (applied changes): **the two conclusions from the reading-fidelity run are in `config.yml` now**,
+  both verified by a live call (`CFG-OK`) and a YAML parse. `slow` was `deepseek-flash` - the same tier as
+  `smol`, so the "thorough analysis" role did no work; it is **`deepseek-v4-pro`** now. `defaultThinkingLevel`
+  is **`low`**, because thinking was 56 % of generated tokens (355,055 of 639,605 in the four-day session) and
+  every DeepSeek tier scored 9/9 on exact-fact extraction. Escalate with `--thinking high` when a turn is
+  reasoning-heavy; revert is one line.
+  - **Thread ladder on the local a3b (Qwen3-30B-A3B Q4_K_M, `--cpu-moe`, 256-token decode, fixed prompt):
+    8 threads 30.4 tok/s, 16 threads 32.3 (+6 %), 24 threads 29.5 (-3 %).** This box has 24 logical cores,
+    and every run so far used `-t 8`; the honest finding is that 8 was within 6 % of the optimum, not that
+    it was wasting 2-3x - dual-channel memory saturates well before 24 threads and 24 oversubscribes.
+    **Use `-t 16` for CPU-MoE runs from now on.**
+  - Scoreboard for the session's spend, kept because it reorders the levers: cache reads **$0.660 (55 %)**,
+    output $0.384 (32 %), uncached input $0.166 (14 %), total $1.21. The largest measured gain is not model
+    routing or thinking level but **not carrying a 430k median prompt**: re-briefed turns would cut cache
+    reads ~14x, i.e. roughly 60-70 % of the total, and remove the compaction risk at the same time.
+
 - October 19 (reading fidelity + how we work): **a top-group local model read yesterday's 50 KB scan
   faithfully and still made the two errors that matter.** `instruments/reading-fidelity-20261019/`, nine
   questions over `NEWS-2026-10-19.md`, ground truth frozen before either arm ran, temperature 0, no web.
