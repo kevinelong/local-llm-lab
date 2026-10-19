@@ -1,5 +1,29 @@
 # Local AI lab working instructions
 
+- October 19 (reading fidelity + how we work): **a top-group local model read yesterday's 50 KB scan
+  faithfully and still made the two errors that matter.** `instruments/reading-fidelity-20261019/`, nine
+  questions over `NEWS-2026-10-19.md`, ground truth frozen before either arm ran, temperature 0, no web.
+  Cloud (DeepSeek V4.1 Flash through `omp --no-skills`) **9/9 in 9.9 s**; local (Qwen3-30B-A3B-Thinking
+  Q4_K_M, llama.cpp b11461, `--cpu-moe`) **7/9 + one partial in 86.3 s**. The local arm survived the
+  retraction (§1.3), the +22.6 % NUMA correction, and refused the Q4_K fast-path trap - but
+  **substituted a merge timestamp for the build id `b11732`** and **inverted the two-sided backend
+  comparison** (it gave Vulkan the 28.4/8.9 figures; the document gives those to CUDA-alone). That is the
+  same error shape as this lab's own historical misses: plausible, locally well-formed, and wrong.
+  Nine questions, one document, one sample each - the *shape* of the failure, not a rate.
+  - **Why this instrument instead of the 414-check suite:** the top local group already scores 414/414 and
+    692/693, i.e. at the suite's ceiling, so that suite has no headroom to detect a cloud-local difference
+    on the tasks we actually run. Saturating instruments manufacture ties.
+  - **Consequence:** extraction and transformation stay local; anything that pairs two numbers or names a
+    specific build/commit/version goes to the cloud - or through local with a re-read step for exactly
+    those two facts.
+- October 19 (session forensics): **the work is not out of local reach; our habit of one giant session
+  is.** The four-day session that produced this work: 493 turns with recorded usage, **median prompt
+  430,322 tokens**, peak **848,437** (one compaction, fired at the peak), **83 % of turns above 131k** and
+  producing 84 % of output tokens, total cost **$1.17** at **99.5 % cache-read**. So a 131k local row could
+  not have taken most turns *as the session was structured* - yet the same turns, re-briefed from the state
+  note, need 10-30k. The state-note-per-turn rule is what makes local viable, not a limitation of the
+  models. Cost is also settled: an API session of this size is not a budget argument for local.
+
 - October 19 (news scan): **`NEWS-2026-10-19.md` is written against `NEWS-2026-10-18.md`, and it
   replaces a number yesterday's file headlined with a pinned version of the same measurement.** Reading
   only - nothing downloaded, installed, built or run, no engine started, no inference, no benchmark, and
