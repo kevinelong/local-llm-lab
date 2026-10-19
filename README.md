@@ -451,6 +451,27 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-19 &middot; [Daily news scan: Strata shipped an app, and the decode regression got a named commit and a one-variable switch](NEWS-2026-10-19.md)**
+&ndash; yesterday's headline number does not survive its own thread. **#2936** bisected 315 commits to
+**`661ff29`**, which flipped `STRATA_ADAPT_OVERLAP` from ON to **opt-in on every backend** at 0.1.44;
+**`=1` restores 0.1.43**. The same reporter then added an ESXi **NUMA-pinning** arm that moved one arm by
+**+22.6 %**, so the pinned table reads **&minus;7.5 to &minus;13.6 %**, not &minus;23/&minus;27 &ndash;
+and retracted their own earlier attribution. The flip was made because **Blackwell desktops lose
+19-21 % with overlap on**, i.e. **our card's class**, so for us the default is probably the faster arm.
+**Strata v0.2.0-beta** (2026-10-19T13:52Z) is `releases/latest` on a tag that says `-beta`, carrying
+engine **0.1.45.3** &ndash; and its notes never mention `sm_120`, though the engine has since acquired a
+per-architecture kernel table for it (**five bitwise switches**, measured with every expert in VRAM).
+Setup also stopped writing half the logical threads: **12 &rarr; 24 workers on this box**, a confound
+between versions. **llama.cpp replaced the MoE cache's policy with 50/50 SLRU** (**#30637**, merged
+2026-10-19T11:28Z, 1-5 % over LRU) &ndash; our staged b11480 is still LRU, so a `--moe-cache-mib` ladder
+now measures one build's policy; **#30449** and **#30793** add a first-request TTFT term
+(**10 s &rarr; 60 s+**) that our 64-token warmup would hide; **#2894** falsifies the `--build` workaround
+for the reference model; **#2856** reports the 0.1.45 prefill chunk returning **unrelated output** on
+Windows above ~512 tokens with `--prefill 512` as the fix; and a 10-16 paper (**2610.23818**) finally
+names the shape our own MTP result has &ndash; **1.34&times; acceptance for 1.54&times; longer
+completions**. Seven ranked items, the "nothing moved" list, and no download, engine, inference or
+benchmark. Reading only.
+
 **2026-10-18 &middot; [Daily news scan: Strata 0.1.45's regression is now measured by two more people, and Kolibri-1 got a standard quantizer](NEWS-2026-10-18.md)**
 &ndash; the release's own users have now priced it. **#2936** bisects the decode regression on a single
 RTX 3090 with identical builds, submodule and pins: **&minus;6 %/&minus;8 % at 0.1.44.1** and

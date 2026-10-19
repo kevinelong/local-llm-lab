@@ -1,5 +1,128 @@
 # Local AI lab working instructions
 
+- October 19 (news scan): **`NEWS-2026-10-19.md` is written against `NEWS-2026-10-18.md`, and it
+  replaces a number yesterday's file headlined with a pinned version of the same measurement.** Reading
+  only - nothing downloaded, installed, built or run, no engine started, no inference, no benchmark, and
+  nothing under `C:/Users/kevin/ai_bench` read or touched while the Colibri knowledge run owns the slot.
+  - **The 0.1.44 decode regression now has a commit hash and a one-variable off-switch.** **#2936**
+    (updated 2026-10-19T14:12Z, 13 comments) bisected 315 commits with 8 probe builds to **`661ff29`**,
+    which flipped `adapt_overlap()` from `return !(e && e[0]=='0')` to `return e && e[0]=='1'` - ON by
+    default on Linux CUDA in 0.1.43, **opt-in on every backend** from 0.1.44. **`STRATA_ADAPT_OVERLAP=1`
+    restores 0.1.43 behaviour**, and the engine's own log line distinguishes the states (a *reason-less*
+    `adaptive overlap: off` means every guard passed, i.e. it is just the new default). At tag `v0.1.45`
+    the reporter verifies the function body and guard chain are **byte-identical to 0.1.44.1**.
+  - **And the same thread corrects yesterday's headline, twice.** An added ESXi **NUMA-pinning** arm moved
+    one arm by **+22.6 %**, so the *pinned* table is 0.1.44.1 **−8.3/−14.0 %**, 0.1.45 dual-off
+    **−9.6/−11.0 %**, dual-ON **−7.5/−13.6 %** against 0.1.43 - **not −23/−27 %**, which was unpinned -
+    and the reporter **retracts** their own earlier attribution to `STRATA_Q6K_EXPERTS`/
+    `STRATA_MMQ_KQUANTS`. Two lab lessons: a host-placement change is larger than most effects we queue,
+    and the bench host is part of the instrument (the 10-18 retraction is the same class).
+  - **For our card the flip was the fix, not the bug.** The commit was made because **Blackwell desktops
+    lose 19-21 % with overlap on** (#1964/#1975/#2010, quoted in the thread); the reporter's gain is a
+    PCIe-pinned expert arena hiding a per-window PCIe wait. An RTX 5070 is a Blackwell desktop, so "do not
+    move Strata for speed" must be rewritten as "unmeasured on our architecture, one env var to test".
+    The 19-21 % figure is second-hand from the thread, not read at source - `status: lead` for us.
+  - **Strata shipped v0.2.0-beta (2026-10-19T13:52:01Z) and it is `releases/latest`.** `prerelease:
+    false` on a tag that literally says `-beta`, so `install.ps1`/`install.sh` (which resolve
+    `releases/latest/download/...`) install it: **the `prerelease` field is uninformative in both
+    directions across these two projects** (llama.cpp marks every rolling build, Strata marks none).
+    Engine package **0.1.45.3**; app + terminal + engine, updated over a signed Ed25519 feed with
+    test-start and rollback. Its notes never say `sm_120` and name **sm_86/sm_60** for the new decode
+    defaults, with the identity gate (10 prompts, 4K and 20K exact prompt checks) identical on a 3060, an
+    A4000 and a P100.
+  - **Our card's first per-architecture table exists, and it is newer than 0.1.45.**
+    `include/strata/core/sm120_series.hpp` is **ON by default on a compute capability 12.0 card** (five
+    bitwise switches plus one KL-checked; measured on an RTX PRO 5000 Blackwell 72 GB with **every expert
+    in VRAM**: a 4-token verify round 13.70 → 12.23 ms, same text). Its `git log` starts
+    **2026-10-17T19:45:38Z**, i.e. after the 06:53Z v0.1.45 tag, so it arrived between 0.1.45 and
+    0.1.45.3. Two parts are gated on SM count (fusions default only **on 80+ SM cards**;
+    `STRATA_GR_DOWN_TG=2` below 80 SMs), and our card's SM count was **not** verified today, so which of
+    the six apply here is open.
+  - **A version bump also changes setup's thread count, which makes it a confound.** Setup "no longer
+    writes half the logical threads" (it wrote 128 on a 256-thread machine); this box measures **24 cores
+    / 24 logical** (no SMT), so the old rule wrote **12** and the new one writes **24**. The release's own
+    measurement is that too many workers cost **0.65-0.73×** decode. Any Strata A/B across this release
+    must pin the thread count explicitly.
+  - **Two unfixed text-level defaults sit in the engine the installer now ships.** **#2940**
+    (`presence_penalty: 1.5` on non-thinking, `temperature: 0` requests) is still open (2026-10-18T12:33Z)
+    and the word `presence` appears **nowhere** in the 0.2.0-beta notes. **#2856** (filed 10-17, read in
+    full today): on Windows with the prebuilt 0.1.45 HIP engine, prompts above ~512 tokens return
+    **completely unrelated output**, caused by the new default prefill chunk (4096/2048/1024), with
+    `--prefill 512` giving **4/4 correct** - and a second reporter's real-traffic split on an RTX 5090
+    shows **draft acceptance falling 74.2 → 67.2 % uniformly**, >50K decode **−15 %**. Cheap neutraliser,
+    declared experiment: `--prefill 512`.
+  - **Our blocked item is blocked differently than yesterday's file said.** **#2894** now has two
+    confirmations (2026-10-18 18:38Z/19:46Z) that `--build` **does not clear it**: the build succeeds and
+    setup still prints `[X] this engine (0.1.45) does not run Qwen3.6-35B-A3B yet`. So it is a
+    **capability gate**, not a prebuilt-binary problem, and "workaround: `--build`" is falsified. The
+    release notes mention that model **only as an app-catalog entry**.
+  - **llama.cpp replaced the expert cache's replacement policy.** **#30637 LRU → 50/50 SLRU**, merged
+    2026-10-19T11:28:51Z (+60/−26), **1-5 % better than LRU** across two GPUs and two models
+    (Gemma4-26B-A4B, Qwen3.8-Flash-Next); the disclosure says the author's AI assistant ran the
+    experiments and wrote the change. Consequence for us: our staged **b11480 is LRU** and builds from
+    **b11732** are SLRU, so **a `--moe-cache-mib` ladder is a measurement of one build's policy and must
+    name the build**. Newest tag **b11734** (2026-10-19T14:08:40Z, ten builds past b11719); versioned
+    release still **v0.7.0**.
+  - **A measured Windows speed fix in our exact flags has its cost paid at the first request.** **#30449
+    "Limit max CUDA pinned host buffer size to 4 GB"** (merged 2026-10-16T02:50:27Z) exists because
+    without mmap (`--load-mode none`) CPU-resident MoE weights went into one `cudaMallocHost` that
+    **fails on Windows and silently falls back to pageable**; **#30793** (2026-10-19T06:08:58Z) reports
+    the other side, confirmed by reverting the PR: on a 384 GB box with CPU-resident experts, **first
+    request TTFT 10 s → 60 s+**, RSS ~300 → 270-280 GB after load. Our throughput protocol's **64-token
+    warmup would hide exactly this**, so first-request TTFT must be reported separately and before any
+    warmup.
+  - **Colibri backend routing can be silently wrong at 4-5×.** **#2239** (merged 2026-10-19T10:45:17Z):
+    a CUDA run of a GGUF "computed every routed expert on the CPU" - RTX PRO 4000, **28.4/9 vs Vulkan
+    115.6/48.5**; and **#2091** reports the reverse, a stale runtime plus `COLI_VULKAN=1` **silently
+    forcing Vulkan**. **#2189's Q4_K question is unchanged** (Q4_K still unnamed among the fast-path
+    kernels), so the "price our own GGUF" item now has three preconditions: the kernel question, a
+    declared-and-verified backend, and the engine log naming which kernels ran. **71 PRs merged in a
+    day**, no release since v2.0.0.
+  - **Research: the index advanced to 2026-10-16, and the first new paper names a result we already
+    have.** **2610.23818** "Acceptance Is Not Speed: Length Inflation in Training-Free Lossy Speculative
+    Decoding": at each rule's most relaxed setting, relaxed verification accepts **1.34×** as many tokens
+    per round but produces **1.54× longer completions**, and accuracy drops where verifier rounds are cut
+    - with failures traced to **continued reasoning exhausting the budget needed for a final answer**.
+    Our 2026-10-08 MTP result has the same shape (**+31.2 % per token, −7.3 % wall, +21.7 % tokens,
+    accuracy unchanged**), though llama.cpp's spec path is lossless by design so the mechanism may not
+    be the paper's. Actionable because Strata's `--spec-min-p 0.5` is a relaxed acceptance threshold: if
+    that knob ever moves, **score answers and completion length, not accepted tokens**. Also read and
+    relevant: **2610.23254** (most failed prompt-injection attacks are **ignored, 76-80 %, not refused**
+    - our "0/4 caught, 0/14 false alarms" guard reporting cannot tell those apart), **2610.22953**
+    (controlled Go terminology eval, fits `goproverbs`), **2610.22791** (harness and policy are mutually
+    reinforcing - the sharper rationale for not adopting a second harness), **2610.23787** (DLite:
+    draft acceptance loses up to 80 % under agentic context, which our MTP note already saw as 33 % on
+    free-form code).
+  - **Packs:** the core set held by revision and size (ISTA `ed59f920`, Myric `ed6030d7`, Qwen3.6
+    APEX-MTP-Strata `30e1a1c8`, bartowski `ffd6001f`). `Aleph-Alpha/Kolibri-1` moved 2026-10-19T10:39Z for
+    `Add transformers_version to config.json (#13)` **only** - recorded so `lastModified` there is not
+    read as a weight change. `lte-ai/GLM-5.3-Flash-Strata-Q2Q3-Experts` restructured 20 → **1,533 files**
+    (794.58 GiB). New Kolibri ports are MLX/EXL3/GLQ-trellis/FP8, none servable here.
+  - **The ranked shortlist it hands the queue, cheapest first:** the Ollama native decision replay
+    (0.40.6 - owed a fourth day); the cold-vs-cold expert-profile pair; the expert cache as **policy ×
+    capacity × seed** now that the policy moved, with the cache-engaged assertion still mandatory; the
+    Colibri GGUF probe with the backend declared and verified; Kolibri Q3_K_M on a stock build ≥ b11719
+    **reporting first-request TTFT before any warmup**; **`STRATA_ADAPT_OVERLAP` on a 0.1.44+ engine**
+    (new, one download, the only item that tests whether our card wants the opposite of what the
+    reporter needed); and the **#3059 Windows file-cache patch** (largest measured upside, still needs a
+    build) with a new caveat that the vendor says the 5070 test PC's file set already fits the page
+    cache. Also owed and not ranked: the eight Colibri arithmetic items at `--timeout 400` (~1 h).
+  - **Checked and unchanged:** Strata **#2940**, **#2747** (2026-10-16T09:31Z), **#2856**/**#2897**
+    state; llama.cpp **#29922** (still open after #30673 merged), **#30059**, **#30697** (second reporter,
+    still Vulkan); Ollama 0.40.6 stable with 0.40.7-rc0 unchanged and 0.40.4 installed; Colibri v2.0.0;
+    the four HF core packs; `exllamav2` v0.3.2, `koboldcpp` v1.123.1, Magnitude CLI 0.2.9, `ik_llama.cpp`
+    unchanged. **`sglang` moved to v0.5.22** (2026-10-19T02:55Z, not us) and **`ahwurm/localharness` to
+    v0.19.2** (2026-10-19T05:49Z, which now carries **Strata as a fifth runtime row** - our placement
+    problem in someone else's tool, still a second harness against a frozen one).
+    `linny006/agent-eval-harness` is **still bot noise** (every-15-minute `+0/-0` commits). No video was
+    mined.
+  - **No engine bump was made and none is scheduled.** Today's file replaces the 10-18 recommendation
+    ("a 0.1.43-era engine with #3059") with a narrower one: **0.1.45.3 is not disqualified by decode
+    rate** (that number moved under host pinning), it is disqualified by **two unfixed text-level
+    defaults** (#2940, and #2856's prefill chunk that `--prefill 512` neutralises) **and by setup's
+    changed thread count** - all three declarable. Everything else waits for the Colibri run to release
+    the slot.
+
 - October 18 (news scan): **`NEWS-2026-10-18.md` is written against `NEWS-2026-10-17.md`, and it corrects
   this scan's own habit rather than yesterday's claims.** Reading only - nothing downloaded, installed,
   built or run, no engine started, no inference, no benchmark, and nothing under `C:/Users/kevin/ai_bench`
