@@ -1,0 +1,18 @@
+Working...
+Q1. `661ff29`; `STRATA_ADAPT_OVERLAP=1`.
+
+Q2. Retracted: −23 %/−27 %. Corrected under host pinning: 0.1.44.1 −8.3 %/−14.0 %; 0.1.45 dual-ON −7.5 %/−13.6 %.
+
+Q3. +22.6 %; `numa.nodeAffinity` and `numa.vcpu.preferHT`.
+
+Q4. #30637; 50/50 SLRU replaced LRU; lands from build b11732; 1-5 % better than plain LRU.
+
+Q5. First-request TTFT 10 s → 60 s+; our protocol's 64-token warmup would absorb that cost.
+
+Q6. `--build` does not clear it: the build succeeds (`[ok] engine compiled`) but the same refusal returns — `[X] this engine (0.1.45) does not run Qwen3.6-35B-A3B yet` — so it is a capability check, not a prebuilt-binary problem.
+
+Q7. Vulkan (`CUDA=1 VK=1`) gave 115.6 prompt / 48.5 decode; CUDA alone (`CUDA=1`) gave 28.4-28.5 prompt / 8.9-9.5 decode.
+
+Q8. No. "The maintainer's list of fast-path kernels is still IQ4_NL and Q6_K at 80-87 GB/s against IQ2_S at ~16 GB/s, and Q4_K is still not named."
+
+Q9. Engine package version 0.1.45.3; the sm_120 verify round measures a 4-token verify round at 13.70 → 12.23 ms with the same text.

@@ -1,0 +1,18 @@
+Working...
+1. `661ff29` ("STRATA_ADAPT_OVERLAP: opt-in on every backend … Fixes #2010" — `return !(e && e[0]=='0')` became `return e && e[0]=='1'`). `STRATA_ADAPT_OVERLAP=1` restores 0.1.43 behaviour.
+
+2. Retracted: **−23 %/−27 %** (that table was **unpinned**). Pinned: 0.1.44.1 **−8.3 %/−14.0 %**; 0.1.45 dual-ON **−7.5 %/−13.6 %** (against 0.1.43).
+
+3. **+22.6 %** — the dual-ON arm went 78.6 → 96.4 tok/s. Settings: ESXi NUMA pinning `numa.nodeAffinity` and `numa.vcpu.preferHT`.
+
+4. **#30637 "Replace MoE LRU cache with a 50/50 SLRU cache"** (merged 2026-10-19T11:28:51Z, +60/−26, 2 files): **LRU replaced by 50/50 SLRU**, landing from **b11732** (our staged b11480 is LRU). Author's claim: **1-5 % better than plain LRU**.
+
+5. **First-request TTFT 10 s → 60 s+** at identical flags, with RSS ~300 GB → 270-280 GB after load and climbing back to ~300 GB during the first prefill. Our protocol would hide it because it has a **64-token warmup**, which "would absorb exactly this cost."
+
+6. That `.\START-HERE.bat --build` **does not clear it**: the build succeeds (`[ok] engine compiled`) and the same line returns — `[X] this engine (0.1.45) does not run Qwen3.6-35B-A3B yet`; the second reporter said "The same result for the same model." So it is a capability check on the engine, not a prebuilt-binary problem, and "workaround: `--build`" is falsified.
+
+7. **Vulkan** (`CUDA=1 VK=1`) gave 115.6-117.6 prompt / 48.5 decode. The other configuration, `CUDA=1` alone, gave **28.4-28.5 prompt / 8.9-9.5 decode** — "a CUDA run of a GGUF therefore computed every routed expert on the CPU."
+
+8. No. "The maintainer's list of fast-path kernels is still **IQ4_NL and Q6_K** at 80-87 GB/s against IQ2_S at ~16 GB/s, and **Q4_K is still not named**."
+
+9. Engine package version **0.1.45.3**. The sm_120 verify round (RTX PRO 5000 Blackwell 72 GB, IQ3_S, every expert in VRAM): a **4-token verify round 13.70 → 12.23 ms with the same text**.

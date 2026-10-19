@@ -54,6 +54,27 @@ questions did not ask for (RSS 300 -> 270-280 GB, the second reporter's exact wo
 - **Cost asymmetry:** 8.7x wall time per document for the local arm (86.3 s against 9.9 s), on a 17k-token
   prompt with experts in host RAM.
 
+## Cloud tier comparison (same instrument, run 2026-10-19)
+
+Same nine questions, same prompt file, `omp -p --no-skills`, one sample each:
+
+| model | wall | score |
+|---|---|---|
+| `deepseek-flash` | 9 s | 9/9 |
+| `deepseek-v4-flash-vision-exp` (the session default) | 9.9 s | 9/9 |
+| `deepseek-v4-flash` | 11 s | 9/9 |
+| `deepseek-v4-pro` | 33 s | 9/9 |
+
+Every tier answered correctly, **including the build id `b11732` and the two-sided backend comparison** that
+the local arm got wrong. The pro tier cost 3.3x the wall time for no measurable gain on extraction, so the
+flash tier is saturated for this class of work. Not a rate - nine questions, one document, one sample - and
+pro would presumably earn its price on genuinely hard analysis rather than on reading.
+
+This also exposed a configuration fact worth keeping: `smol`, `slow` and `plan` were all pointed at
+`deepseek-flash` while only `default` used a different model, so the "thorough analysis" role was the same
+tier as the cheap one. The routing that would let mechanical turns stay cheap and hard ones go to a stronger
+model exists in OMP (`modelRoles`, `--prewalk`) and was unused.
+
 ## Consequence for how we work
 
 Route **extraction and transformation** local, and **anything that pairs two numbers, or names a specific
