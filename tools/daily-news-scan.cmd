@@ -20,6 +20,6 @@ set "PROMPT=Standing instruction: the daily local-LLM news scan. Read the standi
 if not "%~1"=="" set "PROMPT=%~1"
 
 echo [%DATE% %TIME%] daily news scan start >> "%LOG%"
-"%OMP%" -p "%PROMPT%" --cwd "%REPO%" --max-time 60m >> "%LOG%" 2>&1
+"%OMP%" -p "%PROMPT%" --cwd "%REPO%" --thinking high --max-time 60m >> "%LOG%" 2>&1
 echo [%DATE% %TIME%] daily news scan exit %ERRORLEVEL% >> "%LOG%"
 endlocal
