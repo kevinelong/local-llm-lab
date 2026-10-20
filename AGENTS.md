@@ -1,5 +1,31 @@
 # Local AI lab working instructions
 
+- October 20 (Ollama native decision path, **run**): **the item owed since 2026-10-16 is closed, and the price
+  the shortlist quoted was already paid.** `ai_bench/ollama-decision-20261020/` (`PREDICTION.md` first, then
+  `REPORT.md`, `native_replay.py`, `result-laya-q8.json`), declared and run after the 10-20 scan, one workload,
+  no download, no engine bump, no gate change, nothing under `local-llm-lab`'s frozen instruments touched.
+  - **The installed build is 0.40.6, not 0.40.4** - `ollama --version` says so, so the "one ordinary upgrade"
+    was an auto-update that had already happened. Every later note that prices the replay as an upgrade is
+    stale; quote the version from the binary, not from this file's history.
+  - **The native loader takes the decision architecture.** `FROM laya--Laya-Q8_0.gguf` (sha256 `c06528c5...`,
+    449,397,600 B) created `laya-q8` (`ac917eb9321c`) first try, and `ollama ps` reports **1.1 GB, `100% GPU`,
+    context 8192, runner `llamacpp`** - a CUDA device, unlike the CPU `/v1/systemone` rows.
+  - **The screen reproduces, cell for cell.** Frozen 18 windows, frozen 0.85 threshold: native `--ask`
+    **14/18, 0/4 caught, 0/14 false alarms**, identical with the two-option `--choice` workaround and identical
+    to `decisions-20261007-v1`'s llama.cpp row. Sixth engine/model combination, same zero.
+  - **The numbers move by half a point, not by an answer.** Per-window p(stuck) against the reference:
+    **max |delta| 0.0168, mean 0.0052**. The "all 46 probabilities match exactly" clause stays **unscored**,
+    because the CLI exposes one rounded scalar, not the vector.
+  - **Latency was guessed the wrong way round:** **94 ms median / 125 ms warm p95**, against the reference's
+    94/183 and Colibri's 1.7-2.1 s median. Same median, better tail.
+  - **The finding that matters:** the CLI's *verdict* is not the lab's operating point. It answers **"yes" on
+    14 of 18 windows** - **4/4 stalls caught with 10/14 false alarms**, where rule R6 gets 4/4 and 1/14. Anyone
+    wiring `ollama run laya --ask` into an agent guard buys the catch rate at ten times the alarm rate; the
+    confidence, not the verdict, is the usable output.
+  - Deterministic: a second full pass reproduced all 18 answers and confidences exactly. Model unloaded after
+    the run; gates re-read at 39.06 GiB free physical / 43.77 GiB commit. `laya-q8` (1.1 GB) stays in the
+    Ollama store until a slot is needed.
+
 - October 20 (news scan): **`NEWS-2026-10-20.md` is written against `NEWS-2026-10-19.md`, and its first
   job was to make "closed" unreadable as evidence.** Reading only - nothing downloaded, installed, built or
   run, no engine started, no inference, no benchmark, and nothing under `C:/Users/kevin/ai_bench` read or

@@ -445,11 +445,25 @@ Nothing measured here was produced through that path: it is a way to see the box
 reproduce a row of the table.
 ## Reports
 
-Reports tracked in this repo link directly. Four link into `../ai_bench/…`, the lab's working tree, which
-is **not** this repository, so they do not resolve on GitHub. Exactly one of those four is mirrored here:
+Reports tracked in this repo link directly. Five link into `../ai_bench/…`, the lab's working tree, which
+is **not** this repository, so they do not resolve on GitHub. Exactly one of those five is mirrored here:
 the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPORT.md`](instruments/overnight-20261011/REPORT.md).
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
+
+**2026-10-20 &middot; [Ollama 0.40.6's native decision path: same verdicts, same numbers to within 1.7 pp, and a much looser answer](../ai_bench/ollama-decision-20261020/REPORT.md)**
+&ndash; the item owed since 2026-10-16 is closed, and it closes as a **reproduction with a caveat that
+matters if anyone wires it in**. The installed build turned out to be **0.40.6, not 0.40.4** (auto-updated),
+so the replay cost no download; `ollama create` accepted the decision architecture on the first attempt, and
+`ollama ps` shows the model on **1.1 GB, 100 % GPU, runner `llamacpp`**. On the frozen 18 windows, at the
+frozen 0.85 threshold, the native `--ask` path scores **14/18, 0/4 stalls caught, 0/14 false alarms** -
+cell for cell the recorded llama.cpp row - and its probabilities track the reference to **0.0168 max / 0.0052
+mean absolute delta**, i.e. the same vector moved by half a point, not a different answer. Latency **94 ms
+median, 125 ms warm p95** against the reference's 94/183, so the "nearer Colibri's 1.7-2.1 s" guess was wrong
+in the other direction. **The finding:** asked for a yes/no verdict the CLI answers **"yes" on 14 of 18
+windows** - catching **4/4 stalls with 10/14 false alarms**, where the lab's own rule R6 gets 4/4 with 1/14.
+The confidence, not the verdict, is the usable output. Deterministic on a second full pass (18/18 identical).
+Model unloaded; gates 39.06 GiB free physical. No download, no engine bump, no gate change.
 
 **2026-10-20 &middot; [Daily news scan: Strata shipped 0.2.1 and closed 1,300 issues, and the reference model's engine is the one that loses decode with context](NEWS-2026-10-20.md)**
 &ndash; a stable release one day after the beta, and a tracker reset that makes "closed" unreadable as
