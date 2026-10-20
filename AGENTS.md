@@ -21,7 +21,10 @@
     2026-10-14 (not in the brief; separate decision). The **9B is licence `other`**, checked before download.
   - **ComfyUI Desktop 0.8.27 is already installed** (`%LOCALAPPDATA%\Programs\ComfyUI`, basePath
     `Documents\ComfyUI`, uv venv CPython 3.12, `models/` holds only an SD1.5 checkpoint, `custom_nodes` empty).
-    Its venv interpreter is under `.venv/Scripts`, not `.venv/python.exe` - check before scripting it.
+    Its interpreter is `.venv\Scripts\python.exe` (**Python 3.12.11, torch 2.10.0+cu130, CUDA available,
+    RTX 5070**), and **Git Bash cannot launch it** - `command not found` even though it exists and is
+    executable; call it as `MSYS_NO_PATHCONV=1 cmd.exe /c ".venv\Scripts\python.exe script.py"`. Disk for
+    weights: **C: 90.4 GB, D: 252.8 GB** free - keep weights on D: via `extra_models_config.yaml`.
   - **Order of work, declared**: SDXL-Turbo baseline first (proves harness, scorer and determinism end to end),
     then FLUX.2-klein-4B Q4_K_M with Q8_0 as its quant pair, then Z-Image-Turbo int8 + fp4 encoder, then the 9B
     only if its licence is acceptable. Every arm gets a prediction before its run.
