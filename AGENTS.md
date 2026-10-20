@@ -1,5 +1,26 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **512 variant measured: dev runs, dev does not win; resolution is a variable**):
+  `RESULTS-512-VARIANT.md`. All four arms re-run at **512x512** (10 prompts, seed 1234) because dev blurs at
+  1024 but renders there.
+  - **At 512: Z-Image 0.786 OCR / 31.5 paths / 2.0 s / 9,269 MiB; schnell 0.749 / 62.5 / 6.1 s / 10,502;
+    dev 0.704 / 105.5 / 11.2 s / 11,803 (424 MiB free, floor breach); klein 0.613 / 50.5 / 3.0 s / 10,970.**
+    **dev is mid-pack, not the champion** - it beats klein, ties schnell within noise, and loses to Z-Image on
+    labels, paths, speed and VRAM. At 1024 it does not render at all. So the reputation is **not reproduced on
+    this card at either resolution**.
+  - **The trap, recorded**: **OCR at 512 is not comparable to OCR at 1024**. Code's source labels are 100 % at both
+    sizes, yet its rendered OCR reads **0.876 at 1024 and 0.261 at 512** - half-size text stops being legible. So
+    the 512 table ranks **diffusion arms against each other and nothing else**; resolution is now a **first-class
+    variable** in the protocol, and the 1024 corpus stays the reference because teaching text needs pixels.
+  - **The VRAM floor is resolution-dependent too**: Z-Image peaks 9,269 MiB (2,958 free) at 512 but 11,165-11,794
+    (433-1,062 free) at 1024, so a floor claim must name the resolution.
+  - **Path economy scales with resolution** (code 69 -> 24, Z-Image 28 -> 31.5): path counts are comparable only
+    within one resolution.
+  - **Blender capability, checked before scripting**: Blender 5.2.2 **exports only Grease Pencil to SVG**
+    (`grease_pencil_export_svg`); `io_curve_svg` registers an SVG *importer* but **no curve exporter**, so the
+    "curves to SVG" route in the briefs does not exist in this build. **KiCad 10.0.6 does export SVG**
+    (`kicad-cli sch export svg`), so its arm is viable for electrical/diagram content.
+
 - October 20 (image track, **dev blocked; Z-Image floor is a distribution; reserve flag is not a fix**):
   `RESULTS-DEV-BLOCKED.md`.
   - **FLUX.1-dev could not be measured**: five configurations (Q4_K_S 20 steps with FluxGuidance 3.5, the same
