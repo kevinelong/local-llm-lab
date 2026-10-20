@@ -1,5 +1,25 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **shape checks built and calibrated four times before they could judge**):
+  `RESULTS-SHAPE-CHECKS.md`, `validate_shape.py`, `shape-rules.json` (v4).
+  - Counts went blind on the five free-form prompts, so shape is measured instead: lane dividers, lane crossings,
+    circles, parallel plates, filled wall bands, nodal layout - all deterministic on the SVG source, under a
+    second for nine documents, no vision model.
+  - **The calibration history is the finding**: **2/9 -> 5/9 -> 7/9 -> 8/9**, and **every correction was to my
+    proxy, not to a drawing**. process-1's crossing exists (`y=220 -> 440`) while the divider sits near y~360, so
+    a midline test could never see it; circuit-1's plates are **56 px apart** and **256 px long on one seed vs
+    64 px on the other**; floor-1's walls are **filled black rects 32 px thick with no `stroke-width` at all**;
+    blueprint-1 emits **no SVG `<marker>`**, so a marker-based dimension check is unmeasurable, not failed.
+  - **One genuine failure survives**: **`blueprint-1-s1` is missing labels A and B** - source check and OCR agree
+    (0/2), two independent instruments. Same document that needed the label repair earlier.
+  - **Method B's honest structure/shape score: 8 of 9 documents pass every check**, on top of every document
+    having all required labels in source after one repair round.
+  - **Rule recorded**: a proxy must be calibrated against the artifact before it is allowed to judge it -
+    otherwise the instrument measures its own assumptions, and "the model failed" is really "my threshold encoded
+    a guess about how the drawing would be built". The rules file carries the reasoning, not just the numbers.
+  - **Stated as unmeasurable, not passed**: blueprint dimension arrows, wall closure (topology, not counts), and
+    lane-crossing direction (the check proves spanning, not meaning).
+
 - October 20 (image track, **the structural validator failed its own first flight - and that is the finding**):
   `RESULTS-STRUCTURE-VALIDATOR.md`, `validate_structure.py`, `structure-expectations.json` (v2).
   - Method B emits SVG, so structure is **countable** (rects, connectors, text nodes) - a deterministic check
