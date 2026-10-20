@@ -62,6 +62,16 @@ carry the tables.
   b11480 is **LRU**, while **#30637** made it 50/50 SLRU from **b11732**, so this ladder does not transfer.
   At 4,096 the card sits at **11,335 of 12,227 MiB**, so the next rung is a VRAM-floor question, not a rate
   question. Source: `../ai_bench/queue-20261016-shortlist/q2-moe-cache-ladder-20261020.md`.
+- **On the Strata track the biggest lever is one config line: `--kv-resident 32768`.** With `--kv int8`,
+  `--max-context 65536` and `--resident-budget-gib 2` fixed, keeping KV in VRAM moves the engine's own
+  per-request rate from a **median 7.6 tok/s to 69.1 tok/s** (94 requests per arm, distributions not
+  overlapping), and a standalone repeat gave **83.0** - **9-11x decode**, with the reasoning letters
+  **92/93 in every arm-run**. The flag cannot be passed through the server wrapper (`serve/server.py` never
+  mentions it); it belongs in the config's `args` array. **It is conditional on an idle box:** the same arm
+  measured **8.1 tok/s** on 2026-10-16, 42 seconds after a 12,838-second Colibri run ended, and the streaming
+  control measured 7.2 that day and 7.6 today - so the streaming arm is insensitive to machine state and the
+  resident arm is not. State the prior workload with any Strata rate. Source:
+  `../ai_bench/queue-20261016-shortlist/q1-kv-residency-20261020.md`.
 - **The cache ceiling is a floor value, not a flag value - and the engine clamps rather than refuses.** Ask for
   more than fits and llama.cpp silently grants what fits and serves: a **6,144 MiB** request on this card
   allocated about **5.6 GiB** and left **405-429 MiB** free, which is **89-91 tok/s** but **below the 0.5 GiB
@@ -366,6 +376,19 @@ lie. Every entry here was a claim *this lab* made and then refuted with its own 
   than trusted from the command line - and a clamped run has to say so, because its cache size is not the
   number in the flag.
 
+- **"`--kv-resident 32768` does nothing: 7.3 -> 8.4 tok/s."** That was our own 2026-10-16 measurement, and it
+  replicated the *control* perfectly while getting the treatment 8.5x wrong. The same arm measures **69.1** and
+  **83.0** on an idle box (n=94 and n=6), against a control that reads 7.2 then 7.6. The experiment had one
+  arm taken minutes after a 12,838-second run finished; nothing in the flags, the pack, the build or the log
+  parsing differed. The lesson is not "re-measure when you dislike the answer" but that **a rate measurement
+  inherits the machine's prior workload**, and this lab's one-workload rule has a second half: record what ran
+  *before* the measurement, not only what runs during it.
+- **A stale `status.json` read as a fact.** I declared this item "never started" because the queue's status
+  file listed only q4 - while the same root's `REPORT.md` and `AGENTS.md` both recorded q1 finishing on
+  2026-10-16. The dry-run line had been appended above the real run block. Status files are bookkeeping;
+  the per-item report block and the dated entries are the record, and a claim about what ran has to come from
+  the highest-authority source available, not the most convenient one.
+
 ### Tried, and it made no difference
 
 Kept because a null result is a measurement, and because the next person will otherwise spend the same hours:
@@ -511,8 +534,8 @@ Nothing measured here was produced through that path: it is a way to see the box
 reproduce a row of the table.
 ## Reports
 
-Reports tracked in this repo link directly. Eight link into `../ai_bench/…`, the lab's working tree, which
-is **not** this repository, so they do not resolve on GitHub. Exactly one of those eight is mirrored here:
+Reports tracked in this repo link directly. Nine link into `../ai_bench/…`, the lab's working tree, which
+is **not** this repository, so they do not resolve on GitHub. Exactly one of those nine is mirrored here:
 the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPORT.md`](instruments/overnight-20261011/REPORT.md).
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
@@ -526,6 +549,14 @@ cache-off), 5,632 -> 453 MiB free (fails)**. So the largest admissible rung is *
 the floor and not by the flag, and any clamped run must be labelled as clamped. Prediction scored **1/3** -
 the refusal I expected never happens, which is the part worth keeping. Idle-VRAM baseline differs between
 sessions (831 MiB clean vs ~1,982 earlier), so compare engine-only figures across days.
+
+**2026-10-20 &middot; [KV residency is a 9-11x decode lever, and 2026-10-16 measured it as nothing](../ai_bench/queue-20261016-shortlist/q1-kv-residency-20261020.md)**
+&ndash; a replication that contradicted its own predecessor and then explained it. `--kv-resident 32768` at a
+fixed 2 GiB budget: **7.6 &rarr; 69.1 tok/s** median decode (94 requests per arm, no overlap), repeat at
+**83.0**, letters **92/93 in all four arm-runs**. The control reproduced across dates (7.2 then 7.6) while the
+treatment moved **8.5x** - because the 10-16 arm ran **42 seconds after a 12,838-second Colibri run**, so the
+lesson is that a rate inherits the machine's prior workload. Also records my own error: I declared the item
+"never started" from a stale `status.json` while `REPORT.md` and `AGENTS.md` both had it as run.
 
 **2026-10-20 &middot; [16 threads against 8: real at rung 0, absent where it matters](../ai_bench/queue-20261016-shortlist/q2b-thread-rerun-20261020.md)**
 &ndash; the follow-up that prices the one inherited setting inside today's own result. Same build (**b11480**),

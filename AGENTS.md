@@ -1,5 +1,30 @@
 # Local AI lab working instructions
 
+- October 20 (KV residency replication, **run**): **`--kv-resident 32768` is a 9-11x decode lever, and this
+  lab's own 2026-10-16 measurement of it was an artifact of the machine's prior workload.**
+  `ai_bench/queue-20261016-shortlist/` (`DECLARATION-20261020-q1.md` before the load, then
+  `q1-kv-residency-20261020.md`, `result-q1-strata-kv-residency.json`, dated sections of
+  `logs/engine-q1-strata-*.log`). Engine v0.1.40.3, pack `q2_0`, `--kv int8 --max-context 65536
+  --resident-budget-gib 2`, arms differ by one token.
+  - **The numbers, from the engine's own per-request lines, n=94 per arm:** base **7.2** tok/s (10-16) and
+    **7.6** (10-20); `--kv-resident 32768` **8.1** (10-16) and **69.1** (10-20, 21.3-89.0), with a standalone
+    repeat at **83.0** (n=6). Distributions do not overlap today (lowest resident 21.3 vs highest base 9.2).
+    **Letters 92/93 in all four arm-runs**, so the knob moves rate and not answers.
+  - **What explains it:** not the cache config (2,832 experts / 3.65 GiB vs 2,813 / 3.62), not the build, not
+    the pack, not the parsing. The 10-16 base arm started **42 seconds after a 12,838-second Colibri run**
+    ended, and the resident arm ran inside the same half hour; today both ran on a box rebooted overnight with
+    36 GiB free. The streaming arm is insensitive to that state (7.2 vs 7.6) and the resident arm is not -
+    **hypothesis, not measurement**: the test that would settle it is the A/B re-run straight after a heavy
+    workload, which this item did not do.
+  - **Standing consequence: a rate claim inherits the machine's prior workload.** Record what ran *before* a
+    measurement, not only what runs during it - the one-workload rule has that second half.
+  - **The flag has to go through the config's `args`**: `serve/server.py` has zero occurrences of `kv-resident`,
+    the engine binary has 6. Read the placement back from the engine log, not from the server accepting a key.
+  - **A bookkeeping correction against myself:** I declared q1 "never started" from `status.json`, while
+    `REPORT.md` and `AGENTS.md` both recorded it finishing on 10-16 (3,585 s). The dry-run line sits above the
+    real run block. **Per-item REPORT blocks and dated entries outrank status files.**
+  - No engine resident afterwards; gates clear; nothing under the frozen instruments touched.
+
 - October 20 (cache ceiling, **run**): **the engine clamps an over-sized cache instead of refusing it, and the
   real ceiling is the 0.5 GiB GPU floor.** `ai_bench/queue-20261016-shortlist/`
   (`DECLARATION-20261020-q2c.md` before any load, then `q2c-cache-ceiling-20261020.md`, `q2c-floor-6144.py`,
