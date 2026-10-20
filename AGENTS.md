@@ -1,5 +1,31 @@
 # Local AI lab working instructions
 
+- October 20 (lead 2, **no inference**): **the Maya video converges on the same knob, and its bandwidth model
+  survives a check against our own rows.** Morgans Code, "Is $1,500 All You Need to Run DeepSeek V4.1 Flash?"
+  (`mat0oOXVCcU`, 2026-10-20, manual subtitles, one comment). Note:
+  `ai_bench/queue-20261016-shortlist/LEAD-20261020-maya-bandwidth.md`, `status: lead`.
+  - **Project Maya**: MIT, 13 days old, 52 releases, **derived from Strata**, for GLM 5.3 Flash and DeepSeek
+    V4.1 Flash; experts on GPU, then RAM, then NVMe. Its **1.1.17 fixed a real prefill bug** - prompts fed in
+    **16-token windows** on multi-card splits - and a 32k prompt went **99 -> 1,010 tok/s**. That is the same
+    variable as the other video's `-b`/`-ub`, in a different engine, so **chunk size is now the top of the test
+    queue** and it is a prefill lever, which our one-sentence `RATE_PROMPT` cannot see.
+  - **Its bandwidth model checked out on our numbers, measured the same day.** The GGUF tensor table gives
+    **0.527 GiB of expert bytes per token** for Qwen3.6-35B-A3B (8 of 256 experts routed, 16.875 GiB of expert
+    tensors). Our measured **47.4** and **83.0** tok/s imply **26.8** and **32.4 GB/s**; this box copies at
+    **46.0 GB/s**. One constant (~29 GB/s) predicts both points within 12 %, so decode is bandwidth-bound and
+    the cache's gain is predictable from how much of the expert set it holds.
+  - **The uncomfortable half: we achieve 60-70 % of the bandwidth the box can move.** That gap is the honest
+    headroom, and it is not a prefill knob - it points at thread count and expert-read pattern, which is
+    consistent with `-t 16` buying only 3.5 % at rung 0.
+  - **New instrument idea worth building**: **next-token agreement rate against a reference build**. The video
+    prices quantisation that way (DeepSeek default build agrees with the original 92.6 % vs 96.4 % for the
+    original run the same way; GLM small build disagrees 17 %). Our answer letters (92/93 everywhere) are far
+    too coarse - they would not separate arms whose probabilities moved 0.5-1.7 pp.
+  - **Not actionable here**: DeepSeek V4.1 Flash cannot run on 64 GB + 12 GB (178 GB at 2-3 bit, ~230 GB
+    guidance); GLM 5.3 Flash's small build (~95 GB, runs with 32 GB RAM by streaming) is the only new candidate
+    that could fit, and it would be a third engine - a decision, not a step. Strata **closed** Maya's upstream
+    GLM PR, so nothing here argues for a version bump.
+
 - October 20 (lead, **no run**): **a self-tuning video hands us the one llama.cpp knob this lab has never
   tested - `-b` / `-ub` - and its regime is ours.** Weights & Wonders, "I asked Qwen to Optimise Itself"
   (`B4QKh3mcxRs`, 2026-10-19): Qwen3.8-Flash-Next 3-bit, **82 GB on a 48 GB RTX 8000** (so a model bigger than
