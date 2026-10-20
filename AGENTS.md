@@ -1,5 +1,25 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **dev blocked; Z-Image floor is a distribution; reserve flag is not a fix**):
+  `RESULTS-DEV-BLOCKED.md`.
+  - **FLUX.1-dev could not be measured**: five configurations (Q4_K_S 20 steps with FluxGuidance 3.5, the same
+    without `--reserve-vram`, 30 steps, Q5_K_S, and classic CFG 3.5 with no guidance node) all produced **blurred
+    images** - Laplacian variance **0.6-5.4** against **299** for schnell, **731** klein, **834** Z-Image and
+    **1,200** for a hand-drawn control. Recorded as **unscored, not zero**: dev is neither vindicated nor refuted,
+    and the failure is specific to **dev weights through ComfyUI 0.18.2 + city96/ComfyUI-GGUF on Blackwell**,
+    since schnell at Q4_K_S is sharp through the same loaders and VAE.
+  - **Ruled out with evidence**: the VRAM reservation (identical 1.5 with and without), the quantisation (Q4 and
+    Q5 blur equally), the guidance mechanism (FluxGuidance and classic CFG both blur), step count (30 steps only
+    lifts 1.5 -> 5.4), and the VAE (shared, verified at the official 335,304,388 bytes).
+  - **Next route for dev, if wanted**: ComfyUI's fp8 dev checkpoint (16.06 GB, heavy offload on 12 GB) or the
+    **diffusers `FluxPipeline`** path, which bypasses the GGUF loader entirely.
+  - **Z-Image's floor status is a distribution, not a number**: peaks across runs were **11,165-11,794 MiB**, i.e.
+    **433-1,062 MiB free** - sometimes over the 0.5 GiB floor, sometimes not. **`--reserve-vram 1.2` did not cap it**
+    (11,210 MiB on a cold single image, 11,794 MiB in the batch, and the batch scored identically at 0.811/13-20).
+    So the honest statement is **marginal against the floor**, never "compliant".
+  - **Still the best-value change of the day**: the label validator + one repair round took method B from
+    **68/70 to 70/70** labels in source, all 19 documents fully labelled, with no new weights and ~55 s of compute.
+
 - October 20 (image track, **four arms; the brief's champion finishes last; repair loop works**):
   `RESULTS-FOUR-ARMS.md` + `RESULTS-ARMS-20261020.md`. Added today: FLUX.1-schnell Q4_K_S (4 steps, cfg 1.0,
   gated repo reached through the stored HF token, VAE from a mirror at the official 335,304,388 bytes) and a
