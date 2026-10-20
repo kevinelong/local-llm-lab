@@ -20,8 +20,22 @@
   - **Blender 5.2.2 LTS** and **KiCad 10.0.6** installed and verified (`kicad-cli` at
     `%LOCALAPPDATA%\Programs\KiCad\10.0\bin`). **Both refuse direct launch from Git Bash - use `cmd.exe`**, the
     same quirk as the ComfyUI venv interpreter.
-  - **Not yet run**: any diffusion model, the structure/didactic VLM scoring, Blender/KiCad script arms. Method C
-    (Recraft/Firefly) is excluded by Kevin's "local only" decision and stays an unmeasured external row.
+  - **First diffusion image, smoke test only** (`RESULTS-KLEIN-SMOKE.md`): FLUX.2-klein-4B Q4_K_M via
+    `UnetLoaderGGUF` + `qwen_3_4b_fp4_flux2` (CLIPLoader `type=flux2`) + flux2-vae on ComfyUI 0.18.2 headless,
+    **4 steps cfg 1.0, 16.1 s for the first 1024x1024 image including load**. Scored: **37 paths** (identical to
+    the hand-drawn control), **axis 95.8 %**, **2 major colours**, OCR **3/4**.
+  - **The miss is a real model error, not an OCR weakness: it rendered `VAILDATE`.** A two-letter transposition
+    inside a requested word, in an image whose geometry is otherwise better than method B's (heavier strokes,
+    arrowheads, better composition). So the two methods fail on **different axes** - diffusion on text fidelity,
+    code on label omission - and the hybrid assignment falls out of evidence: **diffusion supplies the look, code
+    supplies the text**, or diffusion output is admissible only after an OCR check plus a repair pass.
+  - **Not yet run**: the full 20-image klein arm (with VRAM sampling and a determinism check), the
+    structure/didactic VLM scoring, Blender/KiCad script arms. The smoke test's steps/cfg were a guess, not the
+    card's recommendation. Method C stays an unmeasured external row per the local-only decision.
+  - **ComfyUI gotchas, both cost time and are now known**: it needs **`comfyui-frontend-package`** as a pip
+    package (0.18.2 ships the frontend that way; installing all of `requirements.txt` would risk torch), and a
+    `.gguf` UNet needs **`city96/ComfyUI-GGUF`** plus `gguf` in the venv. Headless start:
+    `python main.py --base-directory ... --extra-model-paths-config ... --port 8188`.
 
 - October 20 (image track, **goal restated: teaching diagrams, later animations; CAD arms declared, nothing
   installed**): `ai_bench/image-models-20261020/PROTOCOL-CAD.md`. The four production methods are now four arms of
