@@ -1,5 +1,30 @@
 # Local AI lab working instructions
 
+- **Standing rule (2026-10-20, Kevin's instruction): the README is updated whenever a result changes a
+  recommendation *or* adds real knowledge - and it keeps a "Tried, and it made no difference" record.** Null
+  results, wrong predictions, artifacts and abandoned arms belong in it beside the wins, because the next
+  attempt otherwise repeats them. Three surfaces move together after every run: this file's dated entry, the
+  README's recommendation section (§1), and the README's corrections (§4); then commit and push.
+
+- October 20 (thread count, **run**): **`-t 16` is not a general default for CPU-MoE runs - once the expert
+  cache is on, the thread count stops mattering.** `ai_bench/queue-20261016-shortlist/`
+  (`DECLARATION-20261020-q2b.md` before the load, then `q2b-thread-rerun-20261020.md`,
+  `result-q2b-thread-rerun.json`, `q2b-thread-rerun.py`). Same build b11480, same flags, **only `-t`
+  different**, order forward then backward, n=2 per arm, 164 s for eight loads.
+  - Rung 0: **t=8 48.80 -> t=16 50.50 tok/s (+3.5 %)**; rung 4096: **76.51 -> 76.86 (+0.5 %)**. Prediction
+    scored **4/4**, including "2048/4096 still far above rung 0 under both thread counts".
+  - **The caveat that keeps it out of the recommendations:** at rung 0 the 3.5 % sits **inside the arm's own
+    spread** (t=8 runs 50.22/47.38 = 5.6 %, t=16 runs 52.58/48.42 = 7.9 %); at rung 4096 both arms are tight
+    (1.5 % / 1.1 %) and the gap between them is 0.5 %, i.e. absent. A cache-off thread effect needs n>=4 per
+    arm or a decode longer than 160 tokens; **n=2 cannot resolve 3.5 % against a 5-8 % spread.**
+  - **Artifact recorded so it is not repeated:** the **first** request after a load reports prefill ~99 tok/s
+    and the **second** 50-60, because the second prompt hits the prompt cache. A warmed prefill row measures
+    prompt-cache reuse, not prefill; rate tables take first-probe prefill.
+  - README updated accordingly: §1 gains the expert-cache bullet (the real recommendation - **+65 % decode at
+    the 4,096 MiB rung**, with the VRAM-engagement and build-naming conditions) and the thread bullet; §4
+    gains both refuted predictions and a new **"Tried, and it made no difference"** list carrying the decision
+    loader migration, the two smallest cache rungs, the thread doubling and the prefill artifact.
+
 - October 20 (expert-cache ladder, **run**): **q2, declared 2026-10-16 and never started, is measured - and
   the declared prediction is refuted on all three clauses.** `ai_bench/queue-20261016-shortlist/`
   (`DECLARATION-20261020-q2.md` before the run, then `q2-moe-cache-ladder-20261020.md`,

@@ -50,6 +50,24 @@ carry the tables.
 - **Report each model at the context it can afford, and say which.** 131,072 for the six local models;
   **32,768 for Swift Bonsai 2**, which trips the 0.5 GiB GPU floor during load at 65,536 and above;
   65,536 for Strata. Nothing measured shows the raised context costing a battery.
+- **The biggest lever measured on this box is the expert cache, and it is on the GPU side of the ledger.**
+  On a staged llama.cpp **b11480** (the first build with `--moe-cache-mib`, PR **#29887**) with
+  `--cpu-moe --load-mode none`, decode runs **47.4 / 45.3 / 45.7 / 58.6 / 66.8 / 78.3** tok/s at the
+  **0 / 256 / 512 / 1024 / 2048 / 4096 MiB** rungs - **+65 % at 4,096** - with the reasoning letters
+  **90/93 at every rung**, so it buys rate and moves no answer. The shape matters as much as the endpoint:
+  **nothing to 512 MiB** (at or below no cache), a knee between 512 and 1024, then a near-linear climb, and
+  **prefill gains first** (72 -> 101 tok/s by 512 MiB) while decode gains last. Two conditions on the number:
+  **assert engagement** - b11480 logs *no* MoE-cache line, so the knob is silent and VRAM per rung (+264 /
+  +1,034 / +4,106 MiB, within 10 MiB of the request) is the only proof it is live; and **name the build** -
+  b11480 is **LRU**, while **#30637** made it 50/50 SLRU from **b11732**, so this ladder does not transfer.
+  At 4,096 the card sits at **11,335 of 12,227 MiB**, so the next rung is a VRAM-floor question, not a rate
+  question. Source: `../ai_bench/queue-20261016-shortlist/q2-moe-cache-ladder-20261020.md`.
+- **Thread count stops mattering once the cache is on.** Same build, same flags, only `-t` different,
+  interleaved direction, n=2 per arm: **+3.5 %** at rung 0 (**t=8 48.80 -> t=16 50.50** tok/s) but **+0.5 %**
+  at rung 4096 (**76.51 -> 76.86**). The expert cache takes the work off the CPU, so the extra threads have
+  nothing left to parallelise - and at rung 0 the 3.5 % is **inside the arm's own 5.6-7.9 % spread**. `-t 16`
+  is therefore not a general default for CPU-MoE runs; `-t 8` remains fine where the cache is on.
+  Source: `../ai_bench/queue-20261016-shortlist/q2b-thread-rerun-20261020.md`.
 - **The decision track: a 4B and a 9B inside one point, and the RAM upgrade changed nothing.** On
   Bespoke's published 3,880-record suite `nimble` 9B leads `kev4` 4B on the 13-subset macro (0.7565 vs
   0.7442) and on the class-balanced macro (0.7445 vs 0.7395), but **paired, both differences cross zero**
@@ -322,6 +340,39 @@ lie. Every entry here was a claim *this lab* made and then refuted with its own 
   engine that had been stopped underneath it: 989 failures were connection errors and the 111 that answered
   were simply the items that ran first. Positional survivors are not a sample.
 
+- **"The expert-cache ladder is non-monotonic, peaks in the low thousands, and the control runs at 35-40
+  tok/s."** Refuted on all three clauses on 2026-10-20: the curve is monotone after a dead zone, the control
+  runs **47-50 tok/s**, and the **top rung wins by 65 %**. The lesson is not that a prediction was wrong but
+  that the shape was guessed from intuition ("more cache must eventually hurt") with nothing behind it - the
+  rung that mattered was the one nobody predicted.
+- **"A ladder measured in rung order is a ladder."** It is not, if every rung re-reads the same 20.4 GB file:
+  the Windows file cache warms across rungs and manufactures a rising curve. Measured, and the reason the
+  finding survives: a warm-file-cache rerun of the two endpoints gave rung 0 **50.25 / 50.13** against cold
+  **47.44** and rung 4096 **79.39 / 81.17** against **78.28** - a **6 %** artifact against a **65 %** effect.
+  The control is now part of the item, not an afterthought.
+
+### Tried, and it made no difference
+
+Kept because a null result is a measurement, and because the next person will otherwise spend the same hours:
+these were run properly and changed nothing we would recommend.
+
+- **Moving the decision model to a different loader.** Laya on Colibri `/v1/systemone`, on llama.cpp b11429, and
+  now on **Ollama 0.40.6's native `--ask` path**: **14/18 with 0/4 stalls caught and 0/14 false alarms in all
+  three**, and the probabilities agree to **0.0168 max / 0.0052 mean**. Six engine-and-model combinations sit
+  at 0/4 - the signal is absent from the models, not from the plumbing. The move did produce one usable fact:
+  the CLI's *verdict* is a far looser operating point (**"yes" on 14 of 18 windows = 4/4 caught, 10/14 false
+  alarms**, where the lab's own rule R6 gets 4/4 and 1/14), so its confidence, not its answer, is the
+  interface. Source: `../ai_bench/ollama-decision-20261020/REPORT.md`.
+- **The two smallest cache rungs.** 256 and 512 MiB are **at or slightly below** the no-cache control (45.3 and
+  45.7 against 47.4), in both the cold pass and the warm rerun. Below the knee the cache costs more than it
+  saves; do not bother with rungs under 1 GiB.
+- **Doubling the thread count.** +3.5 % where the cache is off (inside the arm spread) and +0.5 % where it is
+  on. The 2026-10-19 thread ladder had already shown 8 threads within 6 % of the optimum on this box; this
+  shows the same thing in a second configuration.
+- **Reading prefill from a warm probe.** The first request after a load reports ~99 tok/s prefill and the
+  second 50-60, because the second prompt hits the prompt cache. Any prefill row taken from a warmed request
+  is measuring cache reuse. Not a result, an artifact worth not repeating.
+
 ## 5. Where the numbers come from
 
 - **The ranked batteries** - nine frozen tasks, 693 checks, generated and scored by the harness in
@@ -445,11 +496,21 @@ Nothing measured here was produced through that path: it is a way to see the box
 reproduce a row of the table.
 ## Reports
 
-Reports tracked in this repo link directly. Six link into `../ai_bench/…`, the lab's working tree, which
-is **not** this repository, so they do not resolve on GitHub. Exactly one of those six is mirrored here:
+Reports tracked in this repo link directly. Seven link into `../ai_bench/…`, the lab's working tree, which
+is **not** this repository, so they do not resolve on GitHub. Exactly one of those seven is mirrored here:
 the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPORT.md`](instruments/overnight-20261011/REPORT.md).
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
+
+**2026-10-20 &middot; [16 threads against 8: real at rung 0, absent where it matters](../ai_bench/queue-20261016-shortlist/q2b-thread-rerun-20261020.md)**
+&ndash; the follow-up that prices the one inherited setting inside today's own result. Same build (**b11480**),
+same flags, **only `-t` different**, order forward then backward, n=2 per arm: **+3.5 %** at rung 0
+(**t=8 48.80 &rarr; t=16 50.50** tok/s) but **+0.5 %** at rung 4096 (**76.51 &rarr; 76.86**) - the expert cache
+takes the work off the CPU, so the extra threads have nothing left to parallelise. Prediction scored **4/4**.
+The caveat that keeps it out of the recommendations: at rung 0 the 3.5 % is **inside the arm's own 5.6-7.9 %
+spread**, so resolving a cache-off thread effect needs n&ge;4 or a longer decode than 160 tokens. Also caught
+an artifact worth not repeating: **the first request after a load reports ~99 tok/s prefill and the second
+50-60**, because the second prompt hits the prompt cache - a warmed prefill row measures cache reuse.
 
 **2026-10-20 &middot; [The `--moe-cache-mib` ladder: monotone to the top rung, and the prediction was wrong](../ai_bench/queue-20261016-shortlist/q2-moe-cache-ladder-20261020.md)**
 &ndash; the 10-16 queue's q2, declared "never started", run through its own runner (1,882 s) on staged
