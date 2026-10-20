@@ -1,5 +1,32 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **four arms; the brief's champion finishes last; repair loop works**):
+  `RESULTS-FOUR-ARMS.md` + `RESULTS-ARMS-20261020.md`. Added today: FLUX.1-schnell Q4_K_S (4 steps, cfg 1.0,
+  gated repo reached through the stored HF token, VAE from a mirror at the official 335,304,388 bytes) and a
+  source-level label validator with a repair round.
+  - **FLUX.1-schnell is last on labels (OCR 0.552, 3/20 perfect), last on traces (115.5 paths median) and
+    ~last on didactic (27/60)** - it wrote `VALID-DATE` and `TORE`, and added colour fills and drop shadows the
+    prompt explicitly forbade, which is exactly why it traces into four times the paths of the other arms.
+    **This does not refute FLUX**: the reputation belongs to **dev at 20-30 steps**, which is non-commercial and
+    gated; schnell at 4 steps is the harshest text condition in the family. The honest sentence is that **the
+    configuration recommended for a 12 GB card is not the one that earned the reputation**.
+  - **Z-Image-Turbo is the diffusion arm that does this job**: OCR **0.811**, 13/20 perfect, best didactic of the
+    image models (**36/60**), 5.1 s, 28 paths - and **479 MiB free VRAM, under the 0.5 GiB floor** (klein passes
+    with 1,877 MiB free). FLUX also breaches it at 485 MiB free.
+  - **The cheap harness fix worked and changed the ranking**: source-level validation found **68/70 = 0.971**
+    labels in method B's SVGs where OCR said 0.876, and one repair round took it to **70/70 = 1.000**, all 19
+    documents fully labelled. **OCR under-reported code by 10 points** because small text (tree-1's seven node
+    numbers) does not survive the render. For a code arm the **source** is authoritative; for diffusion, OCR is
+    all there is.
+  - **Ranking after four arms**: B (labels 1.000, structure 77 %, didactic 79 %, editable) > Z-Image
+    (0.811/62 %/60 %, floor breach) > klein (0.614/62 %/47 %, passes floor) > schnell (0.552/58 %/45 %).
+  - **ComfyUI/engine gotchas added**: the BFL VAE repo is **gated behind manual approval** while the community
+    GGUF port is public, so the VAE must come from a mirror (verified by exact byte size); Z-Image's **int8
+    convrot** checkpoint does not load (`KeyError: 'int8_tensorwise'`), the **nvfp4** one does; the frontend is a
+    separate pip package.
+  - **Still untested**: FLUX.1-dev (licence + gate), SD3.5-M (**403** - licence not accepted on the account),
+    Blender/KiCad script arms, and the animation protocol.
+
 - October 20 (image track, **three arms measured on the frozen corpus**): `RESULTS-ARMS-20261020.md`.
   B = `qwen3-coder:30b` writing SVG; klein = FLUX.2-klein-4B GGUF Q4_K_M (4 steps, cfg 1.0); Z-Image =
   Z-Image-Turbo **nvfp4** (9 steps, cfg 1.0). Same corpus, same scorer, 1024x1024.
