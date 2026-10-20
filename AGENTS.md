@@ -1,5 +1,30 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **focus set to 2D vector-traceable output; instrument validated, no model weights**):
+  the goal is charts, blueprints, floor plans and schematics that survive an auto-tracer, so the metric is no
+  longer "looks clean" but **traces cleanly**. `ai_bench/image-models-20261020/`: `PROTOCOL-2D.md`,
+  `prompts-diagrams.json` (10 diagram prompts, 2 seeds = 20 images/arm, labels + structure checks),
+  `trace_score.py`, `make_synthetic.py`, `INSTRUMENT-VALIDATION-20261020.md`.
+  - **Instrument validated against ground truth before any download**: a hand-drawn flowchart (4 boxes, 3
+    connectors, 4 labels, 2 colours, all axis-aligned) scored **37 paths / 447 nodes / 17.1 KB / axis 100 % /
+    2 major colours**, and a soft gradient scored **164 paths / 3,044 nodes / 170 KB / 30 colours / axis 75 %** -
+    a 4-15x separation on the axes that matter.
+  - **One metric failed its own control**: `flat_pct` scores a smooth gradient as *flat* (93.6 % against the
+    diagram's 97.7 %), because it measures absence of sharp edges, not absence of gradients. **`colours_major`
+    and SVG size are the gradient detectors.** Recorded rather than quietly renamed.
+  - **`cairosvg` does not work on this box** (missing native `libcairo-2.dll`); SVG re-rasterisation goes through
+    **Chromium** at a fixed viewport. OCR (rapidocr) still to install.
+  - **The brief's FLUX arithmetic is wrong**: dev Q5_K_S 7.72 + FP8 T5 4.56 + clip_l 0.23 + VAE 0.32 = **12.83 GB**
+    against a 12,227 MiB card **before activations**, so the "no system fallback" configuration cannot be the one
+    being quoted 30-50 s/image. Admissible: Q4_K_S 6.34 + fp8 T5 4.56 (~11.45 GB), or Q5_K_S with the encoder
+    offloaded - measurable, unlike the claim.
+  - **Licences at source**: FLUX.1-dev `other` (non-commercial) **gated**; FLUX.1-schnell apache-2.0 **gated**;
+    SD3.5-medium `other` **gated**; **FLUX.2-klein-4B apache-2.0, ungated** - which is why klein-4B is the first
+    diffusion arm.
+  - **Three methods are now three arms of one corpus**: A diffusion+trace, B **LLM writes SVG directly** (same
+    metrics minus trace fidelity, no download, runnable today), C cloud native-vector (Recraft/Firefly) which
+    stays an **external reference row**, not a measured one, because it cannot be reproduced offline.
+
 - October 20 (**LLM track paused; image track declared, no download**): state is recorded in
   `ai_bench/CONTINUE-HERE.md` (top block) and git is clean at `5997b15`. Nothing resident: 43.6 GiB free
   physical / 41.5 GiB commit / GPU 1.3 GiB idle.
