@@ -451,6 +451,27 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-20 &middot; [Daily news scan: Strata shipped 0.2.1 and closed 1,300 issues, and the reference model's engine is the one that loses decode with context](NEWS-2026-10-20.md)**
+&ndash; a stable release one day after the beta, and a tracker reset that makes "closed" unreadable as
+evidence. **Strata v0.2.1** (2026-10-20T08:19:38Z, `prerelease: false`) carries engine **0.1.46**;
+seven of its eight new defaults are Radeon/Linux/Intel/two-card, and what reaches this box is the
+**draft layer counted in the fit check (~1 GB with MTP on)** against a 0.5 GiB free-VRAM floor. On
+**2026-10-19T15:50-15:57Z** the maintainer closed **>1,300** issues/PRs including **#2940, #2856,
+#2894, #3059, #2936, #3140, #3166** &ndash; so I re-read the source at `v0.2.1` and found the
+**`presence_penalty: 1.5` still merged under every non-thinking request** (`serve/server.py:4675`),
+i.e. #2940's mechanism survives its own issue. **#3189** supplies the first engine-version table in
+our architecture class: **+9.5 % at 16K and +10.7 % at 32K for 0.1.45 &rarr; 0.1.45.3 on an RTX
+5090, and nothing from 0.1.45.3 &rarr; 0.1.46** &ndash; alongside a start-to-start noise floor of
+**8-28 %** (**#1332**), twelve times our own. **#2464** measures the reference model on Strata's own
+q36 engine: **109 / 85.7 / 40.3 / 23.4 / 14.6 tok/s** at **256 / 4K / 32K / 65K / 114K** tokens
+where **llama.cpp holds ~90**, with **fp32 KV at 45,056 B/token** in the setup source. Also: our
+**Coder pack was re-indexed upstream on 2026-10-19** while `setup.py` still pins the old revision;
+llama.cpp's **#30865** changed the **Kolibri-1 router's precision** (name the build); Colibri gave
+**qwen36 a CUDA chain for GGUF plus its MTP head**, turning the backend trap into a two-arm probe;
+and a 10-19 paper (**2610.26632**) puts a **92.5 pp** number on state that cannot be re-observed.
+Seven ranked items, the "nothing moved" list, and no download, engine, inference or benchmark.
+Reading only.
+
 **2026-10-19 &middot; [Daily news scan: Strata shipped an app, and the decode regression got a named commit and a one-variable switch](NEWS-2026-10-19.md)**
 &ndash; yesterday's headline number does not survive its own thread. **#2936** bisected 315 commits to
 **`661ff29`**, which flipped `STRATA_ADAPT_OVERLAP` from ON to **opt-in on every backend** at 0.1.44;

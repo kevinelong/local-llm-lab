@@ -1,5 +1,88 @@
 # Local AI lab working instructions
 
+- October 20 (news scan): **`NEWS-2026-10-20.md` is written against `NEWS-2026-10-19.md`, and its first
+  job was to make "closed" unreadable as evidence.** Reading only - nothing downloaded, installed, built or
+  run, no engine started, no inference, no benchmark, and nothing under `C:/Users/kevin/ai_bench` read or
+  touched.
+  - **Strata shipped a stable release one day after the beta: v0.2.1** (published **2026-10-20T08:19:38Z**,
+    `prerelease: false`), engine packages **0.1.46**, update feed sequence 102, plus an attached
+    **0.2.1.1** the same day (Windows long-path Terminal fix, Terminal 0.1.46.1, needs one reinstall).
+    Seven of its eight new defaults are Radeon/Linux/Intel/two-card; what reaches us is the **draft layer
+    now counted in the fit check (~1 GB of VRAM with MTP on)** against our 0.5 GiB free-VRAM floor, a
+    per-model **MTP on/off switch**, and hand-set options no longer overwritten.
+  - **The maintainer closed the tracker, so a closed issue means nothing.** On 2026-10-19T15:50-15:57Z he
+    closed >1,300 open issues/PRs ("closed here does not mean rejected"), including **#2940, #2856, #2894,
+    #3059, #2936, #3140, #3166**; reopening needs a retest on 0.2.0-beta, an area-prefixed title, the issue
+    form and a `/reopen` the bot checks (#3075 passed it at 2026-10-20T14:58:03Z). **Every "closed" in these
+    notes from 10-18/10-19 must be re-read against the source before being quoted as fixed.** I did that for
+    the two text-level defaults: **`presence_penalty: 1.5` is still merged under every non-thinking request
+    at `v0.2.1`** (`serve/server.py:4675` + `MODEL_CARD_SAMPLING` at 7594-7597, which lists it for
+    `qwen4exp` instruct and both `qwen35moe` sets), so #2940's mechanism is present in 0.1.46 although the
+    issue is closed; the **prefill chunk is unverified for 0.1.46** (the 0.2.1 notes never mention it and
+    `setup.py:7028` still writes `--prefill auto`), so `--prefill 512` stays the declarable neutraliser.
+    A **third** sampling hazard is visible in the same source (~4985-4995): on repeated reasoning the server
+    retries with **temperature ≥ 1.0 and presence_penalty ≥ 1.5** without the client asking - declare it,
+    claim nothing about when it arrived.
+  - **0.1.46 is not a speed change for our card, on the first table in our class.** **#3189** (RTX 5090,
+    nine arms, toolkit/flags/model/config held equal): **0.1.45 → 0.1.45.3 = +9.5 % at 16K and +10.7 % at
+    32K**, CUDA toolkit irrelevant (±0.3 %), **0.1.45.3 → 0.1.46 = nothing for a single RTX 50**. The same
+    report states the noise it fought: **8-28 % between engine starts at an unchanged setting (#1332)** -
+    twelve times our own sub-1 % llama.cpp repeat spread, so any Strata A/B needs interleaved rounds.
+    **#3252** (A100 sm_80: -9/-10 % decode, -20 % prefill) is real on a card we do not have and does not
+    reproduce on the P100/A4000 the maintainer tested (0.2.1 tip 7-10 % faster than 0.1.45 there).
+  - **The reference model's engine is the one that loses decode with context.** **#2464** (updated
+    2026-10-20T13:59Z): Qwen3.6-35B-A3B on the q36 engine reads **109.3 / 85.7 / 40.3 / 23.4 / 14.6** tok/s
+    at **256 / 4K / 32K / 65K / 114K** tokens, while **llama.cpp holds 92.2 / 91.3 / 87.3** on the same file.
+    Mechanism is in our own `setup.py` read: q36 KV is **fp32**, `11 * 2 * 256 * 2 * 4` = **45,056 B/token**
+    (**~1.4 GiB at 32K, ~2.8 GiB at 65K** on a 12 GB card), and `own_path_context()` gives **32,768** below
+    16.5 GB of VRAM. The int8-KV PR that helped (#2698) was **closed in the reset, not merged**. So #2894's
+    gate (`strata --families`, `setup.py:6779/6995` - one command, a run, unverified here) is no longer the
+    only obstacle: if it clears, the comparison is fair at 4K-16K and misleading at 65K.
+  - **Our own Coder pack changed upstream.** `ISTA-DASLab/…-GSQ-RCO-Coder-GGUF` is now **`bba88856f8c3`**
+    (2026-10-19T17:48:41Z, first shard 29,608,446,496 B); ISTA replaced that shard and re-indexed the kept
+    experts (**#3448**: 2 of 12,288 profile pairs still match). `setup.py:92` still pins `5348543e…`
+    (`# 2026-09-29`), which is what our staged copy is - so our recorded Strata rows reproduce and **a fresh
+    setup today fetches different bytes under the same name**. Any re-stage records its revision.
+  - **llama.cpp changed our model family's numerics.** **#30865** (merged 2026-10-20T12:58:13Z) drops the
+    two precision overrides in the **Kolibri-1 router**; builds on either side can differ in text, so the
+    Kolibri item names its build. Two independent MTP breakages landed next door (**#30860**: qwen4exp +
+    `--spec-type draft-mtp` aborts at load; **#30782**: 0 % draft acceptance after an update), so the
+    +31.2 %/-7.3 % MTP result cannot cross a build boundary without re-baselining - print draft acceptance.
+    **#30697** now shows **SLRU (#30637) changing which Vulkan settings work while the bug persists**, and
+    its own case 3 loads with the cache **silent** - the engagement assertion is still mandatory.
+  - **Colibri put our GGUF family on its CUDA chain**, which turns yesterday's trap into a choice: **#2252**
+    (2026-10-20T03:13Z) gives qwen36 a CUDA chain for GGUF block formats, **#2250** adds qwen36's MTP head
+    on Vulkan/CUDA/CPU, and **#2257/#2258** promote routed experts from the host pool to the card as a
+    conversation routes them. So the GGUF probe is **two declared arms, CUDA and Vulkan**, with the log
+    naming the kernels - **#2189's Q4_K question is still unanswered** (last comment 2026-10-18T08:14Z).
+  - **Research index reached 2026-10-19, and the first paper is about our own harness split.** **2610.26632**
+    "When the harness decides success: state that cannot be re-observed": deleting context costs a model
+    **nothing when the fact can be re-looked-up and drops it to chance when it cannot**, a **92.5 pp**
+    difference (90 % CI [89.5, 95.5]) - the cleanest external statement of why `longctx` and `ledger` fail
+    differently, and of why the state-note-per-turn rule matters. **2610.26797** analyses **Jev/JevAny**
+    calibration: a student inherits the teacher's bias and agreement with the teacher cannot reveal it -
+    which is what a 0.85 threshold sweep silently assumes. **2610.26827** (evidence preservation: QA accuracy
+    under-reports faithfulness loss), **2610.26722** (repetition-termination, the mechanism behind our ledger
+    loop and Strata's repeat-recovery path), **2610.26650** (score a repair's target set and its update
+    separately - the axis `repo2` approximates).
+  - **Checked and unchanged:** Ollama 0.40.6 / 0.40.7-rc0 / installed 0.40.4 (the decision replay is now
+    **owed for a fifth day**, minutes of work); Colibri no release since v2.0.0, #2189 and #2091 unchanged;
+    the four HF core packs by revision and size; llama.cpp v0.7.0 with **fourteen b-tags in 24 h**, all
+    `prerelease: true`; #30793 (0 comments), #29371, #29922; exllamav2 v0.3.2, koboldcpp v1.123.1, sglang
+    v0.5.22, vllm v0.32.0. **`magnitudedev/magnitude` moved 0.2.9 → 0.2.10** (2026-10-20T05:56Z) and now
+    **shows which backend it uses per GPU** - the attribution check our iGPU probe had to invent; our
+    Magnitude row is a 0.2.9 row and any re-measure names the build.
+  - **The ranked shortlist it hands the queue, cheapest first:** the Ollama native decision replay (fifth
+    day); **our GGUF on Colibri as a two-arm CUDA-vs-Vulkan probe** (no download, but the engine predates
+    #2252); the expert-cache ladder **naming its build** (SLRU from b11732) with the engagement assertion;
+    the cold-vs-cold expert-profile pair, **now expected small** (the shipped profile is only the third sort
+    key behind learned heat; stale vs rebuilt = 44.8 vs 43.6 tok/s inside ±5 %) and needing **n≥2 starts per
+    arm** against the 8-28 % spread; Kolibri Q3_K_M on a **named** stock build with **first-request TTFT
+    before any warmup**; **`STRATA_ADAPT_OVERLAP` pinned deliberately at 0.1.46** with interleaved rounds;
+    and the **#3059 Windows file-cache patch**, still a build because the patch was closed by the reset, not
+    merged. Also owed and not ranked: the eight Colibri arithmetic items at `--timeout 400`, and - new - a
+    **Qwen3.6-on-Strata context ladder** only if `strata --families` clears the gate.
+
 - October 19 (applied changes): **the two conclusions from the reading-fidelity run are in `config.yml` now**,
   both verified by a live call (`CFG-OK`) and a YAML parse. `slow` was `deepseek-flash` - the same tier as
   `smol`, so the "thorough analysis" role did no work; it is **`deepseek-v4-pro`** now. `defaultThinkingLevel`
