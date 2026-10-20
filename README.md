@@ -62,6 +62,14 @@ carry the tables.
   b11480 is **LRU**, while **#30637** made it 50/50 SLRU from **b11732**, so this ladder does not transfer.
   At 4,096 the card sits at **11,335 of 12,227 MiB**, so the next rung is a VRAM-floor question, not a rate
   question. Source: `../ai_bench/queue-20261016-shortlist/q2-moe-cache-ladder-20261020.md`.
+- **The cache ceiling is a floor value, not a flag value - and the engine clamps rather than refuses.** Ask for
+  more than fits and llama.cpp silently grants what fits and serves: a **6,144 MiB** request on this card
+  allocated about **5.6 GiB** and left **405-429 MiB** free, which is **89-91 tok/s** but **below the 0.5 GiB
+  GPU floor**, so it runs and is not admissible as a lab row. The largest admissible rung is **5,376 MiB**
+  (**683 MiB** free, **~83 tok/s**, +75 % against the cache-off control), with 5,632 already failing the floor
+  (453 MiB) and 5,120 (911 MiB) safely under it. So: climb to the floor, stop before it, and **say when a run
+  was clamped**, because a clamped rung's cache size is not the number in the flag.
+  Source: `../ai_bench/queue-20261016-shortlist/q2c-cache-ceiling-20261020.md`.
 - **Thread count stops mattering once the cache is on.** Same build, same flags, only `-t` different,
   interleaved direction, n=2 per arm: **+3.5 %** at rung 0 (**t=8 48.80 -> t=16 50.50** tok/s) but **+0.5 %**
   at rung 4096 (**76.51 -> 76.86**). The expert cache takes the work off the CPU, so the extra threads have
@@ -351,6 +359,13 @@ lie. Every entry here was a claim *this lab* made and then refuted with its own 
   **47.44** and rung 4096 **79.39 / 81.17** against **78.28** - a **6 %** artifact against a **65 %** effect.
   The control is now part of the item, not an afterthought.
 
+- **"An over-sized `--moe-cache-mib` is refused at load."** It is not: a 6,144 MiB request on a 12 GB card
+  **came up in 11.6 s** and served at 89-91 tok/s, having silently granted about 5.6 GiB. Predicted a CUDA
+  allocation error and no listening server. The general lesson: a flag that names a resource *request* is not a
+  flag that names a resource *allocation*, so the loaded configuration has to be read back from VRAM rather
+  than trusted from the command line - and a clamped run has to say so, because its cache size is not the
+  number in the flag.
+
 ### Tried, and it made no difference
 
 Kept because a null result is a measurement, and because the next person will otherwise spend the same hours:
@@ -496,11 +511,21 @@ Nothing measured here was produced through that path: it is a way to see the box
 reproduce a row of the table.
 ## Reports
 
-Reports tracked in this repo link directly. Seven link into `../ai_bench/…`, the lab's working tree, which
-is **not** this repository, so they do not resolve on GitHub. Exactly one of those seven is mirrored here:
+Reports tracked in this repo link directly. Eight link into `../ai_bench/…`, the lab's working tree, which
+is **not** this repository, so they do not resolve on GitHub. Exactly one of those eight is mirrored here:
 the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPORT.md`](instruments/overnight-20261011/REPORT.md).
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
+
+**2026-10-20 &middot; [The cache ceiling is a floor value, and the engine clamps rather than refuses](../ai_bench/queue-20261016-shortlist/q2c-cache-ceiling-20261020.md)**
+&ndash; the rung above 4,096, asked as a floor question. A **6,144 MiB** request does **not** fail: it comes up
+in **11.6 s** and serves at **89-91 tok/s**, having silently granted about **5.6 GiB** and left **405-429 MiB**
+free - faster than anything admissible, and **below the 0.5 GiB GPU floor**. Sweeping the rungs against the
+floor gives the operative answer: **5,120 MiB -> 911 MiB free, 5,376 -> 683 MiB free (~83 tok/s, +75 % over
+cache-off), 5,632 -> 453 MiB free (fails)**. So the largest admissible rung is **5,376**, the ceiling is set by
+the floor and not by the flag, and any clamped run must be labelled as clamped. Prediction scored **1/3** -
+the refusal I expected never happens, which is the part worth keeping. Idle-VRAM baseline differs between
+sessions (831 MiB clean vs ~1,982 earlier), so compare engine-only figures across days.
 
 **2026-10-20 &middot; [16 threads against 8: real at rung 0, absent where it matters](../ai_bench/queue-20261016-shortlist/q2b-thread-rerun-20261020.md)**
 &ndash; the follow-up that prices the one inherited setting inside today's own result. Same build (**b11480**),

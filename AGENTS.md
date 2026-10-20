@@ -1,5 +1,26 @@
 # Local AI lab working instructions
 
+- October 20 (cache ceiling, **run**): **the engine clamps an over-sized cache instead of refusing it, and the
+  real ceiling is the 0.5 GiB GPU floor.** `ai_bench/queue-20261016-shortlist/`
+  (`DECLARATION-20261020-q2c.md` before any load, then `q2c-cache-ceiling-20261020.md`, `q2c-floor-6144.py`,
+  `result-q2c-floor-6144.json`, `result-q2c-floor-repeats.json`, `result-q2c-admissible-rungs.json`).
+  - **`--moe-cache-mib 6144` on this 12,227 MiB card does not fail.** It came up in **11.6 s** and served at
+    **88.4-90.9 tok/s**, having granted about **5.6 GiB** (0.5 GiB less than asked) and leaving **405-429 MiB**
+    free. Prediction said a CUDA allocation error and no server: **wrong**, and it is the useful half. The log
+    line is `common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user
+    to 99, abort` - the auto-fit declined and the cache took what was left.
+  - **Swept against the floor**: 4,096 -> 1,942 MiB free (73.7/75.8 tok/s), 5,120 -> **911** (82.6/83.4),
+    **5,376 -> 683 (82.7/83.6, the admissible maximum)**, 5,632 -> **453 (fails)**, 6,144 clamped -> 405-429
+    (88-91 tok/s, fails). So **~83 tok/s is the best admissible configuration** and **+75 %** against the
+    cache-off control, up from the +65 % the ladder's 4,096 rung showed.
+  - **Standing consequence:** climb rungs until free VRAM approaches 512 MiB, stop before it, and **label any
+    clamped run** - a clamped rung's cache size is not the number in the flag, so read the loaded configuration
+    back from VRAM rather than trusting the command line.
+  - **Comparability trap:** idle VRAM was **831 MiB** on today's clean desktop but ~**1,982 MiB** earlier in the
+    same day, so the same rung reads ~1.1 GiB higher in the ladder's rows. Compare **engine-only** figures
+    across sessions, never the totals.
+  - No engine resident afterwards; gates clear. Twelve loads in this item, none longer than 23 s.
+
 - **Standing rule (2026-10-20, Kevin's instruction): the README is updated whenever a result changes a
   recommendation *or* adds real knowledge - and it keeps a "Tried, and it made no difference" record.** Null
   results, wrong predictions, artifacts and abandoned arms belong in it beside the wins, because the next
