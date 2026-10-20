@@ -1,5 +1,30 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **goal restated: teaching diagrams, later animations; CAD arms declared, nothing
+  installed**): `ai_bench/image-models-20261020/PROTOCOL-CAD.md`. The four production methods are now four arms of
+  one corpus, and the choice is **content-driven, not taste-driven**:
+  - **LLM writes SVG directly (B)** for flowcharts, timelines, org charts, swimlanes, annotated 2D - exact
+    geometry, real `<text>`, layered and editable, animatable later with CSS/SMIL, **no install and no download**.
+  - **Blender `bpy` (D)** when 3D or motion enters: keyframes, camera moves, parametric objects; 2D via
+    orthographic render, Freestyle or curve export.
+  - **KiCad `pcbnew` (E)** only when the content is electrical: S-expressions and a real layout engine, nothing else
+    in the list can express a netlist. **Using KiCad for a flowchart is a category error** and using diffusion for
+    a labelled diagram throws away editability, which is what teaching material needs most.
+  - **Diffusion + trace (A)** stays for illustrative 2D where exactness is not the goal.
+  - **Costs measured today: neither Blender (~350-400 MB, own bundled Python, `--background --python`) nor KiCad
+    (~1.2-1.5 GB, `kicad-cli`/`pcbnew` only from its own Python) is installed.** Method B needs nothing new.
+  - **New scoring axes for D/E, because exact geometry is free there**: **validity** (does the script run and the
+    document render), **editability** (text vs outlines, named/layered objects, one path per semantic element), and
+    **animation-readiness** (is there a time parameter at all). Trace metrics apply to A only.
+  - **Subset rule**: each arm is scored only on prompts it can express (`kind` in `prompts-diagrams.json`), every
+    table states the subset, cross-subset comparison is forbidden, and the overlap (schematic, blueprint,
+    flowchart) is where arms must be compared.
+  - Predictions recorded before any run: B beats A on editability and axis alignment and loses only to crowded
+    layouts; **B's failure mode will be layout, not geometry**; Blender wins animation-readiness trivially and
+    loses setup time; KiCad is the most reliable and the narrowest.
+  - Animation is a **separate protocol revision** (frame-level OCR/structure/trace plus a continuity measure),
+    declared when the first animated asset is attempted, not bolted on now.
+
 - October 20 (image track, **focus set to 2D vector-traceable output; instrument validated, no model weights**):
   the goal is charts, blueprints, floor plans and schematics that survive an auto-tracer, so the metric is no
   longer "looks clean" but **traces cleanly**. `ai_bench/image-models-20261020/`: `PROTOCOL-2D.md`,
