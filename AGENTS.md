@@ -1,5 +1,36 @@
 # Local AI lab working instructions
 
+- October 20 (expert-cache ladder, **run**): **q2, declared 2026-10-16 and never started, is measured - and
+  the declared prediction is refuted on all three clauses.** `ai_bench/queue-20261016-shortlist/`
+  (`DECLARATION-20261020-q2.md` before the run, then `q2-moe-cache-ladder-20261020.md`,
+  `result-q2-moe-cache-mib-ladder.json`, `result-q2-warm-control.json`, `result-q2-vram.json`). One workload,
+  staged `b11480`, `-t 8`, `--cpu-moe --load-mode none`, cold machine after an unclean reboot, 1,882 s.
+  - **Decode rises monotonically to the top rung**: **47.4 / 45.3 / 45.7 / 58.6 / 66.8 / 78.3** tok/s at
+    **0 / 256 / 512 / 1024 / 2048 / 4096** MiB - **+65 % at 4,096**, letters **90/93 at every rung** (same as
+    the reference row), so the knob moves rate and not answers. Shape matters: a **dead zone to 512 MiB**
+    (45.3-45.7 is at or below no cache), a knee at 512-1024, then near-linear. **Prefill gains first**
+    (72 -> 93 -> 101 tok/s by 512) and flattens; decode gains last. The prediction said the opposite on
+    every count, and said the control would be 35-40 tok/s when it is 47-50.
+  - **The rung order had to be controlled, and it was worth 6 %, not 65 %.** The ladder runs 0 -> 4096 while
+    every rung re-reads the same 20.4 GB file, so page-cache warming could manufacture the curve. Warm
+    file cache, fresh process: rung 0 **50.25 / 50.13** against cold **47.44**, rung 4096 **79.39 / 81.17**
+    against **78.28**. Repeatability: three rung-0 runs span 47.4-50.6, three rung-4096 runs span 78.3-81.2.
+  - **Engagement had to be proven separately, because b11480 logs no MoE-cache line at all** - today's engine
+    sections contain only prompt-cache warnings, which is exactly #30697's "silent knob" case, and a silent
+    knob cannot be separated from an inert one by speed. VRAM does it: idle 1,982 MiB, rung 0 **7,229**,
+    256 **7,493** (+264), 1024 **8,263** (+1,034), 4096 **11,335** (+4,106) of 12,227 - within 10 MiB of the
+    request. **The rule from here: a `--moe-cache-mib` result without a VRAM-or-log engagement check is
+    unscored.**
+  - **4,096 is the top rung because the card is full, not because the curve flattens** - 892 MiB left against
+    the 0.5 GiB floor, so a 6,144 rung is a *floor* question and the floor must be re-read before the load.
+  - **Build naming is load-bearing**: b11480 is **LRU**; `#30637` made it 50/50 SLRU from **b11732**, so these
+    rungs do not transfer to a newer binary. **`-t 8` is inherited, not optimal** (16 threads measured 32.3 vs
+    30.4 on the a3b on 2026-10-19): a 16-thread rerun of the 0 and 4096 rungs is the cheap follow-up.
+  - No engine resident afterwards, gates **39.0 GiB free physical / 43.6 GiB commit**. The box rebooted
+    uncleanly at **2026-10-19 21:03:55** (Kernel-Power 41, no bugcheck code, no power-button timestamp), which
+    is why the 07:30 scan had to be run by hand - the task recorded **Missed=1**, so check `Missed` rather
+    than assuming a trigger fires.
+
 - October 20 (Ollama native decision path, **run**): **the item owed since 2026-10-16 is closed, and the price
   the shortlist quoted was already paid.** `ai_bench/ollama-decision-20261020/` (`PREDICTION.md` first, then
   `REPORT.md`, `native_replay.py`, `result-laya-q8.json`), declared and run after the 10-20 scan, one workload,

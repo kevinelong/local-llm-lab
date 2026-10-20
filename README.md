@@ -445,11 +445,26 @@ Nothing measured here was produced through that path: it is a way to see the box
 reproduce a row of the table.
 ## Reports
 
-Reports tracked in this repo link directly. Five link into `../ai_bench/…`, the lab's working tree, which
-is **not** this repository, so they do not resolve on GitHub. Exactly one of those five is mirrored here:
+Reports tracked in this repo link directly. Six link into `../ai_bench/…`, the lab's working tree, which
+is **not** this repository, so they do not resolve on GitHub. Exactly one of those six is mirrored here:
 the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPORT.md`](instruments/overnight-20261011/REPORT.md).
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
+
+**2026-10-20 &middot; [The `--moe-cache-mib` ladder: monotone to the top rung, and the prediction was wrong](../ai_bench/queue-20261016-shortlist/q2-moe-cache-ladder-20261020.md)**
+&ndash; the 10-16 queue's q2, declared "never started", run through its own runner (1,882 s) on staged
+**b11480** (LRU), `-t 8`, `--cpu-moe --load-mode none`, cold machine. Every clause of the recorded
+prediction fails: the curve is **monotone after a dead zone**, the control is **47-50 tok/s** not 35-40,
+and the **top rung wins**. Decode: **47.4 / 45.3 / 45.7 / 58.6 / 66.8 / 78.3** tok/s at **0 / 256 / 512 /
+1024 / 2048 / 4096** MiB - **+65 % at 4,096**, with the letters **90/93 at every rung**, so the knob moves
+the rate and not the answers. Prefill gains first (72 &rarr; 101 by 512 MiB) then flattens; decode gains
+last. Two controls were needed before the number was usable: **rung order vs the Windows file cache**
+(warm-file-cache rerun: rung 0 50.25 against 47.44, rung 4096 79.39 against 78.28 - a **6 %** artifact, not
+65 %), and **engagement**, because b11480 logs ***no*** MoE-cache line and a silent knob is indistinguishable
+from an inert one by speed: **VRAM settles it at +264 / +1,034 / +4,106 MiB** for the 256 / 1024 / 4096
+rungs, within 10 MiB of what was asked. At 4,096 the card sits at **11,335 of 12,227 MiB**, so 6,144 is a
+*floor* question, not a rate question. b11480 is **LRU**; post-b11732 is SLRU, so these values do not
+transfer.
 
 **2026-10-20 &middot; [Ollama 0.40.6's native decision path: same verdicts, same numbers to within 1.7 pp, and a much looser answer](../ai_bench/ollama-decision-20261020/REPORT.md)**
 &ndash; the item owed since 2026-10-16 is closed, and it closes as a **reproduction with a caveat that
