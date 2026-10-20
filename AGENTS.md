@@ -1,5 +1,27 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **three arms measured on the frozen corpus**): `RESULTS-ARMS-20261020.md`.
+  B = `qwen3-coder:30b` writing SVG; klein = FLUX.2-klein-4B GGUF Q4_K_M (4 steps, cfg 1.0); Z-Image =
+  Z-Image-Turbo **nvfp4** (9 steps, cfg 1.0). Same corpus, same scorer, 1024x1024.
+  - **The table**: OCR exact **0.876 / 0.614 / 0.811** (B / klein / Z-Image); images with every label correct
+    **14/19 / 3/20 / 13/20**; structure checks **44/57 (77 %) / 37/60 (62 %) / 37/60 (62 %)**; didactic answers
+    **45/57 (79 %) / 28/60 (47 %) / 36/60 (60 %)**; paths median **69 / 27.5 / 28.0**; axis median
+    **100 / 100 / 93.8 %**; wall **13 s / 5.0 s / 5.1 s**; peak VRAM **n/a / 10,350 / 11,748 MiB**.
+  - **Text fidelity is the discriminator**, as the smoke test predicted: for teaching diagrams the label is the
+    payload, and Z-Image is 2.6x better than klein on full-label images while sitting 2 points off code.
+  - **Diffusion wins the trace axis outright** (27.5/28.0 paths against 69) - but method B's 69 is the *worst
+    case*: its real artifact is a 1-3 KB SVG with real `<text>`, which needs no tracing. Path count is fair for
+    diffusion and misleading for code.
+  - **Z-Image is the diffusion model to keep** and **breaches the 0.5 GiB VRAM floor** (11,748 MiB peak = 479 MiB
+    free) while klein passes with 1,877 MiB free. Reported as a floor breach, not silently accepted.
+  - **Neither diffusion arm is deterministic at fixed seed** (PNG hashes differ between identical runs), so small
+    arm differences must be read against that noise - the LLM track's noise rule, applied here.
+  - **Two ComfyUI/engine facts worth their cost**: the **int8 `convrot` Z-Image checkpoint does not load**
+    (`UNETLoader` -> `KeyError: 'int8_tensorwise'`); the **nvfp4** variant does, and matches this Blackwell card.
+    ComfyUI also needs **`comfyui-frontend-package`** as a separate pip install.
+  - **Cheapest known improvement, still unbuilt**: a label validator that requires every required string as a
+    `<text>` element and re-asks on a miss - takes B's 0.876 toward ~1.0 with no new weights.
+
 - October 20 (image track, **first real numbers; klein-4B staged; Blender+KiCad installed**): Kevin's decisions -
   download on **D:**, install Blender and KiCad now, **DeepSeek API allowed for scoring, everything else local**.
   - **Method B measured** (`ai_bench/image-models-20261020/RESULTS-METHOD-B.md`, `result-method-b-*.json`):
