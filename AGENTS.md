@@ -1,5 +1,31 @@
 # Local AI lab working instructions
 
+- October 20 (**LLM track paused; image track declared, no download**): state is recorded in
+  `ai_bench/CONTINUE-HERE.md` (top block) and git is clean at `5997b15`. Nothing resident: 43.6 GiB free
+  physical / 41.5 GiB commit / GPU 1.3 GiB idle.
+  - **New track: local image generation, measured the same way.** `ai_bench/image-models-20261020/PROTOCOL.md`
+    plus **`prompts.json`** frozen before any model runs: **18 prompts in 6 categories, 37 yes/no checks, 54
+    images per arm** at 1024x1024 and seeds {1234, 5678, 9012}. The correctness guard is a count, not an
+    opinion - `text` (exact string), `count`, `spatial`, `attribute`, `negation` (expects "no"), and three
+    `scene` prompts with no checks for a qualitative gallery only.
+  - **Measures mirror the LLM protocol**: load time, cold first-image latency, steady-state median/p95 over 54
+    images, **peak VRAM sampled at 250 ms** (the q2c lesson - a silent clamp looks like success), OOM count,
+    checks passed, **determinism** (same prompt+seed twice, PNG bytes), and a **cross-quant PSNR/SSIM delta** at
+    the same seed, which is our next-token-agreement idea in pixels.
+  - **Sizes verified at source, not from the blog post**: FLUX.2-klein-4B GGUF Q4_K_M **2.60 GB** (Q8_0 4.30,
+    BF16 7.75) + `qwen_3_4b_fp4_flux2` **3.85 GB** + `flux2-vae` **0.34 GB** = **~6.8 GB**;
+    Z-Image-Turbo diffusion `int8_convrot` **6.20 GB** (nvfp4 4.51, bf16 12.31) + encoder fp8 **5.63** (fp4
+    3.48) + `ae` **0.34 GB** = **~8.3 GB**; SDXL-Turbo baseline ~7 GB. **The 4B text encoder is a separate
+    8.04/5.63/3.48 GB component** - "11.8 GB FP8" is the whole stack resident, which is why quant mixing
+    matters on this card. **FLUX Klein is `FLUX.2-klein`**, and a newer `flux-3-image-klein` appeared
+    2026-10-14 (not in the brief; separate decision). The **9B is licence `other`**, checked before download.
+  - **ComfyUI Desktop 0.8.27 is already installed** (`%LOCALAPPDATA%\Programs\ComfyUI`, basePath
+    `Documents\ComfyUI`, uv venv CPython 3.12, `models/` holds only an SD1.5 checkpoint, `custom_nodes` empty).
+    Its venv interpreter is under `.venv/Scripts`, not `.venv/python.exe` - check before scripting it.
+  - **Order of work, declared**: SDXL-Turbo baseline first (proves harness, scorer and determinism end to end),
+    then FLUX.2-klein-4B Q4_K_M with Q8_0 as its quant pair, then Z-Image-Turbo int8 + fp4 encoder, then the 9B
+    only if its licence is acceptable. Every arm gets a prediction before its run.
+
 - October 20 (lead 2, **no inference**): **the Maya video converges on the same knob, and its bandwidth model
   survives a check against our own rows.** Morgans Code, "Is $1,500 All You Need to Run DeepSeek V4.1 Flash?"
   (`mat0oOXVCcU`, 2026-10-20, manual subtitles, one comment). Note:
