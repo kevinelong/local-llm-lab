@@ -1,5 +1,25 @@
 # Local AI lab working instructions
 
+- October 20 (lead, **no run**): **a self-tuning video hands us the one llama.cpp knob this lab has never
+  tested - `-b` / `-ub` - and its regime is ours.** Weights & Wonders, "I asked Qwen to Optimise Itself"
+  (`B4QKh3mcxRs`, 2026-10-19): Qwen3.8-Flash-Next 3-bit, **82 GB on a 48 GB RTX 8000** (so a model bigger than
+  the card, experts refetched per chunk - our `--cpu-moe --load-mode none` shape), an agent tuning llama.cpp for
+  2 h under a quiz + OOM guard. Winner **`-b 8192 -ub 4096`** (automatic is 2048/512), which alone took its test
+  job 36 -> 26 s; MTP three-ahead plus big chunks reached 23 s. Full note with the mapping to our rows and the
+  proposed ladder: `ai_bench/queue-20261016-shortlist/LEAD-20261020-ubatch-video.md`, `status: lead`.
+  - **Three of its findings replicate ours independently**: all-48-threads slowest (our 8/16/24 ladder),
+    MTP alone wall-negative (our 2026-10-08: +31.2 % per token, -7.3 % wall), and squeezing KV slower
+    (our q1: residency is 9-11x).
+  - **One conflicts and should not be reconciled by discarding it**: their "expert cache in VRAM did not help"
+    against our +75 % at rung 5,376. At 48 GB their experts mostly fit already; at 12 GB ours cannot. Both
+    results put the same cost centre - expert fetches per chunk - and imply **ubatch and cache rung may stack**.
+  - **Our instrument is blind to it**: `RATE_PROMPT` is one sentence, so prefill and ubatch have nothing to act
+    on. Any `-b`/`-ub` test needs a 4k-16k-token prompt, separate prefill/TTFT/decode reporting with the first
+    request before any warmup, and must run at **rung 4,096**, because 5,376 leaves only 683 MiB of VRAM for
+    bigger compute buffers.
+  - **Read its direction, not its decimals**: one run per configuration, no variance, and its intermediate
+    numbers sit inside the 8-28 % start-to-start spread this lab has measured on Strata.
+
 - October 20 (KV residency replication, **run**): **`--kv-resident 32768` is a 9-11x decode lever, and this
   lab's own 2026-10-16 measurement of it was an artifact of the machine's prior workload.**
   `ai_bench/queue-20261016-shortlist/` (`DECLARATION-20261020-q1.md` before the load, then
