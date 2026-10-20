@@ -1,5 +1,23 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **the structural validator failed its own first flight - and that is the finding**):
+  `RESULTS-STRUCTURE-VALIDATOR.md`, `validate_structure.py`, `structure-expectations.json` (v2).
+  - Method B emits SVG, so structure is **countable** (rects, connectors, text nodes) - a deterministic check
+    instead of asking a vision model "are there exactly four boxes?". v1 froze **exact** counts everywhere and
+    scored **8/19**; reading the failures showed the **instrument was wrong**: a two-bedroom plan legitimately has
+    **five** text elements, a timeline's four ticks **are** connectors, a right-angle org connector is **three**
+    segments, a swimlane's lane rectangles inflate any box count, and dimension text is legitimately extra.
+  - **v2** splits constraints into `_exact` (prompt truly fixes it), `_at_least` (prompt fixes a minimum) and
+    **unconstrained** (free-form geometry), with the reason for each change recorded in the file. Result **19/19**.
+  - **The honest reading of 19/19: a validator that passes everything tests nothing.** v2 only has teeth on the
+    five prompts whose structure is genuinely pinned (`flow-1`, `bar-1`, `org-1`, `network-1`) - **10/10 documents
+    correct there** - while it can no longer catch what is actually wrong elsewhere: `process-1` draws **12
+    rectangles for a three-box swimlane** and 8 connectors where one lane crossing is asked, and `blueprint-1`
+    carries **27 connectors and 8 labels** for a two-label drawing.
+  - **Next instrument for the free-form prompts is a shape check, not a tighter count**: lane count and a single
+    cross-lane arrow for `process-1`, dimension-line presence for `blueprint-1`. Not built.
+  - **Lesson recorded**: the first version of a measure is a hypothesis about what matters; both passes are kept.
+
 - October 20 (image track, **512 variant measured: dev runs, dev does not win; resolution is a variable**):
   `RESULTS-512-VARIANT.md`. All four arms re-run at **512x512** (10 prompts, seed 1234) because dev blurs at
   1024 but renders there.
