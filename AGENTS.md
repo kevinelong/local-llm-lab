@@ -1,5 +1,28 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **first real numbers; klein-4B staged; Blender+KiCad installed**): Kevin's decisions -
+  download on **D:**, install Blender and KiCad now, **DeepSeek API allowed for scoring, everything else local**.
+  - **Method B measured** (`ai_bench/image-models-20261020/RESULTS-METHOD-B.md`, `result-method-b-*.json`):
+    `qwen3-coder:30b` writing SVG for the 10 frozen diagram prompts, 2 samples each -> **19/20 valid documents**,
+    **axis alignment median 100 %**, **major colours median 2**, **traced paths median 69** (range 25-323),
+    **OCR exact mean 0.876 with 14/19 fully matched**, 8-22 s per image plus one 180 s timeout.
+  - **Prediction confirmed with a refinement**: failures are **omitted labels and inefficient structure**, not
+    overlapping text. `blueprint-1` drew perfect geometry and **0/2 labels**; `tree-1` scored **axis 0 %** which is
+    *correct* for a tree, so axis must be read against prompt intent; `process-1` drew **309-323 paths** against a
+    median of 69 - readable (OCR 2/2) and badly traceable, exactly the case the protocol warns about.
+  - **The cheapest improvement in this whole track is a harness fix, not a model**: validate that every required
+    label exists as a `<text>` element, then ask for a repair. That takes 0.876 toward 1.0 with no new weights.
+  - **Staged on D: exactly as the HF API promised** (byte-for-byte: 2,604,311,104 / 3,848,213,998 / 336,211,292):
+    `flux-2-klein-4b-Q4_K_M.gguf`, `qwen_3_4b_fp4_flux2.safetensors`, `flux2-vae.safetensors` under
+    `D:/models/comfyui/{diffusion_models,text_encoders,vae}`, with `extra_models_config.yaml` given a `d_drive`
+    section (backup kept). **`city96/ComfyUI-GGUF` cloned into custom_nodes** and `gguf`/`sentencepiece`/`protobuf`
+    installed into the ComfyUI venv, because core ComfyUI cannot load a `.gguf` UNet without it.
+  - **Blender 5.2.2 LTS** and **KiCad 10.0.6** installed and verified (`kicad-cli` at
+    `%LOCALAPPDATA%\Programs\KiCad\10.0\bin`). **Both refuse direct launch from Git Bash - use `cmd.exe`**, the
+    same quirk as the ComfyUI venv interpreter.
+  - **Not yet run**: any diffusion model, the structure/didactic VLM scoring, Blender/KiCad script arms. Method C
+    (Recraft/Firefly) is excluded by Kevin's "local only" decision and stays an unmeasured external row.
+
 - October 20 (image track, **goal restated: teaching diagrams, later animations; CAD arms declared, nothing
   installed**): `ai_bench/image-models-20261020/PROTOCOL-CAD.md`. The four production methods are now four arms of
   one corpus, and the choice is **content-driven, not taste-driven**:
