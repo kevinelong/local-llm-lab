@@ -11,8 +11,16 @@
   - **Ruled out with evidence**: the VRAM reservation (identical 1.5 with and without), the quantisation (Q4 and
     Q5 blur equally), the guidance mechanism (FluxGuidance and classic CFG both blur), step count (30 steps only
     lifts 1.5 -> 5.4), and the VAE (shared, verified at the official 335,304,388 bytes).
-  - **Next route for dev, if wanted**: ComfyUI's fp8 dev checkpoint (16.06 GB, heavy offload on 12 GB) or the
-    **diffusers `FluxPipeline`** path, which bypasses the GGUF loader entirely.
+  - **Next route for dev, tried the same day**: ComfyUI's **fp8 dev checkpoint** (16.06 GB) blurs identically
+    through `CheckpointLoaderSimple` (**Laplacian 1.1**), and moving T5 to **`device: cpu`** changes nothing
+    (**1.5**). The diffusers route is closed: **`black-forest-labs/FLUX.1-dev` returns 403** on the stored token.
+  - **The blur is resolution-dependent**: the same fp8 weights at **512x512 render sharply (Laplacian 236.6, 12 s
+    instead of 40-82 s)**, while 1024x1024 blurs in every configuration. So it is a **silent quality collapse at
+    1 MP** in this stack (ComfyUI 0.18.2 + fp8/GGUF FLUX dev + Blackwell + 12 GB), not a loader, encoder or model
+    problem - schnell is sharp at 1024 through the same path. **Same class as Strata #2856**: a successful exit
+    status hiding a broken image, which is exactly why every arm here is scored by OCR and a trace pass.
+  - **Declared, not run**: score **all four arms at 512x512**, where dev demonstrably works, making resolution a
+    protocol axis instead of a constant.
   - **Z-Image's floor status is a distribution, not a number**: peaks across runs were **11,165-11,794 MiB**, i.e.
     **433-1,062 MiB free** - sometimes over the 0.5 GiB floor, sometimes not. **`--reserve-vram 1.2` did not cap it**
     (11,210 MiB on a cold single image, 11,794 MiB in the batch, and the batch scored identically at 0.811/13-20).
