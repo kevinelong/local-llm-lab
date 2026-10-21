@@ -540,6 +540,26 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-21 &middot; [Daily news scan: 0.1.46 does not recover the decode loss on three architectures, and Strata's own speed numbers were three different measurements](NEWS-2026-10-21.md)**
+&ndash; the file's first job is to **correct yesterday's headline**. **#3252** went 7 &rarr; 11 comments
+with **three architectures** saying the same thing: **sm_86 RTX 3080 Ti 12 GB (our VRAM class) &minus;11 %
+for 0.1.46 vs 0.1.45.3**, **sm_80 A100 &minus;15 % vs 0.1.44.1** with both suspect switches dead inside
+&plusmn;5 %, and **sm_75 Linux &minus;6.7 to &minus;9.7 %** &ndash; where yesterday read one sm_120 table
+as "not a speed change". **The only named mechanism is Linux-only** (with the 0.2.x file-tier defaults
+off, 0.1.46.2 equals 0.1.42 within &plusmn;1.3 %), so a Windows bump is a genuine test of exemption.
+**Strata v0.2.2 / engine 0.1.47** (feed `sequence` 107) also **audits its own speed numbers**: an agent
+turn read **632 tok/s** in 0.2.0-beta against a real **50-75**, and some surfaces divided by the whole
+request, reading **about half** &ndash; so never quote a Strata rate from a UI surface. **MTP never fires
+on Windows on the qwen36 path** (**`drafts accepted 0 of 0`** against 73 % on Linux), with the
+expert-placement bug traced to a clamp at **`q36_engine.cu:2897`** and **fp32-only KV** that refuses
+`--kv` (**#3303**, **#3508**). New in the decision track: **H2O-Lightning-4B merged into
+`llama-server`'s own `/v1/systemone`** (231 tasks, **2.4e-6** agreement; the wrong *type* moves
+probabilities by **up to 0.33**) and **`pplx-decider`**, a 27B model whose library page claims
+**85.7 % vs Jev's 84.5 %**. **Ollama promoted 0.40.7 to stable by renaming the tag**, keeping
+`published_at` &ndash; so that field is not evidence a new build shipped. **Colibri merged 21 PRs
+post-`v2.0.0`**, which turns our probe into a build. Seven ranked items, the "nothing moved" list, and
+no download, engine, inference or benchmark. Reading only.
+
 **2026-10-20 &middot; [The cache ceiling is a floor value, and the engine clamps rather than refuses](../ai_bench/queue-20261016-shortlist/q2c-cache-ceiling-20261020.md)**
 &ndash; the rung above 4,096, asked as a floor question. A **6,144 MiB** request does **not** fail: it comes up
 in **11.6 s** and serves at **89-91 tok/s**, having silently granted about **5.6 GiB** and left **405-429 MiB**

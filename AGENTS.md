@@ -1,5 +1,121 @@
 # Local AI lab working instructions
 
+- October 21 (news scan, **re-run by hand after the 07:30 task died**): **`NEWS-2026-10-21.md` is
+  written against `NEWS-2026-10-20.md`, and its first job is to correct yesterday's headline.** Reading
+  only - nothing downloaded, installed, built or run, no engine started, no inference, no benchmark,
+  and nothing under `C:/Users/kevin/ai_bench` read or touched.
+  - **The scan itself failed this morning and the failure is recorded above**: a start line, then
+    `-1073741510` (`0xC000013A`, terminated), **no exit line and no file**. This is the manual re-run
+    through the same wrapper, unmodified.
+  - **Correction to yesterday's §3b: 0.1.46 does not recover the decode loss.** **#3252** went from 7
+    to 11 comments with **three architectures** saying the same thing: **sm_86 RTX 3080 Ti 12 GB
+    (our VRAM class) -11 % for 0.1.46 vs 0.1.45.3** (59.83 → 50.20/54.29 t/s, n=9); **sm_80 A100 -15 %
+    vs 0.1.44.1** (94.5 vs 111.3) with the two suspects (`STRATA_MMVQ_IL=0`,
+    `STRATA_ROUTE_TAIL_SKIP=0`) dead inside ±5 %; **sm_75 RTX 2080 Ti Linux -6.7 to -9.7 %**. Yesterday
+    concluded "not a speed change" from **one** sm_120 table (#3189) plus the maintainer's P100/A4000
+    rows; today's reading is **architecture-dependent**, and our architecture holds the only flat
+    measurement against three that are not. **The one named mechanism is Linux-only**: with the **0.2.x
+    Linux file-tier defaults off**, 0.1.46.2 **equals 0.1.42 within ±1.3 %** - so a Windows bump is a
+    real test of exemption, not a formality. The maintainer's package-vs-source check still matches
+    within 1 % on A4000/3060 (5 interleaved pairs), so the packaged engine is not the cause.
+  - **The vendor audited its own speed numbers, and it validates our citation rule.** From 0.2.2's
+    notes: "answer speed is every token the model produced (thinking, answer, tool calls; with MTP the
+    kept tokens) divided by decode time", replacing a set where an agent turn read **632 tok/s** in
+    0.2.0-beta against a real **50-75** in 0.2.1, and "some places divided by the whole request, which
+    reads **about half**" (47.8/64.8/65.9 by decode time against 20.6/29.0/31.5 over reading plus
+    decode). **Rule: never quote a Strata rate from the app footer, monitor, model API or console** -
+    quote the per-request line and name the numerator and denominator. Our recorded rows came from
+    per-request lines, so they stand; what changes is that a UI number is now **known** to be a
+    different measurement, not merely a suspect one.
+  - **Strata v0.2.2 / engine 0.1.47** (created 2026-10-21T10:46:09Z, published **11:10:21Z**,
+    `prerelease: false`, feed `sequence` **107**; 0.2.1 carried 0.1.46, feed 102). **The feed's arch
+    lists decide the installer**: the **windows cuda13** engine names `sm_75/86/89/120`, the **windows
+    cuda12** engine stops at `compute_89` and **does not name sm_120** - our card - so
+    `-windows-cuda13.exe` is the asset for this box (min driver 580.65).
+  - **MTP never fires on Windows on the qwen36 path, and the expert flag is silently overwritten.**
+    **#3508** (2026-10-20T20:39:57Z, 3 comments): Qwen3.6-35B-A3B-UD-Q4_K_XL through
+    `--family qwen36` on 0.2.1/0.1.46 loads and serves - **so #2894's gate is not a binary blocker** -
+    but gives **`drafts accepted 0 of 0` on all 10 recent requests** against **237/324, 229/342 (~73 %)
+    on Linux**, with `--mtp 0` vs `2` at 29.8/30.2 tok/s and the MTP block loading either way. And
+    **`draft_n` in `timings` is 0 by construction on this path** (the MTP block is inside the GGUF), so
+    the field we added to the protocol reads 0 whether MTP works or not - **the acceptance log line is
+    the only witness**. Root cause of the placement, found in the source by the reporter: `slot_bytes`
+    is computed from the budget and then **clamped back to free VRAM at `src/qwen35/q36_engine.cu:2897`**,
+    so `--expert-vram 13` and `--expert-vram 8` are identical (73 of 256 slots, 18.75 GiB in pageable
+    host memory, 6.98 GiB of VRAM left free). **#3303** adds the rest: q36 KV is **fp32 only**
+    (`cudaMalloc(n*4)`, `q36_engine.cu:1127`) and **`--kv`, `--kv-resident` and `--spec` are not
+    parsed**. 0.2.2 changed none of it - the `hybrid experts` line is byte-identical.
+  - **llama.cpp put a decision model in its own server.** **#30361** merged **2026-10-20T16:54:28Z**:
+    **H2O-Lightning-4B**, a Qwen3.5-4B fine-tune, served on **`/v1/systemone` "without our Python
+    shim"**, validated on **231 public decision tasks - all answers match, max probability difference
+    2.4e-6** (BF16 and Q8_0), images 30/30. **The line worth more than the model**: the nearest
+    existing type, **`openjev`**, "gets the same accuracy but differs on **4/231 answers and by up to
+    0.33 in probability**" - so the *type* is a format specification, and the wrong one moves
+    probabilities by up to 0.33 with the accuracy unchanged. That is the **`state`-encoding variable we
+    already declare**, now with a measured magnitude.
+  - **Ollama promoted 0.40.7 to stable by renaming the tag.** `v0.40.7`, `published_at`
+    **2026-10-18T00:28:57Z** - the exact timestamp yesterday's file recorded as **`v0.40.7-rc0`**, a tag
+    that no longer exists. **`published_at` is when the tag was published, so a promotion is invisible
+    in it** - the third dating trap in a week, after `prerelease` (10-17) and `lastModified` on a HF
+    pack (10-20). It carries **`pplx-decider`**, "a 27B decision model from Perplexity, fine-tuned from
+    Qwen3.8-27B", `/v1/systemone`, state + typed questions, **calibrated probability in a single forward
+    pass, no text generation**, library-page claim **85.7 % across 11 public benchmarks, ahead of Jev
+    (84.5 %)**; smallest tag **17 GB**. **Not a repeat of yesterday's MLX note**: yesterday read an
+    MLX-specific engine PR, this is the model, and nothing on its page restricts it to MLX. Its 85.7 %
+    is **not** comparable to our published **Jev 76.0 / nimble 75.7** macro on Bespoke's 3,880 records.
+    **`v0.40.8-rc0`** (2026-10-21T16:20:30Z) adds **Recursive Flint**, a 40B MoE with **~2.5B active**
+    and 262K context (vendor: 54.9 % Terminal-Bench 2.1, 74.2 % SWE-bench Verified) - **MacOS only in
+    rc0**, so no GPU path here yet, but it is our exact shape. Installed build still **0.40.6**.
+  - **Colibri merged 21 PRs in 21 hours and still has no release**, which **raises the cost of our probe
+    from "no download" to "a source build"**: the qwen36 CUDA chain, the GGUF import fixes and the
+    IQ2_S/IQ3_S gather are all on **`dev` after `v2.0.0`** (maintainer, #2189, 2026-10-21T11:35:13Z), so
+    a probe today runs either a binary that predates all of it or an unreleased `dev`. **#2189's kernel
+    answer is unchanged: Q4_K is still unnamed** (IQ4_NL/Q6_K 80-87 GB/s, IQ2_S ~16 GB/s per-row).
+  - **Two more llama.cpp changes that touch our families**: **#30861** (2026-10-21T06:01:01Z) replaces
+    the global amax rescaling for the **MoE down projection** with a **per-expert-token power-of-two
+    factor** - exact by construction, so not a warning, but it is the **third** numerics-touching merge
+    in four days and the rule stands: **no MoE result crosses a build boundary** without naming the
+    build. **#30906** (2026-10-21T02:57:30Z) reports **CPU-backend repetition loops for the qwen35
+    hybrid family (Qwen3.8-27B / Holo4) while Vulkan serves the same binary correctly** - the ledger's
+    3,043-repeat class on our reference family. And **#30793's TTFT regression now has a cause and an
+    unmerged fix**: since **#30449** host buffers over 4 GiB are split, the combined buffer has no base
+    pointer, so `--load-mode mlock` **skipped locking them**; **#30926** locks every distinct buffer,
+    the reporter confirmed "Yes fixed 👍" (2026-10-21T15:25:00Z), and the PR is **still open**.
+  - **Research, three direct hits.** **2610.28577 "Cache Engineering for Agents"** (2026-10-20T17:32Z):
+    agents `drop`/`repos` their own KV cache without re-prefilling, and the formal finding is that
+    **"identical token sequences can yield different cache states under different cache operation
+    sequences, making prefix matching insufficient for correct cache reuse"** - i.e. our warmed-prefill
+    artifact is not only a different measurement but a **validity** problem nobody records. **2610.28500
+    "BitMTP"** (NeurIPS 2026): **"the direct combination of these methods cannot accelerate decoding at
+    comparable quality: masked drafting lacks intermediate token input ... while wider computation and
+    causal KV updates can offset the savings from fewer steps"** - so MTP-on-ultra-low-bit not helping
+    is the **predicted** outcome, which is exactly the regime all our Strata packs sit in (our +31.2 %
+    per token was on **Q4_K_M**), and its speedups land on **Bonsai** (1.7-4B), a family we score.
+    **2610.28491 "OptionWorld"**: **35.5 %** of failures keep the key fact **in the last input before
+    the deadline** - the failure is **maintaining task state**, and one of the three named modes,
+    "**agents impose restrictions that the task does not require**", is a fourth prose-failure family
+    our census never named.
+  - **Two prior-lowerings and one free discard rule from the threads.** 0.2.2's own idle-GPU table puts
+    **adaptive overlap at +0.3 / +2.1 / -0.3 % against 2.8 % noise on a one-card PC** (two-card: 47-49 %
+    idle) - so shortlist item 6 survives only as a check of the Blackwell claim, not as a likely win.
+    And a reporter's method note worth copying: a run started **49 s after `tools/calibrate.py`** showed
+    "a monotonic **20 → 39 tok/s** climb with wall-clock time **regardless of arm**" and was **voided** -
+    the 2026-10-20 "a rate inherits the machine's prior workload" lesson, arriving independently, with
+    the tell that identifies it.
+  - **Packs: all six unchanged** for the first day in three (ISTA `ed59f920`, Coder `bba88856f8`, Myric
+    `ed6030d7`, Qwen3.6 APEX `30e1a1c8`, bartowski `ffd6001f`, Kolibri base `5bb7075b`). Better news
+    than a move: the Coder first-shard replacement and the base repo's config churn both stopped.
+  - **The shortlist reordered and shrank.** Two items left it: the **Ollama decision replay is done**
+    (2026-10-20), and **Colibri moved to "owed, not ranked"** because its cost became a build. Ranked
+    cheapest first: expert cache as **policy × capacity × seed** naming the build; the **cold-vs-cold
+    profile pair** at n≥2 starts with both arms after the same idle period; **H2O-Lightning-4B on
+    `/v1/systemone`** (one ~2.5 GB 4B download, the cheapest genuinely new row in the decision track);
+    **`pplx-decider:27b`** (17 GB + the 0.40.7 upgrade, with a latency estimate of **~5-8 s per
+    decision** derived from our own dense-27B prefill row, so a quality row that fails the 3 s gate);
+    **Kolibri Q3_K_M on a named stock build** with TTFT before warmup; **`STRATA_ADAPT_OVERLAP`**
+    interleaved; and the **#3059 Windows file-cache patch** last, because it needs a build. All of it
+    waits for the inference slot; **nothing was scheduled, and nothing here touched `ai_bench`**.
+
 - October 21 (**both tracks PINNED; state written down; one scan failure caught**):
   - **Image instrument resume note**: `ai_bench/image-models-20261020/PIN-20261021.md` - environment quirks (the
     `cmd.exe` interpreter rule, worktrees have no `.venv`, ComfyUI/KiCad/Blender paths), the numbers that stand
