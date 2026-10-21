@@ -1,5 +1,22 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **mined Kevin's app source: v3 pool prompt scores 9/10**):
+  `RESULTS-V3-ACE-CONSTANTS.md`, `hard-task-pooltable-v3.json`, `check_ace_geometry.py`, `hard_v3.py`.
+  - **Source over screenshot**: `github.com/kevinelong/ace-new-site`, `frontend/index.html` gave the real constants -
+    playfield `(0,0)-(100,50)` 2:1 in `viewBox="-8 -8 116 66"`; corners `(1.5,1.5)...` **r 3.5**; sides `(50,1)`,
+    `(50,49)` **r 2.5**; **ball r 1.125**; head/foot spots **`(25,25)`/`(75,25)`**; rack rows apex-on-foot-spot with
+    **row spacing `BALL_D*sin60 = 1.9493`**; **8-ball centre of row 2, 15-ball back-centre**; diamonds at **eighths
+    with 50 omitted**; ghost ball dashed `0.3,0.2`, target line red `2,0.8`.
+  - **Iterations on their own checks**: v1 prose **2/7** -> v2 prose-with-geometry **6/7** -> **v3 in ACE's own
+    coordinate system 9/10**.
+  - **The one failure is a real geometry error**: the rack is a **rhombus, not a triangle** - `x` stepped by
+    **1.125** (one radius) instead of the 1.9493 row spacing, so rows advance diagonally and the back row spans
+    3.38 units of x instead of 0. **The fix is a formula, not an adjective**: `x = 75 + k*1.9493`,
+    `y = 25 + (j - k/2)*2.25` for row k, ball j.
+  - **Three more detector corrections** (14-16): diamonds are rotated `<rect>`s not `<polygon>`s; the cue sat inside
+    `<g transform="rotate(30 25 25)">` and the checker read only the child's own attributes - it now accumulates
+    group rotations; both were the same error as the rest of the day, trusting a structure the artifact did not use.
+
 - October 21 (image track, **Kevin's diagnosis confirmed: the v1 pool prompt was the defect, 2/7 -> 6/7**):
   `RESULTS-PROMPT-V2.md`, `hard-task-pooltable-v2.json`, `check_geometry_v2.py`, `hard_v2.py`.
   - **v1 under-specified the rack**: no **foot spot**, no statement of which way the **apex** points, no
