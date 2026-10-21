@@ -1,5 +1,21 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **door-gap check; two more calibration steps, both mine**): `RESULTS-DOORS.md`,
+  `validate_doors.py`.
+  - `floor-1` asks for *"one door gap in each room wall"*, which closure cannot express (doors connect rooms by
+    design). The check now finds **internal partitions** (column/row runs where the wall mask covers a large share
+    of the span) and counts **gaps** inside each: non-wall runs of at least 10 px.
+  - **Calibration 1**: v1 counted the **outer walls** as partitions (full-span bands with zero gaps) and failed both
+    drawings; bands within 10 % of an edge are now excluded as perimeter. **Calibration 2**: v1 demanded a fixed grid
+    (2 vertical + 1 horizontal); with perimeter excluded the *correct* drawing has 2+2 and the wrong one has 2+0, so
+    the rule is now *at least one internal partition each way, each with one or two gaps* - the gap count is the
+    content, not a shape I imposed.
+  - **Result: `floor-1-s1` passes; `floor-1-s0` fails for having no horizontal partition**, so its two rows of rooms
+    are open into each other - exactly what the render shows.
+  - **One prompt, three defects, three instruments**: duplicate `BATH` (label multiset), missing horizontal partition
+    (door-gap scan), and the earlier missing `A`/`B` (source label check). No single measure would have found all
+    three.
+
 - October 20 (image track, **topology checks; fifth instrument correction; a duplicate the counts could not see**):
   `RESULTS-TOPOLOGY.md`, `validate_topology.py`, `validate_labels_multiplicity.py`.
   - **Crossing direction passes 2/2** (`process-1`): connectors span the lane divider and all go downward, which is
