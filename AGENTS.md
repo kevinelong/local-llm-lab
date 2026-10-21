@@ -1,5 +1,26 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **topology checks; fifth instrument correction; a duplicate the counts could not see**):
+  `RESULTS-TOPOLOGY.md`, `validate_topology.py`, `validate_labels_multiplicity.py`.
+  - **Crossing direction passes 2/2** (`process-1`): connectors span the lane divider and all go downward, which is
+    what the prompt asks. **Arrowheads fail 0/1** (`blueprint-1`): zero polygons, zero multi-vertex paths, zero short
+    segments - the dimension lines genuinely have no heads, so the earlier "unmeasurable" label was wrong and the
+    check is now real.
+  - **Instrument correction #5: my closure test penalised what the prompt requires.** The floor plan renders with
+    **door gaps**, and the frozen prompt says *"one door gap in each room wall"* - so counting enclosed regions
+    contradicts the spec (1 and 3 "enclosed rooms" on drawings that are correct in that respect). The criterion is
+    **retired with its reason recorded**.
+  - **The replacement catches a real defect**: the rendered plan carries **BATH twice** (six labels where the prompt
+    names five). "At least 4 labels" passes and "every required string present" passes, because a **duplicate** is
+    invisible to both. `validate_labels_multiplicity.py` compares the **multiset** of text nodes: **`floor-1-s0`
+    fails (BATH 2 vs 1), `floor-1-s1` passes**.
+  - **Method B scorecard**: labels present **19/19** (after repair); multiplicity **1/2**; structural counts where
+    pinned **10/10**; shape **8/9**; crossing direction **2/2**; arrowheads **0/1**; VLM structure **44/57**;
+    didactic **45/57**.
+  - **Lesson, now five times in one day** (rung order, `flat_pct`, exact counts, uncalibrated proxies, closure vs
+    doors): **a measurement was wrong before a model was, every time** - and each was caught by looking at the
+    artifact rather than trusting the number. That habit is the track's real output so far.
+
 - October 20 (image track, **shape checks built and calibrated four times before they could judge**):
   `RESULTS-SHAPE-CHECKS.md`, `validate_shape.py`, `shape-rules.json` (v4).
   - Counts went blind on the five free-form prompts, so shape is measured instead: lane dividers, lane crossings,
