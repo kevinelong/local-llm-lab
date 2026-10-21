@@ -1,5 +1,38 @@
 # Local AI lab working instructions
 
+- October 21 (**both tracks PINNED; state written down; one scan failure caught**):
+  - **Image instrument resume note**: `ai_bench/image-models-20261020/PIN-20261021.md` - environment quirks (the
+    `cmd.exe` interpreter rule, worktrees have no `.venv`, ComfyUI/KiCad/Blender paths), the numbers that stand
+    (method B labels 19/19, Z-Image 0.811, the 2/7 -> 6/7 -> 9/11 -> 10/11 -> 9/11 prompt ladder), the open queue
+    with exact next actions, decisions reserved for Kevin, and **four self-tests** that prove the instrument intact
+    (`check_ace_geometry.py --self-test`, `prompts/selftest.py`, `tests_raster.py`, `docs_check.py`).
+  - **The image folder is a git repo now**: five work packages merged on `master` (`905764d` + pin), 201 tracked
+    files plus the pin; worktrees removed.
+  - **The daily news scan FAILED this morning and would have been missed**: the 07:30 task started, printed
+    "Now writing today's scan", and died with **-1073741510 (0xC000013A, terminated)** - **no
+    `NEWS-2026-10-21.md`, and no exit line in the log**. Two lessons: a start line without an exit line is a
+    failure, and "Last Result" in the task query must be read, not assumed. Re-run by hand with
+    `tools/daily-news-scan.cmd`.
+  - **Backburnered, across both tracks**, in the order I would take them:
+    (1) **v6 cue-as-coordinates** - the direct successor to the v5 regression;
+    (2) the **`-b`/`-ub` ladder** with an 8k prompt (two independent videos converge on chunk size, and our
+    one-sentence probe cannot see it);
+    (3) the **next-token-agreement instrument** (answer letters are too coarse for arms that moved 0.5-1.7 pp);
+    (4) **KV residency A/B straight after a heavy workload** (turns the contention hypothesis into a measurement);
+    (5) the **5,376 rung against the frozen batteries**;
+    (6) the **script defects P5 documented but did not fix** (hard_v4 docstring and output name, klein usage lines
+    in the flux/zimage arms, compose dead helper and hard-coded captions, `check_geometry_v2` group rotations,
+    `kicad/*.kicad_pro` unignored);
+    (7) **the other nine corpus prompts rewritten against real constants** as the pool table was;
+    (8) **method E across the corpus** with source-level scoring;
+    (9) **Z-Image floor fix**, then **FLUX.1-dev at 20 steps** (needs the non-commercial ruling), then
+    **SD3.5-M** (403 until the licence is accepted);
+    (10) **Blender Grease Pencil and the animation protocol** (designed in `PROTOCOL-CAD.md`, never built).
+  - **Gated on Kevin**: the 2026-09-29 candidate tests (explicit ready message), any Strata bump (120 pinned
+    digests), the two model licences, and whether cloud native-vector may be measured. **Outside both tracks**:
+    Gmail access for the clvrclvr key search needs the relay extension loaded by hand (`browser.relay` is false) or
+    an IMAP app password.
+
 - October 21 (image track, **five work packages delegated, reviewed and merged; v5 regresses**):
   `ai_bench/image-models-20261020` is now a git repo (201 tracked files). Plan: `PLAN-20261021.md`; outcome:
   `RESULTS-V5-AND-MERGES.md`.
