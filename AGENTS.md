@@ -1,5 +1,25 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **the primitive vocabulary is the lever - and my checker nearly hid it**):
+  `RESULTS-KIT-EXPERIMENT.md`, `hard_arm_kit.py`. Testing the synthesis that B could be given E's advantages:
+  - **Progression on the cue angle**: bare spec **0°** -> + worked example **0°** -> + kit with
+    `line_at(x,y,degrees,length)` **0° in 3/3** (the model drew the cue as a `<rect>` 128x8 and **used no lines at
+    all**) -> + **`<rect>` banned** (table as four lines) -> **-11.3°, 30.0°, 30.0°: off-axis in 3/3**.
+  - **Why**: SVG's natural primitive for a long thin object is an axis-aligned `<rect>`, and a rect cannot express
+    an angle without `transform`, so the angle-capable helper sat unused. **The vocabulary available did not change
+    the drawing; the vocabulary withdrawn did.** E's `seg()` takes endpoints, which makes angles trivial - that is
+    why E computed 30° and B did not.
+  - **My checker nearly buried the result**: it demanded a cue within **20-45°** and **stroke-width >= 4**, both
+    invented - the prompt says only "angled toward the cue ball", and the model omitted stroke-width. Under the
+    prompt's real requirement **all three pass**, two at exactly **30.0°**. Ninth instrument error of the exercise,
+    same shape as the rest: a check encoding my assumption instead of the specification.
+  - **Settled**: a worked example is necessary but not sufficient (it took E 0->6/7 and did nothing for B, because
+    examples show surface); **restrict the primitive set and the model computes**; checker-driven repair never
+    fired usefully here because the first attempt already used the wrong primitive.
+  - **Open**: `pooltable-kit-lines-try3.svg` is **not well-formed XML** even though its cue is correct at 30°, so
+    validity - not geometry - is B's remaining failure in the lines-only medium, the same axis on which E fails when
+    its script will not run.
+
 - October 21 (image track, **prompt-scaffolding controls: the 6/7 tie was not equality**):
   `RESULTS-CONTROLS.md`. Kevin asked whether both methods got the same prompt. **Task text yes, scaffolding no**:
   B got a specification, E got a specification **plus a verified pcbnew template** (`seg`/`circ`/`rect`/`text`,
