@@ -1,5 +1,17 @@
 # Local AI lab working instructions
 
+- **Standing permission (2026-10-21, Kevin): check for the latest version of every tool we run at least once a
+  day, and before a run when it has been more than a day.** Fetching a version or a release note is pre-approved;
+  **it is not a decision to upgrade** - upgrades stay declared changes with a re-pin, exactly as before. Record the
+  check in the dated entry as tool / latest / installed / date, so "we checked" is evidence and not a claim.
+  - **First check, 2026-10-21**: **llama.cpp `b11798`** (published today) against our staged **b11480** - 318 builds
+    behind, and past `b11732`, which is where the expert cache moved LRU -> **SLRU**; **Ollama `v0.40.8-rc0`**
+    (a release candidate) against installed **0.40.6 stable** - no action, the pin stays; **ComfyUI `v0.42.1`**
+    (2026-10-19) against the desktop app's bundled backend **0.18.2** - **a large gap**, and a plausible explanation
+    for two failures we blamed on models: the `comfyui-frontend-package` requirement and Z-Image's
+    `int8_tensorflow`/`convrot` checkpoint refusing to load. Updating ComfyUI is a declared change, not a step, and
+    it would have to be followed by re-running one arm to prove nothing else moved.
+
 - October 21 (news scan, **re-run by hand after the 07:30 task died**): **`NEWS-2026-10-21.md` is
   written against `NEWS-2026-10-20.md`, and its first job is to correct yesterday's headline.** Reading
   only - nothing downloaded, installed, built or run, no engine started, no inference, no benchmark,
