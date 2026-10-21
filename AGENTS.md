@@ -1,5 +1,26 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **method E driven by the model: 3/3 first-attempt, after two failed harnesses**):
+  `RESULTS-METHOD-E-LLM.md`, `cad_arm.py`.
+  - **Harness A** (API described in prose) -> **0/9**, every script dying on
+    `AttributeError: 'BOARD' object has no attribute 'SetWidth'` - the model wanted to "set board dimensions" and
+    invented the call. **Harness B** (seed varied per attempt, temperature raised after the first failure) -> **still
+    0/9**. **Harness C** (a **verified working example** plus an explicit prohibition) -> **3/3 clean on the first
+    attempt**.
+  - **The lesson is about the harness, not the model**: re-sending an error at temperature 0 with one seed
+    **reproduces the same sample** - my retry loop was a no-op dressed as a fix, and varying the seed did not help
+    either, because the error is the model's reading of the API, not sampling noise. **Only changing the information
+    in the prompt changed the outcome.**
+  - **Results**: `flow-1` **160 paths / 4 `<text>` / 9.9 KB**, labels **4/4**, render **axis 100 %, OCR 4/4**;
+    `circuit-1` **54 paths / R1,C1 / 3.9 KB**, labels 2/2; `blueprint-1` **31 paths / B,A / 3.2 KB**, labels 2/2.
+    **~15 s of generation per script**, every artifact a **true vector with real text**.
+  - **Seventh instrument error caught**: the recolouring step searched SVG **attributes** (`stroke="#F2EDA1"`) while
+    KiCad writes colour as **CSS in `style`** (`stroke:#F2EDA1`), so the first render stayed pale, edge detection
+    found nothing, and "KiCad diagrams cannot be scored" would have been the wrong conclusion. After the fix the same
+    diagram scores axis 100 %, OCR 4/4, 62 traced paths.
+  - **Standing**: method E is the **most precise and most fragile** route - installed CAD stack plus a correct script,
+    but then exact, tiny and editable, which is what makes later animation possible.
+
 - October 20 (image track, **method E works: a coder model drove KiCad and produced true vector**):
   `RESULTS-METHOD-E.md`.
   - **Harness established**: `pcbnew` 10.0.6 builds a board from Python, `kicad-cli pcb export svg` needs
