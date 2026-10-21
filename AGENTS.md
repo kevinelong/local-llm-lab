@@ -1,5 +1,26 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **prompt-scaffolding controls: the 6/7 tie was not equality**):
+  `RESULTS-CONTROLS.md`. Kevin asked whether both methods got the same prompt. **Task text yes, scaffolding no**:
+  B got a specification, E got a specification **plus a verified pcbnew template** (`seg`/`circ`/`rect`/`text`,
+  `SaveBoard`, a rotation hint) **and a retry loop that fed errors back**.
+  - **Controls run**: B bare **6/7**; **B + worked example 6/7** (unchanged); E with template **6/7**;
+    **E bare 0/7** - `AttributeError: 'NoneType' object has no attribute 'Add'` on both attempts, **no artifact**.
+  - **The tie was not equality**: **E needs the template to work at all (0 -> 6)**, while **B is unchanged by it
+    (6 -> 6)**. On unaided capability **B is the more robust route** - the opposite of the impression the renders
+    give. A method whose validity depends on a template carries the template as production cost.
+  - **B's remaining failure is comprehension, not scaffolding**: the worked example contained an **angled** line and
+    B still drew the cue horizontally, while adopting the example's *stylistic* cue (filled -> unfilled circles) and
+    ignoring its geometric one. Same family as the local model writing `VAILDATE`: it reads the request, then does
+    the easy version.
+  - **E's angle was arithmetic, not understanding** - the template's `seg()` takes coordinates, so the model had to
+    compute `15*cos(30°)`. **The medium forced the precision.**
+  - **My own rule broken and recorded**: both controls were launched concurrently against a single-slot Ollama, so
+    their wall times (59.3 s, 82.9 s) are contaminated and unused; only content and validity are read.
+  - **Standing**: B is the more robust generator, E the more exact one when scaffolded; the production answer is the
+    combination - generate in the medium that forces arithmetic, then verify containment and angles
+    programmatically, since each method's remaining failure is the check the other would pass.
+
 - October 21 (image track, **hard task: pool table in shot setup - both methods 6/7, failing differently**):
   `RESULTS-HARD-TASK.md`, `hard-task-pooltable.json`, `hard_arm.py`, `check_containment.py`.
   - Task declared before any run: 2:1 table, six pockets, 15 balls in a 5-row triangle, a CUE ball, and an
