@@ -1,5 +1,23 @@
 # Local AI lab working instructions
 
+- October 20 (image track, **method E works: a coder model drove KiCad and produced true vector**):
+  `RESULTS-METHOD-E.md`.
+  - **Harness established**: `pcbnew` 10.0.6 builds a board from Python, `kicad-cli pcb export svg` needs
+    **`--mode-single` plus a file path** (`-o dir` silently produced nothing) and **`--exclude-drawing-sheet`**
+    (without it the export carries a 33-group frame and 23 extra text elements). Artifact: **172 paths, 4 real
+    `<text>`, 10.6 KB** for a silkscreen flowchart - a true vector with **no tracing step at all**.
+  - **Raster proxies are invalid for this arm**: rendering it detects **zero straight segments twice** because
+    F.SilkS exports as **pale yellow on white**, which defeats Canny while OCR still reads the text. Same class as
+    OCR-at-512: a vector-native arm must be scored **from the source**, not from a picture of it.
+  - **Model-driven test**: `qwen3-coder:30b` wrote a 4,683-character `pcbnew` script in **48.9 s**; it **exited 1**
+    (`NameError: name 'OK' is not defined`, from `print OK`) **but had already saved a valid board**, which exported
+    to **48 paths and 2 `<text>` elements reading exactly `R1` and `C1`**, OCR **2/2**.
+  - **The mirror image of the FLUX blur**: there, success status + broken image; here, failure status + correct
+    drawing. **The exit status is not evidence about the artifact in either direction** - the rule this track keeps
+    re-learning.
+  - Method E's failure mode is **script validity, not geometry**, and a one-line "run, read the error, fix, rerun"
+    loop would have turned it into a clean success - a harness change, not a model change.
+
 - October 20 (image track, **door-gap check; two more calibration steps, both mine**): `RESULTS-DOORS.md`,
   `validate_doors.py`.
   - `floor-1` asks for *"one door gap in each room wall"*, which closure cannot express (doors connect rooms by
