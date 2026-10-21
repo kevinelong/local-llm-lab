@@ -1,5 +1,31 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **five work packages delegated, reviewed and merged; v5 regresses**):
+  `ai_bench/image-models-20261020` is now a git repo (201 tracked files). Plan: `PLAN-20261021.md`; outcome:
+  `RESULTS-V5-AND-MERGES.md`.
+  - **Delegation shape that worked**: one worktree per package (`git worktree add`), disjoint file ownership per
+    brief, acceptance = an executable self-test with **known-good and known-bad fixtures**, and integration kept
+    with me. Branches `feat/p1..p5`, merged `--no-ff` in dependency order after I re-ran every acceptance myself.
+    **Boundary carried into every brief: no model runs, no GPU, no network** - the one-inference-workload rule
+    survived the delegation, and the only generation in the whole round was mine, once, at the end.
+  - **What each package actually delivered, verified locally**: P1 checker hardening + `fixtures/` self-test
+    (good 11/11, five bad fixtures each failing exactly one check, foreign viewBox guarded); P2 `raster_measure.py`
+    with contrast rescue (27 assertions; pale-stroke segments 0 -> 51) and `flat_pct` renamed `edge_sparse_pct`;
+    P3 prompt suite + v5 + `prompt_matrix.py` (21/21, five versions, 6/7/11/11/12 checks, hashes pinned);
+    P4 CAD arm with the Edge.Cuts outline folded in and **checker-driven retries** (38/38, dry-run contacts no
+    model); P5 README/INSTRUMENTS/TROUBLESHOOTING (45 links, 0 failures, 30 scripts documented, 17 errors).
+  - **Two corrections the agents made to my record, both accepted**: **v3's cue is inverted too** (group-rotated
+    rect, butt at (50.98,40)), so v3 is **9/11** not 9/10 - no direction-aware rule can pass v3 and fail v4; and
+    `post_outline.py` **never existed in the repo** (I had only ever run it from a scratch path), so P4 created it
+    rather than duplicating.
+  - **End-to-end after the merges (one generation, 50.7 s)**: **v5 scores 9/11 and is worse than v4's 10/11** -
+    the added "butt x < 25" prose clause did not fix the direction and flattened the cue to **-18.2 degrees**,
+    breaking the angle v4 passed at 30.0. **Prose constrains adjectives**; the rack improved as a lattice formula,
+    the cue stayed prose and got worse. Next step stated, not taken: give the cue as tip/butt coordinates.
+  - **P5's INSTRUMENTS.md records real script defects rather than fixing them** (hard_v4's copy-pasted docstring,
+    the klein usage lines in flux/zimage arms, compose_v34's dead helper, check_geometry_v2 not accumulating group
+    rotations) - a fair division: documentation of what exists, not silent repairs inside a docs package.
+
 - October 21 (image track, **v4 pool prompt: 10/10 on geometry, and the cue points the wrong way**):
   `RESULTS-V4-FINAL-PASS.md`, `hard-task-pooltable-v4.json`, `check_ace_geometry.py` (now 11 checks).
   - **The ladder, each prompt on its own checks**: v1 prose **2/7** -> v2 prose with geometry **6/7** -> v3 in the
