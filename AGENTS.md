@@ -1,5 +1,25 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **Kevin's diagnosis confirmed: the v1 pool prompt was the defect, 2/7 -> 6/7**):
+  `RESULTS-PROMPT-V2.md`, `hard-task-pooltable-v2.json`, `check_geometry_v2.py`, `hard_v2.py`.
+  - **v1 under-specified the rack**: no **foot spot**, no statement of which way the **apex** points, no
+    **back-row-parallel-to-the-foot-rail** requirement, no cue-ball spot - and v1's checks **counted circles instead
+    of locating them**, so a table with its **side pockets on the short rails** passed as "six pockets".
+  - **v2 states the real geometry** (long axis horizontal, foot end right, apex on the foot spot pointing at the
+    head end, back row just inside the foot rail, side pockets at the **long**-rail midpoints, cue ball on the centre
+    line at the head quarter, cue ~30 degrees). Result: **bare 2/7 -> 6/7**, and the two previously total failures
+    (**apex on the centre line**, **back row parallel**) now pass. Kit config: 3/7 -> 5/7.
+  - **Three detector bugs of mine before the checker could judge** (errors 11-13): the pockets rule demanded
+    `short_rail == 2` while counting corners separately, so a correct table failed; cue angle was read without
+    normalising direction (a tip-to-butt cue reads **-153.4 deg**, axis **26.6 deg**); and the table rect was
+    discarded as "background" whenever the SVG's own dimensions equalled the table's - which a well-formed drawing
+    does.
+  - **Remaining failures are real model errors**, not ambiguity: the v2 bare drawing puts the **cue ball off the
+    head quarter**, and the kit drawing still misses **apex and back row**. Same family as `VAILDATE` - the
+    instruction is present and the model does the approximate version.
+  - **Split worth keeping**: prompt ambiguity yields drawings that *look* right, and **only geometric checks tell
+    you which you have**.
+
 - October 21 (image track, **the primitive vocabulary is the lever - and my checker nearly hid it**):
   `RESULTS-KIT-EXPERIMENT.md`, `hard_arm_kit.py`. Testing the synthesis that B could be given E's advantages:
   - **Progression on the cue angle**: bare spec **0°** -> + worked example **0°** -> + kit with
