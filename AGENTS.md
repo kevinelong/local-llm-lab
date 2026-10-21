@@ -1,5 +1,21 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **v4 pool prompt: 10/10 on geometry, and the cue points the wrong way**):
+  `RESULTS-V4-FINAL-PASS.md`, `hard-task-pooltable-v4.json`, `check_ace_geometry.py` (now 11 checks).
+  - **The ladder, each prompt on its own checks**: v1 prose **2/7** -> v2 prose with geometry **6/7** -> v3 in the
+    app's coordinate system **9/10** -> **v4 with the rack as a lattice formula 10/10**.
+  - **The rack is now exactly the app's lattice**, measured from the drawing: x = 75.00 (apex), 76.95, 78.90, 80.85,
+    **82.80 with five balls at y = 20.5..29.5**. `x = 75 + k*1.9493`, `y = 25 + (j - k/2)*2.25` - **expressing a
+    lattice as arithmetic** did what "row spacing 1.95, rows widen toward the foot rail" could not.
+  - **But the render shows the cue drawn (25,25) -> (48.74,12.5)**: tip on the ball, **butt pointing at the rack**,
+    so the stick would drive the ball away from the rack. **All ten geometric checks passed on a semantically
+    inverted diagram**, because every one of them measured shape and none measured **direction**. An eleventh check
+    ("butt x must be less than the cue ball's x") drops it to **10/11** and names the defect.
+  - **Lesson to keep**: a geometric check cannot catch a semantic inversion - the render still has to be looked at.
+  - **Harness note**: v4's first reply was a bare ``` fence and nothing else; adding "output the raw SVG, starting
+    at <svg, no code fences" produced the document. A formatting instruction, not a geometry one, was the
+    difference between 0 and 10.
+
 - October 21 (image track, **mined Kevin's app source: v3 pool prompt scores 9/10**):
   `RESULTS-V3-ACE-CONSTANTS.md`, `hard-task-pooltable-v3.json`, `check_ace_geometry.py`, `hard_v3.py`.
   - **Source over screenshot**: `github.com/kevinelong/ace-new-site`, `frontend/index.html` gave the real constants -
