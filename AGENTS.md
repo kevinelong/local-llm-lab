@@ -1,5 +1,24 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **speed/accuracy chart; eighth instrument error, caught by Kevin**): the chart is
+  `ai_bench/image-models-20261020/chart-speed-vs-accuracy.svg` + `.png` (2x, opened in Photos). Axes: median wall
+  time per diagram (log) against OCR-exact label accuracy; filled = 1024 corpus, hollow = 512 variant; Pareto
+  frontier drawn; method E shown as a diamond with n=3.
+  - **The chart makes the ranking visible**: the frontier is entirely code methods - Z-Image 512 (2.0 s, 0.786)
+    -> Z-Image 1024 (5.1 s, 0.811) -> method B (13 s, 0.876) -> method E (~15 s, source labels 3/3). **klein is
+    dominated** (slower and 0.2 worse than Z-Image) and **schnell is dominated twice**. **FLUX dev has no point at
+    1024 at all** - it renders blurred there, so the "champion" configuration is absent from the plot.
+  - **Error eight, and the first one Kevin caught before I did**: the converter prepended a background `<rect>`
+    *before* `<svg>`, producing two root elements, so the SVG was invalid; I screenshotted the browser's **XML
+    error page** and reported it as the chart. Fixes now in the script: **validate well-formedness and assert a
+    single root before rendering**, and **look at the rendered PNG** instead of trusting the screenshot call.
+  - Also fixed twice over: the inline chart uses `var(--fg)`-style theme colours, which are **undefined in an
+    external viewer** (invisible chart), and the external copy needs an explicit **white canvas** because the
+    inline version deliberately has none. Literal hex values are baked into the file.
+  - Design fixes after the first correct render: method E's caption was clipped, method B's ran off the right edge,
+    and two annotations sat on the frontier line - all resolved with a wider canvas, right-anchored captions and a
+    programmatic **overflow check** over every `<text>` bounding box.
+
 - October 21 (image track, **method E driven by the model: 3/3 first-attempt, after two failed harnesses**):
   `RESULTS-METHOD-E-LLM.md`, `cad_arm.py`.
   - **Harness A** (API described in prose) -> **0/9**, every script dying on
