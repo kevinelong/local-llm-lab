@@ -1,5 +1,23 @@
 # Local AI lab working instructions
 
+- October 21 (image track, **hard task: pool table in shot setup - both methods 6/7, failing differently**):
+  `RESULTS-HARD-TASK.md`, `hard-task-pooltable.json`, `hard_arm.py`, `check_containment.py`.
+  - Task declared before any run: 2:1 table, six pockets, 15 balls in a 5-row triangle, a CUE ball, and an
+    **angled cue stick**. Seven machine-checkable properties.
+  - **Method B (code -> SVG): 6/7.** Aspect exactly **2.0**, six pockets, 15 racked + cue, **22/22 balls inside the
+    table** - and the cue stick **horizontal**, the one thing that needed an angle.
+  - **Method E (code -> KiCad): 6/7.** Aspect **2.0** (80x40 mm), pockets, 15 + cue, and the cue **explicitly at
+    30°** (`15*cos30`, `15*sin30`) - with the rack placed **beyond the right rail** (x 86.5-89.5 mm on a table
+    ending at 85): **10 inside, 12 outside**.
+  - **They fail on different axes** - global containment versus local trigonometry - and a containment check before
+    accepting would have caught method E; an angle check would have caught method B. Both now exist as numbers.
+  - **Four instrument faults found building it, none of them model errors**: the few-shot example had **no circle
+    helper**, so E first drew balls as tiny line dots (adding `circ()` yielded 22 circles); **`--page-size-mode 2`
+    fits the board area, empty without Edge.Cuts**, so the drawing was a **54x64 px speck** (fixed with
+    `post_outline.py`); **cropping by rewriting the SVG viewBox failed** on path-command assumptions (**error 9**,
+    replaced by raster cropping); and the **.kicad_pcb parser was wrong twice** - KiCad 10 writes **millimetres**
+    not nanometres, and nested S-expressions defeat regex (balanced-paren extractor, shapes selected by layer).
+
 - October 21 (image track, **speed/accuracy chart; eighth instrument error, caught by Kevin**): the chart is
   `ai_bench/image-models-20261020/chart-speed-vs-accuracy.svg` + `.png` (2x, opened in Photos). Axes: median wall
   time per diagram (log) against OCR-exact label accuracy; filled = 1024 corpus, hollow = 512 variant; Pareto
