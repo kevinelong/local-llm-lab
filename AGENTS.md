@@ -1,5 +1,22 @@
 # Local AI lab working instructions
 
+- **2026-10-22, Strata 0.1.47: our GGUF is not a Strata model at all, and an existing pack serves on the new engine.**
+  Two results from resuming the LLM track, both written up in `STRATA-0.1.47-FIRST-LOAD-2026-10-22.md`:
+  - **#3699 cannot apply to our reference.** `strata models import --plan` on our staged Qwen3.6 Q4_K_M refuses it
+    before any expert check: *"this model type is not supported by the Strata engine (add it as a Custom model API with
+    llama-server instead); this is not a model size Strata knows"*. So the Q4_K-vs-Q6_K question is unreachable, and
+    the 2026-10-21 note that Qwen3.6 "loads and serves on Strata 0.1.46 at 32K" **cannot have been this file** - it
+    must have been a pack.
+  - **Engine 0.1.47 staged without touching AppData**, via `STRATA_COMPONENTS_DIR` pointing at
+    `ai_bench/staged-strata-0.1.47/components`; Strata's own inventory confirms `installed 0.1.47 windows-x86_64-cuda`.
+    The existing `q2_0` pack config, with **only `exe` and `port` changed**, plans identically (28 args, no notes) and
+    serves: *"filling the GPU's expert cache (2135 experts, 2.75 GiB of VRAM)"*, context 65536, then a request at
+    **14.0 tok/s decode with 11 drafts offered and 9 accepted** - so **MTP does fire on Windows on this path** (it is
+    the qwen36 GGUF path where it does not). VRAM 10.3 GiB, WDDM shared segment **2.93 GiB**.
+  - **Gate finding:** that configuration leaves **7.0 GiB commit headroom, under the 8 GiB floor**, while free
+    physical reads 28.1 GiB - it would trip the gate, so any bump measurement on this pack must record the trip or
+    free commit first.
+
 - **Standing rule (Kevin, 2026-10-22): check for security patches DAILY.** Alongside the tool-version check. The
   check is `python C:/Users/kevin/local-llm-lab/patch_check.py` - one script, same output every day, exit 1 when a
   Django pin is behind the newest patch on its own branch. It covers every `requirements*.txt` under Dropbox that
