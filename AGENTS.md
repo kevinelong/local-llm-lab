@@ -1,5 +1,17 @@
 # Local AI lab working instructions
 
+- **2026-10-22, the WDDM shared segment measured on this box: 17.8 GiB, not "nothing near it".** From `NEWS-2026-10-22`
+  §3.1 (Strata #3725): under WDDM every page-locked GPU-mapped host buffer counts against the GPU's shared segment,
+  capped at about half of RAM, and commit does not show it. Measured here with counters plus one resident arm
+  (llama.cpp b11810, `--cpu-moe --moe-cache-mib 5120 -c 131072`): **`Shared Usage` on the NVIDIA adapter 163 MiB at
+  rest -> 17,941 MiB under load**, reproduced at 17.63 GiB then 17.81 GiB. Against the predicted ~31.7 GiB cap that is
+  **~13.9 GiB of headroom**, so the earlier "nothing we have measured comes near it" was too comfortable. The 24 GiB
+  pin attempt that floor-tripped now has a mechanism, and plain `--cpu-moe` charges the same segment on Windows.
+  **Commit headroom, not RAM, is the binding gate**: 25.7 -> **0.84 GiB** free commit under one resident arm, which is
+  why the 8 GiB commit gate trips while free physical still reads 15 GiB. Full numbers:
+  `WDDM-SHARED-SEGMENT-2026-10-22.md`. The death itself stays unreproducible here: it needs Strata's `strata-q36:`
+  loader, which our installed engines (<= 0.1.41) do not have.
+
 - **2026-10-22, second scan (the fixed wrapper's first run), and the day's one unblocking merge.** Reading only -
   nothing downloaded, installed, built or run, no engine started, no inference, no benchmark, nothing under
   `C:/Users/kevin/ai_bench` read or touched; captions fetched as text for two videos. Window is **~2.5 h**
