@@ -1,5 +1,25 @@
 # Local AI lab working instructions
 
+- **Standing rule (Kevin, 2026-10-22): check for security patches DAILY.** Alongside the tool-version check. The
+  check is `python C:/Users/kevin/local-llm-lab/patch_check.py` - one script, same output every day, exit 1 when a
+  Django pin is behind the newest patch on its own branch. It covers every `requirements*.txt` under Dropbox that
+  pins Django plus the installed Django in the WSL bfa venv, each project's branch-last patch and whether that
+  branch is still supported (endoflife.date), whether nginx exists here at all plus its upstream stable/mainline,
+  and the engine versions already tracked (llama.cpp, Ollama, ComfyUI, Strata). It writes `patch-report-<date>.json`.
+  **Distinction that matters:** a patch inside a dead branch is hygiene, not support - patching 3.0.4 to 3.0.14
+  fixes six known CVEs but 3.0 is still EOL, so the real fix is a supported branch.
+- **2026-10-22, security patches applied in full.** WSL Ubuntu 24.04: **39 security-pocket packages** installed via
+  `unattended-upgrade` (dry run first; `apt list --upgradable | grep -ci security` went 39 -> **0**, `dpkg --audit`
+  clean, `apt-get -f install` dry run clean). Windows: **0 pending** updates from `Microsoft.Update.Session`
+  (queried, not installed - an OS reboot would kill the session). nginx: **not installed on this box**, so nothing to
+  patch. Django: **ten requirements files bumped to the newest patch on their branch** - WSL `~/bfa` **5.2.12 ->
+  5.2.18** (installed in the venv, `manage.py check` clean, and the app's stated "verified runtime 4.2 LTS" note is
+  stale), `!PROJECTS/bfa` 5.1.6 -> 5.1.15, `!CLIENTS/VITA/bfa` and `bfa-1` 4.1.1 -> 4.1.13, `GitHub/bfa` 4.1.1 ->
+  4.1.13, `df` 3.0.4 -> 3.0.14, `GitHub/mm` 3.0.6 -> 3.0.14, `django-postgres-boilerplate` 2.2.10 -> 2.2.28, three
+  `vitaexplorer.com` copies 1.5.4 -> 1.5.12, and three 2014-era projects (1.7.1 -> 1.7.11, 1.8 -> 1.8.19, 1.6.6 ->
+  1.6.11). Every edited file has a `.bak-20261022` beside it. **Nine of those branches are EOL** (3.0 since 2021-04,
+  4.1 since 2023-12, 5.1 since 2025-12, 1.x since 2014-2017) so they still need migration, which is a separate job.
+
 - **2026-10-22, Strata 0.1.47 staged (the bump's prerequisite), and #3699's mechanism corroborated in shipped
   source.** Release **v0.2.2** (2026-10-21T11:10:21Z, not a prerelease): engine
   `strata-engine-0.1.47-windows-x86_64-cuda-cuda13.tar.gz` **580,428,476 B, sha256 `59833d875b2f3807…` MATCH**, control
