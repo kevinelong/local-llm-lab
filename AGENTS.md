@@ -1,5 +1,21 @@
 # Local AI lab working instructions
 
+- **2026-10-22, q7: engine 0.1.40.3 vs 0.1.47 on the same pack - text identical, no speed gain, and a contamination
+  I caught.** `Q7-STRATA-BUMP-AB-2026-10-22.md`. Both arms load (50.4 s / 47.0 s) and answer
+  **`2, 3, 5, 7, 11` on every request**; decode **67.9 vs 55.3 tok/s** mean with 0.1.47's spread (45.5-68.3)
+  overlapping the baseline, so "no speed gain" holds and "0.1.47 is slower" does not at n=3; MTP accepts 43-48 of
+  46-49 drafts on both. Commit after load 11.8/11.7 GiB, so prediction 5 was wrong: the earlier 7.0 GiB was
+  environment-specific.
+  - **Three of my own numbers were artefacts**: 14.0 tok/s was one 24-token request cut at the reasoning budget;
+    10-11 tok/s came from a **stale 0.1.40.3 server answering both arms**; steady state is **45-73 tok/s**.
+  - **Contamination and the guards it forced**: `proc.terminate()` kills the `cmd /c strata.cmd` wrapper but not its
+    python/engine children, so a leftover server owned the port and made "identical answers" trivially true. The
+    runner now uses **a distinct port per arm**, **refuses to run if the port is busy**, **asserts the served model id
+    equals the config's `model_name`**, and **tree-kills whoever still owns the port**.
+  - Verdict: the bump is **text-neutral and speed-neutral on this pack**, so 0.2.2/0.1.47 is justified by its issue
+    fixes (pool-workers, own-GGUF import, vram-reserve, the WDDM shared-segment patch), not by throughput here - and
+    the pack needs no answer-level re-baseline.
+
 - **2026-10-22, Strata 0.1.47: our GGUF is not a Strata model at all, and an existing pack serves on the new engine.**
   Two results from resuming the LLM track, both written up in `STRATA-0.1.47-FIRST-LOAD-2026-10-22.md`:
   - **#3699 cannot apply to our reference.** `strata models import --plan` on our staged Qwen3.6 Q4_K_M refuses it
