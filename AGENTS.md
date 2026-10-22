@@ -104,6 +104,27 @@
     item labelled second-hand with upload date and channel, and each paired with "which local measurement would
     settle it". Discovery is the expensive part (4 kept of 7 checked on 10-16); captions are ~10 s each.
 
+- **2026-10-22, all platforms daily (Kevin's instruction) - the first run, and its yield by platform.** The prompt
+  now names eight platforms with a source tag each (`[GH] [REL] [HFR] [ARX] [YT] [RD] [HN]`), breadth preferred to
+  precision. First run: **394 s, exit 0, verify OK**, 50.9 KB, **12 sections, 57 tagged items** -
+  **GH 19, RD 13, HFR 6, ARX 4, HN 4, REL 3, YT 8 mentions but only 2 videos mined**.
+  - **Reddit is the find of the day**: 13 items from r/LocalLLaMA `/new` via RSS, including a llama.cpp PR claiming
+    to beat Strata decode on an R9700, `capy-flash v0.7.1` running a **125B MoE in 64 GB RAM at 234 tok/s** (our box
+    is 63.46 GiB - the closest thing to our shape yet), a model merged into llama.cpp, and Q2_0 support in #30914.
+  - **YouTube daily is low-yield and the scan said so itself**: two videos mined, **neither uploaded in the last 24
+    hours**, "zero new uploads found" plus the cost of discovery. The recipes are real (that is where `moe_cache_mib`
+    heuristics live) but video content does not turn over daily. Keep it, expect a recipe every few days, not a lead
+    every day.
+  - **arXiv at 07:50 sees nothing new**: the daily batch cuts ~18:00Z, and the 05:26 run had already consumed
+    yesterday's page, so this run correctly reported "the index did not advance". Two scans in one day therefore
+    duplicate each other on arXiv; one scan per day is the right cadence.
+  - **Community items did not enter the ranked shortlist** - all seven slots went to VRAM/ENGINE/MODEL/ARX items, and
+    the one [YT]/[RD]/[HN]-adjacent slot carried a named local test. That is the discipline working as written.
+  - **Actionable from it: `#30926` ("Fix #30793") merged 2026-10-22T14:00:59Z, after both our staged b11810 (07:49Z)
+    and the newest tag b11819 (12:53Z).** So the b11810 download bought the SLRU-era build, not the TTFT fix; the
+    trigger for the next download is the first tag published after 14:00:59Z. Also learned: `v0.7.0` is the semver on
+    the rolling builds, moving independently of the build number.
+
 - **2026-10-22, was the broadened beat worth it? Counted, not asserted.** Comparing `NEWS-2026-10-22a.md`
   (broadened: +VRAM, +models) with `NEWS-2026-10-21.md` (prior beat) and `NEWS-2026-10-20.md`:
   - **Model coverage quadrupled**: named model repos **4 -> 16**; distinct `owner/repo` sources **12 -> 23**;
