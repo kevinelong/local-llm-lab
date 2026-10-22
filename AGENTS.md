@@ -1,5 +1,22 @@
 # Local AI lab working instructions
 
+- **2026-10-22, resource state audited after two orphan incidents; no reboot needed, and here is when it would be.**
+  Asked whether to free memory as in the past. Measured first: **commit limit 71.5 GiB, free 27.5 GiB, physical free
+  38.5 GiB** - floors are 9/8, so nothing was starving. But the top commit holder was a **leaked orphan**: the ComfyUI
+  desktop app had exited (code 0) twice today and left backend pythons with **3,093 MiB of commit and ~1.9 GiB of
+  VRAM** and no Electron shell. Killing the tree returned **commit 27.5 -> 30.6 GiB and VRAM 1948 -> 1678 MiB** -
+  exactly the orphan class the 2026-10 notes describe (six orphaned servers). The rest is legitimate: dwm 1.7 GiB,
+  nvcontainer 1.6 (driver), vmmemWSL 1.0, omp 0.9+0.9 (this session), DellOptimizer 0.8 - discretionary total ~1.5-2
+  GiB, which is what a reboot-with-nonessential would buy at the cost of a session.
+  - **When a reboot IS the right move:** only when a specific run needs commit that cannot be freed otherwise. The
+    arithmetic: one llama.cpp resident arm consumed **~24.9 GiB** of commit today (25.7 -> 0.84), so from 30.5 GiB free
+    it lands at **~5.6 GiB, under the 8 GiB floor**. Levers in order: close Chrome (~0.6) + Dell agents (~1.4) +
+    `wsl --shutdown` (~1.0) ~ 3 GiB, which is enough; then a smaller cache/context; reboot last, not first.
+  - **New routine, `python orphan_check.py` before anything that loads a model**: lists every listening lab port with
+    its owning pid and commit, the top commit holders, free memory and VRAM, and exits 1 if any lab port is listening.
+    Written because a dead UI is not a dead engine - that bit twice today (the ComfyUI orphan, and the q7 contamination
+    where a stale 0.1.40.3 server answered for the 0.1.47 arm).
+
 - **2026-10-22, q7: engine 0.1.40.3 vs 0.1.47 on the same pack - text identical, no speed gain, and a contamination
   I caught.** `Q7-STRATA-BUMP-AB-2026-10-22.md`. Both arms load (50.4 s / 47.0 s) and answer
   **`2, 3, 5, 7, 11` on every request**; decode **67.9 vs 55.3 tok/s** mean with 0.1.47's spread (45.5-68.3)
