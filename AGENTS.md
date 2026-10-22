@@ -8,6 +8,20 @@
   and the engine versions already tracked (llama.cpp, Ollama, ComfyUI, Strata). It writes `patch-report-<date>.json`.
   **Distinction that matters:** a patch inside a dead branch is hygiene, not support - patching 3.0.4 to 3.0.14
   fixes six known CVEs but 3.0 is still EOL, so the real fix is a supported branch.
+- **2026-10-22, the Django patch verified two ways, because the suite is not green and that needed settling.** After
+  `~/bfa` went to 5.2.18 the full suite read **1107 passed, 226 failing/erroring** - far too many to attribute to a
+  patch, so it was not attributed, it was measured:
+  - **Identical failure sets.** Ran the whole suite on **5.2.18** and on **5.2.12**, capturing every failing test id
+    (`-rf --tb=no`), and compared: **226 ids on each, `comm` empty in both directions**. The bump changes no test's
+    outcome; 46 of the errors are missing optional deps (selenium, playwright, fuzzywuzzy) in stray `scripts/` and
+    `static/` files. The project also carries `PLAN_unfixed_issues.md`, so failing tests are its known state.
+  - **Live requests on the patched build**: `/` 302, `/admin/` 302, `/api/` 401, `/health/` 404 - no 500s, with
+    Postgres connected from `.env` and `manage.py check` clean. So the app boots and serves; the suite's red is
+    pre-existing.
+  - **Correction to this file's own earlier note:** a first run reported "66 passed, 3 failed" - that was `--maxfail=3`
+    stopping early, not the suite result. Full-suite numbers are the only ones worth quoting.
+  - Venv left on **5.2.18** (patched), requirements pin agrees.
+
 - **2026-10-22, security patches applied in full.** WSL Ubuntu 24.04: **39 security-pocket packages** installed via
   `unattended-upgrade` (dry run first; `apt list --upgradable | grep -ci security` went 39 -> **0**, `dpkg --audit`
   clean, `apt-get -f install` dry run clean). Windows: **0 pending** updates from `Microsoft.Update.Session`
