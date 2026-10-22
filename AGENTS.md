@@ -1,5 +1,27 @@
 # Local AI lab working instructions
 
+- **2026-10-22, source coverage audited (Kevin: "only GitHub, or also YouTube/???").** Counted over the last three
+  scans (`NEWS-2026-10-20`, `-21`, `-22a`):
+  - **Covered:** GitHub repo references 23 / 15 / 27, issue and PR numbers **121 / 105 / 111** (the dominant source by
+    an order of magnitude), arXiv cs.CL **8 / 8 / 13** new papers per day with an explicit watermark ("index reaches
+    2026-10-21T17:59:14Z"), HF model repos by name (16 today), vendor release notes occasionally.
+  - **Not covered now:** **YouTube - zero in the last three scans.** It is not a capability gap: the 2026-10-16 scan
+    mined **four videos and dropped three**, labelled them second-hand, and one of its carried claims (cache size
+    non-monotonic) came from a video. After that the beat became "the corpus is covered in NEWS-2026-10-16", i.e. a
+    periodic pass, not a daily one. Also zero coverage ever of Reddit, Hacker News, Discord or X.
+  - **The pipeline works and is cheap:** `yt-dlp` is at `/home/kevin/.local/bin/yt-dlp` in WSL;
+    `yt-dlp --skip-download --write-auto-subs --sub-langs 'en.*' --sub-format vtt URL` returned **71.6 KiB of
+    captions in 10 s**, and a search for "llama.cpp expert cache" surfaced a **one-week-old** video whose transcript
+    named `moe_cache_mib`, its default-off state, and a 12-19.5 tok/s band on 1.5-8 GB caches.
+  - **What that transcript gave us that the issue streams did not:** the explicit statement "**neither pull request
+    has a maintainer statement on whether cached and uncached runs give identical tokens**" - which is the one thing
+    this lab already answers: **q2 saw identical letters at every rung 0 -> 4,096 MiB and q6 saw 90/93 in all four
+    arms at 5,120/5,376**. So video content is a lead source, and its gaps are where our own measurements become
+    reportable.
+  - **Recommendation (not yet adopted - cadence is Kevin's call):** a **weekly** video pass, capped at **4 kept**, each
+    item labelled second-hand with upload date and channel, and each paired with "which local measurement would
+    settle it". Discovery is the expensive part (4 kept of 7 checked on 10-16); captions are ~10 s each.
+
 - **2026-10-22, was the broadened beat worth it? Counted, not asserted.** Comparing `NEWS-2026-10-22a.md`
   (broadened: +VRAM, +models) with `NEWS-2026-10-21.md` (prior beat) and `NEWS-2026-10-20.md`:
   - **Model coverage quadrupled**: named model repos **4 -> 16**; distinct `owner/repo` sources **12 -> 23**;
