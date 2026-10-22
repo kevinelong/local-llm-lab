@@ -540,6 +540,25 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-22 &middot; [Daily news scan: the decode regression is in the server, not the engine, and the KV byte is the context cost](NEWS-2026-10-22.md)**
+&ndash; the beat is **broadened on Kevin's instruction** and every item is labelled **VRAM**, **MODEL** or
+**ENGINE**, with a measured report preferred to an announcement. Two corrections of the previous file's own
+headline: a **crossed server x engine test** on sm_70 (four combinations, same box, pack and argv) moves the
+decode number **only when the server version changes** &ndash; 0.1.44.1 server + 0.1.47 engine **134.4 tok/s**
+against 0.2.2 server + 0.1.44.1 engine **96.4** &ndash; and on **sm_89 + Windows 11** the loss does not
+reproduce at all, the earlier -18 to -31 % having been the **App-bundled engine 0.1.45.3**. So a bump splits
+into **engine (safe) and server (20-30 % on one box)**, both declared and read back. **Flint left the Mac**:
+`ggml-org/Flint-GGUF` was created today with a **22.3 GiB Q4_K_M** of an Apache-2.0 **40B / 2.5B-active,
+262K-context** model, on a llama.cpp merge from the night before &ndash; and that PR reports its **adaptive
+expert-activation scaling costs 10-30 %**. The two issues that decide the blocked reference-model item both
+landed: **Q4_K down-projection experts are refused** by the qwen36 path (**our staged pack's quantisation**,
+112/256 experts and **133.9-154.7 tok/s** once patched) and **fp32 KV at 45 KB/token** caps context, with a
+measured int8 prototype (3.56x fewer bytes, **28.4 &rarr; 99.3 tok/s** at 56K). On the widened VRAM axis:
+**WDDM's pageable-locking pool is about half of RAM** (13.77-13.82 GB measured on a 32 GB box), free VRAM
+creeps **2-6 MiB per long cold prompt** with no allocator to explain it, an auto layer split that leaves
+**68 MiB** ends the engine, and **our card already has a vendor-measured matvec row**, which closes an idea
+before it was queued. Seven ranked items, cheapest first a **one-minute GGUF header read**. Reading only.
+
 **2026-10-21 &middot; [Daily news scan: 0.1.46 does not recover the decode loss on three architectures, and Strata's own speed numbers were three different measurements](NEWS-2026-10-21.md)**
 &ndash; the file's first job is to **correct yesterday's headline**. **#3252** went 7 &rarr; 11 comments
 with **three architectures** saying the same thing: **sm_86 RTX 3080 Ti 12 GB (our VRAM class) &minus;11 %
@@ -559,6 +578,9 @@ probabilities by **up to 0.33**) and **`pplx-decider`**, a 27B model whose libra
 `published_at` &ndash; so that field is not evidence a new build shipped. **Colibri merged 21 PRs
 post-`v2.0.0`**, which turns our probe into a build. Seven ranked items, the "nothing moved" list, and
 no download, engine, inference or benchmark. Reading only.
+**Corrected the next day:** the -10 % class is **not architecture-dependent** &ndash; a crossed
+server x engine test puts it in **`serve/server.py`**, while engine 0.1.47 is flat to slightly better, and
+on **sm_89 + Windows 11** it does not reproduce at all. See [2026-10-22](NEWS-2026-10-22.md).
 
 **2026-10-20 &middot; [The cache ceiling is a floor value, and the engine clamps rather than refuses](../ai_bench/queue-20261016-shortlist/q2c-cache-ceiling-20261020.md)**
 &ndash; the rung above 4,096, asked as a floor question. A **6,144 MiB** request does **not** fail: it comes up

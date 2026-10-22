@@ -12,6 +12,132 @@
     `int8_tensorflow`/`convrot` checkpoint refusing to load. Updating ComfyUI is a declared change, not a step, and
     it would have to be followed by re-running one arm to prove nothing else moved.
 
+- October 22 (news scan, **manual run at 05:20 local; the 07:30 trigger had not fired and is still
+  armed**): **`NEWS-2026-10-22.md` is written against `NEWS-2026-10-21.md`, and the beat is broadened
+  for this run on Kevin's instruction** - every item labelled **VRAM** (consumer-card memory limits:
+  quantisation, offload, KV sizing, WDDM, free-VRAM floors, allocation failures), **MODEL** or
+  **ENGINE**, with a measured report preferred to an announcement. Reading only - nothing downloaded,
+  installed, built or run, no engine started, no inference, no benchmark, and nothing under
+  `C:/Users/kevin/ai_bench` read or touched. The wrapper `tools/daily-news-scan.cmd` carries the
+  widened prompt and is committed separately from the three scan paths.
+  - **Task state, because the standing rule makes it evidence**: `omp daily lab news scan` reads
+    **Last Run 10/21/2026 07:30:01, Last Result -1073741510, Next Run 10/22/2026 07:30** - re-read
+    today - and `%TEMP%\daily-news-scan.log` ends `[Thu 10/22/2026 5:20:57.27] daily news scan start`
+    with no exit line, which is this run still in flight. **Consequence not yet acted on: the 07:30
+    trigger would rewrite today's file**, and the standing rule only forbids replacing an *earlier*
+    day's scan. Disarming a scheduled task is a system change, so it is Kevin's call.
+  - **CORRECTION of yesterday's own headline, twice, and the first one matters more than the
+    numbers.** **#3252** is now **13 comments** (updated 2026-10-22T11:20:24Z) and carries a
+    **crossed server x engine test** (sm_70, 6x V100-32GB, both from source, same box/pack/argv):
+    0.1.44.1-server + 0.1.44.1-engine **138.1/132.7 tok/s**, 0.1.44.1-server + 0.1.47-engine **134.4**,
+    **0.2.2-server + 0.1.47-engine 94.5/95.0**, **0.2.2-server + 0.1.44.1-engine 96.4** - "**only the
+    server version moves the number; the engine binary does not**", with prefill, first token,
+    256-token single-stream decode and four greedy sha256 outputs unchanged. And on **sm_89 + Windows
+    11** (`c-OOL-io`, 2026-10-22T01:23:58Z) the loss **does not reproduce at all** on 0.2.2/0.1.47
+    (chat 84.8 vs 83.4) - the earlier -18 to -31 % was the **App-bundled engine 0.1.45.3**. So
+    "architecture-dependent" is now **package-dependent**: **the engine bump is the safe half, the
+    0.2.2 server/app is the half that can cost 20-30 %**, and any bump declares and reads back
+    **both** versions. `linxuhao` also fills the sm_80 per-card table (+2.7 to +3.2 % decode) and sets
+    `STRATA_DEQUANT_WIDE=1` at prompts +6.3 to +7.2 % - not our card, but the method is the vendor's.
+  - **The two issues that decide our blocked item both landed today, both third-party and unmerged.**
+    **#3699** (2026-10-22T08:01:09Z): the qwen36 path **refuses Q4_K down-projection experts**
+    (`blk.5.experts are Q4_K/Q4_K, which the native expert kernels do not take`), because llama.cpp's
+    Q4_K_M recipe stores the experts' down projection as Q4_K in **about half the layers** (20 of 41)
+    and `STRATA_D_FMTS` has no Q4_K; adding type 12 loads and **runs at 133.9-154.7 tok/s decode /
+    4,560-5,069 prompt** on an **RTX 5080 16 GB sm_120** with `112 of 256 per layer in VRAM (8.16
+    GiB)`, text matching **llama.cpp b11798** on two of three prompts. **Our staged reference pack is
+    Q4_K_M**, and Unsloth's UD files skirt the case (Q5_K/Q6_K downs), which is why yesterday's
+    UD-Q4_K_XL report loaded - so **"does our file have Q4_K downs" is a one-minute GGUF header read
+    and it is now the cheapest open question in the lab**. **#3700** (same minute) prices the fp32 KV:
+    **45 KB/token**; free VRAM **9.9 GiB with 112/256 experts at 32K, 5.2 GiB and 47/256 at 131K, 2.1
+    GiB and 4/256 at 196K, `cudaMalloc` OOM at 262K** on a 16 GB card; an int8 K/V prototype (288 B vs
+    1,024 B, **3.56x**) loads 262K and takes decode at 56K from **28.4 to 99.3 tok/s** at **KL 7.16e-3
+    against a 2.89e-3 size floor, top-1 64/64**. And **#2464**'s new comment (11 comments,
+    2026-10-21T18:29:28Z) explains the slope: **6.0 ms per 1,000 tokens** of context with a CPU expert
+    pool against **0.72 ms** with every expert in VRAM, the 8.3x gap matching the cards' bandwidth
+    ratio and the 2.6 ratio matching query-heads x layers - i.e. **the context cost is the KV bytes
+    every query head reads, and fp32 is 4 bytes of it**.
+  - **VRAM, the axis Kevin asked to widen to.** The clearest new constraint is **Windows' own**:
+    FreeToken **#55** (opened 2026-08-22, closed 2026-08-31, found today) measures WDDM's
+    **pageable-locking pool at ~half of system RAM** - **13.77-13.82 GB** of `cudaHostRegister` on a
+    32 GB box, then `out of memory`, with unmapped banks later surfacing as `CUDA error: invalid
+    argument` at KV-pool init; the LOCKED/PAGEABLE fallback is scaffolded and raises
+    `NotImplementedError`; `--max-seq-len-override` is ignored by the KV pool (a 16K override still
+    asked for ~2.8 GB) and `--moe-cpu-layers` does not reduce bank membership. `[INFERENCE: ~31.7 GB
+    of pinnable host memory on this 63.46 GiB box]` - above every budget we have measured, but the
+    ceiling nobody had stated, and the missing half of **#30793** (post-#30449, `--load-mode mlock`
+    silently skipped >4 GiB buffers; **#30926 still open, 0 comments, not in today's 21 merges**).
+    Two Blackwell VRAM-floor reports, same reporter: **#3470** free VRAM creeping **2-6 MiB per long
+    cold prompt with no plateau** (source read finds no growing allocator: "state inside the driver or
+    cuBLAS") and **#3702** an auto layer split leaving **68 MiB** on the last card so the next verify
+    capture OOMs and the **engine exits** (6 starts in 11 minutes; `--vram-reserve-later-mib 1400`
+    gives 0 failures in 10 runs). **Our card's own table is a negative result worth keeping**:
+    `docs/MMVQ_IL_TABLE.md` gives **`kIlRowsShared`** to **sm_120 under 80 SMs** (RTX 5070), measured
+    on a 3060 and a 5070 together at a 3 % joint threshold, and `kIlRows_120` only at 80+ SMs - so
+    "measure a table for our card" is **already done by the vendor** and is closed.
+  - **MODEL: a new candidate in our exact shape, and it left the Mac in one day.** **`ggml-org/Flint-GGUF`
+    was created 2026-10-22T12:16:33Z** (Apache-2.0, 7 files, 135.38 GiB) with
+    **`Flint-Q4_K_M.gguf` 22,304 MiB**; `RecursiveSI/flint` is a **40B MoE / ~2.5B active, 262K
+    context, Apache-2.0** model (vendor: 54.9 % Terminal-Bench 2.1, 74.2 % SWE-bench Verified), and
+    llama.cpp merged **`FlintForCausalLM` (#30928) 2026-10-21T21:26:22Z**. Ollama 0.40.8, now
+    **stable**, still says "Flint is supported on MacOS. Other GPU support will be enabled in a
+    subsequent release" - so the same weights are OS-locked in one engine and open in the other.
+    **The cost line in that PR is the finding**: it uses **#30861's** adaptive expert-activation
+    scaling and reports "**auto-scaling leads to slowdown of 10-30 %**", which bounds yesterday's
+    "exact by construction, not a warning" reading of #30861.
+  - **MODEL: our reference pack's upstream moved on 2026-10-19 and no entry recorded it.**
+    `ggml-org/Qwen3.6-35B-A3B-GGUF` is now **2026-10-19T15:35:48Z, sha `7878dc9a90`, 14 files, 126 GiB**,
+    with `.src_sha PRIMARY=995ad96e`, against our staged **`baec3ebe`** (2026-10-07). Sizes are
+    unchanged (Q4_K_M **19,473 MiB = 20.42 GB**, sidecars match), so the bytes may be identical - but
+    the repo was **re-converted**, so a fresh fetch is not provably what our rows describe. The six
+    packs we rank are **all unchanged, second consecutive day**.
+  - **ENGINE: llama.cpp 15 tags to b11815, 21 merges.** `#30940 clean_spaces` (**07:58:09Z**) fixes
+    **#30905** and turns cleanup **off by default for gemma4/lfm2/glm4/glm5/chatglm-bpe/exaone4/
+    mellum2**, taking InferCheck decode disagreements to 0 for GLM-4/4.5/4.7, LFM2, **MiniCPM5**,
+    EXAONE 4, Phi-4 - a whitespace change in a model we score; `#30960` fixes the **pixtral**
+    pre-tokenizer (**#30894**, our Nemotron row's family); `#30945` accepts dflash's optional
+    `fc.input_scale`; new reports **#30951** (IQ1_M/TQ1_0/TQ2_0 experts emit NaN at prompt batch > 8,
+    fp16 overflow in dequant + cuBLAS), **#30961** (cached-prompt restore races idle slots with a
+    unified KV cache), **#30975** (teardown hangs on first SIGTERM with a spec decoder + quantized
+    draft cache). Watchlist unchanged: #30697, #29371, #29922.
+  - **ENGINE: Colibri measured Q4_K_M on Vulkan and defined a rate.** 39 PRs, most batched at
+    **2026-10-22T10:27:03Z** under #2284, still **no release since v2.0.0** (fifth day). **#2281**
+    (2026-10-21T23:15:54Z): Qwen3.6-35B-A3B on an RTX PRO 4000 24 GB, every expert on the card,
+    alternated series - **colibri int4-g64 (22 GB) 1,796-1,902 prefill / 83.8-84.6 decode** against
+    **GGUF Q4_K_M (21 GB) 1,412-1,556 / 73.7-81.9**. That is the first measured answer to **#2189**'s
+    four-day-old "Q4_K is never named" question: it runs, and it is **10-20 % behind** the native
+    format. **#2178** excludes the prefill boundary token from the decode rate - the second engine in
+    two days to redefine tok/s, after Strata's own audit on 10-21.
+  - **Ollama promoted 0.40.8 to stable by renaming the tag - second time in three days**:
+    `published_at` **2026-10-21T16:20:30Z**, now `prerelease: false`, yesterday's `v0.40.8-rc0` gone.
+    **`v0.40.9-rc1`** (2026-10-22T01:33:10Z) is "llama.cpp update" only and links to a `v0.40.9-rc0`
+    that is not in the release list. Installed stays **0.40.6** (not re-checked today - that is a run).
+  - **Research: the decision track got its first academic treatment.** arXiv's index reaches
+    **2026-10-21T17:59:14Z**. **2610.29961** extends CaseHOLD with an **abstention** condition
+    (correct holding replaced in **1,670 of 5,314** items) and finds generative LLMs **still pick an
+    option in 38-86 %** when none is correct - so **our 18-window screen has no abstention arm**, and
+    every model we scored was scored where both options were always admissible. **2610.30090**
+    (VX-One) names the commercial class (TypeSafe Jev, Microsoft-Decision-1), puts a choice head's
+    explicit "unknown" option at **0.7-1.7 ms p50 on CPU** - three orders below Laya's 1562 ms - and
+    reframes our **0/4 stalls caught** as an honesty problem, not a threshold problem.
+    **2610.29823** (MemoryTax: designed memory beats full context only for a weak model, and its build
+    costs more than a whole rollout) supports the no-memory-system rule. **2610.29927** gives our
+    retired `events`/`paths` a name - **measure mismatch** - and **2610.30026** measures the twin of
+    our reading-fidelity result: formatting-blind ingestion takes micro F1 from **0.690 to 0.150
+    (docling) / 0.075 (plain text)**, deterministically scored, no judge.
+  - **Shortlist, cheapest first**: (1) **read the staged Q4_K_M's tensor types** - one minute, no
+    download, no engine, and it decides whether #3699 blocks us; (2) the **cold-vs-cold
+    expert-profile pair**, n>=2 starts per arm, both after the same idle period, no download;
+    (3) a **VRAM-and-decode context ladder on the qwen36 path** at 4K/16K/32K and one rung beyond,
+    reading `hybrid experts: N of 256`, free VRAM and the KV format **back from the log** - needs the
+    0.1.47 bump (gated) and cannot claim #3700's fix, which is a patch; (4) **Flint Q4_K_M on a stock
+    build past b11799** - 22.3 GiB download plus a build, then the 414-check metric, declaring
+    #30928's own 10-30 %; (5) **H2O-Lightning-4B then `pplx-decider:27b`**, now with the abstention
+    arm from 2610.29961 added to the label set; (6) the **expert cache as policy x capacity x seed,
+    naming the build twice** (#30861 and #30928's cost); (7) the **#3059 Windows file-cache build**,
+    still last because it still needs a build and #30926 is still unmerged. Nothing was scheduled and
+    nothing touched `ai_bench`.
+
 - October 21 (news scan, **re-run by hand after the 07:30 task died**): **`NEWS-2026-10-21.md` is
   written against `NEWS-2026-10-20.md`, and its first job is to correct yesterday's headline.** Reading
   only - nothing downloaded, installed, built or run, no engine started, no inference, no benchmark,
