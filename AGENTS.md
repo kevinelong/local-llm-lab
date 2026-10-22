@@ -1,5 +1,87 @@
 # Local AI lab working instructions
 
+- **2026-10-22, second scan (the fixed wrapper's first run), and the day's one unblocking merge.** Reading only -
+  nothing downloaded, installed, built or run, no engine started, no inference, no benchmark, nothing under
+  `C:/Users/kevin/ai_bench` read or touched; captions fetched as text for two videos. Window is **~2.5 h**
+  (15:40-16:20Z), since `NEWS-2026-10-22a.md` was written at 05:20 local. File:
+  **`NEWS-2026-10-22.md`**, and both files coexist on purpose.
+  - **The wrapper fix is proven on the scheduled path's own command, not by a hand test.** The task fired
+    **10/22 07:30:01**, exited **2** on the `\"`-argv split, and `verify-scan.ps1` refused the preserved 05:20
+    file - already recorded above. **This run started 07:44:29 from the same
+    `tools/daily-news-scan.cmd` and received the entire standing instruction as arguments**, including the
+    single-quoted `yt-dlp` example, so `ebee6bb` holds; **tomorrow's 07:30 run is the first scheduled one
+    carrying it**, and `Next Run Time: 10/23/2026 7:30:00 AM`, `Status: Ready`. No disarming needed.
+  - **`#30926 "Fix #30793"` MERGED 2026-10-22T14:00:59Z** (merge commit `36cbf415f1c72c199e956c00fed0418f22ca53f2`,
+    **one file, +14/-6, zero comments**), and **`#30793` closed 14:16:22Z**. It locks **every distinct buffer the
+    tensors were allocated in**, i.e. each chunk of a >4 GiB split host buffer, instead of skipping `mlock`. The
+    reporter had confirmed it on **10-21T15:25:00Z** ("Yes fixed"). **The newest tag is `b11819`, published
+    12:53:52Z - 67 minutes BEFORE the merge**, so the shortlist item changes from "needs an unmerged branch" to
+    **"run one tag >= b11820"**, declaring **first-request TTFT before any warmup** plus **RSS at load** (the
+    regression moved residency: ~300 GB -> ~270-280 GB at load, then faulted back in during the first prefill).
+  - **The WDDM ceiling now has both sides measured.** Strata **#3725** (13:30:50Z, patch inside, 0 comments,
+    unmerged): the engine sizes its pinned complement from **commit capacity**, which cannot see the WDDM shared
+    segment; **14.81 GiB pinned, then a 26 KB `cudaMalloc` fails** and the message is
+    `prefill: the token id buffer (out of memory)`. The segment is charged **on every CUDA device a page-locked
+    buffer is mapped into** and is **~half of RAM** (~15.5 GB on a 31 GB box; the reporter clamps to **10.97 GiB**
+    with a DXGI `QueryVideoMemoryInfo(NON_LOCAL)` patch and is READY in 25 s). With `FreeToken` #55's
+    13.77-13.82 GB on a 32 GB box, the rule has two independent measurements - and **our once-tried 24 GiB arm
+    tripped on physical RAM, not on this**, so nothing recorded is invalidated; the ~31.7 GB `[INFERENCE]` for
+    this box stands, and the cheap test is the **`GPU Adapter Memory\Shared Usage`** perf counter.
+  - **The same class has a measured cliff.** `jesdga95/basalt` **#21** (09:15:10Z): a **~1.0-1.3 GiB** plan
+    shortfall drops the **entire 64.69 GiB** resident copy, 100 % of experts go to SSD, and decode falls from the
+    previous pin's **50-61 tok/s to 2.4 cold / 8.3 warm**. So "a budget 1 GiB too small" may be **a different
+    configuration, not a point on a curve** - and nothing we have recorded proves otherwise.
+  - **A second first-party GGUF was created six seconds before Flint and is the cheaper candidate**:
+    `ggml-org/Qwen3-Coder-30B-A3B-Instruct-GGUF` (**2026-10-22T12:16:27Z**, sha `0ca5112201`, apache-2.0,
+    **Q4_K_M 16.75 GiB**, Q8_0 30.25, BF16 56.90). It is the **30B-A3B** class we already measured at
+    **34-36 tok/s** and screened at **204/221** on the Ollama build - first-party weights, **no build**, 4-5 GiB
+    cheaper than Flint. Flint's `Flint-Q4_K_M.gguf` is **21.78 GiB** (= the 22,304 MiB already recorded), and
+    **>10 third-party Flint ports** appeared within 12 hours, which makes "which Flint" a declared variable: a
+    measured row names `ggml-org/Flint-GGUF` at a revision.
+  - **Colibri needed a correction, not a status update: the merges are on `dev`, and `main` has not moved since
+    2026-10-17T14:47:26Z** (a README commit). `dev` moved today through `05a5bca5` / batch **#2284**
+    (10:27:00Z), including **#2117** (Vulkan buffers outside an iGPU VRAM carve-out), **#2119** (qwen38 defaults
+    from an iGPU's compute units), **#2103** (`COLI_KV_SHARE` cross-slot adoption under KV8/KV_TQ) and **#626**
+    (QLoRA: fine-tune **GLM-5.2 744B in 64 GB RAM**). Still **no release since `v2.0.0`** (2026-10-06). So **the
+    ref a probe builds from is now a declared variable**, exactly as the backend was made one: `v2.0.0`/`main`
+    predates all of it, `dev` is an unreleased tree.
+  - **Two llama.cpp merges touch our families in the window**: **#30927** fixes an **abort on the first request**
+    for a DFlash drafter over **`qwen4exp`** (`GGML_ASSERT(row_floats == hparams.n_embd)`), with the explicit
+    clause that the mean is only built for drafter-requested layers so **normal inference is unchanged**; and
+    **#30932** trims inputs on `glm5` - whose own disclosure ran **`ggml-org/Flint-GGUF`** on an RTX 5090. Also
+    **#30983/#30975/#30973/#30968/#30961/#30954** filed today, and **`b11815` fixed a SILENT wrong-result bug**
+    (SYCL `CONV_2D` read a non-contiguous input at the wrong offsets; 16 failures -> 0).
+  - **arXiv did not advance**: **zero** 2026-10-22 listings; all **80** newest cs.CL+cs.LG entries are 2026-10-21.
+    Two unread papers from that window are on our axes: **2610.29662 SPARE** (per-layer expert pruning by
+    **routing entropy**, with a perturbation bound - i.e. our cache's hot set is computable from gate weights
+    before a run, which is the cheapest answer to the 6 % -> 42 % result) and **2610.29657** (BBQ, quantisation x
+    bias x **abstention** across Qwen3/Gemma-3/SmolLM2 - the abstention arm from 2610.29961 arriving on the
+    quantisation axis; its "20 of the 26 configurations..." clause was truncated by my read and is recorded as
+    unread, not guessed).
+  - **Per-platform answers, because the standing rule asks each platform its own question.** **[YT] zero videos
+    uploaded in the last 24 h** for four different recipe queries - two kept (Rob Braxman 2026-09-23: NGL is the
+    knob, "try out a bunch of NGL values until it" at 00:07:41, and the expert/KV/VRAM placement vocabulary;
+    Kai 2026-10-10: names "expert offloading", quotes "23 GB of VRAM plus 47 GB of RAM"), both second-hand and
+    **neither shortlisted**. **[RD]** 25 new posts, kept as symptoms: an R9700 decode claim (no AMD card here),
+    capy-flash 125B in **64 GB RAM** (needs two cards), and a **`domyn` merge post that independently confirms
+    `b11819`**. **[HN]** one local-LLM story in 36 h (Flint, 4 points, 0 comments). **[REL]** Ollama
+    `v0.40.9-rc1` still newest with **#19194 "llama.cpp update"** merged (next build carries a bump of unstated
+    depth); ComfyUI `v0.42.1` unchanged with **`#17220`** fixing Gemma4 31B global attention.
+  - **One adjacent item belongs to the image track**: `Comfy-Org/comfy-aimdo` **#128** (03:01:24Z) - five call
+    sites re-run a full `vbars_free(budget_deficit(X))` on every allocation against a deficit source throttled to
+    ~2 s, giving **multi-hour VRAM thrash**, with the tell **"~100 % utilization at ~59 W vs. 150-220 W"**. Our
+    image-track floor breaches were measured under exactly this oversubscription; we have never sampled **power
+    draw**. Symptom to look for, not a defect we have.
+  - **Shortlist, cheapest first**: (1) read `GPU Adapter Memory\Shared Usage` through one resident arm; (2) the
+    cliff test at a deliberately short budget **plus** a declared-vs-granted cache readback (our q2c established
+    the flag is not the number in effect; Strata **#3693** shows the opposite direction - a fill that OVERSHOOTS
+    `--expert-cache N`, 4497 -> 5118 slots, and **#3692** an auto sizer that under-fills with 4.4 GiB free);
+    (3) mlock/TTFT on the first tag **>= b11820**; (4) `Qwen3-Coder-30B-A3B-Instruct` Q4_K_M **16.75 GiB** on the
+    414-check metric; (5) Flint Q4_K_M 21.78 GiB past `b11799`, declaring #30928's 10-30 %; (6) the int8-KV
+    context ladder (gated on 0.1.47 - and now also on the **`startup_wait_expired`** reports, **#3710** and
+    **#3683**, where the test start rejects a working engine); (7) per-layer routing entropy vs the cache's
+    measured behaviour. Nothing scheduled; nothing touched `ai_bench`.
+
 - **2026-10-22, source coverage audited (Kevin: "only GitHub, or also YouTube/???").** Counted over the last three
   scans (`NEWS-2026-10-20`, `-21`, `-22a`):
   - **Covered:** GitHub repo references 23 / 15 / 27, issue and PR numbers **121 / 105 / 111** (the dominant source by

@@ -540,6 +540,27 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-22 &middot; [Daily news scan (second run): the mlock fix merged, and the WDDM ceiling now has a number, a fix and a cliff](NEWS-2026-10-22.md)**
+&ndash; a **2.5-hour** window on top of the morning's file, and it contains the one unblocking merge: llama.cpp
+**#30926 "Fix #30793"** merged **14:00:59Z** (one file, **+14/-6**, zero comments) and **#30793 closed
+14:16:22Z** &ndash; it locks **every distinct buffer a tensor was allocated in**, i.e. each chunk of a >4 GiB
+split host buffer, instead of skipping `mlock`. The reporter confirmed it 19 hours before it merged, and the
+newest tag **`b11819` (12:53:52Z) predates the merge by 67 minutes**, so the item becomes "run one tag
+**>= b11820**" and declares **first-request TTFT before any warmup** plus **RSS at load** (residency moved:
+~300 GB &rarr; ~270-280 GB, faulted back in during the first prefill). The **WDDM ceiling** from the morning's
+file now has both sides measured: Strata **#3725** sizes its pinned complement from **commit capacity**, which
+cannot see the shared segment, so **14.81 GiB pinned then a 26 KB `cudaMalloc` fails** and the message names
+the token buffer; a DXGI `QueryVideoMemoryInfo(NON_LOCAL)` clamp to **10.97 GiB** is READY in **25 s**. And the
+same class has a **measured cliff**: one engine lost its **entire 64.69 GiB** resident copy to a **~1.3 GiB**
+plan shortfall, taking decode from **50-61 tok/s to 2.4 cold / 8.3 warm**. Two first-party GGUFs were created
+**six seconds apart** &ndash; Flint (**21.78 GiB** Q4_K_M) and `Qwen3-Coder-30B-A3B-Instruct` (**16.75 GiB**
+Q4_K_M, in a class we already screened at 204/221 and measured at 34-36 tok/s), which is the **cheaper** new
+row. **Colibri corrected**: the merges are on `dev`, `main` has not moved since **2026-10-17**, so the ref a
+probe builds from is now a declared variable. **arXiv did not advance** (zero 10-22 listings), two unread
+papers sit on our axes, **[YT] produced no upload in 24 h**, **[HN] one story in 36 h**, and **[RD]** three
+symptoms none of which survives a local test. Seven ranked items, cheapest first a **perf-counter read**.
+Reading only.
+
 **2026-10-22 &middot; [Daily news scan: the decode regression is in the server, not the engine, and the KV byte is the context cost](NEWS-2026-10-22a.md)**
 &ndash; the beat is **broadened on Kevin's instruction** and every item is labelled **VRAM**, **MODEL** or
 **ENGINE**, with a measured report preferred to an announcement. Two corrections of the previous file's own
