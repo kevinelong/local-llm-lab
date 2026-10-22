@@ -15,6 +15,26 @@ Tool: `local-llm-lab/gguf_tensors.py` (header parse only — no weights, no engi
 | `attn_q` / `attn_qkv` | 50 | Q8_0 × 40, F32 × 10 |
 | whole file | 733 | Q8_0 310, F32 301, Q4_K 121, Q6_K 1 |
 
+## CORRECTION: #3699 is Strata's refusal, not llama.cpp's
+
+This document first read "#3699 says the qwen36 path refuses Q4_K expert downs" and then argued that our engines load
+the file anyway — **comparing a Strata-side refusal against llama.cpp builds b11480/b11810.** That comparison is void:
+llama.cpp wrote the Q4_K_M recipe and accepts it by construction. What #3699 actually reports is:
+
+- **Strata issue #3699**, opened **2026-10-22T08:01:09Z**, 0 comments. Loading a Q4_K_M Qwen3.6-35B-A3B GGUF is
+  **refused by Strata's own native expert kernels**:
+  `strata-q36: blk.5.experts are Q4_K/Q4_K, which the native expert kernels do not take (build with
+  -DSTRATA_Q6K_EXPERTS=ON for Q6_K)`
+- Mechanism: `STRATA_D_FMTS` carries Q5_K and Q6_K but **no Q4_K**, so `native_expert_supported()` returns false.
+  Adding Q4_K (type 12) to both variants loads and runs — on an RTX 5080 16 GB at 0.1.47, `hybrid experts: 112 of
+  256 in VRAM (8.16 GiB)`, prompt 4.5-5.1k tok/s, decode **133.9-154.7 tok/s**, text identical to llama.cpp b11798
+  for 380 characters on two of three prompts.
+
+**And our file is worse off than the reporter's.** Theirs had 20 layers `Q4_K/Q4_K/Q4_K` and 21 layers
+`Q4_K/Q4_K/Q6_K`, i.e. Q6_K downs in half the layers. Ours has **all 40 routed-expert down projections at Q4_K**;
+the only Q6_K tensor in the entire file is `output.weight`, and the shared-expert downs are Q8_0. So on a pre-#3699
+Strata there is **no layer that would be accepted** - not half, all.
+
 ## Why this matters, and the contradiction it creates
 
 The scan ranked this first because **#3699 reports that the qwen36 path refuses Q4_K expert *down*
@@ -24,14 +44,18 @@ projections**, and that Unsloth's UD quants "skirt" that case — which would ex
 b11810 both come up on the declared `--cpu-moe --load-mode none` workload, and yesterday's q6 arms ran four loads
 at **77–81 tok/s with 90/93 letters identical**.
 
-So the open question is now narrower and better posed: **the refusal's stated precondition is present in our file
-and does not reproduce on b11480 or b11810.** Candidate explanations, none tested:
+The open question is now this: **the 2026-10-21 note records that Qwen3.6 "loads and serves on Strata 0.1.46 at a
+32K context"** — which, if that path is the native expert kernel, should have been refused. Candidate resolutions,
+none tested:
 
-1. #3699's refusal is version-specific — older or newer than both our builds;
-2. it applies to a path we do not use (adaptive scaling / #30861, or the MTP block, rather than the plain
-   `--cpu-moe` route);
-3. the reporter's file differed in a way the header alone does not show (a mix of Q4_K and Q6_K per layer; ours is
-   uniform across all 40).
+1. the build that served it already carries the type-12 patch, or a `STRATA_D_FMTS` that includes Q4_K;
+2. the served path was not the native expert kernel (a VRAM-clamped expert cache / a fallback), so the check that
+   #3699 describes never ran;
+3. the artefact served on Strata was not this file (a UD variant whose downs are Q6_K would explain it).
+
+**What I could not check from here:** the staged Strata source on this box is **v0.1.27 (2026-09-30)** and contains no
+`STRATA_D_FMTS`, `native_expert_supported` or `STRATA_Q6K_EXPERTS` symbol at all, so it cannot speak for 0.1.46/0.1.47.
+The decisive test is one load: run our staged Qwen3.6 GGUF on the current Strata and read the first expert line.
 
 ## What this changes in the queue
 

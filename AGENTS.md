@@ -24,11 +24,14 @@
   §5 models, §8 shortlist). Its top item was a one-minute GGUF header read, and it **contradicts the issue it was
   meant to test**: `TENSOR-TYPES-2026-10-22.md`.
   - **Our staged `Qwen3.6-35B-A3B-Q4_K_M` has all 40 `ffn_down_exps` at Q4_K** (also all 40 up and 40 gate at
-    Q4_K; `attn_q/qkv` Q8_0; whole file Q8_0 310, F32 301, Q4_K 121, Q6_K 1). **#3699 reports that the qwen36 path
-    refuses Q4_K expert downs**, and Unsloth's UD quants are said to skirt it — ours does not skirt it, and b11480
-    and b11810 both load and serve it (yesterday's q6: four loads, 77-81 tok/s, 90/93 letters). So the refusal's
-    stated precondition is present and does not reproduce here; the three candidate explanations are recorded in the
-    doc, untested.
+    Q4_K; `attn_q/qkv` Q8_0; whole file Q8_0 310, F32 301, Q4_K 121, Q6_K 1). **#3699 is a *Strata* issue** (opened
+    2026-10-22T08:01Z): Strata's **native expert kernels** refuse Q4_K down projections because `STRATA_D_FMTS` has
+    Q5_K and Q6_K but no Q4_K; +type 12 loads and runs. **CORRECTED same day:** the first version of this entry
+    compared that refusal against llama.cpp b11480/b11810, which is void — llama.cpp wrote the recipe. Ours is worse
+    off than the reporter's file: **all 40** routed-expert downs are Q4_K (theirs had Q6_K downs in 21 of 41; our
+    only Q6_K is `output.weight`), so a pre-#3699 Strata would refuse every layer. The live contradiction is that the
+    10-21 note records Qwen3.6 **loading and serving on Strata 0.1.46 at 32K**; three resolutions are listed in the
+    doc and the decisive test is one load.
   - **VRAM, new and applicable:** Windows **WDDM enforces a pageable-locking pool of roughly half of system RAM**
     (13.77-13.82 GB measured on a 32 GB box) before `cudaHostRegister` fails — which on this 63.46 GiB machine
     predicts a ~31.7 GB ceiling `[INFERENCE]`. Nothing we have measured comes near it (12 GiB resident typical,
