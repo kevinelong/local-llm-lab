@@ -1,7 +1,7 @@
 # Our staged Qwen3.6 has Q4_K expert-down tensors — and our engines load it anyway
 ## 2026-10-22, from `NEWS-2026-10-22.md` §8 item 1 (declared "one minute, no download, no engine")
 
-Tool: `ai_bench/image-models-20261020/gguf_tensors.py` (header parse only — no weights, no engine, no network).
+Tool: `local-llm-lab/gguf_tensors.py` (header parse only — no weights, no engine, no network).
 
 ## The reading
 
