@@ -74,9 +74,24 @@
     scan: `verify-scan.ps1` now accepts `NEWS-<today>*.md` **written after the wrapper touched a start marker**
     (`%TEMP%\daily-news-scan.start`), so existence alone cannot pass a stale file. Both directions tested -
     an older-only file FAILS, a file written after the marker PASSES and is named in the output.
-  - **Open decision the scan raised and did not take:** the **07:30 scheduled task is still armed** and would
-    rewrite `NEWS-2026-10-22a.md`. Disarming a scheduled task is a system change, so it was left alone; the 05:26
-    version is preserved as commit `ce7d252`.
+  - **That armed task then fired and FAILED, and the cause was quoting, not the schedule.** The task ran
+    **2026-10-22 07:30:01** and was gone in **0.24 s**, logging `Failed to load extension
+    ~/local-llm-lab/bash` then `Error: unknown flags: -lc, --skip-download, --write-auto-subs,
+    --sub-langs, --sub-format`, exit **2**, no `NEWS` file - and `verify-scan.ps1` reported
+    **`FAILED: no NEWS-2026-10-22*.md written after this run started`**, i.e. the marker check added at
+    05:26 caught its first real failure and would not have passed the preserved file. Mechanism, reproduced
+    from both versions of the wrapper with a throwaway probe (each version's real `set "PROMPT=..."` line,
+    expanded exactly as `"%PROMPT%"`, read back through `sys.argv`): the committed prompt carried
+    **`\"`-escaped double quotes** around the `yt-dlp` example, cmd keeps them literally, and omp's argv
+    parser splits on them - **ARGC 12**, the tail being `-e`, `bash`, `-lc`, `"yt-dlp`, `--skip-download`,
+    `--write-auto-subs`, `--sub-langs`, `'en.*'`, `--sub-format`, `vtt`, `URL", ...`, which is the exact
+    unknown-flag list in the log and why `bash` was taken as an extension path. The same line with
+    **single quotes** gives **ARGC 1**. So **the wrapper must contain no double quote inside its prompt**,
+    the self-test argument (`daily-news-scan.cmd SCAN-OK`) exercises the argv path but never the prompt
+    text, and a clean `exit 0` from a by-hand run is not evidence that the scheduled path works. Kevin's
+    single-quote fix is in the working tree and is committed below, so **tomorrow's 07:30 run executes the
+    fixed prompt and the task needs no disarming**; the 05:26 file stands as `ce7d252`, and the 7:42
+    hand test (`SCAN-OK`, ARGC path verified separately) left the repo otherwise clean.
 
 - **Standing permission (2026-10-21, Kevin): check for the latest version of every tool we run at least once a
   day, and before a run when it has been more than a day.** Fetching a version or a release note is pre-approved;
