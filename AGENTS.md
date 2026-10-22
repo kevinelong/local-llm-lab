@@ -1,5 +1,24 @@
 # Local AI lab working instructions
 
+- **2026-10-22, was the broadened beat worth it? Counted, not asserted.** Comparing `NEWS-2026-10-22a.md`
+  (broadened: +VRAM, +models) with `NEWS-2026-10-21.md` (prior beat) and `NEWS-2026-10-20.md`:
+  - **Model coverage quadrupled**: named model repos **4 -> 16**; distinct `owner/repo` sources **12 -> 23**;
+    issue/PR numbers **72 -> 78** (52 of them absent from *both* prior files, though many are simply new releases
+    since yesterday, not rediscoveries). File size and section count are unchanged (57.6 KB, 10 sections), so the
+    widening cost no bloat - the broadened run took **356 s** wall.
+  - **Relevance is flat, not higher**: `Applies: yes|directly|as` **23 -> 24**, while `Applies: no` **1 -> 3**. The
+    new file labels its own items: **20 labelled, VRAM 10 / MODEL 6 / ENGINE 4**, of which 5 VRAM, 2 MODEL and 1
+    ENGINE apply.
+  - **Three gains the old beat would not have produced**, which is what settles it: (1) `FlashML-org/FreeToken`
+    **#55** - the WDDM pageable-locking ceiling at ~half of RAM, an *old* issue (Aug 2026) in a project outside the
+    old beat, and it explains the mlock wall; (2) our reference pack's **upstream revision moved on 2026-10-19**
+    (`7878dc9a` vs our `baec3ebe`) - dated *before* the prior scan, so that scan missed it, and it was caught only by
+    looking at model repos; (3) the tensor-type item, which the new material ranked first and which produced a
+    decisive local finding in the same hour (`TENSOR-TYPES-2026-10-22.md`).
+  - **Verdict: keep the broadened beat.** Two or three real items per day at unchanged cost, and the widest gain is
+    model-repo coverage - exactly the axis that produced Flint and the upstream-move catch. The cost is 2 extra
+    `Applies: no` items, which is cheaper than missing a dated fact.
+
 - **2026-10-22, the broadened morning scan, and its cheapest item closed the same hour.** Kevin asked for the
   daily research early and widened to VRAM and models; the scan produced `NEWS-2026-10-22a.md` (§2 VRAM with numbers,
   §5 models, §8 shortlist). Its top item was a one-minute GGUF header read, and it **contradicts the issue it was
