@@ -1,5 +1,16 @@
 # Local AI lab working instructions
 
+- **2026-10-22, Strata 0.1.47 staged (the bump's prerequisite), and #3699's mechanism corroborated in shipped
+  source.** Release **v0.2.2** (2026-10-21T11:10:21Z, not a prerelease): engine
+  `strata-engine-0.1.47-windows-x86_64-cuda-cuda13.tar.gz` **580,428,476 B, sha256 `59833d875b2f3807…` MATCH**, control
+  `strata-control-0.1.47-windows-x86_64.zip` **72,195,109 B, `91dc0a8adda3d4b5…` MATCH**, both in
+  `ai_bench/staged-strata-0.1.47`. `engine-component.json` reports **0.1.47**, archs including **sm_120** (the CUDA 13
+  asset §1.2 asks for), 266 help lines of pack flags. **`control/setup.py` builds with `-DSTRATA_Q6K_EXPERTS=ON`** -
+  the exact flag in #3699's refusal message - so Q6K-expert builds are the default and a Q4_K down needs the issue's
+  patch. **The load test is not a one-liner**: the qwen36 path is the control server (`serve/server.py`, `--native`/
+  `--pack`), so reproducing #3699 means configuring and starting it - i.e. the first real step of the bump, which is
+  hours plus a re-baseline. Nothing was run; staging only.
+
 - **2026-10-22, the WDDM shared segment measured on this box: 17.8 GiB, not "nothing near it".** From `NEWS-2026-10-22`
   §3.1 (Strata #3725): under WDDM every page-locked GPU-mapped host buffer counts against the GPU's shared segment,
   capped at about half of RAM, and commit does not show it. Measured here with counters plus one resident arm
