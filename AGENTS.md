@@ -1,5 +1,32 @@
 # Local AI lab working instructions
 
+- **2026-10-22, the broadened morning scan, and its cheapest item closed the same hour.** Kevin asked for the
+  daily research early and widened to VRAM and models; the scan produced `NEWS-2026-10-22.md` (§2 VRAM with numbers,
+  §5 models, §8 shortlist). Its top item was a one-minute GGUF header read, and it **contradicts the issue it was
+  meant to test**: `TENSOR-TYPES-2026-10-22.md`.
+  - **Our staged `Qwen3.6-35B-A3B-Q4_K_M` has all 40 `ffn_down_exps` at Q4_K** (also all 40 up and 40 gate at
+    Q4_K; `attn_q/qkv` Q8_0; whole file Q8_0 310, F32 301, Q4_K 121, Q6_K 1). **#3699 reports that the qwen36 path
+    refuses Q4_K expert downs**, and Unsloth's UD quants are said to skirt it — ours does not skirt it, and b11480
+    and b11810 both load and serve it (yesterday's q6: four loads, 77-81 tok/s, 90/93 letters). So the refusal's
+    stated precondition is present and does not reproduce here; the three candidate explanations are recorded in the
+    doc, untested.
+  - **VRAM, new and applicable:** Windows **WDDM enforces a pageable-locking pool of roughly half of system RAM**
+    (13.77-13.82 GB measured on a 32 GB box) before `cudaHostRegister` fails — which on this 63.46 GiB machine
+    predicts a ~31.7 GB ceiling `[INFERENCE]`. Nothing we have measured comes near it (12 GiB resident typical,
+    24 GiB once, floor-tripped), but it is the wall in front of any "pin all the experts" strategy and the missing
+    half of #30793 (`--load-mode mlock` silently skipping buffers > 4 GiB).
+  - **New model candidate: Flint** — `RecursiveSI/flint`, Apache-2.0, 2026-10-21, "40 B MoE with ~2.5 B active",
+    262K context; `ggml-org/Flint-GGUF` Q4_K_M is **22.3 GiB**, i.e. the same host budget our Qwen3.6 Q4_K_M
+    already uses, with ~2.5 B active against our ~3 B. Two declared risks: it needs a build past b11799, and
+    #30861's adaptive scaling is priced by #30928 at **10-30 % slowdown**. Costs one 22.3 GiB download plus a build
+    — both decisions.
+  - **Our reference pack's upstream moved and nobody recorded it:** `ggml-org/Qwen3.6-35B-A3B-GGUF` is
+    `lastModified 2026-10-19T15:35:48Z`, sha `7878dc9a90`, 126 GiB, `.src_sha PRIMARY=995ad96e…`; our staged copy is
+    revision `baec3ebe` (2026-10-07). Sizes are unchanged, so the quantisation reading above is unaffected.
+  - **Open decision the scan raised and did not take:** the **07:30 scheduled task is still armed** and would
+    rewrite `NEWS-2026-10-22.md`. Disarming a scheduled task is a system change, so it was left alone; the 05:26
+    version is preserved as commit `ce7d252`.
+
 - **Standing permission (2026-10-21, Kevin): check for the latest version of every tool we run at least once a
   day, and before a run when it has been more than a day.** Fetching a version or a release note is pre-approved;
   **it is not a decision to upgrade** - upgrades stay declared changes with a re-pin, exactly as before. Record the
