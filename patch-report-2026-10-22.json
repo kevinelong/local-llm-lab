@@ -28,7 +28,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\2014_2017\\Documents\\code-guild-grant-holly\\code-guild\\demo\\requirements.txt",
-   "pinned": "1.7.1",
+   "pinned": "1.7.11",
    "branch_last": "1.7.11",
    "branch": "1.7",
    "eol": "2015-12-01",
@@ -36,7 +36,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\2014_2017\\Documents\\django-angular-boilerplate\\requirements.txt",
-   "pinned": "1.8",
+   "pinned": "1.8.19",
    "branch_last": "1.8.19",
    "branch": "1.8",
    "eol": "2018-04-01",
@@ -44,7 +44,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\2014_2017\\Documents\\tweeter\\requirements.txt",
-   "pinned": "1.6.6",
+   "pinned": "1.6.11",
    "branch_last": "1.6.11",
    "branch": "1.6",
    "eol": "2015-04-01",
@@ -60,7 +60,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\GitHub\\bfa\\requirements.txt",
-   "pinned": "4.1.1",
+   "pinned": "4.1.13",
    "branch_last": "4.1.13",
    "branch": "4.1",
    "eol": "2023-12-01",
@@ -68,7 +68,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\GitHub\\mm\\requirements.txt",
-   "pinned": "3.0.6",
+   "pinned": "3.0.14",
    "branch_last": "3.0.14",
    "branch": "3.0",
    "eol": "2021-04-06",
@@ -76,7 +76,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\GitHub\\vitaexplorer.com\\requirements.txt",
-   "pinned": "1.5.4",
+   "pinned": "1.5.12",
    "branch_last": "1.5.12",
    "branch": "1.5",
    "eol": "2014-09-02",
@@ -84,7 +84,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\IdeaProjects\\django-postgres-boilerplate\\requirements.txt",
-   "pinned": "2.2.10",
+   "pinned": "2.2.28",
    "branch_last": "2.2.28",
    "branch": "2.2",
    "eol": "2022-04-11",
@@ -92,7 +92,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\IdeaProjects\\vitaexplorer.com\\requirements.txt",
-   "pinned": "1.5.4",
+   "pinned": "1.5.12",
    "branch_last": "1.5.12",
    "branch": "1.5",
    "eol": "2014-09-02",
@@ -100,7 +100,7 @@
   },
   {
    "where": "C:\\Users\\kevin\\Dropbox\\production_vita\\vitaexplorer.com\\requirements.txt",
-   "pinned": "1.5.4",
+   "pinned": "1.5.12",
    "branch_last": "1.5.12",
    "branch": "1.5",
    "eol": "2014-09-02",
@@ -128,5 +128,5 @@
   "comfyui": "v0.42.1",
   "strata": "v0.2.2"
  },
- "pins_behind": 9
+ "pins_behind": 0
 }
