@@ -23,11 +23,13 @@ if not "%~1"=="" set "PROMPT=%~1"
 if not "%~1"=="" set "RUNVERIFY=0"
 
 echo [%DATE% %TIME%] daily news scan start >> "%LOG%"
+REM Marker: the verifier accepts a suffixed same-day file, so it must know when THIS run started.
+type nul > "%TEMP%\daily-news-scan.start"
 "%OMP%" -p "%PROMPT%" --cwd "%REPO%" --thinking high --max-time 60m >> "%LOG%" 2>&1
 set "RC=%ERRORLEVEL%"
 echo [%DATE% %TIME%] daily news scan exit %RC% >> "%LOG%"
 REM A start line without this exit line means the wrapper was killed (seen 2026-10-21, exit -1073741510).
 REM When the real scan runs, verify it wrote today's file: a clean exit code is not evidence.
-if "%RUNVERIFY%"=="1" powershell -NoProfile -ExecutionPolicy Bypass -File "%REPO%\tools\verify-scan.ps1" -Repo "%REPO%" >> "%LOG%" 2>&1
+if "%RUNVERIFY%"=="1" powershell -NoProfile -ExecutionPolicy Bypass -File "%REPO%\tools\verify-scan.ps1" -Repo "%REPO%" -Marker "%TEMP%\daily-news-scan.start" >> "%LOG%" 2>&1
 if errorlevel 1 set "RC=1"
 endlocal & exit /b %RC%

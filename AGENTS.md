@@ -1,7 +1,7 @@
 # Local AI lab working instructions
 
 - **2026-10-22, the broadened morning scan, and its cheapest item closed the same hour.** Kevin asked for the
-  daily research early and widened to VRAM and models; the scan produced `NEWS-2026-10-22.md` (§2 VRAM with numbers,
+  daily research early and widened to VRAM and models; the scan produced `NEWS-2026-10-22a.md` (§2 VRAM with numbers,
   §5 models, §8 shortlist). Its top item was a one-minute GGUF header read, and it **contradicts the issue it was
   meant to test**: `TENSOR-TYPES-2026-10-22.md`.
   - **Our staged `Qwen3.6-35B-A3B-Q4_K_M` has all 40 `ffn_down_exps` at Q4_K** (also all 40 up and 40 gate at
@@ -23,8 +23,15 @@
   - **Our reference pack's upstream moved and nobody recorded it:** `ggml-org/Qwen3.6-35B-A3B-GGUF` is
     `lastModified 2026-10-19T15:35:48Z`, sha `7878dc9a90`, 126 GiB, `.src_sha PRIMARY=995ad96e…`; our staged copy is
     revision `baec3ebe` (2026-10-07). Sizes are unchanged, so the quantisation reading above is unaffected.
+  - **Renamed so the armed 07:30 run cannot overwrite it (Kevin's instruction, 2026-10-22):** today's file is
+    **`NEWS-2026-10-22a.md`** - the letter goes before the extension, so the scheduled run writes a fresh
+    `NEWS-2026-10-22.md` beside it instead of replacing it. Every reference (README list, this file, the tensor
+    document) was updated. **The verifier had to change with it**, or a preserved file would read as a failed
+    scan: `verify-scan.ps1` now accepts `NEWS-<today>*.md` **written after the wrapper touched a start marker**
+    (`%TEMP%\daily-news-scan.start`), so existence alone cannot pass a stale file. Both directions tested -
+    an older-only file FAILS, a file written after the marker PASSES and is named in the output.
   - **Open decision the scan raised and did not take:** the **07:30 scheduled task is still armed** and would
-    rewrite `NEWS-2026-10-22.md`. Disarming a scheduled task is a system change, so it was left alone; the 05:26
+    rewrite `NEWS-2026-10-22a.md`. Disarming a scheduled task is a system change, so it was left alone; the 05:26
     version is preserved as commit `ce7d252`.
 
 - **Standing permission (2026-10-21, Kevin): check for the latest version of every tool we run at least once a
@@ -40,7 +47,7 @@
     it would have to be followed by re-running one arm to prove nothing else moved.
 
 - October 22 (news scan, **manual run at 05:20 local; the 07:30 trigger had not fired and is still
-  armed**): **`NEWS-2026-10-22.md` is written against `NEWS-2026-10-21.md`, and the beat is broadened
+  armed**): **`NEWS-2026-10-22a.md` is written against `NEWS-2026-10-21.md`, and the beat is broadened
   for this run on Kevin's instruction** - every item labelled **VRAM** (consumer-card memory limits:
   quantisation, offload, KV sizing, WDDM, free-VRAM floors, allocation failures), **MODEL** or
   **ENGINE**, with a measured report preferred to an announcement. Reading only - nothing downloaded,

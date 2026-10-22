@@ -540,7 +540,7 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
-**2026-10-22 &middot; [Daily news scan: the decode regression is in the server, not the engine, and the KV byte is the context cost](NEWS-2026-10-22.md)**
+**2026-10-22 &middot; [Daily news scan: the decode regression is in the server, not the engine, and the KV byte is the context cost](NEWS-2026-10-22a.md)**
 &ndash; the beat is **broadened on Kevin's instruction** and every item is labelled **VRAM**, **MODEL** or
 **ENGINE**, with a measured report preferred to an announcement. Two corrections of the previous file's own
 headline: a **crossed server x engine test** on sm_70 (four combinations, same box, pack and argv) moves the
@@ -580,7 +580,7 @@ post-`v2.0.0`**, which turns our probe into a build. Seven ranked items, the "no
 no download, engine, inference or benchmark. Reading only.
 **Corrected the next day:** the -10 % class is **not architecture-dependent** &ndash; a crossed
 server x engine test puts it in **`serve/server.py`**, while engine 0.1.47 is flat to slightly better, and
-on **sm_89 + Windows 11** it does not reproduce at all. See [2026-10-22](NEWS-2026-10-22.md).
+on **sm_89 + Windows 11** it does not reproduce at all. See [2026-10-22](NEWS-2026-10-22a.md).
 
 **2026-10-20 &middot; [The cache ceiling is a floor value, and the engine clamps rather than refuses](../ai_bench/queue-20261016-shortlist/q2c-cache-ceiling-20261020.md)**
 &ndash; the rung above 4,096, asked as a floor question. A **6,144 MiB** request does **not** fail: it comes up
