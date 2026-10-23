@@ -1,5 +1,86 @@
 # Local AI lab working instructions
 
+- **2026-10-23, daily scan (the first full-day window in three): Strata shipped twice, and its first-hand row is
+  on our card.** `NEWS-2026-10-23.md`, written against `NEWS-2026-10-22.md`, window
+  **2026-10-22T16:20Z -> 2026-10-23T15:10Z** (~22.5 h). Reading only - nothing downloaded, installed, built or
+  run, no engine started, no inference, no benchmark, **`ai_bench` untouched**, one YouTube caption file fetched
+  as text.
+  - **Strata `v0.2.3` published 2026-10-23T07:44:52Z** (`prerelease: false`), engine packages **0.1.48**
+    (0.2.2 had 0.1.47), app 0.2.3; **`v0.2.3.1` at 13:45:22Z** with Control 0.1.48.1 and **no engine or app
+    change**. The row that applies here, verbatim: *"On an RTX 5070 12 GB PC (Gyro-S, first-reply speed, 5
+    rounds, median): the app's Work profile now uses 5 CPU workers and keeps 1536 MiB of video memory free, and
+    the answer speed rose from 31 to 45 tokens per second"* - **an app-default change against the 0.2.1 app**,
+    not an engine decode row, and not comparable with our per-request lines. Conversation cache now **sized
+    from free memory** (#3493: 40 % above a safety floor, max 8 GiB, line in the log). DFlash2 drafting is
+    opt-in Terminal-only (`--drafting dflash2`, auto = MTP). Intel Arc became a released package. Release's own
+    caveat: two runs of one prompt can differ at near-tie words, so text identity across this bump is void.
+  - **The bump gate closed from the vendor's side, and the cause was the page file.** #3683 **closed
+    2026-10-23T07:14:14Z** after *"raising the page file (commit-limit warning) and `--vram-reserve-mib` 700 ->
+    1536"* - i.e. **free commit**, the same ceiling this lab measured 2026-10-22 (commit 25.7 -> 0.84 GiB under
+    one resident arm while free physical read 15 GiB). **1536 MiB is now the shipped default.** #3710 remains
+    open; #3725 (WDDM shared segment, patch inside) moved a timestamp and nothing else.
+  - **A bump with MTP on has a known, version-independent failure.** #3813: `verify: layer N never rang` /
+    CUDA 717 in the verify window or MTP draft, *"every engine version from 0.1.41 to 0.1.48"*, pattern
+    *"after every engine restart request #1 succeeds and request #2 fails"*. It cannot be blamed on a bump and
+    cannot be excluded by one - declare **MTP off** for the throughput row. And #3844: `--spec 5` measured
+    +6.1 % decode on an **RTX 5060 Ti / sm_120**, but `tune_knobs` caps the range at **[3, 4]** - the
+    declared-versus-granted problem again.
+  - **The mlock fix's tag boundary is now exact.** `#30926`'s merge commit `36cbf415` is **not** in b11821
+    (`behind_by 3`) or b11823 (`behind_by 1`); **b11826 (2026-10-22T18:56:50Z) is the first tag containing
+    it**, newest is **b11838 (2026-10-23T13:37:01Z)**. So the item is "one tag **>= b11826**", not b11820 - and
+    release bodies carry no commit list, so only the compare API settles it.
+  - **llama.cpp: 14 merges, none on MoE/VRAM.** The one on an axis of ours is **#30663 "Extend probabilistic
+    sampling for DFlash2 drafts"** (05:45:37Z) - the drafter now samples, so a DFlash2 result does not cross
+    this build boundary; **#30969** fixes a `ggml_time_us` overflow, a field our runner quotes. Adjacent and
+    memory-shaped: **#30987 closed 2026-10-23T06:40:56Z** - with `--load-mode none`, CPU-kept experts occupy
+    **GTT**, so it OOMs *"while VRAM stayed not full"* and *"the more experts I pushed to CPU, the more demand
+    of GTT"*. That is the **AMD twin of the WDDM shared segment**: a third ceiling that no number the engine
+    sizes itself from can see.
+  - **Ollama `v0.40.9` is stable** (published 2026-10-22T01:33:10Z; yesterday's file had it as `-rc1` - the
+    tag was renamed, the fourth dating trap) and it carries **`d3`, vLLM Semantic Router's decision models, 2B
+    / 4B / 9B / 27B**, driven with `--ask`, plus **Flint on Linux and Windows** - the macOS-only gate is
+    lifted. It is a second first-party path for the decision track (installed pin stays 0.40.6, not re-read).
+  - **ComfyUI** unchanged at v0.42.1 but **#17196 "Fuse and strip the Flux2 VAE through comfy-kitchen"**
+    landed - the file our klein arm stages is exactly what such a step rewrites. **Colibri** `main` still
+    frozen at 2026-10-17, no release, but `dev` added **bounded KV rings for sliding-window layers** (#2316,
+    #2315) - the ref a probe builds from stays a declared variable.
+  - **Hugging Face: no new first-party GGUF** (ggml-org's newest are still the two created six seconds apart
+    on 2026-10-22). `ThinkingCap-gemma-4-26B-A4B-it-GGUF` appeared with **IQ4_XS 12.66 GiB / Q4_K_M 15.84 /
+    Q6_K 21.70 / Q8_0 25.02**, and `boro64/Ternary-Nemotron-3.5-Lightning-30B-A3B-GGUF` has **4 files and no
+    weights** - recorded so an empty repo cannot become a fact. Core six packs unchanged, second day.
+  - **arXiv advanced a full day: 222 new cs.CL+cs.LG listings dated 2026-10-22** (300 fetched: 222 / 78 split;
+    watermark 2026-10-22T17:59:51Z). The paper of the day is **2610.31479** on Apple Silicon: **KV pruning up
+    to 1.75x on Apple but able to reduce throughput on desktop NVIDIA**, **all evaluated speculative decoding
+    methods reduce throughput on Apple despite 2-6x on server GPUs**, and the sentence that is this lab's own
+    rule - *"a reported speedup is not a portable property of a technique alone but a joint function of
+    technique, runtime, hardware contract, and workload regime."* Also **RIFT** (draft-model KV compression,
+    "decode staleness"), **Gandalf** (SSD KV offload write endurance), **BeNice!** (looped models' KV sharing),
+    **low-bit n-gram embeddings** (DeepSeek V4.1 Flash allocates 196B params to Engram tables).
+  - **Per platform, which each answered differently.** **[YT]** no upload in 48 h, but one mineable video -
+    Running Local, **2026-10-09**, 580 s, second-hand: expert cache closes *"a bit over 40 %"* of Strata's gap
+    (22.4 -> 49.4 vs 85.8), prompt **249 -> 206** with cache against Strata's 2,320, and the testable claim
+    *"with experts in RAM, llama.cpp's MTP made decode 27 % slower"*; its "cache only acts at <=32-token
+    batches" claim **conflicts with our q2 prefill gains** and is recorded as a conflict. **[RD]** returned
+    **HTTP 403** to RSS and both JSON endpoints from this box - four titles, no dates, so **no ranked item**.
+    **[HN]** three keyword matches in 200 stories, **zero** local-LLM stories in 22.5 h.
+  - **Scan state: the 07:30 run hung and is still alive.** `Last Result 267009` is **`0x00041301`
+    (`SCHED_S_TASK_RUNNING`)**, not an exit code; `omp.exe 64644` (07:30:02) has **2.5 s of CPU in three
+    hours**, the log ends `Working...`, the tree is clean, and it wrote no file. `ExecutionTimeLimit` is
+    `PT1H30M` but the child survived it, and `MultipleInstancesPolicy` is **`IgnoreNew`** - so **tomorrow's
+    07:30 run will be skipped while it lives**. Ending that PID or editing the task is a system change, so it
+    is listed as gated, not done. This file therefore uses the **plain name** `NEWS-2026-10-23.md`; the 10-22
+    `a` suffix existed because an armed run was about to write the plain one, and the marker check in
+    `verify-scan.ps1` cannot tell two timestamp-fresh files apart.
+  - **Shortlist, cheapest first**: (1) read `GPU Adapter Memory\Shared Usage` through one resident arm
+    (unchanged, still cheapest); (2) **MTP on/off at rungs 0 and 5,376** on staged weights - settles the
+    video's 27 % claim against our +31.2 %/-7.3 % wall result and the Apple paper's regime argument; (3) the
+    mlock/TTFT check on **b11838** with first-request TTFT before warmup and RSS at load; (4)
+    `Qwen3-Coder-30B-A3B-Instruct` Q4_K_M **16.75 GiB** on the 414-check metric; (5) **the 0.1.48 bump as a
+    defaults experiment** - pagefile/commit, `--vram-reserve-mib 1536`, 5 workers, conversation cache auto,
+    MTP off, both versions read back (gated on Kevin, 120 pinned digests); (6) the cliff test with
+    declared-vs-granted readback, now with a third argument from GTT; (7) SPARE's routing-entropy ranking.
+    Nothing scheduled.
+
 - **2026-10-22, resource state audited after two orphan incidents; no reboot needed, and here is when it would be.**
   Asked whether to free memory as in the past. Measured first: **commit limit 71.5 GiB, free 27.5 GiB, physical free
   38.5 GiB** - floors are 9/8, so nothing was starving. But the top commit holder was a **leaked orphan**: the ComfyUI

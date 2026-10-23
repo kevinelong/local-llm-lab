@@ -540,6 +540,31 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-23 &middot; [Daily news scan: Strata ships 0.2.3/0.1.48 with a measured row on this card, and the test-start failure turns out to be a pagefile](NEWS-2026-10-23.md)**
+&ndash; the first full-day window in three (**~22.5 h**, 2026-10-22T16:20Z &rarr; 15:10Z today), and it contains
+two releases: Strata **`v0.2.3`** (2026-10-23T07:44:52Z, engine packages **0.1.48**) and **`v0.2.3.1`**
+(13:45:22Z, Control 0.1.48.1, no engine change). The claim that matters here is on our card: *"On an RTX 5070
+12 GB PC (Gyro-S, first-reply speed, 5 rounds, median): the app's Work profile now uses 5 CPU workers and keeps
+1536 MiB of video memory free, and the answer speed rose from 31 to 45 tokens per second"* &ndash; an
+**app-default** change against 0.2.1, not an engine decode row. The bump gate closed from the vendor's side:
+**#3683 closed** by *"raising the page file (commit-limit warning) and `--vram-reserve-mib` 700 -> 1536"*,
+which is the **commit headroom** ceiling this lab measured on 2026-10-22, now shipped as the default. Two new
+declaration items came with it: **#3813** (MTP/spec verify dies with CUDA 717 on **every** engine 0.1.41-0.1.48,
+*"request #1 succeeds and request #2 fails"*) and **#3844** (`--spec 5` += +6.1 % on an sm_120 5060 Ti, but
+`tune_knobs` caps at **[3, 4]**). The mlock fix's tag boundary is now exact rather than approximate: **b11826**
+is the first tag containing `#30926`, newest **b11838**. llama.cpp merged **14** PRs, none on MoE or VRAM, and
+the one on our axis is **#30663** (DFlash2 drafts now sample). **#30987** closed with the day's best mechanism:
+with `--load-mode none`, CPU-kept experts occupy **GTT**, so it OOMs *"while VRAM stayed not full"* &ndash; the
+**AMD twin of the WDDM shared segment**, a third ceiling no number the engine sizes itself from can see.
+**Ollama `v0.40.9` is stable** and carries **`d3` decision models (2B/4B/9B/27B)** plus **Flint on Linux and
+Windows**; **arXiv advanced a full day** with **222** new cs.CL/cs.LG listings, including a paper whose
+conclusion is this lab's own rule &ndash; *"a reported speedup is not a portable property of a technique alone
+but a joint function of technique, runtime, hardware contract, and workload regime."* **[RD] returned HTTP
+403** to every endpoint (recorded as unreachable, not empty), **[HN]** had zero local-LLM stories in 22.5 h,
+and **[YT]** produced one mineable 2026-10-09 video whose MTP claim is runnable on staged weights. Seven ranked
+items, cheapest first a **perf-counter read**. Reading only. **The 07:30 scheduled run hung and is still
+alive** (`0x00041301`), which will skip tomorrow's run until it is ended.
+
 **2026-10-22 &middot; [Daily news scan (second run): the mlock fix merged, and the WDDM ceiling now has a number, a fix and a cliff](NEWS-2026-10-22.md)**
 &ndash; a **2.5-hour** window on top of the morning's file, and it contains the one unblocking merge: llama.cpp
 **#30926 "Fix #30793"** merged **14:00:59Z** (one file, **+14/-6**, zero comments) and **#30793 closed
