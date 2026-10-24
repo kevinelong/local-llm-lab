@@ -1,5 +1,112 @@
 # Local AI lab working instructions
 
+- **2026-10-24, daily scan: Strata puts a 763B model on a 12 GB card, and the memory gaps turn out to be page
+  tables.** `NEWS-2026-10-24.md`, written against `NEWS-2026-10-23.md`, window **2026-10-23T15:10Z ->
+  2026-10-24T15:45Z** (~23.5 h). Reading only - nothing downloaded, installed, built or run, no engine started, no
+  inference, no benchmark, **`ai_bench` untouched**, one YouTube caption file fetched as text (WSL started for
+  `yt-dlp` and shut down afterwards; `.wslconfig` unchanged).
+  - **Strata `v0.2.4` published 2026-10-24T02:18:52Z, `prerelease: false`, and the Qwen engine did not move.**
+    Assets confirm it rather than the prose: every `strata-engine-0.1.48-*` package is re-attached, the app
+    installers are still `Strata-0.2.3-*`, and the only new files are `strata-control-0.1.49.2-*` and
+    `strata-dsv41-0.1.49.2-{windows-x86_64-cuda-cuda13, linux-x86_64-cuda-cuda13, linux-x86_64-hip-rx9070}`.
+    The body carries **three** sections under that one tag (0.2.4.2, a `0.2.4.1` blockquote, and 0.2.4), so the tag
+    was rewritten in place and `published_at` still reads 02:18:52Z - the **fifth dating trap** in two weeks.
+  - **What it adds is DeepSeek V4.1-Flash on one 12 GB card with 46-64 GB of RAM - this box's shape**, in three
+    sizes from `ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF` (created 2026-10-23T09:43:05Z, sha `cb02422c90`,
+    153 likes): **IQ1_M 239 GB, IQ2_XXS 257, IQ2_XS 274**, all sharing a **103.0 GiB IQ4_NL Engram table**. Vendor
+    fidelity lines are quoted with the download because the trade is real: IQ1_M is **perplexity +21 % (KL
+    0.217)**, IQ2_XS is **+7.3 % (KL 0.107)**. `[INFERENCE]` only IQ1_M fits `D:`'s **252.8 GiB free as measured
+    2026-10-20 - stale, must be re-read**.
+  - **The rows are on our card and they are prompt-dominated:** *"RTX 5070 12 GB, 64 GB RAM - about 5 tokens/s
+    (code), 231 tokens/s at 8K"*; the RAM expert store gave **4.3-4.9 tok/s where memory-mapping gave 1.8-2.2 on
+    the same PC**; *"reads long prompts layer by layer in big chunks instead of 16 tokens at a time"* took a
+    200-token prompt **3.6 -> 6.4 tok/s**; prompts over ~3,700 tokens skip work the last 20 layers cannot use
+    (**16K ~34 % faster**, top-1 unchanged in **99.5 % of 799 positions** - an approximate method with its own
+    divergence measured); new **AVX-512 Zen 4/5 CPU expert rows** took decode **4.08 -> 5.11 tok/s (+25 %)** and
+    prompt +26 % on a Ryzen 5 7600 + RTX 5070, *"identical text in all six runs"*. **DSpark (spec decoding) is off
+    by default on 12 GB cards and gave no gain on our card's host** (4.64 off vs 4.33 best on), which is our own
+    MTP result from the other side.
+  - **#3952 is the hazard the bump inherits, and it is a same-machine A/B.** 0.1.46 at 262K ctx drives the card to
+    **0 MiB free**, captures verify windows at **61 -> 49 -> 28 -> 13 -> 0 MiB**, and restarts; 0.1.43.1 with
+    identical flags runs **seven rounds to 238,735 prompt tokens with zero warnings**; the second A/B (engine
+    binaries swapped, configs untouched, `--vram-reserve-mib 700` confirmed in the log) reproduces it as six
+    warnings. Raising the reserve to **1094/1728 stops the spiral** - so 0.2.3's new **1536 MiB default** masks a
+    regression rather than being a tuning preference. **New declaration item: free VRAM per request at long
+    context.**
+  - **#3966: 0.1.48 is +15 % single-card and −19 % on a layer split**, and prints *"`STRATA_ADAPT_OVERLAP=1` is
+    off: not on a layer split"* **while `--layer-split 28` is active** - the guard misreads the configuration, so
+    the one variable that could recover it is silently disabled. Its expert-cache fit warning also shrank
+    **4041 -> 3918 slots at the same `--expert-cache`** (declared-vs-granted, third instance).
+  - **#3321 is the day's best mechanism: cold page tables, not the bus.** A 497K-token conversation turn shows
+    **99.9998 % prompt-cache reuse** and still costs ~8 s; the microbench on the same GPU puts **pinned reused at
+    26.3 GB/s**, **pageable reused 21.3**, **pageable fresh 2.28**, **fresh pre-touched 22.3**, against a
+    **26.8 GB/s** PCIe probe - and the production **2.4 GB/s** park line matches the fresh cell. Cause: 16 MiB
+    `std::vector` segments allocated per stage per turn under `MALLOC_MMAP_THRESHOLD_=1MiB`, paying a 4 KiB fault
+    plus a per-page pin. Simulated fix: **11.44 s -> 1.47 s pinned-reuse -> 0.40 s with one thread per GPU.**
+    Consequence for us: **a copy rate is a property of the allocation pattern**, so any bandwidth claim from this
+    box must say whether the buffer was pinned and whether it was fresh.
+  - **#30966 gives the expert cache a `--moe-cache-cpu-share` knob plus `scripts/moe-cache-tune.py`**, and its own
+    numbers say the sign depends on capacity: 6464 MiB share 0 -> **24.2 t/s**, share 0.95 -> **47.6**; 19392 MiB
+    share 0 -> **65.5**, share 0.95 -> **54.1**. A 2080 Ti 11 GB tester gets **23.5 -> 51.9 -> 64.5** as share
+    rises at 2752/6784 MiB against a 42.11 baseline with no cache - *"it finally makes the expert cache useful"*.
+    **#30594** would read `--moe-cache-profile <file.strp>` - **Strata's own STRP format, which we hold a learned
+    196,632-byte file of** (48 layers x 512 experts, 2026-10-16, sha `3acf05d1...` vs shipped `8f59b4aa...`) -
+    and upstream's bot review objects that the format's producer is an external repo.
+  - **llama.cpp merged 22 PRs, newest tag b11853, and one of them is a hazard on our card family.** **#30804
+    "CUDA: chunk graphs to amortize graph launch"** (+ #31053's build fix) merged 2026-10-23T20:42/18:49Z, while
+    **#27330** (13 comments, updated today) documents **Xid 8 / RC watchdog on an RTX 5090 Laptop sm_120** and a
+    Windows 11 **RTX 5080** dying with **`0x133 DPC_WATCHDOG_VIOLATION` in `nvlddmkm.sys`**, workaround
+    **`GGML_CUDA_DISABLE_GRAPHS=1`**. Also merged: **#26631** (`MUL_MAT_ID -1` skip index), **#31081** (deny
+    `-sm tensor` where MoE amax rescaling is on - which in effect blocks **#30499**), **#30965** (qwen4exp QSA
+    without the kq_mask), **#31097** (minimax-m3 dropped a per-expert **NVFP4 scale** -> garbled output). And
+    **#31102** now adds `longPathAware` for Windows exes, fixing **#30935** - the HF-cache path >260 chars bug.
+  - **Ollama `v0.40.10` is stable** (2026-10-23T15:03:59Z) with **Nemotron 3.5 Bolt E4B**, a Gemma-4-based VLM
+    with 128K context that **ships a DFlash draft**; **`v0.40.11-rc0`** (2026-10-24T00:30:13Z) bumps llama.cpp to
+    **b11845** and lets `vllm-d3` accept an **empty state**. Pin stays **0.40.6**.
+  - **Colibri merged eighteen PRs into `dev`** (batch #2330, 2026-10-24T00:18:46Z) including qwen36 and latent KV
+    in **f16**, multi-conversation **KV_SLOTS** on both chains, and - the line that matters - **#2325 "windows: the
+    RAM kimi_k3 and deepseek_v4 size from is bounded by the commit too"**: the Windows commit ceiling in a third
+    engine. `main` still `e0db083c` (2026-10-17), no release in 18 days.
+  - **Hugging Face produced one new first-party GGUF**, `ggml-org/NVIDIA-Nemotron-3.5-Bolt-E4B-GGUF` (created
+    2026-10-23T15:35:59Z; BF16 14.02 GiB, Q8_0 7.48 GiB, `dflash-...-NVFP4.gguf` 0.56 GiB), the first since
+    10-22. Core packs unchanged, the Qwen3.6 reference **third consecutive day** at `7878dc9a90`. Two more empty
+    or mislabelled repos recorded so they cannot become facts: `smalinin/MiniMax-M3.1-Flash-Q2_K-GGUF` (**no
+    weights**) and `ReadyArt/Wicked-Stuff-26B-A4B` (a finetune, not an architecture).
+  - **arXiv did not advance at all: zero new cs.CL/cs.LG listings**, the same **222 dated 2026-10-22** and the same
+    watermark **2026-10-22T17:59:51Z** as yesterday. Four of yesterday's unread papers were read instead, and
+    2610.31309 is the one to keep: **PLE is 35.2 % of a Gemma 4 E4B's parameters** and a token-shared code tuple
+    decodes per layer at **~100x PLE compression** - directly relevant because Qwen3.8-Flash-Next is a PLE model
+    and Strata exposes **`--ple-io mmap`**.
+  - **Per platform.** **[YT]** no upload in ~24 h surfaced; mined **Kai, 2026-10-22**, 1712 s, which teaches the
+    distinction our notes blur: `--n-cpu-moe` moves **whole expert layers** (paying rent on 502 of 512 experts
+    nobody routed) while the cache is **per-expert** - so a `-ncmoe` arm and a `--moe-cache-mib` arm are different
+    experiments. Second-hand, one prompt, no repeat count. **[RD] returned 200 with 25 dated posts** after
+    yesterday's 403; keep **Gyro's** closed-recipe table (it is the quant behind Strata's "Gyro-S" RTX 5070 row and
+    is **not interoperable** with EXL3), the ISTA geometry (763.2B total, 384 routed/6 active, 196.6B Engram), the
+    page-cache load numbers (21 GB model **5.6 s** cached vs **13.7 s** disk-bound), and a third independent
+    hybrid-cache implementation (`capy-flash`, two RTX 50 cards). **[HN]** 898 stories, 7 keyword matches,
+    **zero local-LLM** in ~24 h.
+  - **Scan state: today's 07:30 run hung too, and yesterday's did not.** `Last Result 267009` is again
+    `SCHED_S_TASK_RUNNING`, `Status: Running`, the log ends `Working...`, and the child is **`omp.exe` PID 270136
+    with 3.2 s of CPU in 7.4 h**. Yesterday's survivor (PID 64644) is **gone**, and yesterday's log shows
+    `daily news scan exit 0` at 07:41:43 - so yesterday's file misread a completed run's sibling as the failure,
+    and this is a correction to it. **`MultipleInstancesPolicy` is `IgnoreNew`, so tomorrow's 07:30 run will be
+    skipped while 270136 lives**; ending it is a system change and stays Kevin's call. Two clean readings on two
+    mornings makes it a pattern.
+  - **Shortlist, cheapest first**: (1) read `GPU Adapter Memory\Shared Usage` through one resident arm
+    (unchanged, still cheapest); (2) **the pinned-vs-fresh copy microbench on our card** (new, no download,
+    throwaway script in the ComfyUI venv) - it decides whether our 60-70 % of measured bandwidth is kernels or
+    page faults; (3) mlock/TTFT on **b11853 as two arms**, graphs on and `GGML_CUDA_DISABLE_GRAPHS=1`, since that
+    download now carries #30804 and #27330 says graphs can hang sm_120; (4) `--moe-cache-cpu-share` at rungs **0
+    and 5,376** with share **0 / 0.5 / 0.95** under `--cpu-moe`, naming the build because SLRU moved at b11732;
+    (5) `Qwen3-Coder-30B-A3B-Instruct` Q4_K_M **16.75 GiB** on the 414-check metric; (6) the **0.1.48 bump as a
+    defaults experiment** - now five declarations, and the download is unchanged because 0.2.4 ships 0.1.48 byte
+    for byte; (7) score our learned **`.strp`** hot set against the cache behaviour the log reports (merges
+    yesterday's SPARE item with #30594's format). Nothing scheduled.
+  - **Gated on Kevin**: the candidate tests; any Strata bump (120 pinned digests); the **239 GB DeepSeek IQ1_M
+    download** (largest this lab has faced, worst published fidelity of the three sets, `D:` free space stale);
+    the hung PID 270136; Flint's 21.78 GiB and the b11799+ build; Qwen3-Coder 16.75 GiB; the two model licences.
+
 - **2026-10-23, daily scan (the first full-day window in three): Strata shipped twice, and its first-hand row is
   on our card.** `NEWS-2026-10-23.md`, written against `NEWS-2026-10-22.md`, window
   **2026-10-22T16:20Z -> 2026-10-23T15:10Z** (~22.5 h). Reading only - nothing downloaded, installed, built or

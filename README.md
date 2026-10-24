@@ -540,6 +540,25 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-24 &middot; [Daily news scan: Strata puts a 763B model on a 12 GB card, and the memory gaps turn out to be page tables](NEWS-2026-10-24.md)**
+&ndash; a **~23.5 h** window (2026-10-23T15:10Z &rarr; 15:45Z today). Strata **`v0.2.4`** (2026-10-24T02:18:52Z)
+runs **DeepSeek V4.1-Flash on one 12 GB card and 46-64 GB of RAM** &ndash; this box's shape &ndash; from
+`ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF` in **239 / 257 / 274 GB** sets, and its own rows are on our
+card: *"RTX 5070 12 GB, 64 GB RAM - about 5 tokens/s (code), 231 tokens/s at 8K"*. **The Qwen engine did not
+move**: every `strata-engine-0.1.48-*` asset is re-attached and the app stays 0.2.3, so yesterday's bump target is
+unchanged. The two findings that matter more than the release: **#3952** is a same-machine A/B where 0.1.46 at
+262K context spends the VRAM reserve (windows captured at **61 &rarr; 49 &rarr; 28 &rarr; 13 &rarr; 0 MiB free**,
+then a restart) while **0.1.43.1 reaches 238,735 prompt tokens with zero warnings** &ndash; which means 0.2.3's new
+**1536 MiB default masks a regression** &ndash; and **#3321** root-causes a 5x copy gap as **cold page tables**:
+**pinned reused 26.3 GB/s, pageable fresh 2.28 GB/s**, against a 26.8 GB/s PCIe probe. llama.cpp merged **22** PRs
+to **b11853**, including **#30804 chunked CUDA graphs** &ndash; on a card family where **#27330** documents **Xid
+8** and a Windows **`0x133`** crash, with `GGML_CUDA_DISABLE_GRAPHS=1` as the workaround &ndash; and **#30966**
+gives the expert cache a **`--moe-cache-cpu-share`** knob (**23.5 &rarr; 64.5 tok/s** on a 2080 Ti) while
+**#30594** would read **Strata's own `.strp` profile format**, of which this lab holds a learned file. **arXiv did
+not advance: zero new listings.** Seven ranked items, cheapest first a **perf-counter read**; the cheapest new one
+is a **pinned-vs-fresh copy microbench**. Reading only. **The 07:30 run hung again** (`0x00041301`, PID 270136,
+3.2 s of CPU in 7.4 h), so tomorrow's run will be skipped until it is ended.
+
 **2026-10-23 &middot; [Daily news scan: Strata ships 0.2.3/0.1.48 with a measured row on this card, and the test-start failure turns out to be a pagefile](NEWS-2026-10-23.md)**
 &ndash; the first full-day window in three (**~22.5 h**, 2026-10-22T16:20Z &rarr; 15:10Z today), and it contains
 two releases: Strata **`v0.2.3`** (2026-10-23T07:44:52Z, engine packages **0.1.48**) and **`v0.2.3.1`**
