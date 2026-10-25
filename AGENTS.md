@@ -86,13 +86,15 @@
     page-cache load numbers (21 GB model **5.6 s** cached vs **13.7 s** disk-bound), and a third independent
     hybrid-cache implementation (`capy-flash`, two RTX 50 cards). **[HN]** 898 stories, 7 keyword matches,
     **zero local-LLM** in ~24 h.
-  - **Scan state: today's 07:30 run hung too, and yesterday's did not.** `Last Result 267009` is again
-    `SCHED_S_TASK_RUNNING`, `Status: Running`, the log ends `Working...`, and the child is **`omp.exe` PID 270136
-    with 3.2 s of CPU in 7.4 h**. Yesterday's survivor (PID 64644) is **gone**, and yesterday's log shows
-    `daily news scan exit 0` at 07:41:43 - so yesterday's file misread a completed run's sibling as the failure,
-    and this is a correction to it. **`MultipleInstancesPolicy` is `IgnoreNew`, so tomorrow's 07:30 run will be
-    skipped while 270136 lives**; ending it is a system change and stays Kevin's call. Two clean readings on two
-    mornings makes it a pattern.
+  - **Scan state: CORRECTED - today's run did not hang either, and the "hung child" is the scan session itself.**
+    While this file was being written the run was still in flight (`Last Result 267009` = `SCHED_S_TASK_RUNNING`,
+    log ending `Working...`, child `omp.exe` 270136), and it was read as a third consecutive failure. It was not:
+    the log now ends **`daily news scan exit 0` at 07:38:01** followed by **`verify OK: NEWS-2026-10-24.md
+    present`**, `NEWS-2026-10-24.md` was written **07:36**, `LastTaskResult` is **0**, and **PID 270136 is gone**.
+    The same mistake as 10-23, one day later: the note-writing session cannot see its own exit, so a live `omp.exe`
+    with a few seconds of CPU is the writer, not a survivor. **Tomorrow's 07:30 run is therefore not blocked** and
+    nothing needs ending. Rule for the next file: judge the run only after the `exit N` line exists, and never from
+    the task's `Running` state inside the run.
   - **Shortlist, cheapest first**: (1) read `GPU Adapter Memory\Shared Usage` through one resident arm
     (unchanged, still cheapest); (2) **the pinned-vs-fresh copy microbench on our card** (new, no download,
     throwaway script in the ComfyUI venv) - it decides whether our 60-70 % of measured bandwidth is kernels or
@@ -105,7 +107,8 @@
     yesterday's SPARE item with #30594's format). Nothing scheduled.
   - **Gated on Kevin**: the candidate tests; any Strata bump (120 pinned digests); the **239 GB DeepSeek IQ1_M
     download** (largest this lab has faced, worst published fidelity of the three sets, `D:` free space stale);
-    the hung PID 270136; Flint's 21.78 GiB and the b11799+ build; Qwen3-Coder 16.75 GiB; the two model licences.
+    Flint's 21.78 GiB and the b11799+ build; Qwen3-Coder 16.75 GiB; the two model licences. (The hung PID 270136
+    is **no longer an item** - it exited on its own, see scan state above.)
 
 - **2026-10-23, daily scan (the first full-day window in three): Strata shipped twice, and its first-hand row is
   on our card.** `NEWS-2026-10-23.md`, written against `NEWS-2026-10-22.md`, window
