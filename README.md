@@ -301,7 +301,11 @@ from the corpus (Perseverance 1,025 kg; Phobos 22.4 km) and one slightly off (Ma
 4,212). The exact-figure check is a **flag for human review, not a verdict**. Separately, Qwen3.6 returned
 a byte-identical paper three times while Strata returned two different papers from the same pinned
 request - an independent cross-check of the lab's earlier note that temperature 0 is not seed-stable on
-that engine.
+that engine. **That note now has a mechanism and a version boundary:** Strata 0.2.5 (2026-10-25) replaced a
+prompt-path choice made from measured round times with one made from prompt length - *"the old timing guess
+changed answers between runs"* - so every such reading taken before engine 0.1.50 is non-deterministic **by
+policy**, and only a row that names the engine version can claim otherwise
+([2026-10-25](NEWS-2026-10-25.md)).
 
 **Limit:** these checks measure grounding and figures, not truth, argument quality or whether the prose is
 worth reading. [DEEP-SCORECARD.md](instruments/new-items-20261007/DEEP-SCORECARD.md) holds both stacks' facts lists and full papers
@@ -539,6 +543,34 @@ is **not** this repository, so they do not resolve on GitHub. Exactly one of tho
 the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPORT.md`](instruments/overnight-20261011/REPORT.md).
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
+
+**2026-10-25 &middot; [Daily news scan: Strata shipped twice, the 2-bit DeepSeek set is smaller than we recorded, and llama.cpp can read V4.1 but not our pack](NEWS-2026-10-25.md)**
+&ndash; a **~22.75 h** window (2026-10-24T15:45Z &rarr; 14:30Z today). Strata shipped **twice, both
+`prerelease: false`** - **`v0.2.5`** (10:06:04Z, engine + Control **0.1.50**) and **`v0.2.6`** (13:45:25Z,
+DeepSeek + Control **0.1.51**, the Qwen engine packages byte-identical at 0.1.50, verified by asset size) - so
+**the bump target moved off 0.1.48**, and three of its defaults land on a 12 GB card: **prompt chunks drop to
+4096** (*"a cold 8K prompt is 9 % slower"*, agent decode +2 %), **the installer no longer carries an engine**,
+and **the prompt path is now chosen by length instead of a timing guess** - *"the old timing guess changed
+answers between runs"*, which is the mechanism behind this lab's four-day-old *"temperature 0 is not
+seed-stable"* note, and it makes engine 0.1.50 the boundary for any determinism claim. The only same-machine
+0.1.48-vs-0.1.50 pair (**#4054**, RTX 3090, identical flags) reads chat decode **86.9 &rarr; 99.0** and agent
+**94.4 &rarr; 123.0** with **prefill identical to 0.2 %**, against the reporter's own **&plusmn;15 % cross-day
+drift** caveat - so the defensible claim is *"no regression"*, not "faster". **#3965** supplies the day's
+strongest evidence line from a second box (**RTX 5080, engine 0.1.49 built with
+`CMAKE_CUDA_ARCHITECTURES=120`**): *"the same MTP arm moved **18 %** between sessions"* against a **3.3 %**
+drafter effect. The DeepSeek V4.1 pack's README was rewritten today and gives **231.32 / 248.84 / 265.83 GB**
+for IQ1_M / IQ2_XXS / IQ2_XS - not yesterday's **239 / 257 / 274 GB** - with **IQ2_XXS now "Recommended"** at
+**100.0 %** of base task average, which `[INFERENCE]` puts at **231.7 GiB against `D:`'s 252.8 GiB**. And
+**llama.cpp merged native DSV4.1 support (#31086)** while reading the Engram tables **inside** the model GGUF
+(`llama-model-loader.cpp` has no `engram` path), so the ISTA pack's separate **110.6 GB** Engram file is a
+layout upstream does not open: the "second engine" holds for the architecture, not for the download. Also
+**#28633** and the source: **`GGML_CUDA_FA_ALL_QUANTS` is OFF by default and absent from the release
+workflow**, so a quantised-KV row must name its binary's FA_QUANTS. **arXiv did not advance** (second frozen
+day); **YouTube was unreachable** (WSL lost DNS; no Windows `yt-dlp`) so no video is ranked. Seven items,
+cheapest first a **perf-counter read**; the new one is **`--kv k8v4` vs `--kv int8` at a fixed context** with
+KV bytes per token read back. Reading only. **The scheduled 07:30 run is this file's own process** - proven by
+its parent chain - so the "hung run" recorded on 10-23 and 10-24 was a run diagnosing itself, and nothing is
+blocked.
 
 **2026-10-24 &middot; [Daily news scan: Strata puts a 763B model on a 12 GB card, and the memory gaps turn out to be page tables](NEWS-2026-10-24.md)**
 &ndash; a **~23.5 h** window (2026-10-23T15:10Z &rarr; 15:45Z today). Strata **`v0.2.4`** (2026-10-24T02:18:52Z)

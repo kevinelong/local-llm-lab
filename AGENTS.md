@@ -1,5 +1,148 @@
 # Local AI lab working instructions
 
+- **2026-10-25, daily scan: Strata shipped twice, the 2-bit DeepSeek set is 7-8 GB smaller than we recorded, and
+  llama.cpp can read V4.1 but not our pack.** `NEWS-2026-10-25.md`, written against `NEWS-2026-10-24.md`, window
+  **2026-10-24T15:45Z -> 2026-10-25T14:30Z** (~22.75 h). Reading only - nothing downloaded, installed, built or
+  run, no engine started, no inference, no benchmark, **`ai_bench` untouched**, no YouTube caption read (WSL DNS
+  dead, §scan state below). WSL started twice for `yt-dlp` and shut down after each try.
+  - **THE SCAN-STATE FAULT IS SETTLED, AND IT WAS OURS, NOT THE TASK'S.** This run *is* the scheduled 07:30 run:
+    `bash 336980` <- `cmd.exe 336324` (started 10/25 07:30:01, command line
+    `tools/daily-news-scan.cmd`) <- `svchost.exe 3012` (Task Scheduler), verified by walking `ParentProcessId`.
+    The task's `Last Result 267009` (`0x00041301`, `SCHED_S_TASK_RUNNING`) and `Status: Running` are therefore the
+    **normal in-flight state**, and the "hung child" paragraphs in `NEWS-2026-10-23.md` and `NEWS-2026-10-24.md`
+    are a run failing to observe its own exit - the same self-observation error for the third morning. Both PIDs
+    (64644, 270136) are gone because they **exited**. **Withdrawn: the recommendation to end a PID or change
+    `MultipleInstancesPolicy`; nothing is blocked and `Next Run` is 10/26 07:30.** The rule for the next file is
+    stronger than "wait for the exit line": **a scan writes its own file, so it must never diagnose itself from
+    `Last Result` or from a live child - walk its own process tree instead.**
+  - **Platform health, because a blank section and a dead platform look identical.** Reddit **HTTP 200, 25 dated
+    entries**; HN **688** stories in window, 38 keyword matches; GitHub **216** Strata items and 25 llama.cpp
+    commits; HF answered every call; **arXiv answered and did not advance** (200 newest all 2026-10-22, watermark
+    **2026-10-22T17:59:51Z**, second frozen day). **YouTube unreachable**: WSL lost DNS
+    (`[Errno -3] Temporary failure in name resolution`), survived `wsl --shutdown` (`nameserver 10.255.255.254`,
+    `getent hosts www.youtube.com` -> nothing), no Windows `yt-dlp` (`python -m yt_dlp` fails), and installing one
+    is out of scope for a reading-only scan. No video entered the shortlist; no timestamps were quoted.
+  - **Strata shipped twice today and the bump target moved: `v0.2.5` 10:06:04Z (engine + Control 0.1.50),
+    `v0.2.6` 13:45:25Z (DeepSeek + Control 0.1.51, Qwen engines unchanged at 0.1.50), both
+    `prerelease: false`.** Byte-identical Qwen packages across the two (windows cuda13 engine
+    **581,368,579 B**, cuda12 **823,561,094 B**), which is how the "Qwen engines did not change" claim was
+    checked. Three changes hit our configuration: **NVIDIA cards under 16 GB now use 4096-token prompt chunks
+    instead of 8192** (vendor row: agent decode +2 %, *"a cold 8K prompt is 9 % slower"*); the Windows/Linux
+    installer **no longer carries an engine** (first start downloads it, so app update and engine download are now
+    two steps); and **`strata update` runs the new engine's test start with a short context** (#3842), which is
+    the `startup_wait_expired` class we recorded on 2026-10-22. Also new: DeepSeek **Speed** mode
+    (`--speed`/`--full-quality`/`--experts N`, *"on an RTX 5070, Faster mode decoded code and agent runs 16 %
+    faster"*), a **RAM store that holds every expert** when they fit with 8 GiB to spare (vendor names our shape
+    as the negative case: *"a 46 GB RAM PC with a 12 GB card"* keeps the store), and **fewer GPU launches per
+    layer** (+13 % on one PC, 5 of 5 pairs).
+  - **0.2.5 supplies a mechanism for this lab's oldest reproducibility puzzle.** *"The engine now picks the prompt
+    path from the prompt's length (96 tokens and more go through the chunked pass). The old timing guess changed
+    answers between runs."* Our record has said since 2026-10-05 that **temperature 0 is not seed-stable on this
+    engine**, and #1928 explained only the drafter half. So: **every prefill row we hold from 0.1.47 or earlier
+    was taken with 8192-token chunks on a <16 GB NVIDIA card and is not comparable to a post-bump row**, and a
+    determinism claim must name the engine version - before 0.1.50 the honest declaration is
+    "non-deterministic by policy", after it the claim is at least testable.
+  - **The only same-machine 0.1.48-vs-0.1.50 A/B says "no regression", not "faster".** Strata **#4054** (RTX 3090
+    24 GB, Windows 11, identical flags, `tools/strata_bench.py` 3 runs/test): chat decode **86.9 -> 99.0**,
+    agent decode **94.4 -> 123.0**, **prefill identical to 0.2 %** (4K 1102.0 both, 16K 1675.1 -> 1679.0), cache
+    hit 70.2 -> 69.8. Ranges overlap and the reporter says the box has shown **+-15 % cross-day drift**, so the
+    claim is *"no regression and possibly faster decode"*. Same issue, seven 0.1.44.1 arms: the only change beyond
+    noise is **`STRATA_PF_FUSED=1`, +3.6 % on a 16K prompt**, and **`--pool-workers` below the default 9 costs
+    decode** on that CPU.
+  - **Second external statement of why single pairs cannot rank drafters.** Strata **#3965**, RTX 5080 / CUDA
+    13.3 / engine **0.1.49 built from tag with `-DCMAKE_CUDA_ARCHITECTURES=120`** (`-arch sm_120` verified in the
+    ELF - a working source-build recipe for our arch): *"the same MTP arm moved 18 % between sessions, which is
+    bigger than the effect being measured"* - against a **3.3 %** DFlash2-vs-MTP effect. **18 % > 3.3 %: n>=2
+    interleaved starts per arm or no rank.**
+  - **The DeepSeek V4.1 pack we priced yesterday is smaller than we recorded, and the recommendation flipped.**
+    The README was rewritten **today at 13:49:31Z** (commit "Update Readme"; weights unchanged since 10-23) and
+    now gives **IQ1_M 231.32 GB, IQ2_XXS 248.84 GB, IQ2_XS 265.83 GB** - against **239 / 257 / 274 GB** in the
+    10-24 file - with **IQ2_XXS "Recommended; closest to the base model"** at **100.0 %** of base task average
+    (93.54; AIME25 100.00, GPQA-D 90.91, LCB v6 89.71) and IQ1_M at 98.7 %. `[INFERENCE]` IQ2_XXS = **231.7 GiB**
+    against `D:`'s **252.8 GiB** (2026-10-20, stale): **the recommended set probably fits, and IQ2_XS (247.5 GiB)
+    is the one that does not.** The fidelity conflict stays open and is now doubled: the README publishes task
+    averages and **no KLD**, Strata's notes publish **+21 % / +7.3 % perplexity**, and [RD] independently notes
+    the missing KLD and saturated benchmarks. The **Engram file is IQ4_NL 4.50 bpw on 196.6B params** - exactly
+    the operating point **2610.31646** argues for (four-bit tables save **47-55 %** of table memory on
+    DSV4.1/Qwen3.8 with **perplexity +<1.2 %**), so the Engram bytes are not where a loss should be looked for.
+  - **llama.cpp merged native DSV4.1 support today (#31086, 2026-10-25T01:43:51Z) and it cannot read our pack.**
+    The merged source reads *"all Engram tables in one lazily read tensor"* inside the model GGUF
+    (`src/models/deepseek41.cpp:151`) and `src/llama-model-loader.cpp` has **no** `engram` handling, so the ISTA
+    pack's **separate 110.6 GB Engram file** is a layout upstream does not open - which the ISTA README says from
+    its own side. The flags it documents **do** exist (`-lm/--load-mode` at `common/arg.cpp:2703`,
+    `-lzm/--lazy-mode` at `:2722`), so the incompatibility is the file layout, not the command line. **So
+    yesterday's "a second engine exists for a 763B model" holds for the architecture, not for the download** -
+    that is the most decision-relevant correction in the file. Two declared axes arrive with it:
+    **`LLAMA_DSV41_SPARSE`** (default ON) and **`LLAMA_DSV41_KV_MIRROR`**, with upstream's own bot asking for
+    coverage of the sparse=0 and quantised-KV paths because they *"silently bit-rot otherwise"*.
+  - **llama.cpp: 25 commits, b11876, and a KV-quant declaration we did not have.** **#28633** (open, 5 comments,
+    newest **2026-09-10**) reports 4-bit KV silently dropping prefill to CPU speed (**~34 t/s** vs
+    **659-1094 t/s** with `-DGGML_CUDA_FA_ALL_QUANTS=ON`, RTX 3090, Qwen3.8-27B, 130K). Checked against the
+    tree: the option is **OFF** by default (`ggml/CMakeLists.txt:207`), **not** passed in
+    `.github/workflows/release.yml`, and appears in **only three files**, none of them a kernel - while
+    `fattn.cu:524` accepts **F32/F16/BF16/Q4_0/Q4_1/Q5_0/Q5_1/Q8_0**. So the honest rule is: **a quantised-KV row
+    must name the binary's FA_QUANTS**, and nothing we recorded is invalidated (our KV rows are Strata `--kv
+    int8`). Also merged: **#29948** FFN gate/up + GLU fusion on the **MMQ prompt** path (56 review comments);
+    **#31035** bounds unbounded `dry_sequence_breakers` (client-triggered CPU/RAM exhaustion, fixes #30833);
+    **#31087** makes the DSV4 caches respect `no_alloc`; **#30820** fixes 4D quantisation with name-based expert
+    detection; **#31028** merges qwen tensors on convert (**+7 % TG, +5 % prefill** for its author - a
+    convert-time change, so it needs a re-converted GGUF); and three client-triggerable server crashes closed
+    (**#29755** grammar recursion, **#30242** 128-level JSON nesting - which names `/v1/systemone` state as a
+    crash site, **#31044** truncated `gguf_merge`).
+  - **A third engine's speculative-decoding VRAM ceiling, measured with a historical control.** `warpfront/hipfire`
+    **#486**: DFlash OOMs at `max_seq` 24576 on 24 GB where **AR and MTP are fine at 40960**; mechanism named as
+    *"a second (drafter) model resident + tree/batch verify scratch scaling with `max_seq x (K+1)`"*; the pre-fix
+    commit `7eac3c876` OOMs at 24576 and 32768 while **v0.4.3.1 passes both** (confirmed 2026-10-25T12:33Z, with
+    the declared limit "loading/pre-warm and short prompts, not full 24K/32K prompts"). Together with Strata
+    #3965's **567 cache slots** for DFlash2, a drafter's VRAM is now expressible: **a resident second model plus
+    scratch proportional to (max_seq x (K+1))**, which on 12 GB binds far below 24K. Also new to the memory
+    vocabulary: llama.cpp **#31127**, **~93 GB shmem-rss** (9x anon RSS) on 2xV100 NCCL under `numactl --membind`
+    - beside physical RAM, the WDDM shared segment, AMD's GTT and cold page tables.
+  - **Reddit answered with four kept symptoms, one of which is a recipe we can test.** `[RD]` *"how much
+    difference does kv cache quants even make?"* (2026-10-25T12:41Z): a user on qwen3.8 IQ3_XXS via Strata, `kv
+    q8` at 262K, wanting 300-400K - and the thread converges on **`8k4v`** (K int8, V 4-bit), the same string as
+    Strata's own 0.1.50-era rows (`--kv k8v4 --kv-grow`). **Shortlisted as item 4 with its own local test** (two
+    arms at one context, **KV bytes per token read back from the log**, plus one answer-level check). Also kept:
+    **Lean-QwenFlash** (ExL3, 125B at **28-33 tok/s on 16 GB VRAM + 8 GB RAM**, one author, no repeats - a design
+    to compare, not an arm), **Splash** on a 24 GB Mac (cache-aware routing 28.8 -> 43.1 -> **48.8** tok/s, with
+    desk-first overlap *"token-for-token identical (11/11)"* while cache-aware routing *"changes output
+    slightly"* - **the identity-vs-change distinction our own cache experiments lack**, and the same mechanism as
+    Strata's +13.5 % "CPU starts on the experts it already has"), and the **"Too good to be true?"** thread
+    objecting to the 2-bit DeepSeek claim on exactly the grounds §9.1 records.
+  - **HN's one on-axis item is a harness claim, and by rule it is not ranked.** *"Five Qwen3.8-27B models match
+    Fable 5 Using GVS5H Harness"* (2026-10-25T03:56Z, **171 points, 61 comments**) - our reference family's dense
+    sibling plus a third-party harness; our 2026-10-08 census found harness and platform artifacts behind **45 of
+    99** sub-perfect sessions, so this is the claim the frozen methodology exists to price, not to reproduce. Also
+    read: an Apple 20B-in-flash on-device piece, and **Clara**, a decision model returning a probability per answer
+    - the output shape `/v1/systemone` scores.
+  - **Reddit, HN, arXiv, HF and GitHub all answered; only YouTube did not.** Ollama **0.40.11** became stable by
+    **renaming the tag** (`published_at` still 2026-10-24T00:30:13Z, `prerelease` now false, changelog still
+    pointing at `v0.40.11-rc0`) - **fifth dating trap**; two open Ollama issues are memory-shaped (a **3 s
+    free-memory probe deadline** that returns stale VRAM around loads, and **prefill chunk shrinking against a
+    Metal watchdog** - the third engine choosing chunk size to stay inside a GPU-kill threshold). ComfyUI still
+    **v0.42.1** (three commits, one lowering MOSS peak memory). Colibri **no release in 19 days**, `main` frozen
+    at `e0db083cdc`, `dev` at **`7bbea341bb`** with **#2376** (DSpark verify depth from confidence, per-step MTP
+    depth) and **#2359** (*"qwen36 CUDA chain: round the float16 KV rows in the rope's launch"* - another reason a
+    Qwen3.6/3.8 row names its engine). HF: **no new first-party ggml-org GGUF, second day**; Nemotron Bolt E4B
+    moved revision with identical sizes; **`Nanbeige4.3-33B` appeared 2026-10-24** with **eight GGUF ports in
+    12 hours** but is **dense** (52 layers, 7168 hidden, 512K window) so ~20 GB at Q4 with no `--cpu-moe` path -
+    recorded so interest is not mistaken for suitability.
+  - **Shortlist, cheapest first**: (1) read **`GPU Adapter Memory\Shared Usage`** through one resident arm
+    (unchanged four days, still cheapest, now with four siblings to compare); (2) the **pinned-vs-fresh copy
+    microbench** on our card (unchanged); (3) **the 0.1.50 bump as a defaults experiment** - the target moved, so
+    this is now the highest-information item, declaring page-file/commit, `--vram-reserve-mib 1536`, MTP off,
+    free VRAM per request, `STRATA_ADAPT_OVERLAP` read from the log, **plus prompt chunk and the engine version as
+    the determinism variable** (gated on Kevin, 120 digests); (4) **`--kv k8v4` vs `--kv int8` at a fixed
+    context** with KV bytes per token read back (new, needs >= 0.1.48, so it rides behind 3); (5) the
+    **mlock/TTFT check on b11876 as two arms** (graphs on / `GGML_CUDA_DISABLE_GRAPHS=1`, now declaring the
+    binary's **FA_QUANTS**); (6) the **`--moe-cache-cpu-share` sweep** at rungs 0 and 5,376 (unchanged, needs a
+    build from the PR); (7) **Qwen3-Coder-30B-A3B 16.75 GiB** on the 414-check metric (unchanged). Nothing
+    scheduled.
+  - **Gated on Kevin**: the candidate tests; any Strata bump (now 0.1.50, a new download, and the app no longer
+    ships an engine inside the installer); the **DeepSeek IQ2_XXS download** (248.84 GB, "recommended", 100.0 %
+    recovery - **Strata-only as published**, §4.1); Flint's 21.78 GiB and the b11799+ build; Qwen3-Coder
+    16.75 GiB; the two model licences.
+
 - **2026-10-24, daily scan: Strata puts a 763B model on a 12 GB card, and the memory gaps turn out to be page
   tables.** `NEWS-2026-10-24.md`, written against `NEWS-2026-10-23.md`, window **2026-10-23T15:10Z ->
   2026-10-24T15:45Z** (~23.5 h). Reading only - nothing downloaded, installed, built or run, no engine started, no
