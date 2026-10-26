@@ -35,6 +35,12 @@ is called - so treat them as directional. Licence:
   4096/8192/16384 ladder needs **no download and no bump** - three configs, three starts, one long prompt.
   On a 24 GB 5090 D the 16384 rung is **4.2x** the auto 8192 (prefill 217.7 -> 907.9 tok/s at 7.3k, long-prompt
   TTFT ~34 s -> ~8 s, same answers); nobody has published a 12 GB row.
+- **The lever that was hiding under both sweeps is `--resident-budget-gib`, and the engine names it.** 2 GiB (the
+  config) -> **2.00 GiB** resident, *"the file cache cannot keep them"*, decode 4-23 tok/s. 16 asked -> **10.09 GiB
+  page-locked**, *"the file cache can keep them"*, decode **87.0** tok/s in a single arm. That 4-8x is why the flag
+  sweeps above were noise: they were measuring the file cache, not the flag. **Not a result yet** - n=1, and the repeat
+  failed to start because the previous engine's commit had not been released. Establishing it needs n>=3 **interleaved**
+  arms with a commit cooldown, recording granted resident GiB, granted cache slots and the file-cache verdict per arm.
 - **The chunk ladder and the reserve sweep are WITHDRAWN, because the pack's own noise is bigger than both effects.**
   An identical arm repeated (`--vram-reserve-mib 900`, same config and prompt) returned prefill **987.0** and **122.6**
   tok/s - **8.1x** apart - and across all twelve arms today prefill spans **122.6-987.0** and decode **4.1-23.1**. Any

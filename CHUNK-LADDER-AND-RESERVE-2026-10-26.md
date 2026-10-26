@@ -81,3 +81,26 @@ context, 0.1.43.1 does not).
 Evidence: `ai_bench/chunk-ladder-20261026.json` (contaminated first pass), `-rep2.json` (the table above),
 `reserve-900-20261026.json`, `reserve-2000-20261026.json`; engine logs under
 `ai_bench/staged-strata-0.1.47/logs/chunk-*.log`.
+
+## Addendum: the variable was the resident budget, and the engine said so
+
+One more pair, `--resident-budget-gib 16`:
+
+| resident asked | resident granted (log) | decode | prefill | file-cache line |
+|---|---:|---:|---:|---|
+| 2 GiB (the config) | **2.00 GiB** | 4.1-23.1 | 122.6-987.0 | *"the file cache **cannot** keep them"* |
+| 16 GiB | **10.09 GiB, page-locked** | **87.0** | 493.8 | *"the file cache **can** keep them"* |
+
+That is a **4-8x decode difference from the resident budget**, and it explains the whole spread above: the arms were not
+measuring chunk size or reserve, they were measuring how much of the 29.6 GiB expert set happened to be resident or in
+the file cache. The engine prints the verdict in one line - `the file cache can keep them` versus `cannot` - which is the
+covariate to record per arm from now on, beside `resident RAM mode: N GiB` and the granted cache slots.
+
+The second 16 GiB arm **failed to start** for the same reason as the earlier 8192 failure: the previous engine's RAM was
+still committed (`Windows commit: 13.6 GiB left`, then `expert cache auto: ... -> 0 slots`, then `verify` refused). So
+sequential arms on this pack contaminate each other through **RAM and commit**, not only through VRAM and the port.
+
+**To establish any of this:** n >= 3 arms **interleaved** (2, 16, 2, 16, 2, 16) with a cooldown long enough that
+`Windows commit` returns to its starting value, recording per arm the granted resident GiB, the granted cache slots and
+the `file cache can keep them` line. The 87 tok/s row is a single arm and is **not** a result yet - it is the reason to
+run that experiment.
