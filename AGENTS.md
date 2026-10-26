@@ -300,6 +300,7 @@
     recovery - **Strata-only as published**, §4.1); Flint's 21.78 GiB and the b11799+ build; Qwen3-Coder
     16.75 GiB; the two model licences.
 
+- **2026-10-26, shortlist audit: what the last two weeks proposed and nobody ran.** `SHORTLIST-2026-10-26-untried.md` reconciles 12 scans against 9 executed items and lists the remainder ranked by leverage per cost, including four things no feed of ours covers (convrot vs nvfp4 on weights already on disk, the cfg/negative/sampler assumptions baked into every image row, the 9B's own strength ladder, and a local VLM judge). Read it before picking the next experiment.
 - **2026-10-24, daily scan: Strata puts a 763B model on a 12 GB card, and the memory gaps turn out to be page
   tables.** `NEWS-2026-10-24.md`, written against `NEWS-2026-10-23.md`, window **2026-10-23T15:10Z ->
   2026-10-24T15:45Z** (~23.5 h). Reading only - nothing downloaded, installed, built or run, no engine started, no
