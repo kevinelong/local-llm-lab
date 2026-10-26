@@ -1,4 +1,26 @@
-# The chunk ladder on 12 GB, and the reserve that was buying speed: 2026-10-26
+# Withdrawn: the chunk ladder and the reserve are inside this pack's own noise: 2026-10-26
+
+**Correction, same day.** Everything below the first table was measured first and then contradicted by its own repeats.
+The repeat of an identical arm (`--vram-reserve-mib 900`, same config, same prompt) returned prefill **987.0** and
+**122.6** tok/s - an **8.1x** spread with nothing changed - and across every arm run today the ranges are prefill
+**122.6-987.0** (8.1x) and decode **4.1-23.1** (5.6x). Both claimed effects are smaller than that spread, so **neither
+is established**:
+
+- "chunk is flat" - the triple 704/717/720 was tight, but the *same* 4096 arm read **460.5** in the other pass. Not a
+  result; a contiguous block that happened to be warm.
+- "900 beats 2000" - the two identical 900 arms span the entire claim.
+
+**Why the numbers move:** this configuration keeps only **2 GiB** of experts resident and reads the other **29.6 GiB**
+unbuffered from the model files, so throughput follows the file cache and the disk, not the flag under test. The engine
+log says it plainly: *"the file cache cannot keep them"*. A flag sweep on this pack measures the I/O state.
+
+**What a stable measurement needs, before any of these flags is swept again:** a resident budget large enough that the
+experts are not re-read (or a deliberate page-cache warm-up before the first arm), `n >= 3` **interleaved** arms rather
+than sequential blocks, and the granted cache size recorded per arm - a `--expert-cache 3000` request was **granted
+2,168** slots in the last arm, which is the declared-versus-granted problem for the third time in two days.
+
+The tables below are kept as what was run, not as findings.
+
 
 Two experiments from the untried list, run on the **staged 0.1.47** engine with the **q2_0** pack, one server per arm,
 same prompts, seed 1234. No download, no bump.
@@ -13,9 +35,10 @@ same prompts, seed 1234. No download, no bump.
 | 8192 | 717.1 | 13.9 | 30.5 s |
 | 16384 | 719.7 | 12.8 | 30.4 s |
 
-**Flat within noise.** On a 24 GB 5090 D the same flag gave **4.2x** prefill and 12.04 -> 18.89 decode; here it gives
-1.02x and 12.5-13.9 across the range, which is the vendor's `<16 GB -> 4096` rule being right for the wrong reason: the
-auto chunk is already as big as this card's buffers allow, so asking for more changes nothing.
+On a 24 GB 5090 D the same flag gave **4.2x** prefill and 12.04 -> 18.89 decode. Here this triple looked flat, and
+**that reading is withdrawn above** - the same 4096 arm read 460.5 in the other pass. What survives is only that a
+19.8k prompt at 12 GB is nowhere near the 24 GB card's response to chunk size, which was already the vendor's claim for
+this VRAM class.
 
 **The first pass said the opposite, and it was contamination.** Same three rungs, but started with only **5.54 GiB VRAM
 free**: 4096 read prefill 460.5 / decode **4.1**, 16384 read 702.9 / 12.9, and the 8192 arm **failed to serve at all**

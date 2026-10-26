@@ -35,14 +35,14 @@ is called - so treat them as directional. Licence:
   4096/8192/16384 ladder needs **no download and no bump** - three configs, three starts, one long prompt.
   On a 24 GB 5090 D the 16384 rung is **4.2x** the auto 8192 (prefill 217.7 -> 907.9 tok/s at 7.3k, long-prompt
   TTFT ~34 s -> ~8 s, same answers); nobody has published a 12 GB row.
-- **The chunk ladder is measured, and it is flat on this card.** `--prefill` 4096 / 8192 / 16384 on a 19.8k prompt,
-  all at 10.3 GiB free VRAM: **704 / 717 / 720** tok/s prefill and **12.5 / 13.9 / 12.8** decode. The 24 GB row's 4.2x
-  does not transfer - see [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md). The first
-  pass said otherwise and was contaminated: it ran with 5.54 GiB free, where `auto` resolves to **0 cache slots** and
-  the 8192 arm would not serve at all.
-- **`--vram-reserve-mib 900` beat the config's 2000, matched:** prefill **825 -> 984** tok/s, decode **13.5 -> 16.6**,
-  wall **26.7 -> 22.4 s**, because the cache grew from ~2,000 to **3,049** slots. The shipped 1536 default is between
-  the two arms and unmeasured here.
+- **The chunk ladder and the reserve sweep are WITHDRAWN, because the pack's own noise is bigger than both effects.**
+  An identical arm repeated (`--vram-reserve-mib 900`, same config and prompt) returned prefill **987.0** and **122.6**
+  tok/s - **8.1x** apart - and across all twelve arms today prefill spans **122.6-987.0** and decode **4.1-23.1**. Any
+  flag effect under that is unmeasurable. Cause, in the engine's own words: only **2 GiB** of experts are resident and
+  **29.6 GiB** are read unbuffered - *"the file cache cannot keep them"* - so a flag sweep here measures the I/O state.
+  Before sweeping these flags again: a resident budget large enough to stop the re-reads (or a page-cache warm-up),
+  `n >= 3` **interleaved**, and the granted cache size per arm (a `--expert-cache 3000` request was granted **2,168**).
+  See [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md).
 - **Free VRAM at start is now a declared variable** for every engine measurement, beside page file, commit and the cache
   size: it decides what the cache can be.
 - **Two claims from the image side were corrected today**, and both had been assumptions in every row: a **negative
