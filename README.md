@@ -24,6 +24,24 @@ This is a working lab notebook, not a product. Numbers are from one machine - "D
 is called - so treat them as directional. Licence:
 [FSL-1.1-MIT](#license) - source-available, **not** OSI open source.
 
+## 0. Where this stands on 2026-10-26
+
+- **The two-week audit is written down.** [SHORTLIST-2026-10-26-untried.md](SHORTLIST-2026-10-26-untried.md)
+  reconciles **12 scans (10-14 to 10-26) against 9 executed items** and lists what is left, ranked by leverage per
+  cost - including four things no feed of ours covers. Read it before choosing the next experiment.
+- **The chunk lever can be tested on the engine we already have.** The staged **0.1.47** exposes
+  `--prefill CHUNK` ("largest chunk up to 8192 whose buffer the expert cache can lend; `auto:16384` allows bigger"),
+  and `strata-q2_0-0.1.47.json` carries `--prefill auto` in its 28 args with the 66 GiB pack intact. So the
+  4096/8192/16384 ladder needs **no download and no bump** - three configs, three starts, one long prompt.
+  On a 24 GB 5090 D the 16384 rung is **4.2x** the auto 8192 (prefill 217.7 -> 907.9 tok/s at 7.3k, long-prompt
+  TTFT ~34 s -> ~8 s, same answers); nobody has published a 12 GB row.
+- **Two claims from the image side were corrected today**, and both had been assumptions in every row: a **negative
+  prompt is inert** at cfg 1.0 on distilled models (byte-identical output), and the **sampler is load-bearing for
+  text** (`euler`/`simple` 0.75 OCR exact against `dpmpp_2m`/`karras` 0.25 on the same seed).
+- **The lab's cheapest open items remain unrun**, in this order: the chunk ladder, `--moe-cache-cpu-share` at two
+  rungs, `--vram-reserve-mib` 900 vs 1536, the cold-vs-cold expert pair (four shortlists old), and the cliff test.
+  The Strata bump to 0.2.6/0.1.50 is still **gated on Kevin** (120 pinned digests, eight declarations).
+
 ## 1. What we would run today
 
 Distilled from the nine-battery suite (693 checks: events, ledger, paths, ledger2, repo, longctx, repo2,
