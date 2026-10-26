@@ -544,6 +544,27 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-26 &middot; [Daily news scan: the prompt chunk is a 2-6x lever the engine now moves silently, and 0.1.50 fixed the regression filed against it](NEWS-2026-10-26.md)**
+&ndash; a **24.0 h** window (2026-10-25T14:30Z &rarr; 14:30Z today), and three independent reports land on one
+knob: **prefill chunk size**. On an RTX 5090 D 24 GB, **`--prefill-chunk 16384` reads a 7,302-token prompt at
+907.9 tok/s against 217.7 at the auto 8192 &ndash; 4.2x** (Strata **#4182**); on Windows, the DSV4.1 path reads
+**40-130 tok/s** where the same card and engine on Linux read **1,300-2,200**, and `--set prefill-chunk=32768`
+takes it **210-660** at a declared price of **685 experts of VRAM** (**#4219**); and 0.1.50 **silently clamps a
+manually set `--prefill` to 512 tokens**, with a second reporter getting 512 while the request is *smaller* than
+free VRAM (**#4164**). Our card is under 16 GB, so its post-bump default is **4096 &ndash; the smallest of the
+three**. Meanwhile the reporter who filed the layer-split regression says **0.1.50 fixed it** (4x 1080 Ti
+**+20 %**; on his weak-CPU rig `--remote-expert-opt` adds **+17 %**), and a second machine's full-surface A/B
+finds **no regression** (TTFT &plusmn;0.2 % 4K-191K, a 75-minute soak, 0 engine restarts). Also in the file:
+**conversation-cache reuse can fall to zero** two new ways (checkpoint density is bounded by the chunk, and the
+deepest checkpoint is short by `<|im_end|>` + `\n`; concurrent prefill loses prefix cache on 0.2.6), the
+**DeepSeek pack moved four commits without touching weights** &ndash; a chat-template fix with an offline
+in-place patcher and a 0.972 GB vision projector &ndash; and **pack format is now a third axis** on that download
+(Strata's Engram reader takes MXFP8/Q6_K/IQ4_NL, so Unsloth's Q5_K Engram does not load while ISTA's does).
+llama.cpp merged 22 PRs to **b11900**, and **#31028's "+7 % TG" is withdrawn**: a Qwen3.8-family conversion made
+with its merged tensors now **asserts at warm-up** (#31189). The arXiv index **advanced for the first time in
+three days** with 192 papers; YouTube was reachable but had no in-window upload, so one 2026-10-12 video was
+mined for its recipe.
+
 **2026-10-25 &middot; [Daily news scan: Strata shipped twice, the 2-bit DeepSeek set is smaller than we recorded, and llama.cpp can read V4.1 but not our pack](NEWS-2026-10-25.md)**
 &ndash; a **~22.75 h** window (2026-10-24T15:45Z &rarr; 14:30Z today). Strata shipped **twice, both
 `prerelease: false`** - **`v0.2.5`** (10:06:04Z, engine + Control **0.1.50**) and **`v0.2.6`** (13:45:25Z,

@@ -1,5 +1,162 @@
 # Local AI lab working instructions
 
+- **2026-10-26, daily scan: the prompt chunk is a 2-6x lever the engine now moves silently, and 0.1.50 fixed the
+  regression filed against it.** `NEWS-2026-10-26.md`, written against `NEWS-2026-10-25.md`, window
+  **2026-10-25T14:30Z -> 2026-10-26T14:30Z** (exactly 24.0 h; local time is PDT, so the scheduled 07:30 start is
+  14:30Z and the windows meet exactly). Reading only - nothing downloaded, installed, built or run, no engine
+  started, no inference, no benchmark, **`ai_bench` untouched**. WSL was started for `yt-dlp`, **had working DNS
+  for the first time in four runs**, fetched one caption set and was shut down again.
+  - **THE PROMPT CHUNK IS THE DAY'S ENGINE FINDING, AND IT ARRIVES THREE WAYS.** (a) Strata **#4182**
+    (2026-10-26T04:47:20Z, RTX 5090 D 24 GB, Windows 10, engine 0.1.51): `--prefill-chunk 16384` reads a
+    7,302-token prompt at **907.9 tok/s against 217.7 at the auto 8192** - **4.2x** - while 32768 regresses to
+    590.4; long-prompt TTFT at 8K **~34 s -> ~8 s**, same answers. (b) **#4219** (RTX PRO 6000 96 GB, Windows
+    11 build 26200.9711, driver 597.06): prefill on the DSV4.1 path is **40-130 tok/s** where the same GPU model
+    and engine on Linux (#4163) reads **1,300-2,200**; PCIe x8->x16 moved it only 112.5 -> 126.5, and the
+    reporter's own fix was **`--set prefill-chunk=32768` -> 210-660 tok/s**, at a price declared in experts:
+    **8,891 -> 8,596 -> 8,206 experts in VRAM** for 4096/16384/32768, i.e. **685 experts of VRAM**. (c) **#4164**
+    (0.1.50): a **manually set `--prefill` is silently clamped to 512 tokens** -
+    `a 1024-token chunk's prompt buffers need 1600 MiB on CUDA0, 1510 MiB free: 512-token chunks` - and a second
+    reporter (2070 8 GB) gets 512 while the request is **743 MiB against 1,214 MiB free**, which he calls out as
+    inconsistent. **Our card is < 16 GB, so its post-bump default is 4096 - the smallest of the three sizes
+    measured.** Consequence: **chunk size joins the bump's declaration list and must be read back from the log,
+    with the `: 512-token chunks` clamp line checked**, exactly as q2c made VRAM readback mandatory for the cache.
+  - **0.1.50 FIXED THE LAYER-SPLIT REGRESSION, SAID BY THE REPORTER WHO FILED IT.** **#3966** went 2 -> 4
+    comments: a second box could not reproduce it (*"does not reproduce the regression, but it does not rule it
+    out… the loss may sit on the offload path"*), and then the original filer, 2026-10-26T09:34:58Z:
+    *"**fixed in 0.1.50 (v0.2.6)**"* - 4x GTX 1080 Ti **52.8 -> 62.3-65.4 tok/s (+20 %)**; on the **exact rig that
+    filed it** (4060 Ti 16 GB + 3060 12 GB, split 28/20) 0.1.50 alone is only **+3 %**, while adding
+    **`--remote-expert-opt`** (#1062) makes **44.8-46 tok/s (+17 % over the 0.1.50 baseline)** - *"the miss path
+    is CPU-pool-bound, and 0.2.x's gains are on the GPU path."* Three declared negatives: `--pcie-frac 0.85`
+    (39.3; auto 0.32 already right), `--spec 5` (36.4, keep 4), `--layer-split 32` (flat, keep 28). **The first
+    reporter-confirmed fix inside the bump target.**
+  - **A second same-machine bump A/B says "no regression found", and admits what it lacks.** **#4212**
+    (2026-10-26T11:03:10Z, RTX 4090 24 GB, source build for `sm_89`, 0.2.6/0.1.51 vs 0.2.3.1/0.1.48.1, engine
+    binary swapped between builds in alternating pairs): prompt throughput and TTFT **unchanged within +-0.2 %
+    from 4K to 191K tokens**, decode differences that **point in opposite directions**, **9/9 needles** at
+    32K/128K/190K, **75-minute soak / 267 requests / 0 errors / 0 engine restarts**, and - the useful control -
+    **prompt chunk auto-tuning identical in both engines (8192, 96-slot ring)** on a 24 GB card. Its own weakest
+    point, stated: *"the noise band was not measured with a separate control run of the same binary."*
+  - **CONVERSATION-CACHE REUSE CAN FALL TO ZERO THREE WAYS, TWO OF THEM NEW.** **#4206**: `--prompt-cache-every`
+    is a **no-op below the chunk size** (the checkpoint is created inside the chunk callback, so the effective
+    spacing is `max(N, chunk)`), measured **0 reused / 25.2 s** against **8192 reused / 12.1 s** on one prompt,
+    at a prefill cost of **3-4 %** (599 vs 568/560 tok/s on a cold 24k prompt). Its third comment withdraws two
+    earlier hypotheses and finds the cause: the deepest checkpoint sits at `turn_at` and therefore carries the
+    previous `<|im_end|>` + `\n`, so an appended turn mismatches on the **last two tokens** - *"the missing
+    checkpoint is at a semantic position, not at a multiple of N."* **#2518** (reopened 2026-10-26T03:23:03Z):
+    on **0.2.6**, `--batch 2` **concurrent prefill loses prefix cache entirely** - one of four conversations
+    reuses **0 / 12,236** where the others reuse 12,213/23, with a 50-line server patch scored on shared message
+    boundaries. We run `--parallel 1`, so the two-stream reproducer is not our config, but the failure mode
+    (`reused = 0`) is silent and our rows are all cache-sensitive: **`reused` and `N checkpoints` are now
+    declaration items.**
+  - **The DeepSeek pack moved again - four commits, no weight change - and it fixes a chat template.** `sha
+    85d6710fd54b -> 653a9874aa38` (lastModified **2026-10-25T23:37:22Z**), 21 -> **25 files**: *Fix embedded chat
+    templates* (21:09Z), *Restore image formatting with Unsloth-based chat template* (22:57Z), an **offline
+    in-place patcher** (`patch_chat_template.py` + `PATCHING.md`, 23:09Z - rewrites a 40 GB shard's header region
+    with a 30 MiB journal, resumable, no network) and a **BF16 vision projector, 0.972 GB** (23:37Z). Sizes and
+    recommendation unchanged (**231.32 / 248.84 / 265.83 GB**; **IQ2_XXS** recommended), so yesterday's
+    `[INFERENCE]` that IQ2_XXS (231.7 GiB) probably fits `D:` stands - and `D:` must still be re-read
+    (**2026-10-20, stale**). **Lesson: a pack's embedded template is part of the instrument, and an older download
+    is now stale in a way that changes prompts.**
+  - **PACK FORMAT IS NOW A THIRD AXIS ON THE 249 GB DECISION.** Strata **#4228**: the Engram reader accepts
+    **MXFP8, Q6_K, IQ4_NL** and refuses the rest - `engram.embed.weight type Q5_K is not one the Engram reader
+    handles` - so **Unsloth's UD-IQ2_XXS does not load** (Engram as **Q5_K, 135 GB**) while ISTA's IQ4_NL file
+    does. A draft PR adds the Q5_K row format with a bit-for-bit test; its author could not build the CUDA
+    backend. Read a pack's Engram type from the file list before pricing a download.
+  - **llama.cpp: 22 commits, 22 merges, b11900 - and yesterday's #31028 number is withdrawn.** **#31189**
+    (2026-10-26T12:15:26Z, build 4104 `d854d98ba`): a **Swift1.5-Qwen3.8-Flash-Next** conversion made **with
+    merged tensors from #31028** loads and then **asserts at warm-up**; the same model without them runs;
+    `ggerganov` assigned it to `am17an` at 14:00:06Z. So **#31028's "+7 % TG, +5 % prefill" cannot be quoted**,
+    and **"was this converted with merged tensors" is a required field for any pack we stage**. Our staged
+    Qwen3.6/3.8 packs predate it and are unaffected. Also merged on our axes: **#31179** (ggml-cpu concat as one
+    row kernel, all types), **#31137** (DSV4.1 follow-up review fixes), **#31153** (grammar recursion depth now a
+    requirement), **#31174** (upstream raising its own startup timeout - our `startup_wait_expired` class). New
+    and relevant: **#31160** (corrupted output mixing `draft-mtp` with `ngram-mod`), **#31194/#31195**
+    (interleaved K-quant layout / IQ codebooks for memory access), **#31158** (logits reorder race).
+  - **#30966 (`--moe-cache-cpu-share`) got the day's most useful memory table, plus a broken knob.**
+    8 GB 3070, `-cmoe`, cache 3,136 MiB: **41.0 (share 0) -> 53.2 (0.5) -> 62.4 (0.95)**; at 1,728 MiB:
+    **32.0 -> 38.5 -> 48.8**; the script recommends **61.1 t/s at share 0.9 vs 42.8 at share 0** = **+43 % at a
+    fixed cache**. On a high-bandwidth R9700 the sign flips (+15 % slower). **`share=0.001` logs as 0 % while
+    still running 8 cores at ~800 % and costing ~20 %** - *"either round up on share execution or be honest in
+    logs."* And on **Vulkan the combination produced `//////` garbage** until the author's
+    **`GGML_VK_ALLOW_GRAPHICS_QUEUE=1`**, which the reporter then ran to **100K tokens without breaking**. Our
+    shortlist item 6 keeps its cost and gains a much better expected value.
+  - **Two things to declare rather than test.** **#3979** (Windows 4090, 0.1.48): **24 self-aborts in 10 days**,
+    `0 layers served since the last beat` in 24/24, expert-pool epoch identical two seconds apart in 24/24,
+    commit/cache/MTP/VRAM all ruled out with numbers, and **not deterministic** (a 438,055-token prompt served
+    at 2,115 tok/s minutes before a stall) - **the engine is restarted automatically, so a long run can contain
+    a restart the artifact never shows: read the stall/restart lines out of the log before quoting a rate.**
+    And **#4064**'s thread split the two cold paths: `O_DIRECT` fill now **298 s -> 110 s** end to end on 0.1.50
+    + branch head (per-phase table quoted), with *"the remaining variance is the drive, not the engine"*
+    (bpftrace: 597,929 completions in the 16-32 ms bucket, same code **16.4 s vs 252.2 s**) and, on the
+    **buffered tier we run**, `RouterLookahead::warm` issuing **~54k 128 KiB `madvise` calls over ~90 s** that
+    squeeze the PLE populate from **28-33 s to 152 s** - i.e. our load times are not a constant.
+  - **A tracker-hygiene fact that changes what "closed" means:** **14 issues closed in the window, 8 of them in
+    a ten-minute band at 2026-10-26T10:14:2xZ** - the tracker bot's own five-day rule (*"If it is still missing
+    parts in 5 days it will be closed"*), not fixes. **#3508** (the `--expert-vram`-is-a-boolean issue) closed
+    that way and its A/B matrix is still valid evidence.
+  - **Adjacent, memory-shaped only.** `warpfront/hipfire` **#988**: the Qwen3.5/3.8-VL vision tower streamed from
+    host instead of resident costs **+958 -> +128 MiB of idle VRAM for 504 -> 507 ms TTFT**, output **byte
+    identical** - the priced version of a trade our 683 MiB free-VRAM margin makes every run (and the same idea
+    as [RD]'s "run Vision on the CPU, 1-2 s per image"). `ik_llama.cpp` **#2751**: Qwen3.8 CPU prefill nearly
+    flat past 8 K with multi-K-head QSA (~50 % over main at 32 K on a Ryzen-3995WX), plus upstream's own
+    **69.3 t/s PP-2048 at zero context vs 51.5 at 32 K** on that CPU. **#2758** fixes the **same DeepSeek-V4.1
+    template** missing a blank line before `## Tools` - two projects, one day, one authority
+    (`encoding/encoding.py`), which is why the ISTA patcher exists.
+  - **[ARX] THE INDEX ADVANCED FOR THE FIRST TIME IN THREE DAYS: 192 new listings dated 2026-10-23**, watermark
+    **2026-10-23T17:59:56Z**; a keyword screen passed 14 of 192 and the batch is **thin on KV cache and
+    speculative decoding**. Three kept: **2610.32009 GS-MoE** (training-free: *"storing their expert parameters
+    remains a major memory bottleneck"*, two axes - shared-subspace rank and expert intermediate width - which
+    attacks the expert-bytes-per-token constant our bandwidth model rests on); **2610.32127 MPQ** (GPTQ/LDLQ are
+    the zero-temperature special case of posterior inference over codebooks - a recipe change for the tool that
+    made our packs); **2610.32483 "When Agents Fail: Model or Harness"** (Valid Completion Rate = our
+    `clean_finish`, Token Load = our tokens-per-task column, Interaction Residuals = why we report per-battery
+    cells - the paper form of three of our instruments, and the correct answer to the harness claim refused
+    yesterday).
+  - **[YT] reachable, no in-window upload, one older video mined with a real recipe:** Cloud Codes, **2026-10-12**,
+    783 s. Three user-credited settings with the apportionment explicitly refused: **move the monitor to the
+    iGPU** (+20-30 % claimed on 8 GB, measured 10 % on a 4070 Ti Super and 20 % by commenters), **run Linux not
+    WSL** (+33-38 %, mechanism from NVIDIA's own WSL2 material: serial virtual link, limited pinned memory), and
+    **use the right build per model**. Plus **DDR5 +36 % bandwidth -> speed +5-14 %** (our own 60-70 %-of-
+    bandwidth gap, from the other end) and Strata's own **5070 row: 94 t/s Q2, 53 t/s IQ3**. Its best line is a
+    refusal: *"does a 125B model compressed to a few bits answer better than a smaller model at higher
+    precision? None of the sources measure that."*
+  - **[RD] 25 dated posts, and the best one is a recipe on a card smaller than ours.** *"Have 8 GB of VRAM and
+    32 GB of RAM?"* (10:26Z): RTX 5060 Laptop 8 GB / 32 GB DDR5 / Linux, Qwen3.8 Q2 Gyro S - 262K **PP 800-970 /
+    TG 30-40**, 131K **930-1,040 / 30-45**, against its own Qwen3.6 35B A3B llama.cpp row at **630-680 / 27-35**.
+    Flags it says mattered: `--mmap-experts`, **`--kv-resident 20480`**, **`--vram-reserve-mib 500`** (recommends
+    900), **`--pcie-frac 0.35`** tuned with `./setup.sh --calibrate`, **`STRATA_RESIDENT_HEADROOM_GIB=4`**
+    (*"higher if you are using Windows"*), MTP **off** below 10 GB, **vision on CPU**, and **`--parallel` unsafe
+    at >= 131K** with **`--conversation-cache` / `-mib 4096` / `-slots 2` / `-min-tokens 8000` /
+    `-min-free-mib 1024`** instead - four flag names new to this lab. It also reports **GSQ-RCO IQ2_XS and the
+    Coder pack "got stuck in repetitive loops or struggled with languages other than English"**, a loop symptom
+    on packs we hold. Also kept: a four-engine Swift-vs-Unsloth comparison that had to **requantize** to build
+    equal-size arms and says so; **TokenGate's 11.3x prefill title dropped** - no body, no paper id, no baseline.
+  - **[HN] 898 stories in the window, 97 keyword matches, one on-axis and it is vendor-reported.** *"Microsoft
+    Decision-1: 9B Qwen Model Launch Explained"* (2026-10-26T03:12:05Z, 69 points): a 9B Qwen3.5 base, calibrated
+    probability per predefined option, 32K input, **no weights**, vendor 83.5 % over 36 benchmarks / ~150K
+    questions, *"perturbation-stable 98.7 % of the time"*, and **2.5x faster than H2O-Lightning-4B v1.1,
+    "the runner-up in its comparison"** - a model in our own decision queue. Not shortlisted. `[WEB]` (labelled,
+    not one of the seven classes): a **2026-10-25** secondary article puts **Kev-4B Q4_K_M at 93.2 % agreement
+    with BF16 over 2,000 decisions and Q8_0 at 98.4 %** - the quant-agreement measurement our lab has wanted
+    since 2026-10-20 - and gives **Laya 0.36 zero-shot against a 0.46 majority baseline**, the accuracy-side
+    confirmation of our own 14/18-with-0/4-caught result. Affiliate links in the body; read as second-hand.
+  - **Shortlist, cheapest first**: (1) read **`GPU Adapter Memory\Shared Usage`** through one resident arm
+    (unchanged four days, still cheapest, now with five siblings - and the **drive itself** can make the same
+    read take 16.4 s or 252.2 s); (2) **idle-VRAM accounting across desktop states** (new - our own records
+    bracket 831 MiB clean against ~1,982 MiB with clients up, and the display move is Kevin's cable, not a
+    scan's); (3) **the 0.1.50 bump as a defaults experiment**, now **eight declarations** including prompt chunk
+    read back with the clamp line and `reused`/`N checkpoints` per prompt line, and now supported by a
+    reporter-confirmed fix and a no-regression A/B (gated on Kevin, 120 digests); (4) **the prompt-chunk ladder
+    4096/8192/16384 on this card** at one prompt >= 8 K, experts-in-VRAM read back (rides behind 3); (5)
+    **`--vram-reserve-mib` 900 vs the shipped 1536** at a fixed cache, since a lower reserve is what lets a
+    bigger chunk survive - run after 4, not before; (6) the **`--moe-cache-cpu-share` sweep** at rungs 0 and
+    5,376 with CPU load sampled and one answer-level check; (7) **Qwen3-Coder-30B-A3B 16.75 GiB** on the
+    414-check metric. Nothing scheduled.
+  - **Gated on Kevin**: the candidate tests; any Strata bump (target unchanged - **engine 0.1.50**, no release
+    today); the **DeepSeek IQ2_XXS download** (231.7 GiB `[INFERENCE]` against `D:`'s stale 252.8 GiB, now also
+    format-constrained and template-stale for older copies); the **display-to-iGPU cable change**; Flint's
+    21.78 GiB and the b11799+ build; Qwen3-Coder 16.75 GiB; the two model licences.
+
 - **2026-10-25, daily scan: Strata shipped twice, the 2-bit DeepSeek set is 7-8 GB smaller than we recorded, and
   llama.cpp can read V4.1 but not our pack.** `NEWS-2026-10-25.md`, written against `NEWS-2026-10-24.md`, window
   **2026-10-24T15:45Z -> 2026-10-25T14:30Z** (~22.75 h). Reading only - nothing downloaded, installed, built or
