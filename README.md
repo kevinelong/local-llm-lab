@@ -35,6 +35,16 @@ is called - so treat them as directional. Licence:
   4096/8192/16384 ladder needs **no download and no bump** - three configs, three starts, one long prompt.
   On a 24 GB 5090 D the 16384 rung is **4.2x** the auto 8192 (prefill 217.7 -> 907.9 tok/s at 7.3k, long-prompt
   TTFT ~34 s -> ~8 s, same answers); nobody has published a 12 GB row.
+- **The chunk ladder is measured, and it is flat on this card.** `--prefill` 4096 / 8192 / 16384 on a 19.8k prompt,
+  all at 10.3 GiB free VRAM: **704 / 717 / 720** tok/s prefill and **12.5 / 13.9 / 12.8** decode. The 24 GB row's 4.2x
+  does not transfer - see [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md). The first
+  pass said otherwise and was contaminated: it ran with 5.54 GiB free, where `auto` resolves to **0 cache slots** and
+  the 8192 arm would not serve at all.
+- **`--vram-reserve-mib 900` beat the config's 2000, matched:** prefill **825 -> 984** tok/s, decode **13.5 -> 16.6**,
+  wall **26.7 -> 22.4 s**, because the cache grew from ~2,000 to **3,049** slots. The shipped 1536 default is between
+  the two arms and unmeasured here.
+- **Free VRAM at start is now a declared variable** for every engine measurement, beside page file, commit and the cache
+  size: it decides what the cache can be.
 - **Two claims from the image side were corrected today**, and both had been assumptions in every row: a **negative
   prompt is inert** at cfg 1.0 on distilled models (byte-identical output), and the **sampler is load-bearing for
   text** (`euler`/`simple` 0.75 OCR exact against `dpmpp_2m`/`karras` 0.25 on the same seed).
