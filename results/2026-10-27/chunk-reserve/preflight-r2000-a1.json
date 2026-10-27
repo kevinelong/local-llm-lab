@@ -1,0 +1,107 @@
+{
+ "label": "preflight-r2000",
+ "attempt": 1,
+ "port": 8092,
+ "declared": {
+  "prefill": "4096",
+  "reserve": "2000",
+  "resident": "2",
+  "cache": "3000"
+ },
+ "env": {},
+ "config": "C:\\Users\\kevin\\ai_bench\\staged-strata-0.1.47\\strata-q2_0-0.1.47-chunkpreflight-r2000.json",
+ "log": "C:\\Users\\kevin\\ai_bench\\staged-strata-0.1.47\\logs\\chunk-preflight-r2000.log",
+ "stdout": "C:\\Users\\kevin\\ai_bench\\staged-strata-0.1.47\\logs\\chunk-preflight-r2000.out.log",
+ "commit_free_gib_before": 22.29,
+ "commit_wait_s": 2.5,
+ "vram_free_mib_before": 10851,
+ "ready_s": 48.5,
+ "short": {
+  "wall_s": 5.61,
+  "prompt_tokens": 68,
+  "completion_tokens": 53,
+  "prompt_n": 68,
+  "prompt_ms": 3969.2,
+  "prompt_per_second": 17.1,
+  "predicted_n": 53,
+  "predicted_ms": 1569.6,
+  "predicted_per_second": 24.2,
+  "draft_accepted": 28,
+  "text": "42",
+  "reasoning": "We need answer user: \"Answer with a single number. What is 1",
+  "finish": "stop"
+ },
+ "long": {
+  "wall_s": 144.67,
+  "prompt_tokens": 19769,
+  "completion_tokens": 54,
+  "prompt_n": 19769,
+  "prompt_ms": 143823.4,
+  "prompt_per_second": 137.5,
+  "predicted_n": 54,
+  "predicted_ms": 828.9,
+  "predicted_per_second": 45.8,
+  "draft_accepted": 23,
+  "text": "150",
+  "reasoning": "We need answer user's question: \"Now answer with a single nu",
+  "finish": "stop"
+ },
+ "readback": {
+  "log": "C:\\Users\\kevin\\ai_bench\\staged-strata-0.1.47\\logs\\chunk-preflight-r2000.log",
+  "log_found": true,
+  "arg_prefill": "4096",
+  "arg_cache": "3000",
+  "arg_reserve_mib": 2000,
+  "arg_resident_gib": 2,
+  "clamp": null,
+  "clamp_line": null,
+  "chunk_auto": null,
+  "chunk_granted": 4096,
+  "chunk_asked": 4096,
+  "lend_slots": 1373,
+  "lend_in_ram": 0,
+  "lend_line": "lends 1373 cache slots to the prompt path, but only 0 of their experts fit in RAM",
+  "lend_asked_chunk": 4096,
+  "borrow_slots": 1373,
+  "cache_free_gib": null,
+  "cache_reserve_mib": null,
+  "cache_auto_slots": null,
+  "cache_auto_line": null,
+  "cache_after_write_mib": null,
+  "cache_shrunk": false,
+  "cache_granted_slots": 2787,
+  "cache_granted_gib": 3.59,
+  "cache_granted_line": "expert cache 2787 slots, 3.59 GiB of VRAM",
+  "reserve_used_mib": 3072,
+  "resident_granted_gib": 2.0,
+  "resident_pinned": true,
+  "resident_line": "resident RAM mode: 2.00 GiB (page-locked)",
+  "file_tier_verdicts": [
+   [
+    "through the file cache",
+    "can"
+   ],
+   [
+    "through the file cache",
+    "can"
+   ]
+  ],
+  "file_tier": "through the file cache",
+  "file_cache_ok": true,
+  "file_cache_line": "reads through the file cache, the file cache can keep them",
+  "page_cache_gib": null,
+  "commit_left_gib": 9.9,
+  "commit_limit_gib": 68.5,
+  "vram_free_end_mib": 731.0,
+  "start_failure": null
+ },
+ "void": true,
+ "void_reasons": [
+  "expert cache granted 2787 of 3000 declared slots",
+  "engine ran reserve 3072 MiB, declared 2000"
+ ],
+ "warnings": [
+  "lend region 0 of 1373 in RAM, but the file cache can keep them"
+ ],
+ "arm_json": "C:\\Users\\kevin\\ai_bench\\chunk-reserve-20261027\\preflight-r2000-a1.json"
+}

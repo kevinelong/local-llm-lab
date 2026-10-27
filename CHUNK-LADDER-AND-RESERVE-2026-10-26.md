@@ -300,3 +300,111 @@ have voided most of the sweep on a declaration the card cannot grant.
 
 Still **not started**: both `--plan preflight` and `--plan phase2` wait for the coordinator's GPU handoff, and the
 phase-2 command is refused without a pre-flight JSON.
+
+## Phase 2, measured 2026-10-27: 16 arms, no voids, and the 10-26 spread was the RAM state, not the flags
+
+Run on the staged **0.1.47** engine with the **q2_0** pack, one server per arm, one arm at a time, seed 1234, the same
+19,769-token prompt, `--cooldown-s 300` between starts, `nvidia-smi` and Windows commit read before each start. The GPU
+was handed over by the image track (1,065 MiB used / 10,879 MiB free at the first start; **1.0-1.1 GiB used / 10.7-11.0
+GiB free before every arm**), ComfyUI was up on :8006 holding no model, no ComfyUI job and no Ollama model was started.
+
+**Declared cache, from the pre-flight.** `--plan preflight` (reserve 2000 and 900, both `--expert-cache 3000`) gave
+**3000 slots granted at reserve 900** and **2787 at reserve 2000** - the engine honours a declared cache or shrinks it,
+and the 2787 arm was voided by rule (c) exactly as designed. A two-arm probe then found **2168 slots at reserve 2000
+with 1,624 MiB of VRAM left**, against **731 MiB** at 2787, so the design declared the cache each reserve was actually
+granted with headroom: **900 -> 3000, 1536 -> 2168 (inherited), 2000 -> 2168**
+(`cache_policy` in `ai_bench/chunk-ladder-20261027.json`). All 16 arms below passed the gate: **13 design arms + 3
+repeats, 0 void**.
+
+| arm | chunk asked -> ran | lend slots (in RAM) | cache granted | reserve | resident granted | file cache | VRAM free at end | prefill tok/s | decode tok/s |
+|---|---|---|---|---:|---:|---|---:|---:|---:|
+| p4096-r900-res2 | 4096 -> 4096 | 1373 (0) | 3000 | 900 | 2.00 | can keep | 649 | 752.3 | 79.3 |
+| p4096-r900-res16 | 4096 -> 4096 | 1373 (0) | 3000 | 900 | 9.38 | can keep | 622 | 861.4 | 77.3 |
+| p4096-r1536-res2 | 4096 -> 4096 | 1373 (0) | 2168 | 1536 | 2.00 | can keep | 1670 | 715.3 | 67.9 |
+| p4096-r1536-res16 | 4096 -> 4096 | 1373 (0) | 2168 | 1536 | 10.18 | can keep | 1461 | 841.8 | 78.8 |
+| p4096-r2000-res2 | 4096 -> 4096 | 1373 (0) | 2168 | 2000 | 2.00 | can keep | 1505 | 720.1 | 70.9 |
+| p4096-r2000-res16 | 4096 -> 4096 | 1373 (0) | 2168 | 2000 | 9.93 | can keep | 1629 | 857.2 | 79.6 |
+| pauto-r900-res2 | auto -> **8192** | 2541 (0) | 3000 | 900 | 2.00 | can keep | 558 | 796.5 | 85.8 |
+| pauto-r900-res16 | auto -> **8192** | 2541 (0) | 3000 | 900 | 8.65 | can keep | 662 | 927.8 | 99.1 |
+| pauto-r1536-res2 | auto -> 5632 | 1811 (0) | 2168 | 1536 | 2.00 | can keep | **0** | 286.2 | **2.6** |
+| pauto-r1536-res16 | auto -> 5632 | 1811 (0) | 2168 | 1536 | 6.23 | can keep | **0** | 627.1 | 90.6 |
+| pauto-r2000-res2 | auto -> 5632 | 1811 (0) | 2168 | 2000 | 2.00 | can keep | 1596 | 765.3 | 79.8 |
+| pauto-r2000-res16 | auto -> 5632 | 1811 (0) | 2168 | 2000 | 9.90 | can keep | 1672 | 886.2 | 84.0 |
+| p4096-r1536-res16-**trim1** | 4096 -> 4096 | 1373 (0) | 2168 | 1536 | 9.93 | can keep | 1673 | 854.2 | 78.1 |
+| rep-p4096-r900-res2 | 4096 -> 4096 | 1373 (0) | 3000 | 900 | 2.00 | can keep | 653 | 756.4 | 77.4 |
+| rep-pauto-r900-res16 | auto -> 8192 | 2541 (0) | 3000 | 900 | 8.84 | can keep | 653 | 921.9 | 88.2 |
+| rep-pauto-r2000-res16 | auto -> 5632 | 1811 (0) | 2168 | 2000 | 9.69 | can keep | 1688 | 884.8 | 74.4 |
+
+Every arm also recorded `Windows commit` left at the end of its start: **3.3-4.3 GiB** for the 16 GiB resident arms
+(they page-lock 6.2-10.2 GiB of host RAM) and **8.2-12.8 GiB** for the 2 GiB arms. No arm started below 10.7 GiB of free
+VRAM, and none was void: no clamp, no start failure, no un-granted cache, no reserve mismatch.
+
+### Repeat spread, measured - it is the prefill that is tight, not the decode
+
+| cell | prefill samples | spread | decode samples | spread |
+|---|---|---|---|---|
+| r900, res2, chunk 4096 | 749.2 / 752.3 / 756.4 | **1.0 %** | 79.0 / 79.3 / 77.4 | 2.4 % |
+| r2000, res2, chunk 4096 | 731.9 / 720.1 | 1.6 % | 72.8 / 70.9 | 2.6 % |
+| r900, res16, chunk auto | 927.8 / 921.9 | 0.6 % | 99.1 / 88.2 | **11.0 %** |
+| r2000, res16, chunk auto | 886.2 / 884.8 | 0.2 % | 84.0 / 74.4 | **12.1 %** |
+
+**Prefill repeats to 0.2-1.6 %; decode repeats to 2.4-12.1 %.** That is the resolution bar every claim below is held to.
+
+### What changed, and by how much
+
+- **The 2026-10-26 collapse was the RAM state, not the chunk and not the reserve.** With the image track finished and
+  **36-40 GiB** of RAM available, **all 16 arms** read *"the file tier reads through the file cache ... the file cache can
+  keep them"*, where 8 of the 10 arms of 10-26 read *"unbuffered"* with **33.6-34.8 GiB** available. Decode today is
+  **67.9-99.1 tok/s at both resident budgets**, against **4.1-16.6** yesterday for the same configs. The single
+  **87.0** tok/s row that was "not a result" is now superseded by repeated evidence: **85.8** at 2 GiB resident and
+  **99.1 / 88.2** at 16 GiB.
+- **The lend region was never resident, in any arm.** 0 of **1,373** slots (chunk 4096) and 0 of **1,811-2,541** slots
+  (chunk auto) in all 16 arms, and in both pre-flights - so the #669 warning fired in every single run and *nothing
+  collapsed*, because the page cache held the experts. **On this pack the lend region is not the lever**; the number of
+  cache slots and the VRAM headroom are, and the lend region is only a witness that the resident budget fills the ranked
+  experts first.
+- **Chunk 4096 vs the engine's own chunk: auto wins prefill in 4 of 5 matched cells, by +3.3 % to +7.4 %**
+  (796.5 vs 752.6; 924.9 vs 861.4; 765.3 vs 726.0; 885.5 vs 857.2), and auto granted **8192** at reserve 900 against
+  **5632** at 1536/2000 - so the smaller reserve does not just buy slots, it buys a bigger chunk. The exception,
+  pauto-r1536-res16 at **627.1** against 841.8, is one of the two 0 MiB-headroom cells and is not counted as an effect.
+- **Resident 2 -> 16 GiB: +14.5 % to +18.1 % prefill in 5 of 5 matched cells** (861.4/752.6, 841.8/715.3, 857.2/726.0,
+  924.9/796.5, 885.5/765.3) - well above the 1.6 % prefill bar. **The decode half of that claim does not survive**: the
+  two cells with repeats show a 11-12 % spread on decode, and the 16 GiB arms' decode advantage ranges from -0.8 % to
+  +16 %, i.e. inside or at the edge of the noise. Say it plainly: **the resident budget buys prefill, not decode.**
+- **Reserve 900 vs 2000 at a declared cache: +0.5 % to +4.4 % prefill in all four matched cells**, because 900 buys 3000
+  slots against 2168 - the reserve's effect *is* the slot effect, which is #4261 again from the reserve side. Decode
+  differences here (70.9-85.8 vs 70.9-84.0) are inside the 12 % bar and are not claimed.
+- **`STRATA_STAGE_TRIM=1` on a single card changed nothing.** Arm 13 against arm 4, the same cell: cache **2168 = 2168**,
+  chunk **4096 = 4096**, VRAM free with everything loaded **1,673 vs 1,461 MiB**, resident granted 9.93 vs 10.18 GiB,
+  prefill **854.2 vs 841.8 (+1.5 %, inside the 1.6 % bar)** and decode **78.1 vs 78.8**. It refunded no cache-usable VRAM,
+  added no slots and moved no clamp. That is consistent with the #4261 report being a *split* effect: the trim returns a
+  card's share of stage buffers, and a single card with no layer split has nothing to return.
+- **`--expert-cache N` is honoured or shrunk, never traded for headroom the way `auto` is.** At reserve 2000, declared
+  3000 was granted **2787** and left **731-865 MiB** free, and the arm ran at **137.5 / 132.8 tok/s prefill**; declared
+  **2168** at the same reserve left **1,624 MiB** and ran at **731.9**. Same reserve, same chunk, **5.3x prefill** - the
+  declared cache overcommits VRAM and the driver pages. This is the one thing the pre-flight was worth running for, and
+  it is why a declared cache must come from a probe that keeps headroom, not from a round number.
+- **The two r1536 cells carry a caveat and are marked.** Reserve 1536's cache was *inherited* (2168) rather than probed,
+  and both r1536 arms ended a start at **0 MiB of VRAM free** - pauto-r1536-res2 measured **286.2 / 2.6 tok/s** with the
+  engine's own `only 0 MiB of VRAM free at the start of this request` (#2065). They are reported as measured and are not
+  used in any of the effect statements above; the fix is one probe at 1536 with 1,900-2,000 slots, not a re-run of the
+  sweep.
+
+### The one-sentence answer
+
+**On this pack, once the file cache can keep the experts, neither the chunk nor the reserve changes anything except
+through the expert-cache slots they buy - a bigger chunk is worth +3-7 % prefill, a 3000-slot reserve is worth +0.5-4.4 %
+over a 2168-slot one, and a 16 GiB resident budget is worth +15-18 % prefill but no decode - while the lend region stays
+empty (0 of 1,373-2,541 slots) in every arm, so it never was the lever.**
+
+Evidence: `ai_bench/chunk-ladder-20261027.json` (13 arms), `chunk-reserve-20261027-repeats.json` (3 repeats),
+`chunk-reserve-20261027-probe.json` (the cache probe), `chunk-reserve-20261027/<arm>-a<n>.json` (per-arm witnesses), and
+the engine logs `ai_bench/staged-strata-0.1.47/logs/chunk-<arm>-a<n>.log`. The pre-flight's own JSON was never written -
+the run was killed by its deadline during a retry - so its two grants are recorded from the per-arm files
+`chunk-reserve-20261027/preflight-r900-a1.json` (3000 granted, 746.3 / 74.8) and `preflight-r2000-a1.json` (2787 of 3000,
+137.5 / 45.8, 731 MiB free).
+
+The three aggregate JSONs and all 22 per-arm witness files are copied into this repository under
+`results/2026-10-27/chunk-reserve/` (`chunk-ladder-20261027.json`, `chunk-reserve-20261027-probe.json`,
+`chunk-reserve-20261027-repeats.json`, and `<arm>-a<n>.json`), so the table above can be re-derived from the repository
+without the `ai_bench` tree.

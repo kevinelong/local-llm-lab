@@ -1,0 +1,78 @@
+{
+ "label": "preflight-r900",
+ "attempt": 2,
+ "port": 8093,
+ "declared": {
+  "prefill": "4096",
+  "reserve": "900",
+  "resident": "2",
+  "cache": "3000"
+ },
+ "env": {},
+ "config": "C:\\Users\\kevin\\ai_bench\\staged-strata-0.1.47\\strata-q2_0-0.1.47-chunkpreflight-r900.json",
+ "log": "C:\\Users\\kevin\\ai_bench\\staged-strata-0.1.47\\logs\\chunk-preflight-r900.log",
+ "stdout": "C:\\Users\\kevin\\ai_bench\\staged-strata-0.1.47\\logs\\chunk-preflight-r900.out.log",
+ "commit_free_gib_before": 21.06,
+ "commit_wait_s": 27.5,
+ "vram_free_mib_before": 9630,
+ "error": "RuntimeError: server on 8093 never answered /v1/models",
+ "readback": {
+  "log": "C:\\Users\\kevin\\ai_bench\\staged-strata-0.1.47\\logs\\chunk-preflight-r900.log",
+  "log_found": true,
+  "arg_prefill": "4096",
+  "arg_cache": "3000",
+  "arg_reserve_mib": 900,
+  "arg_resident_gib": 2,
+  "clamp": null,
+  "clamp_line": null,
+  "chunk_auto": null,
+  "chunk_granted": 4096,
+  "chunk_asked": 4096,
+  "lend_in_ram": null,
+  "lend_slots": null,
+  "lend_line": null,
+  "lend_asked_chunk": null,
+  "borrow_slots": null,
+  "cache_free_gib": null,
+  "cache_reserve_mib": null,
+  "cache_auto_slots": null,
+  "cache_auto_line": null,
+  "cache_after_write_mib": null,
+  "cache_shrunk": false,
+  "cache_granted_slots": null,
+  "cache_granted_gib": null,
+  "cache_granted_line": null,
+  "reserve_used_mib": null,
+  "resident_granted_gib": null,
+  "resident_pinned": null,
+  "resident_line": null,
+  "file_tier_verdicts": [
+   [
+    "through the file cache",
+    "can"
+   ],
+   [
+    "unbuffered",
+    "cannot"
+   ]
+  ],
+  "file_tier": "unbuffered",
+  "file_cache_ok": false,
+  "file_cache_line": "reads unbuffered, the file cache cannot keep them",
+  "page_cache_gib": null,
+  "commit_left_gib": 11.7,
+  "commit_limit_gib": 68.5,
+  "vram_free_end_mib": null,
+  "start_failure": [
+   "engine: needs the profile-filled VRAM expert tier"
+  ]
+ },
+ "void": true,
+ "void_reasons": [
+  "expert cache granted None of 3000 declared slots",
+  "engine: needs the profile-filled VRAM expert tier",
+  "RuntimeError: server on 8093 never answered /v1/models"
+ ],
+ "warnings": [],
+ "arm_json": "C:\\Users\\kevin\\ai_bench\\chunk-reserve-20261027\\preflight-r900-a2.json"
+}

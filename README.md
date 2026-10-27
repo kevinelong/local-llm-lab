@@ -26,6 +26,19 @@ is called - so treat them as directional. Licence:
 
 ## 0. Where this stands on 2026-10-27
 
+- **The re-run happened, and it retires three days of "withdrawn".** 16 arms on the staged 0.1.47 with the q2_0 pack (13
+  design arms + 3 repeats, **0 void**), interleaved 2/16 GiB, one engine at a time, declared caches taken from a probe
+  (900 -> 3000 slots, 1536/2000 -> 2168). Measured: **prefill repeats to 0.2-1.6 %, decode only to 2.4-12.1 %** - so the
+  prefill claims are resolvable and the decode ones mostly are not. **The engine's own chunk beats a declared 4096 by
+  +3.3-7.4 % prefill** (it took 8192 at reserve 900, 5632 elsewhere); **a 16 GiB resident budget beats 2 GiB by
+  +14.5-18.1 % prefill with no resolvable decode gain**; **reserve 900 beats 2000 by +0.5-4.4 % prefill, because it buys
+  3000 slots against 2168**. The lend region was **0 of 1,373-2,541 slots in all 16 arms** and nothing collapsed, because
+  for the first time in this notebook every arm read *"the file cache can keep them"*: the 10-26 spread of 4.1-16.6 tok/s
+  decode was the **RAM state**, not the flags, and today the same configurations decode **67.9-99.1**. The single
+  **87.0** tok/s row is superseded by 85.8 (2 GiB) and 99.1/88.2 (16 GiB). **`STRATA_STAGE_TRIM=1` on a single card
+  changed nothing** - 2168 slots, chunk 4096, 1,673 vs 1,461 MiB free, prefill +1.5 % inside the bar. Table, spreads and
+  the two anomalous 1536 cells in
+  [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md), "Phase 2, measured".
 - **The withdrawn chunk/reserve arms are now proved void from their own logs, and the harness refuses to repeat it.**
   Ten stored engine logs were read back (no engine started): `chunk-8192` and `chunk-16384` both carry
   `prompt chunk N -> 4096 tokens so its buffers fit in every expert cache`, so the "flat triple" was **4096, 4096, 4096**;
@@ -40,7 +53,7 @@ is called - so treat them as directional. Licence:
   design now **opens with a two-arm pre-flight**: `--expert-cache 3000` was never granted in any arm we hold (grants
   862-3,049, because the cache is sized and then shrunk to honour the reserve), so the declared cache is taken from what
   the pre-flight was *actually* granted, per reserve, and `--plan phase2` refuses to run without that file.
-  **Phase 2 has not been started** - the GPU is the image track's until the coordinator hands it over.
+  **Run on 2026-10-27 after the GPU handoff - see the first bullet of this section for the result.**
 
 - **The two-week audit is written down.** [SHORTLIST-2026-10-26-untried.md](SHORTLIST-2026-10-26-untried.md)
   reconciles **12 scans (10-14 to 10-26) against 9 executed items** and lists what is left, ranked by leverage per
@@ -54,9 +67,10 @@ is called - so treat them as directional. Licence:
 - **The lever that was hiding under both sweeps is `--resident-budget-gib`, and the engine names it.** 2 GiB (the
   config) -> **2.00 GiB** resident, *"the file cache cannot keep them"*, decode 4-23 tok/s. 16 asked -> **10.09 GiB
   page-locked**, *"the file cache can keep them"*, decode **87.0** tok/s in a single arm. That 4-8x is why the flag
-  sweeps above were noise: they were measuring the file cache, not the flag. **Not a result yet** - n=1, and the repeat
-  failed to start because the previous engine's commit had not been released. Establishing it needs n>=3 **interleaved**
-  arms with a commit cooldown, recording granted resident GiB, granted cache slots and the file-cache verdict per arm.
+  sweeps above were noise: they were measuring the file cache, not the flag. **Now established, with the sign of the
+  second half corrected**: the 16-arm re-run of 2026-10-27 reproduces 85.8 at 2 GiB resident and 99.1/88.2 at 16 GiB, and
+  puts the resident budget's gain at **+14.5-18.1 % prefill** with no resolvable decode gain - the 10-26 decode spread was
+  the file cache's verdict, which flipped between days on the same configs.
 - **The chunk ladder and the reserve sweep are withdrawn for a mechanical reason, found the next morning.** The engine
   log carries `prompt chunk 8192 -> 4096 tokens so its buffers fit in every expert cache` for both the 8192 and 16384
   rungs: **the ladder measured one arm three times**, which is why it was flat to 2 %. The variance had its own cause -

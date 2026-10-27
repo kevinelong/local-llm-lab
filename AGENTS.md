@@ -1,5 +1,35 @@
 # Local AI lab working instructions
 
+- **2026-10-27, the re-run landed: 16 arms, 0 void, and the 10-26 spread was the RAM state.** GPU held under the
+  coordinator's handoff (image track done), one engine at a time, staged **0.1.47** + **q2_0**, the same 19,769-token
+  prompt, seed 1234, commit + VRAM read before every start. Declared caches came from a probe, not from a round number:
+  **reserve 900 -> 3000 slots, 1536/2000 -> 2168**; 13 design arms + 3 repeats, **no arm voided**. Table, spreads and the
+  two anomalous cells: `CHUNK-LADDER-AND-RESERVE-2026-10-26.md`, "Phase 2, measured".
+  - **THE REPEAT SPREAD IS THE BAR: PREFILL 0.2-1.6 %, DECODE 2.4-12.1 %.** Same cell, same config: prefill 749.2/752.3/
+    756.4, 731.9/720.1, 927.8/921.9, 886.2/884.8; decode 79.0/79.3/77.4, 72.8/70.9, **99.1/88.2**, **84.0/74.4**. So every
+    prefill claim below is resolvable and most decode claims are not - state that, do not average it away.
+  - **THE 10-26 "COLLAPSE" WAS THE FILE CACHE, NOT THE FLAGS.** With the image track finished and **36-40 GiB** of RAM
+    available, **all 16 arms** read *"the file tier reads through the file cache ... can keep them"*, where 8 of 10 arms on
+    10-26 read *"unbuffered"* at 33.6-34.8 GiB; decode today **67.9-99.1** at both resident budgets against **4.1-16.6**
+    yesterday for the same configs. The 87.0 tok/s single row is superseded: **85.8** at 2 GiB and **99.1/88.2** at 16 GiB.
+  - **THE LEND REGION WAS 0 OF 1,373-2,541 SLOTS IN ALL 16 ARMS AND NOTHING COLLAPSED.** The #669 warning fired in every
+    run; the page cache covered the experts, so it is a witness, not a lever. On this pack the lever is the **cache slots**
+    (which set the granted chunk) and the **VRAM headroom**.
+  - **WHAT THE FLAGS ARE WORTH, AT THAT BAR.** The engine's own chunk beats a declared 4096 by **+3.3-7.4 % prefill** in 4
+    of 5 matched cells (it took 8192 at reserve 900, 5632 elsewhere); a **16 GiB** resident budget beats 2 GiB by
+    **+14.5-18.1 % prefill** in 5 of 5 and by **no resolvable decode**; **reserve 900 beats 2000 by +0.5-4.4 % prefill**
+    because it buys 3000 slots against 2168 - the reserve's effect *is* the slot effect (#4261 from the reserve side).
+  - **`STRATA_STAGE_TRIM=1` ON A SINGLE CARD CHANGED NOTHING**: same cell as its pair, cache **2168 = 2168**, chunk
+    **4096 = 4096**, VRAM free with everything loaded **1,673 vs 1,461 MiB**, prefill **+1.5 %** (inside the bar), decode
+    **78.1 vs 78.8**. The #4261 refund is a *split* effect; one card has no stage-buffer share to return.
+  - **A DECLARED `--expert-cache` IS HONOURED OR SHRUNK, NEVER TRADED FOR HEADROOM THE WAY `auto` IS.** At reserve 2000,
+    declared 3000 was granted **2787** and left **731-865 MiB** free -> **137.5/132.8 tok/s prefill**; declared **2168**
+    left **1,624 MiB** -> **731.9**. Same reserve and chunk, **5.3x prefill**. That is what the pre-flight was worth, and
+    why the design's cache now comes from a probe that keeps headroom.
+  - **TWO CELLS KEEP THEIR CAVEAT**: the r1536 arms inherited 2168 slots instead of probing them, both ended a start at
+    **0 MiB free**, and pauto-r1536-res2 read **286.2/2.6 tok/s** under the engine's own `only 0 MiB of VRAM free at the
+    start of this request` (#2065). They are reported, excluded from the effect statements, and the fix is one probe at
+    1536 (1,900-2,000 slots), not a re-run of the sweep.
 - **2026-10-27, chunk/reserve repair: the two withdrawn experiments are now proved void from their own logs, and the
   harness refuses to record another arm like them.** CPU and disk only - **no engine, no model, no GPU work**, nothing
   downloaded, the image track kept the GPU. `CHUNK-LADDER-AND-RESERVE-2026-10-26.md` Addendum 2 carries the table.
