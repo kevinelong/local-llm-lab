@@ -25,9 +25,22 @@
     builds the RAM copy (res16a at 10.09 GiB resident is that case) - both lines are in every arm's JSON. Declaration is
     read from the engine's **own argv echo**, every attempt writes its own JSON, and a **commit cooldown** (CIM
     `TotalVirtualMemorySize`/`FreeVirtualMemory` back to its pre-run value, up to 300 s) precedes every start.
+  - **THE PLAN WAS WRONG ABOUT `--expert-cache 3000`, AND A PRE-FLIGHT FIXES IT.** No arm we hold was ever granted 3000:
+    grants were 862-3,049 slots, and the shrink line (`only N MiB free once the slots are written (reserve M MiB);
+    shrinking the expert cache`) says the cache is sized and then shrunk to honour the reserve. So `--plan phase2` now
+    begins with a **two-arm pre-flight** (reserve 2000 and 900, both `--expert-cache 3000`, resident 2 GiB) and takes its
+    declared cache from what the engine *actually* granted, per reserve, through `--cache-preflight`; a reserve the
+    pre-flight did not probe (1536) inherits the smallest grant, and the policy is written into the aggregate JSON.
+    Rule (c) stays strict - the plan bends to the gate, not the other way round.
+  - **THE 2 GiB HALF IS A FINDING, NOT A FAILED RUN.** If all six 2 GiB arms come back VOID on rule (b) - 0 of the lend
+    region in RAM and an unbuffered file tier - that is the answer: at this pack's 2 GiB resident budget a prompt-chunk
+    measurement cannot exist on this card. It is reported as the result of that half with the #669 line quoted, not
+    re-run for a friendlier verdict. Every row, result or void, now carries the engine's own lines
+    (`chunk_asked`/`chunk_granted`/`clamp_line`, `lend_slots`/`lend_in_ram`/`lend_line`, the cache sizing and grant,
+    `reserve_used_mib`, `resident_granted_gib`, `file_cache_line`, `commit_left_gib`) in the result JSON.
   - **THE DESIGN IS PRE-REGISTERED AND NOT STARTED.** `--plan phase2`: 13 arms, chunk 4096 vs auto x reserve
-    900/1536/2000 x resident 2/16 GiB, interleaved 2,16,2,16,..., every arm declaring `--expert-cache 3000` so ambient
-    VRAM cannot pick the arm, plus one `STRATA_STAGE_TRIM=1` arm paired with the cell it sits next to. Per-arm JSONs at
+    900/1536/2000 x resident 2/16 GiB, interleaved 2,16,2,16,..., every arm declaring the cache the pre-flight was
+    granted at its reserve so ambient VRAM cannot pick the arm, plus one `STRATA_STAGE_TRIM=1` arm paired with the cell it sits next to. Per-arm JSONs at
     `ai_bench/chunk-reserve-20261027/<arm>-a<n>.json`. The 2 GiB rows are **expected** to be VOID on rule 2 - that is the
     answer to why the ladder read flat - so the measurable cells are the 16 GiB ones. **Waits for the coordinator's GPU
     handoff.** The single 87.0 tok/s row at 10.09 GiB resident is still not a result.

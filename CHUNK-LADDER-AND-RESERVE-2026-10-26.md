@@ -232,35 +232,71 @@ was exercised on synthetic readbacks (declared cache 3,000 granted 2,907 -> void
 ### The re-run design, written down and not started
 
 `chunk_ladder.py --plan phase2`. Thirteen arms, **interleaved 2, 16, 2, 16 ...** so no resident budget is measured
-twice in a row, every arm declaring `--expert-cache 3000` and its own `--vram-reserve-mib` so ambient VRAM cannot choose
-the arm, and each start behind the commit cooldown:
+twice in a row, every arm declaring a fixed `--expert-cache` and its own `--vram-reserve-mib` so ambient VRAM cannot
+choose the arm, and each start behind the commit cooldown. **The cache column below (3000) is superseded**: no arm we
+hold was ever granted 3000, so the declared value now comes from the two-arm pre-flight described in the revision at the
+end of this note, per reserve, and `--plan phase2` refuses to run without it.
 
 | # | arm | prefill | reserve MiB | resident GiB | cache | env |
 |---|---|---|---:|---:|---:|---|
-| 1 | `p4096-r900-res2` | 4096 | 900 | 2 | 3000 | |
-| 2 | `p4096-r900-res16` | 4096 | 900 | 16 | 3000 | |
-| 3 | `p4096-r1536-res2` | 4096 | 1536 | 2 | 3000 | |
-| 4 | `p4096-r1536-res16` | 4096 | 1536 | 16 | 3000 | |
-| 5 | `p4096-r2000-res2` | 4096 | 2000 | 2 | 3000 | |
-| 6 | `p4096-r2000-res16` | 4096 | 2000 | 16 | 3000 | |
-| 7 | `pauto-r900-res2` | auto | 900 | 2 | 3000 | |
-| 8 | `pauto-r900-res16` | auto | 900 | 16 | 3000 | |
-| 9 | `pauto-r1536-res2` | auto | 1536 | 2 | 3000 | |
-| 10 | `pauto-r1536-res16` | auto | 1536 | 16 | 3000 | |
-| 11 | `pauto-r2000-res2` | auto | 2000 | 2 | 3000 | |
-| 12 | `pauto-r2000-res16` | auto | 2000 | 16 | 3000 | |
-| 13 | `p4096-r1536-res16-trim1` | 4096 | 1536 | 16 | 3000 | `STRATA_STAGE_TRIM=1` |
+| 1 | `p4096-r900-res2` | 4096 | 900 | 2 | pre-flight | |
+| 2 | `p4096-r900-res16` | 4096 | 900 | 16 | pre-flight | |
+| 3 | `p4096-r1536-res2` | 4096 | 1536 | 2 | pre-flight | |
+| 4 | `p4096-r1536-res16` | 4096 | 1536 | 16 | pre-flight | |
+| 5 | `p4096-r2000-res2` | 4096 | 2000 | 2 | pre-flight | |
+| 6 | `p4096-r2000-res16` | 4096 | 2000 | 16 | pre-flight | |
+| 7 | `pauto-r900-res2` | auto | 900 | 2 | pre-flight | |
+| 8 | `pauto-r900-res16` | auto | 900 | 16 | pre-flight | |
+| 9 | `pauto-r1536-res2` | auto | 1536 | 2 | pre-flight | |
+| 10 | `pauto-r1536-res16` | auto | 1536 | 16 | pre-flight | |
+| 11 | `pauto-r2000-res2` | auto | 2000 | 2 | pre-flight | |
+| 12 | `pauto-r2000-res16` | auto | 2000 | 16 | pre-flight | |
+| 13 | `p4096-r1536-res16-trim1` | 4096 | 1536 | 16 | pre-flight | `STRATA_STAGE_TRIM=1` |
 
-Artifacts, per arm and per attempt: `ai_bench/chunk-reserve-20261027/<arm>-a<attempt>.json` (declaration, readback,
-timings, void verdict), the engine log `ai_bench/staged-strata-0.1.47/logs/chunk-<arm>.log`, and the aggregate
-`ai_bench/chunk-ladder-20261027.json`. Expected: the 2 GiB rows are **expected to be VOID on rule 2** (at 2 GiB the lend
-region has never had an expert in RAM and the file tier has read unbuffered in 8 of 10 arms) - that is the answer to
-why the ladder read flat, not a failure of the run; the 16 GiB rows are the ones that can be results, and they are where
-900 vs 1536 vs 2000 is measurable, because the reserve moves the cache 3,565 vs ~2,731 slots with the page cache holding
-the set. Arm 13 is the reporter's trim on a **single** card, quoted against arm 4: it must move VRAM-free, granted slots
-and the chunk, or it says the split report does not transfer. If the declared `--expert-cache 3000` is granted short in
-two attempts of the same cell, that cell is re-run with `cache=auto` under a `-cacheauto` label and the change is
-reported - the arm is relabelled rather than the gate relaxed.
+Artifacts, per arm and per attempt: `ai_bench/chunk-reserve-20261027/<arm>-a<attempt>.json` (declaration, the engine's
+own lines, timings, void verdict), the engine log `ai_bench/staged-strata-0.1.47/logs/chunk-<arm>.log`, and the aggregate
+`ai_bench/chunk-ladder-20261027.json`. Expected: the six 2 GiB rows are **expected to be VOID on rule 2** (at 2 GiB the
+lend region has never had an expert in RAM - 0 of 717-2,541 slots in ten of ten stored arms - and the file tier has read
+unbuffered in 8 of 10), and that is the **result of the 2 GiB half**, not a failed run: on this pack at the config's
+resident budget a prompt-chunk measurement cannot exist, because every number there is a disk number. Those arms are
+reported as void, with one of them carrying its #669 line verbatim, and the half is not re-run hoping for a different
+verdict. The 16 GiB rows are the ones that can be results, and they are where 900 vs 1536 vs 2000 is measurable, because
+the reserve moves the cache (3,565 vs ~2,731 slots when auto) with the page cache holding the set. Arm 13 is the
+reporter's trim on a **single** card, quoted against arm 4: it must move VRAM-free, granted slots and the chunk, or it
+says the split report does not transfer. A cell whose declared cache is still granted short after two attempts is
+re-run with `cache=auto` under a `-cacheauto` label and the change is reported - the arm is relabelled rather than the
+gate relaxed.
 
 **Status: written, checked, not started.** Phase 2 needs the GPU, which the image track holds; it begins only on the
 coordinator's handoff, and no engine, model or GPU workload was started today.
+
+### Revision, 2026-10-27 (before any engine start): the declared cache comes from a pre-flight, and the 2 GiB half is a finding
+
+Reviewing Addendum 2 turned up a defect in **my own plan**, not in the gate: `--expert-cache 3000` was never granted in
+any arm we hold. The grants were 1,971 / 1,937 / 1,919 / 1,982 / 2,168 / 3,049 / 2,907 / 862 slots, and the engine's own
+shrink line (`only N MiB free once the slots are written (reserve M MiB); shrinking the expert cache`) says why - it
+sizes the cache, then shrinks it to honour the reserve. Rule (c) is right; the plan was wrong, and as written it would
+have voided most of the sweep on a declaration the card cannot grant.
+
+- **Two-arm pre-flight first** (`--plan preflight`, ~5 min): one start at `--vram-reserve-mib 2000` and one at `900`,
+  both `--expert-cache 3000`, resident 2 GiB, `--prefill 4096`. Read the granted `expert cache N slots` off each log.
+  Result: `ai_bench/chunk-reserve-20261027-preflight.json`.
+- **The design's declared cache is then derived from those grants, not chosen by hand**:
+  `--plan phase2 --cache-preflight <preflight.json>`, whose default mode is `per-reserve` - each reserve declares the
+  smallest grant seen at that reserve, and a reserve the pre-flight did not probe (1536 sits between the two it does)
+  inherits the smallest grant of all, because a cache that fits behind the heavier reserve fits behind a lighter one.
+  `--cache-mode single` declares one value everywhere. The policy, the observed grants and the inherited value are
+  written into the aggregate JSON under `cache_policy`, so the declaration is auditable after the fact.
+- **The 2 GiB half is a finding, not a failed run.** If all six 2 GiB arms come back VOID on rule (b), that *is* the
+  answer: at the pack's 2 GiB resident budget a prompt-chunk measurement cannot exist on this card, because the lend
+  region is empty (0 of 717-2,541 slots in RAM in ten of ten stored arms) and the file tier is unbuffered, so any number
+  measured there is a disk number. Those arms are reported as the result of the 2 GiB half, one of them with its #669
+  line quoted verbatim, and the run is not repeated hoping for a different verdict.
+- **The evidence travels in the JSON, not in prose.** Every row - result or void - now carries the engine's own lines:
+  `chunk_asked` / `chunk_granted` / `clamp_line`, `lend_slots` / `lend_in_ram` / `lend_line` (verbatim),
+  `cache_auto_slots` / `cache_granted_slots` / `cache_shrunk`, `reserve_used_mib`, `resident_granted_gib`,
+  `file_tier` / `file_cache_line`, `commit_left_gib`, `vram_free_end_mib`. That is what a reviewer re-derives the verdict
+  from, and it is why the 2026-10-26 withdrawal could be settled a day later without starting an engine.
+
+Still **not started**: both `--plan preflight` and `--plan phase2` wait for the coordinator's GPU handoff, and the
+phase-2 command is refused without a pre-flight JSON.

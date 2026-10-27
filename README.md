@@ -36,8 +36,11 @@ is called - so treat them as directional. Licence:
   less `nvidia-smi` VRAM than its twin but sized `-> 0 slots` from **1.28 GiB** free against **5.54 GiB**, and it had
   *more* commit free (13.6 vs 4.3 GiB left) - a 0-slot start is a start failure to re-run, not a VRAM verdict. The gate
   (four void rules + commit cooldown + per-arm JSON) and the pre-registered 13-arm interleaved design are in
-  [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md), Addendum 2. **Phase 2 has not been
-  started** - the GPU is the image track's until the coordinator hands it over.
+  [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md), Addendum 2 and its revision. The
+  design now **opens with a two-arm pre-flight**: `--expert-cache 3000` was never granted in any arm we hold (grants
+  862-3,049, because the cache is sized and then shrunk to honour the reserve), so the declared cache is taken from what
+  the pre-flight was *actually* granted, per reserve, and `--plan phase2` refuses to run without that file.
+  **Phase 2 has not been started** - the GPU is the image track's until the coordinator hands it over.
 
 - **The two-week audit is written down.** [SHORTLIST-2026-10-26-untried.md](SHORTLIST-2026-10-26-untried.md)
   reconciles **12 scans (10-14 to 10-26) against 9 executed items** and lists what is left, ranked by leverage per
