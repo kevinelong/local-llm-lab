@@ -26,19 +26,21 @@ is called - so treat them as directional. Licence:
 
 ## 0. Where this stands on 2026-10-27
 
-- **The re-run happened, and it retires three days of "withdrawn".** 16 arms on the staged 0.1.47 with the q2_0 pack (13
-  design arms + 3 repeats, **0 void**), interleaved 2/16 GiB, one engine at a time, declared caches taken from a probe
-  (900 -> 3000 slots, 1536/2000 -> 2168). Measured: **prefill repeats to 0.2-1.6 %, decode only to 2.4-12.1 %** - so the
-  prefill claims are resolvable and the decode ones mostly are not. **The engine's own chunk beats a declared 4096 by
-  +3.3-7.4 % prefill** (it took 8192 at reserve 900, 5632 elsewhere); **a 16 GiB resident budget beats 2 GiB by
-  +14.5-18.1 % prefill with no resolvable decode gain**; **reserve 900 beats 2000 by +0.5-4.4 % prefill, because it buys
-  3000 slots against 2168**. The lend region was **0 of 1,373-2,541 slots in all 16 arms** and nothing collapsed, because
-  for the first time in this notebook every arm read *"the file cache can keep them"*: the 10-26 spread of 4.1-16.6 tok/s
-  decode was the **RAM state**, not the flags, and today the same configurations decode **67.9-99.1**. The single
-  **87.0** tok/s row is superseded by 85.8 (2 GiB) and 99.1/88.2 (16 GiB). **`STRATA_STAGE_TRIM=1` on a single card
-  changed nothing** - 2168 slots, chunk 4096, 1,673 vs 1,461 MiB free, prefill +1.5 % inside the bar. Table, spreads and
-  the two anomalous 1536 cells in
-  [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md), "Phase 2, measured".
+- **The re-run landed, and it retires three days of "withdrawn" - with one of its own claims withdrawn.** 21 arms on the
+  staged 0.1.47 with the q2_0 pack (13 design + 3 repeats + 5 r1536 re-runs at the probed cache + repeats), **0 void**,
+  interleaved 2/16 GiB, one engine at a time, declared caches from a probe (900 and **1536 -> 3000 slots**, 2000 -> 2168).
+  Measured, at n = 5 per decode cell: **the engine's own chunk beats a declared 4096 by +7.7-8.3 % prefill** in all three
+  cache-matched groups; **prefill rises +21.4 tok/s per GiB of granted resident budget** (r = 0.58 over 30 arms); **reserve
+  900 beats 2000 by +0.5-4.4 % prefill** through 3000 slots against 2168. **Decode is not resolvable at this n on this
+  pack** - the two best cells repeat to 78.3-99.1 and 72.1-86.3 tok/s, their means 8 % apart with overlapping ranges, and
+  decode rises only 1.5 tok/s per GiB (r = 0.31) against an 18-24 % spread. The lend region was **0 of 1,373-2,541 slots
+  in all 21 arms** and nothing collapsed, because every arm read *"the file cache can keep them"* (8 of 10 read
+  "unbuffered" on 10-26): the 10-26 spread of 4.1-16.6 tok/s decode was the **RAM state**, not the flags, and today the
+  same configurations decode 67.9-99.1. The single **87.0** tok/s row is superseded by 85.8 (2 GiB) and 99.1/88.2
+  (16 GiB). **`STRATA_STAGE_TRIM=1` on a single card changed nothing** (same 3000 slots, same chunk, 547 vs 604 MiB free).
+  Also corrected: **`--resident-budget-gib 16` is a request, not a condition** - it was granted 5.29-10.18 GiB, so the
+  "16 GiB" cells are 6-10 GiB cells. Tables, spreads, the closed 1536 caveat and the `--moe-cache-cpu-share` block are in
+  [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md), "Phase 2, measured" and "Revision 2".
 - **The withdrawn chunk/reserve arms are now proved void from their own logs, and the harness refuses to repeat it.**
   Ten stored engine logs were read back (no engine started): `chunk-8192` and `chunk-16384` both carry
   `prompt chunk N -> 4096 tokens so its buffers fit in every expert cache`, so the "flat triple" was **4096, 4096, 4096**;

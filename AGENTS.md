@@ -1,35 +1,41 @@
 # Local AI lab working instructions
 
-- **2026-10-27, the re-run landed: 16 arms, 0 void, and the 10-26 spread was the RAM state.** GPU held under the
+- **2026-10-27, the re-run landed: 21 arms, 0 void, and the 10-26 spread was the RAM state.** GPU held under the
   coordinator's handoff (image track done), one engine at a time, staged **0.1.47** + **q2_0**, the same 19,769-token
-  prompt, seed 1234, commit + VRAM read before every start. Declared caches came from a probe, not from a round number:
-  **reserve 900 -> 3000 slots, 1536/2000 -> 2168**; 13 design arms + 3 repeats, **no arm voided**. Table, spreads and the
-  two anomalous cells: `CHUNK-LADDER-AND-RESERVE-2026-10-26.md`, "Phase 2, measured".
-  - **THE REPEAT SPREAD IS THE BAR: PREFILL 0.2-1.6 %, DECODE 2.4-12.1 %.** Same cell, same config: prefill 749.2/752.3/
-    756.4, 731.9/720.1, 927.8/921.9, 886.2/884.8; decode 79.0/79.3/77.4, 72.8/70.9, **99.1/88.2**, **84.0/74.4**. So every
-    prefill claim below is resolvable and most decode claims are not - state that, do not average it away.
-  - **THE 10-26 "COLLAPSE" WAS THE FILE CACHE, NOT THE FLAGS.** With the image track finished and **36-40 GiB** of RAM
-    available, **all 16 arms** read *"the file tier reads through the file cache ... can keep them"*, where 8 of 10 arms on
-    10-26 read *"unbuffered"* at 33.6-34.8 GiB; decode today **67.9-99.1** at both resident budgets against **4.1-16.6**
-    yesterday for the same configs. The 87.0 tok/s single row is superseded: **85.8** at 2 GiB and **99.1/88.2** at 16 GiB.
-  - **THE LEND REGION WAS 0 OF 1,373-2,541 SLOTS IN ALL 16 ARMS AND NOTHING COLLAPSED.** The #669 warning fired in every
-    run; the page cache covered the experts, so it is a witness, not a lever. On this pack the lever is the **cache slots**
-    (which set the granted chunk) and the **VRAM headroom**.
-  - **WHAT THE FLAGS ARE WORTH, AT THAT BAR.** The engine's own chunk beats a declared 4096 by **+3.3-7.4 % prefill** in 4
-    of 5 matched cells (it took 8192 at reserve 900, 5632 elsewhere); a **16 GiB** resident budget beats 2 GiB by
-    **+14.5-18.1 % prefill** in 5 of 5 and by **no resolvable decode**; **reserve 900 beats 2000 by +0.5-4.4 % prefill**
-    because it buys 3000 slots against 2168 - the reserve's effect *is* the slot effect (#4261 from the reserve side).
-  - **`STRATA_STAGE_TRIM=1` ON A SINGLE CARD CHANGED NOTHING**: same cell as its pair, cache **2168 = 2168**, chunk
-    **4096 = 4096**, VRAM free with everything loaded **1,673 vs 1,461 MiB**, prefill **+1.5 %** (inside the bar), decode
-    **78.1 vs 78.8**. The #4261 refund is a *split* effect; one card has no stage-buffer share to return.
-  - **A DECLARED `--expert-cache` IS HONOURED OR SHRUNK, NEVER TRADED FOR HEADROOM THE WAY `auto` IS.** At reserve 2000,
-    declared 3000 was granted **2787** and left **731-865 MiB** free -> **137.5/132.8 tok/s prefill**; declared **2168**
-    left **1,624 MiB** -> **731.9**. Same reserve and chunk, **5.3x prefill**. That is what the pre-flight was worth, and
-    why the design's cache now comes from a probe that keeps headroom.
-  - **TWO CELLS KEEP THEIR CAVEAT**: the r1536 arms inherited 2168 slots instead of probing them, both ended a start at
-    **0 MiB free**, and pauto-r1536-res2 read **286.2/2.6 tok/s** under the engine's own `only 0 MiB of VRAM free at the
-    start of this request` (#2065). They are reported, excluded from the effect statements, and the fix is one probe at
-    1536 (1,900-2,000 slots), not a re-run of the sweep.
+  prompt, seed 1234, commit + VRAM read before every start. Declared caches came from probes, not round numbers:
+  **reserve 900 and 1536 -> 3000 slots, 2000 -> 2168**; 21 arms, **none void**. Table, spreads, the closed 1536 caveat and
+  the `--moe-cache-cpu-share` block: `CHUNK-LADDER-AND-RESERVE-2026-10-26.md`, "Phase 2, measured" + "Revision 2".
+  - **DECODE IS NOT RESOLVABLE AT THIS N ON THIS PACK.** Five samples per best cell: `pauto-r900-res16` decode
+    **99.1, 88.2, 79.8, 80.6, 78.3** (mean 85.2, range 24.4 %) against `pauto-r2000-res16` **84.0, 74.4, 77.0, 72.1, 86.3**
+    (mean 78.8, range 18.0 %) - means 8 % apart, ranges overlapped across nearly their whole width. Prefill on the same
+    repeats is 11.8 % / 9.4 % wide and its effects clear that. **Only prefill claims survive; every decode claim of the
+    first pass is withdrawn.**
+  - **THE METRIC THAT DOES MOVE IS THE GRANTED RESIDENT BUDGET, NOT THE REQUESTED ONE.** Across 30 arms prefill rises
+    **21.4 tok/s per GiB** granted (**r = 0.58**), decode **1.5 tok/s per GiB** (**r = 0.31**). `--resident-budget-gib 16`
+    was granted **5.29-10.18 GiB** - it is a request, not a condition, so "16 GiB cells" are 6-10 GiB cells. Compare cells
+    on the grant.
+  - **THE 1536 INHERITANCE WAS WRONG IN BOTH DIRECTIONS.** Probing 1536 gave **3000 slots** (not 2168) and the auto chunk
+    then granted **8192** (not 5632). All five r1536 cells re-run at 3000; both caveat cells closed -
+    `qauto-r1536-res2` now reads **791.6 / 79.8** where the excluded arm read 286.2 / 2.6 under `only 0 MiB of VRAM free
+    at the start of this request`, so that 0 MiB was ambient VRAM, not the cache size. A reserve in a design gets probed
+    at both ends or the column lies.
+  - **CHUNK, CORRECTED AND TIGHTER: the engine's own chunk beats a declared 4096 by +7.7 / +8.1 / +8.3 % prefill** in the
+    three cache-matched groups (3000/1536, 2168/2000, 3000/900), i.e. a consistent ~+8 % rather than the first pass's
+    +3.3-7.4 % in 4 of 5 cells. The one arm that broke that pattern was the under-declared r1536 one.
+  - **RESERVE: 900 beats 2000 by +0.5-4.4 % prefill** because it buys 3000 slots against 2168 - its decode half is
+    withdrawn as unresolved.
+  - **`STRATA_STAGE_TRIM=1` STILL CHANGED NOTHING ON ONE CARD**, re-checked at 3000 slots: same cache, same chunk, VRAM
+    free at end **547 vs 604 MiB** (lower with the trim), and the pair's 810.7 vs 766.9 prefill tracks the resident grant
+    (6.65 vs 5.29 GiB). The #4261 refund is a split effect.
+  - **THE LEND REGION WAS 0 OF 1,373-2,541 SLOTS IN ALL 21 ARMS AND NOTHING COLLAPSED.** The #669 warning fired every
+    time; the page cache covered the experts, so it is a witness, not a lever. The lever is the **cache slots** (which set
+    the granted chunk) and the **VRAM headroom**.
+  - **`--moe-cache-cpu-share` IS BLOCKED, NOT PATCHED.** llama.cpp **#30966** is **OPEN** (mergeable, head
+    `aman/moe-cache-cpu-misses`, 19 files, branch CI `completed/failure`, no artefacts). Our llama.cpp tree is **b10883**
+    and the rows name **b11480**; `strings` finds neither `moe-cache-cpu-share` nor `moe-cache-mib` in the three binaries.
+    A local build needs the **CUDA toolkit installed** first - this box has MSVC 2022 BuildTools but **no
+    `NVIDIA GPU Computing Toolkit\CUDA`** - then ~20-40 min of compile, then the lab's `--version` + sha256 declaration,
+    and the A/B must be PR-base vs PR-head or the flag is confounded with b11480 -> head.
 - **2026-10-27, chunk/reserve repair: the two withdrawn experiments are now proved void from their own logs, and the
   harness refuses to record another arm like them.** CPU and disk only - **no engine, no model, no GPU work**, nothing
   downloaded, the image track kept the GPU. `CHUNK-LADDER-AND-RESERVE-2026-10-26.md` Addendum 2 carries the table.

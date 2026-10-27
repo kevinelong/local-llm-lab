@@ -404,7 +404,93 @@ the run was killed by its deadline during a retry - so its two grants are record
 `chunk-reserve-20261027/preflight-r900-a1.json` (3000 granted, 746.3 / 74.8) and `preflight-r2000-a1.json` (2787 of 3000,
 137.5 / 45.8, 731 MiB free).
 
-The three aggregate JSONs and all 22 per-arm witness files are copied into this repository under
+The aggregates and all per-arm witness files (six batches, 40 files) are copied into this repository under
 `results/2026-10-27/chunk-reserve/` (`chunk-ladder-20261027.json`, `chunk-reserve-20261027-probe.json`,
 `chunk-reserve-20261027-repeats.json`, and `<arm>-a<n>.json`), so the table above can be re-derived from the repository
 without the `ai_bench` tree.
+
+## Revision 2, 2026-10-27: the 1536 caveat is closed at 3000 slots, and decode is not resolvable at this n
+
+Five more starts and six repeats, same engine, same prompt, same protocol, GPU re-checked before every start (1.0-1.6 GiB
+used, 10.2-10.4 GiB free).
+
+### The 1536 probe, and what it changed
+
+`--expert-cache 3000` at reserve 1536 was granted **3000 slots** (not the inherited 2168), with **695 MiB** free at a
+request and **735.5 / 78.7 tok/s**. So the r1536 rows of the first pass were under-declared by **832 slots** - and because
+the granted chunk follows the cache, the auto arms at 1536 had also been held at **5632** when they should have had
+**8192**. All five r1536 cells were re-run at the probed value:
+
+| arm (cache 3000, probed) | chunk asked -> ran | cache | reserve | resident granted | VRAM free at end | prefill | decode | was (at 2168) |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| q4096-r1536-res2 | 4096 -> 4096 | 3000 | 1536 | 2.00 | 681 | 747.5 | 76.9 | 715.3 / 67.9 |
+| q4096-r1536-res16 | 4096 -> 4096 | 3000 | 1536 | **5.29** | 604 | 766.9 | 78.2 | 841.8 / 78.8 (res 10.18) |
+| qauto-r1536-res2 | auto -> **8192** | 3000 | 1536 | 2.00 | 577 | 791.6 | 79.8 | **286.2 / 2.6** (0 MiB free) |
+| qauto-r1536-res16 | auto -> **8192** | 3000 | 1536 | 6.66 | 577 | 856.2 | 76.8 | 627.1 / 90.6 (res 6.23) |
+| q4096-r1536-res16-trim1 | 4096 -> 4096 | 3000 | 1536 | 6.65 | 547 | 810.7 | 86.3 | 854.2 / 78.1 (res 9.93) |
+
+- **Both caveat cells are closed.** `qauto-r1536-res2` reads **791.6 / 79.8** where the excluded arm read 286.2 / 2.6
+  under `only 0 MiB of VRAM free at the start of this request`. The old 0 MiB was not caused by 2168 slots being too
+  many - the same reserve holds 3000 and leaves 473-681 MiB - it was ambient VRAM at that start. The caveat is gone and
+  the rows above replace those rows in every statement below.
+- **The inherited value was not conservative, it was wrong in both directions**: fewer slots *and* a smaller chunk
+  (5632 vs 8192). Probing 1536 was worth more than probing either end.
+- **`--resident-budget-gib 16` is a request, not a condition.** Across the 16 arms that asked for 16 GiB the grant was
+  **5.29-10.18 GiB** (and 5.51-8.84 GiB in the repeats). The complement is sized from the RAM available at load, so the
+  "16 GiB" cells are really "6-10 GiB" cells - which is why they spread the way they do. Every arm records it, and the
+  analysis below is done against the **granted** value.
+
+### Decode, with five samples per cell
+
+`pauto-r900-res16` (cache 3000, chunk 8192) and `pauto-r2000-res16` (cache 2168, chunk 5632), three new interleaved
+repeats each, appended to the two that existed:
+
+| cell | prefill samples (tok/s) | prefill mean / range | decode samples (tok/s) | decode mean / range |
+|---|---|---|---|---|
+| r900, auto, res16 | 927.8, 921.9, 852.8, 824.2, 852.8 | **875.9**, 824.2-927.8 (11.8 %) | 99.1, 88.2, 79.8, 80.6, 78.3 | **85.2**, 78.3-99.1 (**24.4 %**) |
+| r2000, auto, res16 | 886.2, 884.8, 825.5, 806.7, 822.3 | **845.1**, 806.7-886.2 (9.4 %) | 84.0, 74.4, 77.0, 72.1, 86.3 | **78.8**, 72.1-86.3 (**18.0 %**) |
+
+- The cell means are **+3.6 % prefill** and **+8.1 % decode** apart, and the ranges overlap across almost their whole
+  width (decode 78.3-99.1 against 72.1-86.3). **No decode difference survives a 12 % bar: decode is not resolvable at
+  this n on this pack.** The same is true of the reserve's decode contribution in the first pass (70.9-85.8 against
+  70.9-84.0) and of every decode statement that pass made; only its prefill halves are kept.
+- **What the repeats *did* resolve is the covariate.** Across all **30** arms, prefill rises **21.4 tok/s per GiB** of
+  *granted* resident budget (**r = 0.58**), and decode rises **1.5 tok/s per GiB** (**r = 0.31**) - i.e. the decode
+  signal in the resident-budget comparison is real in direction, weak in slope, and buried in a 18-24 % run-to-run
+  spread that tracks the same varying grant. **Prefill is the metric this pack can resolve at n = 5; decode is not.**
+
+### The corrected effect statements
+
+| claim | first pass | corrected |
+|---|---|---|
+| engine's own chunk vs declared 4096 | +3.3-7.4 % prefill, 4 of 5 cells | **+7.7 / +8.1 / +8.3 % prefill** in the three cache-matched groups (1536/3000, 2000/2168, 900/3000) - the pauto-r1536 arm that broke the pattern was the under-declared one and is now fixed |
+| resident budget 2 -> 16 GiB | +14.5-18.1 % prefill, no decode | **+21.4 tok/s prefill per granted GiB (r = 0.58)**, which is the same effect stated in the variable that actually moves; decode **not resolvable** |
+| reserve 900 vs 2000 | +0.5-4.4 % prefill via 3000 vs 2168 slots | unchanged for prefill; its decode half **withdrawn** as unresolved |
+| `STRATA_STAGE_TRIM=1` on one card | nothing, inside the bar | **nothing** - re-checked at 3000 slots: same cache (3000), same chunk (4096), and its VRAM free at end is **547 vs 604 MiB**, *lower*; the pair's 810.7 vs 766.9 prefill difference tracks the resident grant (6.65 vs 5.29 GiB), not the trim |
+| lend region | 0 of 1,373-2,541 in all arms | unchanged: **0 in all 21 arms now**, including the five re-runs |
+
+**The one-sentence answer stands, with its decode clause removed: on this pack, once the file cache can keep the experts,
+neither the chunk nor the reserve changes anything except through the expert-cache slots they buy - the engine's own
+chunk is worth +8 % prefill, a 3000-slot reserve +0.5-4.4 % over 2168, and a granted resident budget +21 tok/s per GiB
+(higher in prefill, unresolvable in decode) - while the lend region stays empty in every arm and was never the lever.**
+
+### `--moe-cache-cpu-share`: blocked, and the exact prerequisite
+
+Not started, and not patched. **llama.cpp #30966**, *"llama_moe_cache: run missed experts on CPU, add tuning script"*, is
+**OPEN** as of 2026-10-27T17:10Z: `state OPEN, mergedAt null, mergeable MERGEABLE`, 19 files, head
+`aman/moe-cache-cpu-misses`, base `master`. Its CI run for that branch is `completed/failure` (gpu-vulkan-apple,
+-intel-linux, -intel-windows, -nvidia-cm, -nvidia-cm2 fail; Lint and build-cmake-pkg pass) and it publishes **no
+artefacts**, so there is no binary to download.
+
+The builds we hold cannot answer it: the local `ai_bench/llamacpp` tree is **b10883** (from
+`llama-b10883-bin-win-cuda-13.3-x64.zip`, 2026-09-24) and `strings` finds **neither `moe-cache-cpu-share` nor
+`moe-cache-mib`** in `llama-server.exe`, `llama-cli.exe` or `llama-bench.exe`; the rows that name a build name **b11480**.
+Newest prebuilt tag today is **b11936** (2026-10-27T20:11Z), and a released tag cannot contain an unmerged PR.
+
+**Prerequisite, in order:** (1) the PR must merge, then the next prebuilt tag after it is the declared build, or
+(2) a local build from `aman/moe-cache-cpu-misses`, which needs the **CUDA toolkit installed first** - this box has MSVC
+2022 BuildTools (`C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools`) but **no
+`NVIDIA GPU Computing Toolkit\CUDA` directory**, so a CUDA build starts with a ~3 GB toolkit download and an install,
+then ~20-40 min of compile. (3) Either way the lab's rule applies: declare `--version` + sha256 for the new binary. And a
+flag A/B must be **PR-base vs PR-head, both declared**, because our rows name b11480 and a branch build would confound the
+flag with every change between b11480 and the branch head.
