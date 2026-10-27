@@ -24,7 +24,20 @@ This is a working lab notebook, not a product. Numbers are from one machine - "D
 is called - so treat them as directional. Licence:
 [FSL-1.1-MIT](#license) - source-available, **not** OSI open source.
 
-## 0. Where this stands on 2026-10-26
+## 0. Where this stands on 2026-10-27
+
+- **The withdrawn chunk/reserve arms are now proved void from their own logs, and the harness refuses to repeat it.**
+  Ten stored engine logs were read back (no engine started): `chunk-8192` and `chunk-16384` both carry
+  `prompt chunk N -> 4096 tokens so its buffers fit in every expert cache`, so the "flat triple" was **4096, 4096, 4096**;
+  all ten arms had **0 experts of the prompt's lend region in RAM** (717-2,541 slots lent, none resident); the reserve was
+  honoured in every arm (900/2000 MiB as asked, so #4134 did not bite here); and the only two arms the engine recorded as
+  *"the file cache can keep them"* are the only two above **20 tok/s decode** (23.1 and 87.0) - the other eight read
+  unbuffered and landed at 4.1-16.6. Corrected again by the same readback: the failed 16 GiB repeat started with 131 MiB
+  less `nvidia-smi` VRAM than its twin but sized `-> 0 slots` from **1.28 GiB** free against **5.54 GiB**, and it had
+  *more* commit free (13.6 vs 4.3 GiB left) - a 0-slot start is a start failure to re-run, not a VRAM verdict. The gate
+  (four void rules + commit cooldown + per-arm JSON) and the pre-registered 13-arm interleaved design are in
+  [CHUNK-LADDER-AND-RESERVE-2026-10-26.md](CHUNK-LADDER-AND-RESERVE-2026-10-26.md), Addendum 2. **Phase 2 has not been
+  started** - the GPU is the image track's until the coordinator hands it over.
 
 - **The two-week audit is written down.** [SHORTLIST-2026-10-26-untried.md](SHORTLIST-2026-10-26-untried.md)
   reconciles **12 scans (10-14 to 10-26) against 9 executed items** and lists what is left, ranked by leverage per
@@ -60,9 +73,10 @@ is called - so treat them as directional. Licence:
 - **Two claims from the image side were corrected today**, and both had been assumptions in every row: a **negative
   prompt is inert** at cfg 1.0 on distilled models (byte-identical output), and the **sampler is load-bearing for
   text** (`euler`/`simple` 0.75 OCR exact against `dpmpp_2m`/`karras` 0.25 on the same seed).
-- **The lab's cheapest open items remain unrun**, in this order: the chunk ladder, `--moe-cache-cpu-share` at two
-  rungs, `--vram-reserve-mib` 900 vs 1536, the cold-vs-cold expert pair (four shortlists old), and the cliff test.
-  The Strata bump to 0.2.6/0.1.50 is still **gated on Kevin** (120 pinned digests, eight declarations).
+- **The lab's cheapest open items remain unrun**, in this order: the 13-arm chunk/reserve design above (written, gated,
+  and queued behind the image track's GPU handoff), `--moe-cache-cpu-share` at two rungs, `--vram-reserve-mib` 900 vs 1536
+  (inside that same design now, at two resident budgets), the cold-vs-cold expert pair (four shortlists old), and the
+  cliff test. The Strata bump to 0.2.6/0.1.50 is still **gated on Kevin** (120 pinned digests, eight declarations).
 
 ## 1. What we would run today
 

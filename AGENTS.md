@@ -1,5 +1,37 @@
 # Local AI lab working instructions
 
+- **2026-10-27, chunk/reserve repair: the two withdrawn experiments are now proved void from their own logs, and the
+  harness refuses to record another arm like them.** CPU and disk only - **no engine, no model, no GPU work**, nothing
+  downloaded, the image track kept the GPU. `CHUNK-LADDER-AND-RESERVE-2026-10-26.md` Addendum 2 carries the table.
+  - **THE VOID ARMS, READ BACK.** Ten `logs/chunk-*.log` re-read by one command (`chunk_ladder.py --forensics`):
+    `8192 -> 4096` and `16384 -> 4096` clamp lines (#4261), **all ten arms 0 of 717-2,541 lend slots in RAM** (#669),
+    auto sizing 862-3,565 slots against grants of 862-3,049 (the shrink line names the MiB left after the reserve), the
+    reserve honoured in all ten (`900`/`2000` MiB as asked - #4134 did not bite), and **only the two arms the engine called
+    *"the file cache can keep them"* cleared 20 tok/s decode (23.1, 87.0) against 4.1-16.6 for the eight unbuffered
+    ones.** The lend region tracks the grant at ~0.83 of it in every arm, which is #4261's mechanism in our own logs: the
+    reserve sets the cache, the cache sets the chunk, the chunk sets the prompt read.
+  - **THE 16 GiB REPEAT DIED ON VRAM, NOT COMMIT - CORRECTED AGAIN.** res16a/res16b started 131 MiB apart by `nvidia-smi`
+    (11,126 / 10,995 MiB) and the engine then saw **5.54** vs **1.28 GiB** free after its own loads; the arm that sized
+    `-> 0 slots` is the one with **more** commit left (13.6 vs 4.3 GiB). `nvidia-smi` free before a start does not predict
+    what the engine sees, and a 0-slot start is a start failure to re-run (#4134's reading). Host commit is still a real
+    covariate for a page-locked 10 GiB arm - that arm ended at 4.3 GiB of a 68.1 GiB limit with the engine's own
+    `0xC0000409` (#1607) warning - so the cooldown stays.
+  - **THE GATE, IN ONE FILE.** `ai_bench/staged-strata-0.1.47/control/chunk_ladder.py` now marks an arm **VOID** (and
+    keeps `"result": null`, re-queuing the arm behind the others) when (1) a clamp or a granted chunk differs from the
+    declared `--prefill`, (2) the lend region had 0 experts in RAM **and** the file tier was unbuffered, (3) the granted
+    `expert cache N slots` differs from a declared `--expert-cache`, (4) the engine ran a reserve other than the declared
+    `--vram-reserve-mib`; start failures (`session state allocation failed`, `-> 0 slots`) are always void. 0-lend with
+    *"the file cache can keep them"* is a warning, not a void, because the engine fires the #669 warning **before** it
+    builds the RAM copy (res16a at 10.09 GiB resident is that case) - both lines are in every arm's JSON. Declaration is
+    read from the engine's **own argv echo**, every attempt writes its own JSON, and a **commit cooldown** (CIM
+    `TotalVirtualMemorySize`/`FreeVirtualMemory` back to its pre-run value, up to 300 s) precedes every start.
+  - **THE DESIGN IS PRE-REGISTERED AND NOT STARTED.** `--plan phase2`: 13 arms, chunk 4096 vs auto x reserve
+    900/1536/2000 x resident 2/16 GiB, interleaved 2,16,2,16,..., every arm declaring `--expert-cache 3000` so ambient
+    VRAM cannot pick the arm, plus one `STRATA_STAGE_TRIM=1` arm paired with the cell it sits next to. Per-arm JSONs at
+    `ai_bench/chunk-reserve-20261027/<arm>-a<n>.json`. The 2 GiB rows are **expected** to be VOID on rule 2 - that is the
+    answer to why the ladder read flat - so the measurable cells are the 16 GiB ones. **Waits for the coordinator's GPU
+    handoff.** The single 87.0 tok/s row at 10.09 GiB resident is still not a result.
+
 - **2026-10-27, daily scan: the prompt chunk borrows from the expert cache, and the cache has a published break-even
   rule our own ladder already brackets.** `NEWS-2026-10-27.md`, written against `NEWS-2026-10-26.md`, window
   **2026-10-26T14:30Z -> 2026-10-27T14:30Z** (24.0 h). Reading only - nothing downloaded, installed, built or run, no

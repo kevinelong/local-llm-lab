@@ -139,3 +139,128 @@ Every arm had **0 experts of the lend region in RAM**, and the lend region itsel
 (`lends S slots ... only R fit in RAM`), granted resident GiB, granted cache slots, and the reserve as the engine reports
 it - #4134 says the engine sometimes ignores `--vram-reserve-mib`, and that `session state allocation failed` is a start
 failure rather than a VRAM shortage.
+
+## Addendum 2, 2026-10-27: the ten void arms, tabulated from their own logs, and the gate that stops the next ones
+
+No engine was started for this section. The table below is read from the ten stored logs under
+`ai_bench/staged-strata-0.1.47/logs/chunk-*.log` by one command, which is now part of the harness rather than a
+throwaway grep:
+
+```
+cd C:\Users\kevin\ai_bench\staged-strata-0.1.47\control
+.\python\python.exe chunk_ladder.py --forensics --forensics-json <each ai_bench result json> --out table.md
+```
+
+It reads the same lines every future arm must read back: the clamp (`prompt chunk N -> M tokens so its buffers fit`,
+#4261), the lend region (`lends S cache slots ... only R of their experts fit in RAM`, #669), the auto sizing line
+(`expert cache auto: X GiB free -> N slots`), the granted cache (`expert cache N slots`), the granted resident budget
+(`resident RAM mode: N GiB`), the file-tier verdict (`the file cache can/cannot keep them`) and `Windows commit:`.
+Throughput columns are joined in from the stored result JSONs by log name, so a row shows what was measured beside what
+was granted.
+
+| log | chunk asked -> ran | lend slots (in RAM) | cache auto -> granted | reserve MiB | resident GiB | file tier | commit GiB left | prefill tok/s | decode tok/s | gate |
+|---|---|---|---|---|---|---|---|---|---|---|
+| chunk-4096.log | 4096 -> 4096 | 1373 (0) | 2731 -> 1971 | 2000 | 2.00 | unbuffered | 8.7 | 460.5 | 4.1 | VOID: lend 0/1373 in RAM, file tier unbuffered |
+| chunk-8192.log | 8192 -> **4096** | 1373 (0) | 2731 -> 1937 | 2000 | 2.00 | unbuffered | 8.9 | 717.1 | 13.9 | VOID: clamped 8192 -> 4096; lend 0/1373 |
+| chunk-16384.log | 16384 -> **4096** | 1373 (0) | 2731 -> 1919 | 2000 | 2.00 | unbuffered | 8.8 | 702.9 | 12.9 | VOID: clamped 16384 -> 4096; lend 0/1373 |
+| chunk-default2000.log | auto -> 5120 | 1665 (0) | 2731 -> 1982 | 2000 | 2.00 | unbuffered | 8.4 | 825.4 | 13.5 | VOID: lend 0/1665 |
+| chunk-fixed2000.log | auto -> 5632 | 1811 (0) | 2731 -> 2168 | 2000 | 2.00 | through the file cache | 8.7 | 438.7 | **23.1** | ok (lend 0, page-cached) |
+| chunk-r900.log | auto -> 8192 | 2541 (0) | 3565 -> 3049 | 900 | 2.00 | unbuffered | 7.5 | 984.4 | 16.6 | VOID: lend 0/2541 |
+| chunk-r900a.log | auto -> 7936 | 2468 (0) | 3565 -> 2907 | 900 | 2.00 | unbuffered | 7.6 | 987.0 | 16.4 | VOID: lend 0/2468 |
+| chunk-r900b.log | auto -> 1792 | 717 (0) | 862 -> 862 | 900 | 2.00 | unbuffered | 10.0 | 122.6 | 7.6 | VOID: lend 0/717 |
+| chunk-res16a.log | auto -> 5632 | 1811 (0) | 2731 -> 2168 | 2000 | **10.09** | through the file cache | 4.3 | 493.8 | **87.0** | ok (lend 0, page-cached) |
+| chunk-res16b.log | auto -> none | none | 862 -> **0** | 2000 | none | through the file cache | 13.6 | - | - | VOID: start failure, 0 slots |
+
+Shrink witness, where the granted slots are below the auto sizing (the engine's own line):
+`only 97 MiB free once the slots are written (reserve 900 MiB); shrinking the expert cache` (r900a), `1322 MiB` at
+reserve 2000 (fixed2000/res16a), `284 MiB` (r900). The auto line is a sizing *proposal*; `expert cache N slots` is the
+grant.
+
+### What the table settles, row by row
+
+- **The "flat triple" was 4096, 4096, 4096 - and the third rung was not even the same arm.** 8192 and 16384 both ran at
+  4096; the 4096 arm ran as asked. Correction 2 is confirmed mechanically, not by memory.
+- **Every one of the ten arms had 0 experts of the lend region in RAM** - 717 to 2,541 slots lent, none resident. At the
+  config's 2 GiB the lend region loses every time, because `--resident-budget-gib` fills the ranked experts first and the
+  lend region comes after (the engine says so in the warning's own last clause).
+- **The reserve was honoured in every arm.** 900 MiB reserved at r900/r900a/r900b, 2000 MiB at the rest: #4134's
+  "sometimes ignored" did not bite yesterday on this engine, and the readback that proves it is one regex on the same
+  line. It is now a gate rule anyway, because a reserve arm whose reserve was ignored is not a reserve arm.
+- **`--expert-cache auto` was never a "declared 3,000": the sizing proposal moved 862-3,565 slots and the grant 862-3,049,
+  and the difference is the reserve, not the cache.** The lend region tracks the grant almost exactly (3049 -> 2,541,
+  2,907 -> 2,468, 2,168 -> 1,811, 862 -> 717), which is the #4261 mechanism in our own logs: the chunk a prompt may
+  borrow is the cache, so the reserve decides the chunk, and the chunk decides the prompt read.
+- **The file-tier verdict, not the flags, separates the fast rows from the slow ones.** The two arms the engine recorded as
+  *"reads through the file cache"* are the only two with decode above 20 tok/s (23.1 and 87.0); all eight *"unbuffered"*
+  arms are 4.1-16.6. This is the covariate the withdrawal named, and it now has a column.
+- **Correction to the earlier addendum: the failed 16 GiB repeat was VRAM at the sizing step, not the commit.** res16a and
+  res16b started with **11,126** and **10,995 MiB** free by `nvidia-smi` (131 MiB apart) and the engine then found
+  **5.54 GiB** and **1.28 GiB** free after its own loads; the arm with **more** commit free (13.6 GiB left) is the one that
+  sized `-> 0 slots`. So `nvidia-smi` free before a start does not predict what the engine sees, and a 0-slot start is a
+  start failure to re-run (#4134's reading), not a measurement. The commit cooldown is still implemented, because the
+  successful 16 GiB arm **ended at 4.3 GiB of a 68.1 GiB limit** and the engine warned its exit code `0xC0000409` mode
+  (#1607) - host commit is a real covariate for a page-locked 10 GiB arm, just not the cause of that particular failure.
+
+### The harness now refuses to record a void arm as a result
+
+`ai_bench/staged-strata-0.1.47/control/chunk_ladder.py` (one file, stdlib only; the staged interpreter runs it). After
+each arm it re-reads that arm's log and marks the arm **VOID** when any of these holds, with the reason text stored:
+
+1. **the request did not run**: a clamp line whose target differs from a declared `--prefill`, or a granted chunk
+   (`prompt chunk auto: N`) that differs from it;
+2. **the lend region had 0 experts in RAM and the file tier was unbuffered** - the #669 condition, i.e. the arm measured
+   the disk. 0 in RAM with *"the file cache can keep them"* is recorded as a warning, not a void, because the engine emits
+   the #669 warning **before** it builds the RAM copy (logs/chunk-res16a.log fires it at 10.09 GiB resident while the page
+   cache covers the set); both lines are in every arm's JSON so the distinction is auditable, not asserted;
+3. **the granted cache slots differ from a declared `--expert-cache`** (the "granted 2,168 of 3,000" failure, now a hard
+   gate);
+4. **the engine ran a reserve other than the declared `--vram-reserve-mib`** (#4134), and a start failure
+   (`session state allocation failed`, `needs the profile-filled VRAM expert tier`, `-> 0 slots`) is always a void.
+
+A void arm keeps `"result": null`, its reasons, and its readback; it is re-queued behind the other arms up to
+`--max-retries` (default 2) instead of being reported; the aggregate JSON separates `results` from `void`. Every attempt
+writes its own file, so a re-run never overwrites the arm it replaced. Also added: a **commit cooldown** before every
+start (`Get-CimInstance Win32_OperatingSystem` -> `TotalVirtualMemorySize` / `FreeVirtualMemory`, held until free commit
+is back to its pre-run value, up to `--cooldown-s`, default 300 s), the port rotating 8091/8092/8093 so a dying engine
+cannot shadow the next start, and the per-arm declaration read from the engine's **own argv echo** rather than from the
+harness's intent.
+
+Its own checks, run today, start no engine: `--forensics` reproduces the table above from the stored logs, and the gate
+was exercised on synthetic readbacks (declared cache 3,000 granted 2,907 -> void; reserve 1,536 run at 900 -> void;
+`--prefill 8192` clamped to 4096 -> void; 0 slots -> void; 0-lend page-cached -> ok with warning).
+
+### The re-run design, written down and not started
+
+`chunk_ladder.py --plan phase2`. Thirteen arms, **interleaved 2, 16, 2, 16 ...** so no resident budget is measured
+twice in a row, every arm declaring `--expert-cache 3000` and its own `--vram-reserve-mib` so ambient VRAM cannot choose
+the arm, and each start behind the commit cooldown:
+
+| # | arm | prefill | reserve MiB | resident GiB | cache | env |
+|---|---|---|---:|---:|---:|---|
+| 1 | `p4096-r900-res2` | 4096 | 900 | 2 | 3000 | |
+| 2 | `p4096-r900-res16` | 4096 | 900 | 16 | 3000 | |
+| 3 | `p4096-r1536-res2` | 4096 | 1536 | 2 | 3000 | |
+| 4 | `p4096-r1536-res16` | 4096 | 1536 | 16 | 3000 | |
+| 5 | `p4096-r2000-res2` | 4096 | 2000 | 2 | 3000 | |
+| 6 | `p4096-r2000-res16` | 4096 | 2000 | 16 | 3000 | |
+| 7 | `pauto-r900-res2` | auto | 900 | 2 | 3000 | |
+| 8 | `pauto-r900-res16` | auto | 900 | 16 | 3000 | |
+| 9 | `pauto-r1536-res2` | auto | 1536 | 2 | 3000 | |
+| 10 | `pauto-r1536-res16` | auto | 1536 | 16 | 3000 | |
+| 11 | `pauto-r2000-res2` | auto | 2000 | 2 | 3000 | |
+| 12 | `pauto-r2000-res16` | auto | 2000 | 16 | 3000 | |
+| 13 | `p4096-r1536-res16-trim1` | 4096 | 1536 | 16 | 3000 | `STRATA_STAGE_TRIM=1` |
+
+Artifacts, per arm and per attempt: `ai_bench/chunk-reserve-20261027/<arm>-a<attempt>.json` (declaration, readback,
+timings, void verdict), the engine log `ai_bench/staged-strata-0.1.47/logs/chunk-<arm>.log`, and the aggregate
+`ai_bench/chunk-ladder-20261027.json`. Expected: the 2 GiB rows are **expected to be VOID on rule 2** (at 2 GiB the lend
+region has never had an expert in RAM and the file tier has read unbuffered in 8 of 10 arms) - that is the answer to
+why the ladder read flat, not a failure of the run; the 16 GiB rows are the ones that can be results, and they are where
+900 vs 1536 vs 2000 is measurable, because the reserve moves the cache 3,565 vs ~2,731 slots with the page cache holding
+the set. Arm 13 is the reporter's trim on a **single** card, quoted against arm 4: it must move VRAM-free, granted slots
+and the chunk, or it says the split report does not transfer. If the declared `--expert-cache 3000` is granted short in
+two attempts of the same cell, that cell is re-run with `cache=auto` under a `-cacheauto` label and the change is
+reported - the arm is relabelled rather than the gate relaxed.
+
+**Status: written, checked, not started.** Phase 2 needs the GPU, which the image track holds; it begins only on the
+coordinator's handoff, and no engine, model or GPU workload was started today.
