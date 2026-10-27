@@ -41,7 +41,13 @@ is called - so treat them as directional. Licence:
   sweeps above were noise: they were measuring the file cache, not the flag. **Not a result yet** - n=1, and the repeat
   failed to start because the previous engine's commit had not been released. Establishing it needs n>=3 **interleaved**
   arms with a commit cooldown, recording granted resident GiB, granted cache slots and the file-cache verdict per arm.
-- **The chunk ladder and the reserve sweep are WITHDRAWN, because the pack's own noise is bigger than both effects.**
+- **The chunk ladder and the reserve sweep are withdrawn for a mechanical reason, found the next morning.** The engine
+  log carries `prompt chunk 8192 -> 4096 tokens so its buffers fit in every expert cache` for both the 8192 and 16384
+  rungs: **the ladder measured one arm three times**, which is why it was flat to 2 %. The variance had its own cause -
+  every arm had **0 experts of the prompt's lend region in RAM** (the engine warns prompts then read ~3x slower, #669),
+  and the lend region moved from 2,468 slots to 717 between two identical reserve arms. Both effects are unmeasured, and
+  the engine names the fix: a larger `--resident-budget-gib`, or `STRATA_STAGE_TRIM=1`.
+- **The earlier noise framing was wrong.**
   An identical arm repeated (`--vram-reserve-mib 900`, same config and prompt) returned prefill **987.0** and **122.6**
   tok/s - **8.1x** apart - and across all twelve arms today prefill spans **122.6-987.0** and decode **4.1-23.1**. Any
   flag effect under that is unmeasurable. Cause, in the engine's own words: only **2 GiB** of experts are resident and

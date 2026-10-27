@@ -104,3 +104,38 @@ sequential arms on this pack contaminate each other through **RAM and commit**, 
 `Windows commit` returns to its starting value, recording per arm the granted resident GiB, the granted cache slots and
 the `file cache can keep them` line. The 87 tok/s row is a single arm and is **not** a result yet - it is the reason to
 run that experiment.
+
+## Correction 2, 2026-10-27: it was not noise - the ladder measured one arm three times
+
+`NEWS-2026-10-27.md` §2.1 (#4261) says the prompt chunk is capped by expert-cache slots **and that the engine prints the
+clamp**. The stored logs from yesterday answer it without starting an engine:
+
+```
+chunk-8192.log   : strata serve: prompt chunk 8192 -> 4096 tokens so its buffers fit in every expert cache
+chunk-16384.log  : strata serve: prompt chunk 16384 -> 4096 tokens so its buffers fit in every expert cache
+chunk-4096.log   : (no clamp line)
+```
+
+**8192 and 16384 were both executed at 4096.** The "flat triple" was not noise and not a near-miss: it was the same arm
+three times, which is why it was flat to within 2 %. The withdrawal above stands, but its stated reason was wrong.
+
+The second log line names the variance instead:
+
+```
+strata generate: WARNING: a prompt chunk of N tokens lends S cache slots to the prompt path, but only 0 of their experts
+fit in RAM: the others are read from the SSD on every chunk, and prompts can read ~3x slower than with --prefill auto
+(#669). A larger --resident-budget-gib ... keeps them all in RAM
+```
+
+Every arm had **0 experts of the lend region in RAM**, and the lend region itself moved (2,468 slots in r900a against
+717 in r900b) - which is exactly the 987.0-vs-122.6 repeat, and matches the engine's own "~3x slower" warning. So:
+
+- **the chunk effect is unmeasured**, because asking for more chunk than the cache can lend is silently rounded down;
+- **the reserve effect is unmeasured**, because the arm is dominated by whether the lend region fits in RAM;
+- the engine names both fixes: a larger `--resident-budget-gib`, or `STRATA_STAGE_TRIM=1` (the reporter's box: VRAM free
+  for the cache 3.00 -> 5.54 GiB, slots 1,128 -> 2,115, chunk 5,376 -> 8,192).
+
+**What any re-run must read back per arm, from the log:** the clamp line (`prompt chunk N -> M`), the lend-region line
+(`lends S slots ... only R fit in RAM`), granted resident GiB, granted cache slots, and the reserve as the engine reports
+it - #4134 says the engine sometimes ignores `--vram-reserve-mib`, and that `session state allocation failed` is a start
+failure rather than a VRAM shortage.
