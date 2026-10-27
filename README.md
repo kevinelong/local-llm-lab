@@ -578,6 +578,26 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-27 &middot; [Daily news scan: the prompt chunk is a borrowed resource, and the expert cache has a published break-even rule our own rows bracket](NEWS-2026-10-27.md)**
+&ndash; a **24.0 h** window (2026-10-26T14:30Z &rarr; 14:30Z today). Yesterday's "the chunk is a silent 2-6x lever"
+gained its mechanism and it is a **clamp**, not a setting: Strata **#4261**, on an **RTX 5070 12 GB** plus a 5060 Ti,
+quotes the engine's own line &ndash; `prompt chunk 5376, not 8192: CUDA1 has 1128 expert-cache slots, and an 8192-token
+chunk borrows 1128 of them` &ndash; and `STRATA_STAGE_TRIM=1` returning **2.54 GiB** moved the cache **1,128 &rarr;
+2,115 slots**, the chunk **5,376 &rarr; 8,192** and decode **46.2 &rarr; 53.9 tok/s**. A YouTube video (**Kai,
+2026-10-22**, second-hand) states the same threshold in other units: a cache helps only past **about a quarter of the
+model's expert bytes**, break-even near an **85 % hit rate**, with every under-sized arm slower than no cache &ndash;
+and applied to our pack's **16.875 GiB** of expert tensors that quarter is **4,320 MiB**, which is exactly where our own
+ladder tops out (**5,376 MiB = 31 %**, 82.7-83.6 tok/s, +75 %). Its 85 % figure is **untestable against our rows**
+because b11480 prints no cache line &ndash; which is itself the finding, and a new shortlist item. Also: three new
+long-run failure modes with usable signatures (**#4304** non-finite logits after 2 d 23 h across ~2,800 requests with a
+**5-token short-read tail**; **#4284** a **25K-token deadlock** where `/v1/models` still says *loaded*; **#4299** raw
+tool-call markup on 0.1.50); llama.cpp merged **29 PRs** and its two loudest findings are negatives &ndash; the
+**Windows prebuilt-lag report (#31085) is disputed in its own thread** by a reader who finds differing checksums, and
+**#30848** closed with a protected-set **ramp from 0 % at 1x a token's experts to 50 % at 1.8x**, the same threshold as
+the video; **ComfyUI v0.43.0** shipped **Dynamic VRAM KV caches part I** plus a **pinned-buffer steal race** fix whose
+reproduction conditions are *"low VRAM and low RAM"* on Windows. **Reddit returned HTTP 403** from every endpoint and
+carries no item today; arXiv advanced to the **2026-10-26** batch (**91 cs.CL + 167 cs.LG**).
+
 **2026-10-26 &middot; [Daily news scan: the prompt chunk is a 2-6x lever the engine now moves silently, and 0.1.50 fixed the regression filed against it](NEWS-2026-10-26.md)**
 &ndash; a **24.0 h** window (2026-10-25T14:30Z &rarr; 14:30Z today), and three independent reports land on one
 knob: **prefill chunk size**. On an RTX 5090 D 24 GB, **`--prefill-chunk 16384` reads a 7,302-token prompt at

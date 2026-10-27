@@ -1,5 +1,139 @@
 # Local AI lab working instructions
 
+- **2026-10-27, daily scan: the prompt chunk borrows from the expert cache, and the cache has a published break-even
+  rule our own ladder already brackets.** `NEWS-2026-10-27.md`, written against `NEWS-2026-10-26.md`, window
+  **2026-10-26T14:30Z -> 2026-10-27T14:30Z** (24.0 h). Reading only - nothing downloaded, installed, built or run, no
+  engine started, no inference, no benchmark, **`ai_bench` untouched**. WSL started for `yt-dlp` (DNS working, second
+  run in a row), two caption sets and two metadata calls fetched as text.
+  - **THE CHUNK IS A CLAMPED, BORROWED RESOURCE, AND THAT IS THE DAY'S MECHANISM.** Strata **#4261**
+    (2026-10-26T21:31:53Z, updated 2026-10-27T11:02:04Z, **RTX 5070 12 GB + 5060 Ti 16 GB**, self-built 0.1.51 with
+    `CMAKE_CUDA_ARCHITECTURES=120`, Qwen3.8 NVFP4 119.17 GiB, 262K, `--kv int8`): the engine prints
+    **`WARNING: prompt chunk 5376, not 8192: CUDA1 has 1128 expert-cache slots, and an 8192-token chunk borrows 1128 of
+    them`**. `STRATA_STAGE_TRIM=1` returned **2.54 GiB**, cache **1,128 -> 2,115 slots (+87 %)**, chunk
+    **5,376 -> 8,192**, decode **46.2 -> 53.9** (prompt 1,567.7 -> 2,180.4); `STRATA_ARENA_PIN_GIB=40` before that;
+    a Cyrillic draft vocabulary then **67.0**. Author's generalisation: *"on a split the prompt chunk of every card is
+    clamped to what the smallest cache can lend."* Split sweep K=24/26/28 -> **49.4 / 52.8 / 54.2**. **Consequence for
+    us: the withdrawn chunk ladder (`1ceeaa6`, `fef955c`) may have been measuring a clamped constant, and the clamp
+    prints a line we never grepped for** - cheapest item on today's shortlist, minutes, read-only.
+  - **THE EXPERT CACHE HAS A PUBLISHED BREAK-EVEN RULE, AND OUR OWN DATA BRACKETS IT.** **[YT]** Kai,
+    *"llama.cpp Just Made 125B MoE Models 4x Faster!"*, uploaded **2026-10-22**, 1,712 s, second-hand: a cache helps
+    only when it holds **~a quarter of the model's expert bytes** (*"around 16 GB"* of Flash-Next's *"~65 GB"* at
+    4-bit), break-even near an **85 % hit rate**, and every under-sized arm is *slower than no cache* - 4060 8 GB 1.5 GB
+    cache **23.4 -> 15** (2 GB -> **13.4**, prompt **45 -> 23**), 12 GB 3060 8 GB cache **32 -> 12**, 4070 Super 12 GB
+    **14.8 -> 12.9 (4 GB) -> 11 (2 GB)**, an 80B with a 0.5 GB cache **-24 %**; plus three separated speedups (vendor
+    **2.2x** vs whole-layer placement, **1.55x** experimental branch vs merged, the two causes being pinned memory
+    **9 vs 24 GB/s / 49.4 -> 58.1** and the routing loop *"13-14 ms of a 17-19 ms token"*). **Substituting our pack's
+    16.875 GiB of expert tensors, a quarter is 4,320 MiB** - our top rung **5,376 MiB = 31 %** (82.7-83.6 tok/s, +75 %)
+    and the rung below **4,096 = 24 %**; the knee lands where our ladder already put it. **The 85 % claim is NOT
+    testable against our rows: b11480 prints no MoE-cache line at all** (2026-10-20 note), which is why VRAM readback
+    became our engagement proof. Test = a build that logs the cache, same ladder, hit rate per rung.
+  - **THREE NEW LONG-RUN FAILURE MODES, EACH WITH A SIGNATURE THE RUNNER CAN DETECT.** **#4304** (2026-10-27T11:51:23Z,
+    sm_86 RTX 3090, UD-Q4_K_XL, 0.1.51): after **2 d 23 h / ~2,800 requests** the first prompt at **61,552 tokens**
+    returned non-finite logits, and **from then on every prompt over ~20K failed while short ones answered**; restart
+    cleared it. Tell: **5 tokens held back** (`61,547 of 61,552`) - *"the same short-read tail signature reported in
+    #3465"* - and the automatic retry also stops 5 short. **#4284** (2026-10-27T05:41:23Z, 0.1.48, RTX 5080 sm_120):
+    **~25K-token deadlock**, `/v1/chat/completions` never returns, **`/v1/models` still says `loaded`**, process
+    busy-loops **350 % CPU** - a liveness probe on `/v1/models` cannot see it. **#4299** (2026-10-27T10:43:36Z):
+    raw `<tool_use><parameter=name>...` in content on **0.2.6/0.1.50** - our bump target - with no environment block.
+  - **THE WINDOWS PREBUILT-LAG REPORT IS DISPUTED IN ITS OWN THREAD, AND THAT MATTERS MORE THAN THE CLAIM.**
+    **#31085**: version strings from b11846/b11849/b11852 all read **build 11828, commit `d814cbb88`**; then
+    **b11889 -> build 11871**, then five consecutive tags (b11889/b11900/b11912/b11918/b11923) all **11871**, with
+    **win-cpu frozen too** and a `release.yml` explanation (windows-cuda compiles only `ggml-cuda` and injects the
+    server from the windows-cpu zip). **CISC, 2026-10-27T10:37:38Z: checksums and sizes do differ; *"your identical
+    version output is likely due to an old DLL in path."*** Unresolved, one rebuttal, no maintainer ruling. Our staged
+    `b11480` already records `--version` -> **build 11480, commit `d6cf9acb2`**, which is the check that settles it:
+    **declare `--version` + sha256 for every staged Windows CUDA build**. Newest tag today **b11932
+    (2026-10-27T14:04:01Z)**; **29 PRs merged** in the window.
+  - **THE SMALL-CACHE FIX CLOSED, AND ITS THRESHOLD IS THE VIDEO'S THRESHOLD IN OTHER UNITS.** **#30848**, closed
+    **2026-10-27T12:13:04Z**: instead of the hard LRU->SLRU cutover (#30637, b11732) the protected set now **ramps 0 %
+    at 1x a token's experts to 50 % at 1.8x**, because *"performance craters if a full token's experts don't fit in the
+    unprotected set"*; 1.8x is a conservative bound over several models. **Every rung we have is in this regime and was
+    measured on LRU (b11480)** - so the ladder wants re-running on a build that contains it. **#31233** (ClassLRU,
+    +6 % QFN / +7 % GLM, 8 % fewer uploads) exists but its reviewer says *"wait for #30966"*. **#31220** reports
+    **spec-decode throughput dropping after #31086** on DGX Spark, reproducing at `--temp 0` - the fifth
+    numerics/scheduling merge in a week that moves a drafting number, so MTP rows still cannot cross a build boundary.
+  - **STRATA'S `--parallel` TAX GOT A CONTROLLED A/B.** **#4167** (2026-10-25T22:41:32Z): `fit_parallel()` picks slots
+    from VRAM alone (**12 GB -> 1**) and marks it recommended; on a 32 GB card 4 slots reserve **3.79 GiB** and
+    single-request decode went **100-144 -> 19-39 tok/s**. **XiaoBinGan, 2026-10-27T14:03:26Z**: on a 32 GB 5090 with
+    every expert in RAM, **`parallel 4` lost at every concurrency, including four requests**, with the sizing lines -
+    **19,530 slots / 25.14 GiB** at 1 against **17,789 / 22.90 GiB** at 4, i.e. **1,741 slots** for the fourth. Our card
+    maps to 1 slot; the value is the **`expert cache auto: N GiB free -> M slots`** readback, which our cache runs
+    never recorded. **#4134** (9 comments) adds that `--vram-reserve-mib` is **not a `launch` flag**
+    (`--set vram-reserve-mib=N` is), that the value does reach the engine, and that it is **sometimes ignored** - which
+    bears directly on shortlist item 5 from 2026-10-26 (reserve 900 vs 1536).
+  - **A PREFILL LEVER THAT PROMISES IDENTICAL BITS.** **#4282/#4283** (2026-10-27T05:15Z): opt-in
+    **`STRATA_PREFILL_ROUTED_STREAM=1`** skips streamed experts no token of the chunk routes to - measured **42 % of
+    streamed experts skipped on a 1,046-token read, 22 % on 1,979, 3 % on 31K**, RTX 3090 PCIe 3.0, Swift IQ3_XXS,
+    same binary off/on, 4 pairs, *"the prompt's results are the same bits"*. Also **#4290**: the **sm_86 env switch set**
+    on an **sm_89** RTX 4080 gives **+7 % agent decode** (69.4/66.2 -> 74.2/71.3, n=15, interleaved, fresh engine),
+    chat noise, prompts flat - a transfer test for sm_120, nine env vars, ~1 h. And **#4302**: `--expert-cache-device1`
+    for dsv41 gives **+6.0 % decode** over a lone A40 (two cards, not ours).
+  - **COMFYUI v0.43.0 MOVED THE KV CACHE INTO DYNAMIC VRAM, AND THE PIN-STEAL RACE IS OUR SHAPE.** `v0.43.0`
+    **2026-10-27T02:40:46Z**: **Dynamic VRAM KV caches part I** (#17274) makes each KV cache a standalone Dynamic-VRAM
+    object that can *span VRAM and RAM*, with Aimdo 0.6.0's **writeback VBARs** and **Windows MCDM support**; **#17297**
+    fixes a pinned-buffer **steal race** whose stated repro is **Windows, RTX 3060, 16 GB RAM** - *"requires both low
+    VRAM and low RAM"* - corrupting output on trial 15 and exact across 20 after the fix. **#17370** (2026-10-26T18:22Z):
+    the race **returns under `torch.compile`** because `sync_all_offload_streams()` does not wait on the compute stream
+    - same seed, different video, max pixel difference **230-241**. **#15575** still fires on **v0.43.0** (comment today
+    by kajoken): `hostbuf_grow` against a cap of exactly **2x model size**, 618 errors, **~12 % slower**. The harness
+    property that catches both is the one we already have: same prompt + seed twice, PNG bytes.
+  - **OLLAMA: a decision-model regression and a Windows reset with a baseline that clears the server.** **#19292**
+    (2026-10-26T01:26:44Z): `/v1/systemone` returns **400 "no longer supported"** for decision GGUFs **without a
+    `decision.type`** since **0.40.4** (0.40.3 returned 200) - it now requires llama.cpp's own decision heads, so an
+    ordinary LM scoring option-letter logits is refused. **Laya has a head, so our replay stands**; the class we would
+    screen next does not. **#19139** (12 comments): Windows `/api/chat` resets at **~15.0 s** on large prompts while the
+    internal port's `/v1/chat/completions` returns **200 in 26.28 s**, and a helper's Windows baseline returns
+    **firstbyte 78.98 s, HTTP 200** on a 4060 Ti. Release **v0.40.12-rc0** (2026-10-27T00:07:12Z) carries **llama.cpp
+    b11901**, MLX **DFlash2**, and an MLX prompt-speedup for gemma/flint/laguna; stable is still **v0.40.11** (10-24).
+    Pin stays **0.40.6**.
+  - **COLIBRI (no release, day 21) supplies the cross-engine confirmation of the chunk finding.** **#2418**
+    (2026-10-26T17:38:55Z): `COLI_CUDA_CHAIN_ROWS` 512 -> 2048 reads a 1,628-token prompt's experts **once instead of 4
+    times** (**90.55 -> 22.83 GiB over the bus**) and takes prompt **216.2 -> 424 tok/s (+96 %)**, first token
+    **7.53 -> 3.84 s**; at a **14.7 GiB** expert allowance (a 16 GB card emulated) **148.6 -> 314 (+111 %)**.
+    **#2082** closed 2026-10-27T09:03Z with the maintainer's mechanism for **Windows CUDA losing to Vulkan**
+    (25.3 vs 13.2 tok/s on a 5060 Ti): *"the CUDA time is round trips, not arithmetic... each wait costs more under the
+    Windows driver model"*, `lm_head`'s 0.47 GB at **~73 GB/s on a card that reads 448** - the same class as #3321
+    (2026-10-24).
+  - **PACKS: 173 GGUF repos moved, the eight we track did not.** Qwen3.6-35B-A3B `7878dc9a90`, Qwen3.8-Flash-Next
+    `91fb00353e`, Coder `0ca5112201`, Flint `468307a1b3`, Nemotron Bolt `5f03edf5d3`, ISTA DSV4.1 `653a9874aa`,
+    Kolibri-1 `5bb7075b`, and the Strata NVFP4 pack behind #4261 `9b70ad3f64` - all unchanged by revision and size.
+    New and on our families: **`TokenTinkerer/Cyber-Tiel-Coder-35B-A3B-MTP-TTQ-GGUF`** (created 2026-10-25, updated
+    today 14:29Z, **MIT**, 3,772 downloads, **Q4_K_M 20.12 GiB / IQ4_XS 17.26** - a 35B-A3B **with an MTP head** in a
+    **TTQ** quant scheme this lab has never loaded) and **`Chompa1422/Qwen3.8-Flash-Next-NVFP4-Abliterated`** (created
+    13:35Z today, licence other, ~98 GB of shards).
+  - **[ARX] THE INDEX ADVANCED THREE BATCH DAYS: 91 cs.CL + 167 cs.LG dated 2026-10-26**, against the **2026-10-23**
+    watermark in the 10-26 file. Five kept: **2610.35023 BellowsKV** (cross-layer KV via one shared latent from the
+    *hidden states*, because adjacent layers' KVs differ - and *"reducing the dimension of this shared latent loses far
+    more accuracy than quantizing it"*, the opposite of the `k8v4` recipe we shortlisted on 10-25);
+    **2610.34915 MXFP8 RL on Blackwell** (on **Qwen3-30B-A3B**: matching the sampler's FP8 grid cuts train-rollout KL
+    **11-16 %**, *"without a quantized KV cache, BF16 end to end remains 2.5-10x more consistent"*, MXFP8 pays off only
+    past **~4.5k tokens/micro-batch**, **10.7 % MoE step / 24 % generation** faster, and *"the GPU waiting for the host
+    for most of the added time"*); **2610.34886 ThinkBit** (scalar **2-bit**, per-layer ternary/2/3-bit tiers,
+    **MATH-500 46.7 vs 30.0** for EfficientQAT on Qwen3-1.7B, explicitly arguing perplexity and MCQ mislead);
+    **2610.34816** (a decision model *can* rerank, but *"scoring only the requests it completes gives a misleading
+    ranking"* - a completion-bias trap our replay does not report); **2610.35671** (an independent 34-benchmark safety
+    evaluation of **DeepSeek V4.1 Flash-1017**, the model we priced on 10-25).
+  - **[RD] HTTP 403 from every endpoint** - `www.reddit.com/.../new.json`, `api.reddit.com`, and `old.reddit.com/.../.rss`
+    all returned the HTML block page from this box, two user agents. **No Reddit item today**, same as 2026-10-23.
+    **[HN] answered: 1,000 stories, 30 keyword matches, four kept** - the on-axis one is **cross-request KV cache
+    exposure** (GLM-5.3 Workers AI, 160 points / 57 comments, 2026-10-26T22:41Z, plus an SGLang PD-disaggregation
+    companion at 23:02Z): a cache readable by the wrong request is a correctness claim, and every prefix-reuse row we
+    hold assumes it away. Also kept: *"pretrain a 1B LLM on 6GB VRAM"* (18:59Z), Qwen3.8 NVFP4 **184 tok/s on a single
+    RTX 6000 Pro** (22:17Z), and two Show HNs (Imp, an RTX-50 LLM server; llmrun).
+  - **Shortlist, cheapest first**: (1) **grep yesterday's twelve engine logs for the `prompt chunk N, not M` clamp
+    line** - decides whether the withdrawn chunk ladder measured a constant (minutes, read-only); (2)
+    **`STRATA_PREFILL_ROUTED_STREAM=1` A/B** on q2_0 with the artifact hash, since bit-identity is the claim (two
+    starts, ~40 min); (3) **the cache ladder on a build that logs the cache (>= b11732, past #30848)** - answers SLRU +
+    ramped protected set and the video's quarter/85 % rule at once (one Windows CUDA download, gated on Kevin); (4)
+    **`STRATA_STAGE_TRIM=1` on a single card** - the 2.54 GiB is a split measurement (two starts, rides behind the gated
+    bump); (5) the **sm_86 env switch set as an sm_120 transfer test** (~1 h, no install); (6) **a cache-isolation check
+    for two conversations sharing one conversation cache** (one engine, two requests); (7) **declare #4304's
+    503/tail signature and #31245's event-2004/commit correlation** in the runner (an edit, no engine). Nothing
+    scheduled.
+  - **Gated on Kevin**: the candidate tests; any Strata bump (unchanged target: app **0.2.6**, Qwen engine **0.1.50**,
+    DSV4.1 **0.1.51**); a llama.cpp download at any tag past **b11480** (now also carrying the #31085 provenance
+    question); the **DeepSeek IQ2_XXS download**; the display-to-iGPU cable change; the TTQ 35B-A3B pack (17-20 GiB).
+
 - **2026-10-26, daily scan: the prompt chunk is a 2-6x lever the engine now moves silently, and 0.1.50 fixed the
   regression filed against it.** `NEWS-2026-10-26.md`, written against `NEWS-2026-10-25.md`, window
   **2026-10-25T14:30Z -> 2026-10-26T14:30Z** (exactly 24.0 h; local time is PDT, so the scheduled 07:30 start is
