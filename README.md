@@ -617,6 +617,27 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-28 &middot; [Daily news scan: Strata's 12 GB default costs 23 % perplexity, and llama.cpp finally has a versioned release carrying the cache policy our ladder cannot cross](NEWS-2026-10-28.md)**
+&ndash; a **24.0 h** window (2026-10-27T14:30Z &rarr; 14:30Z today), and the biggest event arrived **24 minutes after the
+previous scan closed**: Strata **`v0.2.7`** published **2026-10-27T14:54:42Z** with residency-biased routing **on by
+default for cards of 13 GiB or less**, which is our card. On an RTX 3060 12 GB (IQ3_XXS, five paired runs against the
+setting off) a story answer goes **46.2 &rarr; 53.1 tok/s** and code **45.7 &rarr; 62.5**, and the vendor states the
+trade itself &ndash; *"it picks a slightly different set of experts, so the wording of answers changes"*. **The cost is
+already measured, on another 12 GB card**: `STRATA_ROUTE_PRIOR` at **0 / 0.5 / 1.0 / 1.5 (the default)** gives
+perplexity **2.874 / 2.906 / 3.018 / 3.530** (**+1.1 / +5.0 / +22.9 %**), top-1 **71.68 &rarr; 67.30 %**, argmax differing
+on **8 &rarr; 19 %** of 8,192 teacher-forced positions, with byte-identical repeats &ndash; while speed goes **62.6 &rarr;
+~102 tok/s** at a 1K prompt. **0.5 keeps most of the speed for ~1 % perplexity.** Our **414-check metric is saturated at
+414/414** and cannot see a 23 % perplexity move at all, which makes teacher-forced log-probability the missing instrument.
+Also: **llama.cpp `v0.8.0` (2026-10-28T12:47:51Z, not a prerelease)** is the **first versioned release past the 50/50 SLRU
+expert cache (#30637)** that makes our staged `b11480` ladder untransferable; **`q8_0-q4_0` KV (our `k8v4`) is supported
+but its FlashAttention kernel is not compiled into the default CUDA builds**, so that row would silently measure an f16
+cache; the prompt chunk's cap is a **prompt-buffer** cap as well as a slot cap (**#4039**: bitwise-identical answers,
++18-24 % prompt on 8 GB cards, +8.0/10.8/9.5 % at 4K/16K/32K on a 4070 SUPER 12 GB); and **#4474** shows the engine
+auto-sizing **2712 -> 3514** and **6254 -> 8146** slots past its own declared reserve, which is our gate rule 3 in the
+wild. **Reddit returned HTTP 403** on every endpoint again; **YouTube captions are now blocked** by a bot check, so no
+video was mined; HN's one on-axis item is an **import-once** cache bug (an engine evicting a replica the caller believed
+was imported), not the bandwidth it was written about.
+
 **2026-10-27 &middot; [Daily news scan: the prompt chunk is a borrowed resource, and the expert cache has a published break-even rule our own rows bracket](NEWS-2026-10-27.md)**
 &ndash; a **24.0 h** window (2026-10-26T14:30Z &rarr; 14:30Z today). Yesterday's "the chunk is a silent 2-6x lever"
 gained its mechanism and it is a **clamp**, not a setting: Strata **#4261**, on an **RTX 5070 12 GB** plus a 5060 Ti,

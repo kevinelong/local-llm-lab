@@ -1,5 +1,128 @@
 # Local AI lab working instructions
 
+- **2026-10-28, daily scan: Strata's new default for our card class costs 23 % perplexity, and llama.cpp finally has a
+  versioned release past the cache boundary our ladder cannot cross.** `NEWS-2026-10-28.md`, written against
+  `NEWS-2026-10-27.md`, window **2026-10-27T14:30Z -> 2026-10-28T14:30Z** (24.0 h). Reading only - nothing downloaded,
+  installed, built or run, no engine started, no inference, no benchmark, **`ai_bench` untouched**. WSL started once for
+  `yt-dlp` (four metadata searches) and shut down again, verified.
+  - **`v0.2.7` SHIPPED 24 MINUTES AFTER YESTERDAY'S CUT, AND ITS HEADLINE FEATURE IS AIMED AT A 12 GB CARD.** Published
+    **2026-10-27T14:54:42Z**, 40 assets, `prerelease: false`. *"NVIDIA cards with 12 GB or less answer faster - the
+    router now prefers experts that are already on the card"*, **on by default for cards of 13 GiB or less**: RTX 3060
+    12 GB, IQ3_XXS, five paired runs against the setting off, story **46.2 -> 53.1 tok/s (+15 %)**, code **45.7 -> 62.5
+    (+37 %)**, and the vendor says plainly *"it picks a slightly different set of experts, so the wording of answers
+    changes"* plus *"agent loops may finish slightly less often"* (**4.5 of 10** over 4 runs, against **5.6** over 7 with
+    off, off-range 4-6). **THE BUMP TARGET IS app 0.2.7 / Qwen engine 0.1.52 / Control 0.1.53** - `0.1.53` exists only
+    as a Spark engine and a Control reader, and the release says so: *"If you use Windows, Linux with an x86 processor,
+    or a Mac for Qwen only, you get no new engine, no speed change and no app change."* Dating trap six: the body carries
+    a `0.2.7.1` section, the tag `v0.2.7.1` exists, `releases/tags/v0.2.7.1` is **404**. `STRATA_DEFAULTS=026` /
+    `DS4_DEFAULTS=026` revert every changed default in one step - the cleanest single-variable control this project has
+    shipped, and a set flag still wins over it.
+  - **THE COST IS MEASURED, ON ANOTHER 12 GB CARD, AND IT IS THE DAY'S FINDING.** Strata **#4402**, created
+    2026-10-28T02:47Z, updated 14:18Z: **maverde73** (RTX 4070 Ti 12 GB, 62 GB RAM, official 0.1.52 sha
+    `9d415609...ee16ad`, IQ3_XXS native, `--expert-cache 3102` = 3,215 effective slots in every arm, only
+    `STRATA_ROUTE_PRIOR` varying) teacher-forces **8,192 positions** (3,072 code, 3,072 agent, 2,048 WikiText-2) through
+    verify windows with `STRATA_LOGPOS`: perplexity **2.874 / 2.906 / 3.018 / 3.530** at prior **0 / 0.5 / 1.0 / 1.5**,
+    i.e. **+1.1 % / +5.0 % / +22.9 %**; top-1 **71.68 / 71.47 / 70.72 / 67.30 %**; argmax differing on **8 / 12 / 19 %**
+    of positions; speed **62.6 -> 83.3 -> ~102** at a 1K prompt and **57.9 -> 102.1 -> ~143** at 16K. *"A second 1.5 run
+    was byte-identical to the first, and the off run was byte-identical across two sessions"* and the loss appears in
+    all three segments - so not noise. **0.5 keeps most of the speed for ~1 % perplexity; the shipped 1.5 pays 22.9 %.**
+    The same issue carries the failure mode: **4 of 1,839 agent replies looped** at contexts 50K-83K over ~2 h.
+  - **OUR 414-CHECK METRIC CANNOT SEE THIS, AND THAT IS THE INSTRUMENT GAP.** It is saturated at **414/414** for both the
+    reference stack and Strata (2026-10-09), so a 23 % perplexity move is invisible to it; teacher-forced log-probability
+    resolved a 1 % one. **Add it to the instrument set before the bump, not after.** Colibri **#1370** carries the whole
+    method in one place (identical tokens both sides - 297,054; 16 chunks of 512, first half context; paired NLL with a
+    standard error: Q4_K_M **7.147** against int4 experts **7.325 / 7.388**, and the int8 trunk buys **nothing**, 7.388
+    vs 7.389), and **mfethe1 (2026-10-28T02:24Z)** supplies the determinism control - Ollama 0.32.14, CPU-only, 1
+    thread, greedy: **24/24 output pairs byte-identical across independent server processes**.
+  - **llama.cpp `v0.8.0` PUBLISHED 2026-10-28T12:47:51Z, `prerelease: false` - the first *versioned* release containing
+    50/50 SLRU (#30637).** v0.7.0 shipped before that merge and every rolling tag is `prerelease: true` by
+    construction, so until today there was no stable way to name a build past the cache policy change that makes our q2
+    ladder untransferable. Also in it: `no_alloc` respected in **all** memory caches, DSV4.1 Flash / Kolibri-1 / Flint /
+    MiniCPM-OCR / H2O-Lightning-4B architectures, `LLAMA_DRY_MAX_SEQ_BREAKERS` (64, *"each costing `O(n_vocab)` at
+    init"* - the bound for still-open #29494's multi-GB sampler allocations), and **`--model` or `-hf` is now required**.
+    Newest rolling tag **b11962 (13:42:20Z)**; **25 PRs merged**, 11 issues and 54 PRs opened. **#31028 (merged tensors
+    on convert) is listed as a feature**, so "was this converted with merged tensors" stays a required field - #31189's
+    assert at warm-up is still the counterexample.
+  - **`k8v4` WOULD SILENTLY MEASURE f16 ON llama.cpp.** **#31213** (updated 2026-10-27T16:54Z): the `q8_0-q4_0` pair is
+    *"already supported, but its FlashAttention vector kernel is not compiled into the default CUDA builds"*, so the
+    engine prints *"no FlashAttention vector kernel compiled for K/V types q8_0-q4_0, converting K and V to f16 instead
+    (slow)"* and the memory saving evaporates. Compile-time only:
+    `-DGGML_CUDA_FA_QUANTS="q4_0-q4_0;q8_0-q8_0;f16-f16;bf16-bf16;q8_0-q4_0"`. Reported on **b11901 win-cuda-13.4**.
+    This closes the question our 2026-10-25 note left open (*"a quantised-KV row must name the binary's FA_QUANTS"*):
+    the default Windows CUDA build does not carry the pair, and the failure is loud in the log, silent in the number.
+  - **THE CHUNK'S MECHANISM GOT A SECOND WITNESS FROM THE OTHER END.** **#4039** (updated 2026-10-27T21:47Z):
+    *"`--prefill auto` caps the chunk by the prompt path's buffers, which live in the cache slots it borrows"*, and two of
+    them are *"sized for the whole chunk (T*K rows, ~84 KB a token), although a group's products read them and are done
+    before the next group starts"*. `STRATA_PF_GROUP_SCRATCH=1` + `STRATA_PF_HC_REGION` make the auto chunk bigger with
+    **bitwise-identical answers**: **+18-24 % prompt on 8 GB cards**, and on a **4070 SUPER 12 GB + 2080 Ti 22 GB** pair
+    **+8.0 / +10.8 / +9.5 % at 4K / 16K / 32K** where *"chunks stayed at 8192, while borrowed buffers dropped from 3.66 to
+    2.64 GiB per GPU"*. Sibling **#4335** on the q36 family: chunk 2048 -> 4096 takes 8192 cells from **840 to 1,272**
+    prompt tok/s and 32768 cells from **779 to 1,372**, decode flat, experts in VRAM **79 -> 66** / **63 -> 50**. Both
+    are **PRs on top of 0.2.7 and off by default**, so they ride the bump.
+  - **DECLARED-VS-GRANTED, LIVE ON 0.1.52/0.1.53 - OUR GATE RULE 3 IN THE WILD.** **#4474** (2026-10-28T14:12Z, RTX 5080
+    16 GB sm_120, engine 0.1.53): the engine logs *both* `expert cache auto: 7.62 GiB free, 700 MiB reserved (+218 MiB
+    for the draft head) -> 2712 slots` **and** `expert cache 3514 slots, 6.72 GiB of VRAM` in one process, then sits at
+    **0-264 MiB free** at request start; *"the PLE table `mlock` now fails on every start"*. Second reporter (RTX 4090
+    24 GB, 0.1.52): *"Auto sizing: 6254 slots / Actual cache: 8146 slots / Expert cache: 15.51 GiB / Final free VRAM:
+    760 MiB. The engine has crashed."* If 0.1.47 does the same, our rule-3 pass was a declaration artefact.
+  - **THE DECODE-REGRESSION THREAD SELF-CORRECTED, AND THAT IS THE ITEM.** **#4410** claimed 0.2.7 -11.7 % on 2x 2080 Ti
+    IQ3_S `--native`; a second reporter built both engines and got **+0.8 / +4.6 / +1.x %**; the original author then
+    published the full distribution - **sd 5.88 and 5.75 tok/s (±6 %) on both arms**, quartiles overlapping - and
+    concluded *"your 0.2.2 arm looks like the outlier"*. Independent confirmation of our own 2026-10-27 withdrawal
+    (*"decode is not resolvable at this n"*). Its third comment adds a bigger config effect: **`--batch 4` routes a lone
+    chat through the pipelined path and is 4x slower** for single-stream decode.
+  - **ONE HN ITEM IS THE IMPORT-ONCE BUG, NOT THE BANDWIDTH.** *"Two RTX 5090 hosts sharing a KV cache over Ethernet"*
+    (2026-10-27T16:09Z) drives Strata 0.2.6's own `kv_share`: replica delta **~247 MiB**, send **3.24 s at 1 GbE / 0.81 s
+    at 10 GbE+Tailscale / 0.55 s direct**, warm switches **93.8 -> 96.8 %** - and **import is "about 2.8 seconds at every
+    link speed"**. The bug: viiwork *"remembered that it had imported a replica, but the engine could later evict that
+    conversation"*, so the return visit skipped the import; fixed in **v2.11.1** *"by asking the engine what it still
+    holds before skipping"*. Same observation our `reused = 0` declaration item makes from the other side.
+  - **arXiv advanced to the 2026-10-27 batch: 87 cs.CL + 165 cs.LG = 252 new listings**, watermark
+    **2026-10-27T17:59:59Z**; a 24-term screen cleared **14 of 252**, the thinnest batch in a week. Kept: **2610.36950
+    DCKV** (the first end-to-end trained KV-cache codec, **55x** fewer bytes than bf16 at ≤1.8 points on Qwen3.5-2B -
+    relevant because our PLE packs keep KV only in the full-attention layers); **2610.37442 CRISP** (MoE on edge is
+    *"dominated by expert-weight movement rather than computation"*, exploiting skewed expert combinations - the
+    precomputed-routing-prior idea as a co-design); **2610.37386** (a threshold calibrated for an **18 %** channel-read
+    budget *"actually reads only 12.9 %"* - declared-vs-effective, in a paper); **2610.36520** (folding attention biases
+    into keys so compacted KV caches run on *standard* kernels - the same failure class as #31213).
+  - **PACKS: 840 GGUF repos moved, 334 created, and the one that matters changed revision without changing weights.**
+    `ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF` went **`653a9874aa` -> `a419d74cd2`** (2026-10-27T23:16:05Z),
+    **25 -> 28 files**, and the three new files are the per-quant
+    `tensor-allocation/...-{IQ1_M,IQ2_XS,IQ2_XXS}.rco-allocation.txt` - **expert allocation tables, i.e. a precomputed
+    hot set**. Recomputed from the tree the three sets are **IQ1_M 231.3 / IQ2_XXS 248.8 / IQ2_XS 265.8 GB** (5 shards +
+    the shared **110.595 GB** Engram), matching the 2026-10-25 record, so the download decision is unchanged. The other
+    seven tracked packs are unchanged. New: `ggml-org/LFM3-Omni-2B-GGUF` (2026-10-28T12:25:19Z, first-party),
+    `prithivMLmods/Qwen3.6-35B-A3B-NVFP4-GGUF` (2026-10-28T07:19Z, **24.189 GB** - 3.8 GB larger than our Q4_K_M and
+    unmeasured, so logged not recommended), and a DeepSeek **DSpark** set with 213 downloads (DSpark is off on 12 GB
+    cards and gave no gain on our host per 0.2.4).
+  - **PLATFORM HEALTH, because a blocked platform and a quiet one look identical.** llama.cpp, Strata, Ollama, ComfyUI,
+    Colibri, HF and arXiv all answered. **Reddit returned HTTP 403** on `/new.json`, `api.reddit.com` and the RSS, plus
+    the reader proxy - second failure in three days; the one in-window thread (**r/LocalLLM `1xh1asc`**,
+    2026-10-27T18:55:26Z, u/Squale279, about 0.1.52) was recovered only by **citation** inside Strata #4402 and is
+    second-hand/unread. **YouTube answered for metadata but captions are now blocked** (`Sign in to confirm you're not a
+    bot`) - three searches enumerated **24 videos, none dated 2026-10-27/28**, so the standing rule's "read from
+    captions" half was unavailable this run. **HN: 1,000 stories, 7 keyword matches**, one on axis. Also new on
+    llama.cpp: maintainers now police AI-agent comments and archived duplicate PRs (CISC, 2026-10-28T10:22Z), and two
+    headline-shaped PRs (**#31291** FP4 E2M1 KV cache, **#31209** physical-cores thread count) were closed by their
+    authors within hours - **"a PR exists" is weaker evidence this week than last**. ComfyUI `v0.43.1` is **tagged but
+    not released**; its Windows single-GPU warning is a **driver** issue on 2+ cards and the pip "fix" only silences the
+    notice. Ollama **v0.40.12** was promoted by renaming the rc0 release object in place (identical timestamp, both rc
+    tags 404 as releases) - trap six again; **#19357** shows its scheduler predicting **3-4x** the real VRAM for a
+    **PLE** model because CPU-mapped embeddings are charged to the GPU. Colibri still has **no release since v2.0.0**
+    (day 22) and **#2443** shows `implicit_cap=8` pinning residency at **3 %** where its planner projects 100 %.
+  - **Shortlist, cheapest first**: (1) **write the bump's declaration first - `STRATA_ROUTE_PRIOR` explicit, and name app
+    0.2.7 / engine 0.1.52 / Control 0.1.53** (minutes, no engine); (2) **add teacher-forced perplexity to the instrument
+    set** (spec now, run later - the 414-check metric is blind at 414/414); (3) **re-check our 21 arm JSONs for the
+    auto-slot-vs-granted shape** (#4474) - minutes, read-only, but **only after the scan**, since the files are under
+    `ai_bench`; (4) **the `--moe-cache-cpu-share` auto sweep (#31286) on a build >= v0.8.0** - both PRs are now
+    recommended for review and the auto value is *"on par with manually tuning"* on a 35B-A3B at 8 GB (one gated
+    download); (5) **the #4039 chunk-buffer A/B** - bitwise, so no quality confound, two starts, rides behind 4; (6)
+    **declare `GGML_CUDA_FA_QUANTS` before any `k8v4` row** (an edit, no engine); (7) **the two-conversation cache
+    check**, now with the *import-once* mode named (one engine, two requests, ~10 min). Nothing scheduled.
+  - **Gated on Kevin**: the candidate tests; any Strata bump (**target moved: 0.2.7 / engine 0.1.52 / Control 0.1.53**);
+    a llama.cpp download at any tag past **b11480** (now preferably **>= v0.8.0**, which is the first stable point past
+    SLRU); the **DeepSeek IQ2_XXS download**; the display-to-iGPU cable change; the TTQ 35B-A3B pack.
+
 - **2026-10-27, the re-run landed: 21 arms, 0 void, and the 10-26 spread was the RAM state.** GPU held under the
   coordinator's handoff (image track done), one engine at a time, staged **0.1.47** + **q2_0**, the same 19,769-token
   prompt, seed 1234, commit + VRAM read before every start. Declared caches came from probes, not round numbers:
