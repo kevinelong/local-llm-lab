@@ -1,5 +1,131 @@
 # Local AI lab working instructions
 
+- **2026-10-29, daily scan: the reserve is a paging contract, CPU-lane experts make greedy output non-repeatable, and our
+  own STAGE_TRIM null had a cause printed in the log.** `NEWS-2026-10-29.md`, written against `NEWS-2026-10-28.md`,
+  window **2026-10-28T14:30Z -> 2026-10-29T14:30Z** (24.0 h). Reading only - nothing downloaded, installed, built or
+  run, no engine started, no inference, no benchmark, **`ai_bench` untouched**. WSL started once for `yt-dlp` (six
+  metadata calls, two caption fetches) and shut down again, verified.
+  - **`--vram-reserve-mib` IS A CONTRACT AGAINST WDDM PAGING, NOT A TUNING VALUE, AND THE ENGINE NEVER RE-CHECKS IT.**
+    Strata **#4516** (created 2026-10-28T16:41Z, 3 comments), RTX 3080 Ti **12 GB**, Windows 11, engine **0.1.52**,
+    one request body (17,155 tokens), one variable: prefill **843 tok/s at reserve 0** against **1,289 at reserve
+    1024** - **+53 %**. The sweep is the useful half: **100 -> engine death, 500 -> 254 MiB landing and stalls, 758 ->
+    the engine's own prescribed floor, 1024 -> 778 MiB landing and best prefill, 2048 -> ~500 slots smaller and no
+    gain.** Mechanism, in the reporter's words: *"the engine sizes the expert cache once at startup ... and never
+    re-checks whether the actual free VRAM stays above that contract"*; the driver then pages the cache to system RAM
+    and *"the paging is invisible to CUDA applications"*. **Our 2026-10-27 result (900 beats 2000 because 2000 only
+    costs slots) is reproduced on another 12 GB card with the mechanism attached**, and no recorded arm is invalidated
+    - 900 and 1536 both sit above their 758 floor. Two gaps it exposes: our gate has no rule for "did free VRAM fall
+    below the declared reserve mid-request", and **`--vram-elastic`** appears in no note of ours.
+  - **HOST-RESIDENT EXPERTS MAKE GREEDY OUTPUT NON-REPEATABLE, WITH THE PLACEMENT HELD FIXED - THE MECHANISM WE HAVE
+    BEEN MISSING SINCE 2026-10-05.** `mw00/project-maya` **#644** (2026-10-28T22:56Z), sm_120 source build, three
+    passes inside one load: **0** routed experts on the CPU lane -> **bit-identical, including `--parallel 2`**; **329**
+    on the CPU lane (reserve 6144) -> last-row logits **max |d| 2.3-3.0** and *"all three differ from token 0"*; 720 ->
+    max |d| 3.0-3.3; and **`--cpu-threads 1` does not fix it**, with placement unchanged between passes. Same shape as
+    `--parallel` failing its own `--multi-check`, which the reporter calls *"a consequence, not a batching bug"*. Our
+    runs are `--cpu-moe` and arena-with-host-experts, i.e. exactly the condition - but it is another engine, so it is a
+    prediction with a control, not a measurement of ours.
+  - **OUR `STRATA_STAGE_TRIM=1` NULL HAD A CAUSE IN THE LOG AND WE NEVER GREPPED FOR IT.** Strata **#4603** (created
+    2026-10-29T12:11Z, closed by the maintainer), **RTX 5070 12 GB + RTX 5060 Ti 16 GB**, self-built 0.1.52 at
+    `CMAKE_CUDA_ARCHITECTURES=120`: on one card the engine prints
+    **`--trim-stage-weights needs a layer split across GPUs (ignored)`**, and on a split with `layer_split: auto`
+    **the first card is never trimmed** because it builds its arena before the split search runs
+    (`generate.cpp:3845`). With a fixed K, trim is **+9.6 % decode** and **+16.9 % slots** (3,732 -> 4,361). Also
+    documented: **`STRATA_ARENA_PIN_GIB` only matters on a split - a single card registers the whole arena** - and the
+    engine **caps its own `cudaHostRegister` at 8 GiB under WDDM on a split** (`cudaHostRegister limited to 8 GiB by
+    the engine ...`), with the driver ceiling at `RAM/2 - 8 GiB` (**~23.7 GiB `[INFERENCE]` on this box**, against the
+    17.8 GiB `Shared Usage` we measured on 2026-10-22). Pinned arena 7 -> 39 GiB took decode **73.3 -> 92.9**, prefill
+    **2,481 -> 2,722.7**.
+  - **THE SLOT-TO-CHUNK CLAMP, ON A 5070, THIRD WITNESS:**
+    `WARNING: prompt chunk 7168 tokens, not 8192: CUDA1 (RTX 5070) has 1770 expert-cache slots, and an 8192-token
+    chunk borrows 1692 of them`. After trim + K=27 the card lends **2,747** and the line becomes `prompt chunk auto:
+    8192 tokens` - *"which is where the prefill gain comes from."* Two more numbers from the same report that bear on
+    rows we hold: **decode and prefill optima do not coincide** (K=27 vs K=25, +7.8 % decode against -4.9 % prompt),
+    and **code prompts decode 13-17 % faster than prose with identical flags because the drafter lands more often**
+    (drafts accepted 83.7 % against 61.8 %).
+  - **WINDOWS COMMIT HEADROOM, EXHAUSTED BY AN AUTO-SIZED RAM STORE - OUR BINDING GATE IN THE WILD.** Strata **#4605**
+    (2026-10-29T12:37Z): the DeepSeek auto-sizing chose a **101.3 GB** store from *"113.3 GB of RAM free after the
+    GPU's weights"* and left **93,126,656 bytes of system commit** (event 2004; pagefile 4096/8192 MiB fixed-ish), with
+    `strata-dsv41.exe` at **118,554,161,152 B** of commit and a helper reporting *"The paging file is too small"*.
+    64 GB completed **36 requests over 1,844 s** at **7.1-7.2 tok/s** decode, commit peak 118.529 GB. **Nothing in the
+    store arithmetic sees the commit limit** - the same wall as our 2026-10-22 reading (25.7 -> 0.84 GiB free commit
+    while free physical read 15 GiB). A second witness names the lever: **`--ple-io direct`** (*"Loading the PLE table
+    into ram was the problem"*), and our 0.2.7 notes have only priced `--ple-io ram` as a **speed** setting.
+  - **NVFP4 ON sm_120 TAKES ~3.3 GiB OF VRAM OUTSIDE THE ALLOCATOR, PERMANENTLY.** NVIDIA TransformerEngine **#3765**
+    (2026-10-28T14:53Z), RTX 5090 32 GB, TE 2.20.2, CUDA 13.2: the NVFP4 quantize kernel's 2D TMA load into a
+    `shared::cluster` destination compiles on sm_120 to a driver syscall, which raises `cudaLimitStackSize` from 1024 to
+    14,608 B and the driver reserves that per resident thread (170 SMs x 1536) - **+3.41 GiB** in a 20-line repro, and
+    **nothing** with `shared::cta`. Invisible to `nvidia-smi` accounting and to `--vram-reserve-mib`. Our card is
+    sm_120 and NVFP4 is already staged twice in this lab.
+  - **A SILENT SPEC-DECODE CORRUPTION WAS FIXED TODAY AND IS IN NO TAG YET.** llama.cpp **#31350** (merged
+    2026-10-29T09:28:04Z, +2/-1): a partly-rejected draft longer than `n_rs_seq` rolled back to *"a state that was
+    never written"* since **b11632**; on master **2 of 12** code prompts came out broken, and with the fix **11 of 12**
+    are byte-identical to a non-speculative run. Verified by compare API, not by release notes: **b11979/b11981/b11982
+    are all behind the merge (17/15/14 commits)**, so the first tag that can carry it is **>= b11983**. Our 2026-10-08
+    MTP row was on **b11461**, which predates b11632, so it stands.
+  - **TWO MORE NON-DETERMINISM CHANNELS, EACH WITH A CODE PATH.** (a) Strata **#4547**: an adaptive int8/FP16
+    crossover measured at every start from timings that swing **31-45 us at 64 rows**, giving crossovers of
+    **32/40/40/40/41/72/149/151** rows over 11 starts, so **which expert groups take int8 differs per start and the
+    greedy answer changes** (four starts: 134/145/134/129 tokens, against 151 every time on the FP16 chain) - and the
+    cache that should persist it, `~/.cache/strata/i8-crossover.txt`, is written inside a `--rm` container whose home
+    is not mounted. (b) **#4546**: the SYCL launcher **drops every `STRATA_*` whose value is `0`**, so the documented
+    `STRATA_PREFILL_MMQ=0` runs `auto` instead and `"off"` works only by accident - eight more `=0` names are listed.
+    **A declared env value is not a delivered one; the check is the engine's log line.**
+  - **THE WINDOWS PIN CAP NOW HAS A SECOND NUMBER.** ComfyUI **#17416** (2026-10-28T14:48Z) states it -
+    *"Windows cap = 50% of RAM = 32.6 GB"* on a 64 GB box - which agrees with our 2026-10-22 `[INFERENCE]` of ~31.7 GB
+    to within 3 %, and adds that **raising `MAX_PINNED_MEMORY` makes the failure worse**: 8 -> 19 GB hostbuf took
+    surviving evictions from **6 to 1**, always the same ~125 MB `registered=True` `Linear` tail.
+  - **arXiv DID NOT ADVANCE - 0 new listings, watermarks still 2026-10-27** - so two uncited 10-27 papers were read, and
+    one argues against yesterday's top-two shortlist item: **2610.37126** finds magnitude neuron pruning at 30 %
+    **inverts** the IOI circuit (*"all 26 circuit heads remain intact, but Name Mover contributions flip sign"*,
+    **17.7 % accuracy**) while **perplexity ranks it as less damaged than random head pruning (74.6 vs 140.1)** - so
+    teacher-forced perplexity must be **paired with a task-level check, never quoted alone**. **2610.37375** is the
+    other direction on routing machinery: untrained expert-eligibility masks buy **2x** multi-method diversity
+    (37.3 vs 18.7) for **160 KiB** and *"lower correctness"*, against `STRATA_ROUTE_PRIOR`'s 23 % perplexity for speed.
+  - **[HN] CARRIED THE MODEL'S OWN PAPER, SIX WEEKS OLD AND NEVER READ HERE.** arXiv **2609.19969**, published
+    **2026-09-17**, submitted to HN 2026-10-28T19:00Z: DeepSeek-V4.1-Flash is **552B** with 1M contexts and a Causal
+    Encoder-Decoder that activates **16B/token at decode but 8B at prefill**; **CSA2 cross-layer KV reuse plus FP4 KV**
+    brings the **global KV cache (always in HBM) to 890 bytes/token, ~1/4** of DSV4-Flash, and **SWA Bounded Replay**
+    takes the **persistent** KV to **~1/8**. `[INFERENCE]`: **890 B/token x 65,536 = 58.3 MB** at our 64K, against
+    **45,056 B/token** for the q36 fp32 path we recorded (~51x) and int8 (~15x). So the DSV4.1 path's VRAM
+    affordability is an **architecture** property, and **FP4 KV ships in the model while both our engines refuse to
+    demonstrate it** (llama.cpp #31291 closed 2026-10-28 for want of benchmarks; Strata's `--kv q4_0` *"did not
+    reproduce a gain"*).
+  - **PACKS: 373 GGUF repos created, and ISTA moved revision for the second day with every file size identical.**
+    `ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF` went **`a419d74cd2` -> `65d53bc8be`** (2026-10-28T21:27:34Z),
+    **28 -> 28 files**, per-set totals unchanged (**IQ1_M 231.3 / IQ2_XXS 248.8 / IQ2_XS 265.8 GB**, shared
+    110.595 GB Engram, repo total 525.76 GB) - so the download decision is unchanged and **a size check cannot see
+    this pack move**. New and sized: **`unsloth/Mistral-Large-4-1T-A52B-GGUF`** (2026-10-29T11:24Z, licence other,
+    **3,491.43 GB**, IQ1_S in 6 shards - a new size class, fits nothing here) and
+    **`prithivMLmods/Apex-35B-V1.0-MXFP4-MoE-GGUF`** (13:32Z, **smallest quant 25.348 GB** against our 20.42 GB
+    Q4_K_M, plus sec. 7.2's unmeasured reserve - logged, not recommended). The other seven tracked packs unchanged;
+    `Kolibri` search: 0 moved.
+  - **PLATFORM HEALTH.** [GH] all five answered plus a term search across adjacent repos; **[REL]** **Ollama
+    `v0.40.13` moved** (2026-10-28T19:55:04Z, LFM3 on Linux/Windows - the completion of v0.40.12's *"coming soon"*),
+    with **seventh dating trap**: `published_at` **19:55:04Z** is *earlier* than `created_at` **22:20:04Z**, the
+    inverse of v0.40.12/v0.40.9, and `v0.40.13-rc0`/`-rc1` exist as **tags with no release object** - so neither
+    timestamp dates a release and only the tag list still shows an rc. llama.cpp **v0.8.0 unchanged**, tags to
+    **b11982**, **31 PRs merged**. Strata **v0.2.7 unchanged, 0 PRs merged** against 89 issues and 45 PRs opened.
+    ComfyUI **`v0.43.1` tagged, release 404** (day 2). Colibri **no release, day 23**, but **21 PRs merged** including
+    **#2418 `qwen38 CUDA chain: 2048 rows a prompt chunk, not 512`** - the third engine in three days to decide its
+    default chunk was too small. **[HFR]** 373 created, 7/8 packs unchanged. **[ARX]** frozen. **[YT]** answered,
+    **captions work again** (`85,937 bytes` on the first try after yesterday's bot block), no upload dated 10-28/29;
+    one recipe mined - Run Local AI 2026-10-16, `piA60Nm3I7k`: cache MiB at **~a quarter of the expert tensors' bytes**
+    with `--cpu-moe`, which is our **4,096 MiB = 24 %** rung. **[RD]** **403 on both JSON endpoints and the RSS now
+    redirects to a login page** - third failure in four days and the first to lose the RSS path. **[HN]** 1,177
+    stories, 11 title matches.
+  - **Shortlist, cheapest first**: (1) **declare the reserve a contract** and add a "free VRAM fell below the declared
+    reserve" field plus `--vram-elastic` to the declaration list (an edit, no engine); (2) **correct the
+    `STRATA_STAGE_TRIM` record and grep our logs for `needs a layer split`** (doc edit plus a grep - **post-scan, the
+    logs are under `ai_bench`**); (3) **the determinism control as a standing arm** - all experts in VRAM vs any on the
+    CPU lane, greedy, three passes in one start, compare bytes (two starts, no download); (4) **pair teacher-forced
+    perplexity with a task-level check** before trusting it (spec now); (5) **name the build for every llama.cpp
+    speculative row, and note no tag carries #31350 yet - >= b11983** (an edit); (6) **read env switches back from the
+    engine log, never the config**, and list the `=0` forms (an edit); (7) **read the DSV4.1 paper's 890 B/token and
+    1/8 persistent into the declaration** for any DSV4.1 row (reading). Nothing scheduled.
+  - **Gated on Kevin**: the candidate tests; any Strata bump (target unchanged: app **0.2.7**, engine **0.1.52**,
+    Control **0.1.53**); a llama.cpp download at any tag past **b11480** (now better named **>= b11983**); the
+    **DeepSeek IQ2_XXS download**; the display-to-iGPU cable change; the TTQ 35B-A3B pack.
+
 - **2026-10-28, daily scan: Strata's new default for our card class costs 23 % perplexity, and llama.cpp finally has a
   versioned release past the cache boundary our ladder cannot cross.** `NEWS-2026-10-28.md`, written against
   `NEWS-2026-10-27.md`, window **2026-10-27T14:30Z -> 2026-10-28T14:30Z** (24.0 h). Reading only - nothing downloaded,

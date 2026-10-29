@@ -617,6 +617,32 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-29 &middot; [Daily news scan: the reserve is a paging contract, CPU-lane experts make greedy output non-repeatable, and our own STAGE_TRIM null had a cause printed in the log](NEWS-2026-10-29.md)**
+&ndash; a **24.0 h** window (2026-10-28T14:30Z &rarr; 14:30Z today). `--vram-reserve-mib` is not a tuning value but a
+**threshold against WDDM paging**, and the engine never re-checks it (Strata **#4516**): on a **12 GB** card the identical
+17,155-token request reads **843 tok/s at reserve 0** and **1,289 at 1024** &ndash; **+53 % from one variable** &ndash; with
+a sweep of **100 &rarr; engine death, 500 &rarr; stalls, 758 &rarr; the engine's own floor, 1024 &rarr; best, 2048 &rarr;
+fewer slots and no gain**. **That last row is our own 2026-10-27 result reproduced on another card**, and no recorded arm
+breaks, since 900 and 1536 both sit above 758. **Host-resident experts make greedy output non-repeatable with the
+placement held fixed** (Maya **#644**): **0** experts on the CPU lane is *"bit for bit, including `--parallel 2`"*, **329**
+give **max |d| 2.3-3.0** and *"all three differ from token 0"*, and `--cpu-threads 1` does not help &ndash; the mechanism
+behind a symptom we have carried since **2026-10-05**, and our runs are `--cpu-moe`. **Our `STRATA_STAGE_TRIM=1` null had
+a cause in the log**: on one card the engine prints `--trim-stage-weights needs a layer split across GPUs (ignored)`, and on
+a split `layer_split: auto` never trims the first card (`generate.cpp:3845`); with a fixed K it is **+9.6 % decode** and
+**+16.9 % slots**, and the same 2026-10-29 **RTX 5070** report reproduces the **slot&rarr;chunk clamp** (`prompt chunk 7168,
+not 8192 ... 1770 expert-cache slots ... borrows 1692`) and shows the engine **capping its own `cudaHostRegister` at 8 GiB
+under WDDM** (arena 7 &rarr; 39 GiB takes decode **73.3 &rarr; 92.9**). Also: **Windows commit headroom exhausted by an
+auto-sized RAM store** with **93 MB** of commit left (our binding gate, in the wild, and `--ple-io direct` named as the
+lever); **NVFP4 on sm_120 reserves ~3.3 GiB of VRAM outside the allocator** via a TMA stack requirement; a **silent
+spec-decode corruption fixed today in llama.cpp #31350 and present in no tag yet** (compare says `b11982` is 14 commits
+behind); the **Windows pin cap stated as 50 % of RAM** by a second project, and raising it makes eviction worse;
+**arXiv froze at 2026-10-27** (0 new listings), so two uncited papers were read &ndash; one showing **perplexity ranking a
+functionally inverted model as less damaged than random pruning**, which is a caution on our own planned instrument; and
+**HN carried the DeepSeek-V4.1-Flash paper**, six weeks old and never read here, with **890 bytes/token of global KV** and
+**1/8 persistent**. **Reddit is down for the third time in four days** (now including the RSS path); **YouTube captions
+work again** and one `--moe-cache-mib` recipe was mined (cache at **~a quarter of the expert bytes**, which is our
+**24 %** rung).
+
 **2026-10-28 &middot; [Daily news scan: Strata's 12 GB default costs 23 % perplexity, and llama.cpp finally has a versioned release carrying the cache policy our ladder cannot cross](NEWS-2026-10-28.md)**
 &ndash; a **24.0 h** window (2026-10-27T14:30Z &rarr; 14:30Z today), and the biggest event arrived **24 minutes after the
 previous scan closed**: Strata **`v0.2.7`** published **2026-10-27T14:54:42Z** with residency-biased routing **on by
