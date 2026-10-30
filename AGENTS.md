@@ -1,5 +1,140 @@
 # Local AI lab working instructions
 
+- **2026-10-30, daily scan: Strata shipped 0.2.8 and switched the 12 GB routing default back off, llama.cpp's new cache
+  policy collapses at the rung we measured, and our oldest error string got a named cause.** `NEWS-2026-10-30.md`,
+  written against `NEWS-2026-10-29.md`, window **2026-10-29T14:30Z -> 2026-10-30T14:30Z** (24.0 h). Reading only -
+  nothing downloaded, installed, built or run, no engine started, no inference, no benchmark, **`ai_bench` untouched**.
+  WSL started once for `yt-dlp` (three searches, eight metadata calls, one caption fetch) and shut down again, verified.
+  - **STRATA `v0.2.8` / ENGINE `0.1.54` PUBLISHED 2026-10-29T22:40:43Z, AND ITS FIRST EFFECT HERE IS THAT THE 0.2.7
+    ROUTING SPEED-UP IS OFF AGAIN BY DEFAULT ON CARDS OF 12 GB OR LESS.** Vendor's words: *"It made answers faster (RTX
+    3060: story +15 %, code +37 %), but your reports and our own checks tied it to repeated text in long sessions. With
+    nothing set, the engine now routes exactly as 0.2.6 did."* That is the action on the measurement our **2026-10-28**
+    file headlined (`STRATA_ROUTE_PRIOR` 1.5 = **+22.9 % perplexity**) and the looping-agent consequence in the 10-29
+    file. **The bump target moves to app 0.2.8 / engine 0.1.54 / Control 0.1.54**, and its declaration is now the
+    **absence** of a prior, with `1.5` the opt-in. Three fixes in it are our own items: **#4474** (the automatic expert
+    cache now leaves the reserve you asked for - the declared-vs-granted gap), **#4518** (the conversation cache when the
+    PLE table is locked; the Windows commit-limit side is explicitly **untested**), and **#4420** (a parked `--batch`
+    slot keeps the shared prefix, first token **0.66 s against 3.3 s**). Rates in it are A6000 / R9700 / Arc / Radeon,
+    none our card: **nothing here is a row for this box**, so the bump is justified by defaults and fixes, not throughput.
+    The feed confirms the installer rule is unchanged - `engine` packages[1]/[9] carry **sm_86, sm_89, sm_120,
+    compute_120**, packages[0]/[8] stop at `compute_89`, so the **Windows CUDA 13** asset is ours.
+  - **llama.cpp's SLRU CACHE COLLAPSES AT EXACTLY THE SLOT COUNT OUR LADDER OCCUPIES - AND THE FIX WAS CLOSED
+    UNMERGED.** **#31421** (2026-10-30T12:56Z), two builds, 200 prompts, warm cache, *"all runs generated the same
+    53,284 tokens"*: at **8 slots per layer = 240 slots = one token's experts** (30 layers x top-8), SLRU gives **0.6 %
+    hits / 8.8 tok/s** against LRU's **37.5 % / 12.9** - **-32 % decode** - while at 16 slots it stays 2.2 points ahead.
+    First bad commit **`33d6135cb` = #30637 (b11732)**; **#30848 fixed it and was closed 2026-10-27 without merging**; a
+    four-line protected cap (`min(n_slots/2, n_slots - n_expert_used * n_layers)`) restores LRU-identical counts. So the
+    2026-10-28 line *"v0.8.0 is the first stable point past SLRU"* needs its second half: **past SLRU and worse at the
+    low end**, and our ladder (measured on **b11480**, pre-SLRU) does not transfer to it at the rung where its knee sits.
+    Same report, second finding - the inert-knob class again: with default weight **repacking**, Q4_0 CPU experts are not
+    host buffers, so the cache logs `no layer has all of its experts in host memory` and **turns itself off**; the
+    reporter needed **`-nr`**.
+  - **`CUDA error: shared object initialization failed` HAS A NAMED CAUSE AND IT IS NOT THE ONE WE RECORDED.** Ollama
+    **#17380** (updated 2026-10-29T19:40Z, 8 comments): Windows, **RTX 5070 Ti, compute capability 12.0**, ~**50 % of
+    loads** fail at warmup with that error plus **`0xc0000409`**, and the failure tracks **one log line** - `CUDA_Host`
+    (pinned) vs `CPU` (unpinned) for the **1,104.61 MiB** token-embedding buffer. A failed `cudaHostAlloc` **silently**
+    degrades to unpinned and the first kernel launch dies with **error 303**; nothing reports the fallback even at
+    `-lv 4`. Ollama forces `--no-mmap` on Windows+CUDA, so that ~1.1 GB **contiguous pinned** allocation is made fresh
+    **every load**. Fixes are host-side: pagefile **~6 -> ~77 GiB**, reboot to defragment the physical pool (free RAM
+    12.6 -> 20.4 GiB). **Our 2026-10-11 attribution** (`launch_fattn` shared memory, fixed with `-b 512 -ub 512`) is real
+    for that build and is now **one of two** causes for the same string; `0xC0000409` recurred as Strata #1607's code on
+    2026-10-27. **A signature pair is not diagnostic; the host-buffer line is.**
+  - **`T=0` IS NOT REPRODUCIBLE ON TWO CONSECUTIVE BUILDS, AND THE CELL THE REPORTER DID NOT TEST IS OURS.** Strata
+    **#4673** (2026-10-30T04:57Z): **4/4** prompts differ at `temperature: 0` inside one session on **0.1.52** and 4/4 on
+    **0.1.54**; `seed` does nothing (`T=0.8, seed 1234` twice differs; a 16-hex-string prompt at `T=0.9, seed 999` gives
+    two different strings); `enable_thinking:false` still returns ~700 tokens of `reasoning_content` at `max_tokens: 300`
+    and one batch's answer field came back **empty 5/5**. Stated limits: *"**NOT tested: single-card, `--spec 0`,
+    `--pipeline-windows 0`**, HIP, Metal"* - i.e. our launch configuration is the untested arm. Fourth mechanism after
+    #1928 (drafter EMA), #4547 (int8/FP16 crossover re-measured per start) and Maya #644 (CPU-lane experts), and it ships
+    a **30-second paste-ready reproducer** for PowerShell and bash.
+  - **`--prefill auto` CANNOT EXCEED 8192 BY CONSTRUCTION.** Strata **#4683** with line numbers: `prefill_auto_max =
+    8192` (`generate.cpp:706`) and the planner's search `for (int64_t c = chunk; c >= 512; c -= 256)` (`:8704`) walks
+    only **down**. A **117.7K** prompt reads **108-127 s** at `auto` against **58-64 s** at `auto:32768`; at 58.6K,
+    **43-46** against **30-36**. This is the missing half of our 2026-10-27 *"engine chunk beats a declared 4096 by
+    +8 %"* (that was at **19,769** tokens, where auto picks 8192 > 4096, so auto wins): **the chunk optimum is a
+    function of prompt length, and a rung that does not name its prompt length is unreadable.** Same report: on btrfs
+    `on_rotational_disk` returns -1, so `drive_read_gbps` assumes **1.5 GB/s** where the drive measures **4.2**.
+  - **THE 231 GB DEEPSEEK DECISION GOT TESTED BY SOMEONE WITH THE HARDWARE, AND OUR PACK IS THE ONLY ONE THAT LOADS.**
+    llama.cpp **#31385**: `unsloth` UD-Q4_K_XL fails with `invalid ggml type 43` (FP8, merged as **#27512** at
+    2026-10-29T17:14:37Z) and **outputs gibberish once rebuilt with it**; `mrfakename` Q4_K_M fails on
+    `deepseek41.attention.kv_source_layers`; **`ISTA-DASLab` GSQ-RCO IQ2_XS works** on build 11997. So **"the pack loads"
+    is not "the pack is right"**, and a tensor-type question is answered by a *tag*, not a version.
+  - **llama.cpp: `v0.8.0` still the newest versioned release; tags to `b12008` (2026-10-30T14:06:57Z); 17 PRs merged.**
+    **#31368** (merged 08:11:59Z, +128/-33) adds a guard refusing rollbacks past the snapshots the last ubatch actually
+    wrote - the class #31350 exposed - and its evidence is the one to keep: on an RTX PRO 6000, **Qwen3.8-27B with
+    `draft-mtp`, `draft-mtp,ngram-mod` and with 4 parallel requests all give output byte-identical to the run without
+    speculative decoding**, acceptance unchanged. Compare confirms **#31350 is in b12000 (ahead 4) and b12008 (ahead 12)
+    but not b11983 (behind 13)**, so the safe name for both fixes is **b12008**. **#31073** (merged 08:15:07Z, +179/-246)
+    keeps the Hadamard rotation constants on the card: **tg128 71.23 -> 77.43 (+8.7 %)**, pp512 -0.54 %, **perplexity
+    7.5811 +/- 0.61829 identical, two 128-token greedy completions byte-identical**, and rotation uploads **22 -> 4** -
+    on a PCIe **2.0** link, so `[INFERENCE]` much smaller here; it is the same "host trips" accounting as our 2026-10-22
+    copy microbench.
+  - **THE NEW DEFAULTS COST 31 % PROMPT THROUGHPUT OUTSIDE THE RELEASE'S TEST SET.** Strata **#4687** (6x V100 sm_70,
+    four concurrent 26K prompts): 0.2.8 defaults **197.0 s** and **88/96 GB** against `STRATA_DEFAULTS=026` **126.5 s**
+    and **80/96 GB** - **-31 % prompt, +55 % wall, +8 GB of VRAM** - unchanged from 0.1.52 to 0.1.54; 0.2.7 as shipped
+    read **240.7 s** against **125.8** with `026`. Not our card count, but **`STRATA_DEFAULTS=026` belongs in the bump
+    declaration's first arm** so a regression is attributed to the defaults rather than to the version.
+  - **COLIBRI: A 16-BYTE BUFFER SILENTLY TRUNCATES TOKEN TEXT.** **#2492** (2026-10-29T22:55Z, confirmed local fix):
+    `utf8_drain()` in `c/qwen36.c` appends bytes from the whole token before draining, and `if (*bn < 16)` drops every
+    byte past 16 - so Russian words containing tokens of 19-27 bytes come out with **U+FFFD**, through both `coli chat`
+    and `/v1/chat/completions`, and it survives three kernel switches. Third fixed-size-buffer truncation this month
+    (#31102's 260-char path, #4304's five-token reads). **Still no release since v2.0.0 (day 24)**, 7 PRs merged, and
+    **0 commits on `main`** - so a commit count is not an activity measure for that repo.
+  - **PACKS: all eight tracked packs unchanged, including ISTA after two moving days; 314 GGUF repos created.** Two
+    candidates logged, neither recommended: **`mudler/Kolibri-1-APEX-GGUF`** (created 2026-10-30T07:35Z, apache-2.0, 11
+    files, 358.79 GB) has the **first Kolibri-1 quant in the 22 GB class** - `I-Micro.gguf` **22.173 GB**, with Nano
+    24.414 / Mini 28.974 / Compact 36.222 / Quality 49.18 - against our staged Q3_K_M at **37.5 GB** that has been
+    blocked on the RAM floor since 2026-10-09; and **`SandLogicTechnologies/flint-GGUF`** (2026-10-30T09:38Z, 5 files)
+    has **`flint-IQ3_M.gguf` 17.518 GB** where we priced Q4_K_M at 22.3 GiB, and the `> b11799` build prerequisite is
+    now met at b12008. Both want a first-run **task** check, not a load check.
+  - **arXiv ADVANCED to 2026-10-30: 279 cs.CL + 608 cs.LG (108 + 213 new), after yesterday's frozen 87/165.** The paper
+    to keep is **2609.05881 v3 "Broken on Arrival"** (a *replacement*, dated 2026-09-05, not new): **305 eligible
+    code-capable GGUF tags across 15 Ollama lines plus 22 HF files**, a 15-task screen, then all **164 HumanEval+**
+    tasks - **7 official tags (2.3 %) solved at most 6**, all low-bit quants of models **<=4B**, and **five rebuilt from
+    the original weights matched "tensor for tensor": none was corrupted.** So a staged pack's fitness is a *measured*
+    property, not a provenance one, and the artifact can be exactly what the publisher built and still unable to do the
+    task -- while the <=4B scope means it must not be quoted against our 20-35B Q4 packs. Also kept: **2610.38981**
+    (spec decoding beats its own concave-MoE prediction on fine-grained models **8-512 experts, 30B-1T**, because
+    verification cost carries *temporal overlap across draft tokens* - our pack is 8-of-256 active); **2610.40305**
+    Rimuru (elastic expert offloading as one memory pool - our reserve-vs-slots trade stated as a systems problem);
+    **2610.39931** (low-bit GDN recurrent-state quantisation **causes repetitive, over-long generation** - a
+    quantisation cause for our loop class, on the hybrid linear-attention family the rollback fixes touch).
+  - **[YT] ONE IN-WINDOW UPLOAD, AND BOTH ITS RULES LOSE TO OUR DATA.** SkildCore, **2026-10-29**, 273 s
+    (`2b9tzSg_oIY`, second-hand, captions read): [00:03:20] *"The authors' rule of thumb is roughly **10 % of the total
+    expert size**"* - **against the ~a-quarter rule recorded twice** (2026-10-27 Kai, 2026-10-29 Run Local AI) and
+    **against our own ladder**: 10 % of our **16.875 GiB** is **~1,728 MiB**, and we measured **1,024 / 2,048 / 4,096
+    MiB at 58.6 / 66.8 / 78.3 tok/s** and **5,376 at 82.7-83.6** - a 10 % rule would have stopped two rungs early. And
+    [00:03:34] *"The cache path runs only on small batches, up to 32 tokens. Larger batches fall back to regular
+    offload. On the test run, **prompt processing got slower, not faster**"* - the same conflict as 2026-10-23, now with
+    the mechanism: if >32-token batches fall back, **prefill should not gain at all**, yet ours went **72 -> 93 -> 101
+    tok/s** by 512 MiB on the first probe. **That is a local test, not a video claim.**
+  - **PLATFORM HEALTH.** [GH] all five answered (ComfyUI's **search API returns 422** for `updated:>` queries, so its
+    listing came from `/issues?since=`). **[REL]** one new release, Strata **v0.2.8**; llama.cpp **v0.8.0** unchanged;
+    Ollama **v0.40.13** unchanged with its published-before-created inversion; **ComfyUI `v0.43.2` tagged, release 404 -
+    and `v0.43.1` still 404 too**, so the newest published release remains v0.43.0. **[HFR]** 314 created, 8/8 tracked
+    unchanged. **[ARX]** advanced, 279 + 608. **[YT]** answered, captions work, one in-window upload. **[RD]** **403 on
+    all three endpoints including RSS - fourth failure in five days, second consecutive loss of the RSS path**; now a
+    standing platform gap rather than a bad day. **[HN] 619 stories, 12 title matches, none on axis** - the first day
+    since 2026-10-27 with no HN item at all.
+  - **Correction carried in from the 2026-10-29 shortlist while this file was written:** the `STRATA_STAGE_TRIM` record
+    in the 2026-10-27 entry was rewritten (trim is *ignored* on one card, not merely null) and the chunk-ladder item was
+    reworded to a split-only experiment. That edit was uncommitted in this repo; it rides this commit, and its companion
+    edit in `CHUNK-LADDER-AND-RESERVE-2026-10-26.md` is left staged-free because it is not a scan-owned path.
+  - **Shortlist, cheapest first**: (1) **withdraw `v0.8.0` as the ladder's target and record the SLRU collapse at one
+    token of slots** (an edit; the ladder must name the policy build, `-nr`, and the hit rate); (2) **add the
+    `CUDA_Host`/`CPU` host-buffer line to the declaration** and re-read our 2026-10-11 load failure against #17380 (an
+    edit plus a re-read); (3) **point the determinism control at #4673's untested cell - one card, `--spec 0`,
+    `--pipeline-windows 0`** (two starts, script already written); (4) **move the bump declaration to 0.2.8 / 0.1.54 /
+    0.1.54 with `STRATA_ROUTE_PRIOR` absent and `STRATA_DEFAULTS=026` as the first-run control** (an edit; download
+    gated); (5) **make prompt length a declared axis of the chunk ladder** because auto is capped at 8192 (an edit; a
+    >=100K arm rides behind 4); (6) **name the tensor type in every pack declaration**, with ISTA GSQ-RCO IQ2_XS the one
+    DSV4.1 pack that loads (an edit); (7) **make the first run of any new pack a task check and keep perplexity paired**
+    (a spec now - and the opening move for Kolibri APEX Micro and Flint IQ3_M). Nothing scheduled.
+  - **Gated on Kevin**: the candidate tests; any Strata bump (**target moved: app 0.2.8 / engine 0.1.54 / Control
+    0.1.54**); a llama.cpp download at any tag past **b11480** (now best named **b12008**, which carries both #31350 and
+    #31368); the **DeepSeek IQ2_XXS download**; the display-to-iGPU cable change; the TTQ 35B-A3B pack; and now the
+    **Kolibri-1 APEX Micro 22.173 GB** and **Flint IQ3_M 17.518 GB** packs.
+
 - **2026-10-29, daily scan: the reserve is a paging contract, CPU-lane experts make greedy output non-repeatable, and our
   own STAGE_TRIM null had a cause printed in the log.** `NEWS-2026-10-29.md`, written against `NEWS-2026-10-28.md`,
   window **2026-10-28T14:30Z -> 2026-10-29T14:30Z** (24.0 h). Reading only - nothing downloaded, installed, built or
@@ -273,9 +408,18 @@
     +3.3-7.4 % in 4 of 5 cells. The one arm that broke that pattern was the under-declared r1536 one.
   - **RESERVE: 900 beats 2000 by +0.5-4.4 % prefill** because it buys 3000 slots against 2168 - its decode half is
     withdrawn as unresolved.
-  - **`STRATA_STAGE_TRIM=1` STILL CHANGED NOTHING ON ONE CARD**, re-checked at 3000 slots: same cache, same chunk, VRAM
-    free at end **547 vs 604 MiB** (lower with the trim), and the pair's 810.7 vs 766.9 prefill tracks the resident grant
-    (6.65 vs 5.29 GiB). The #4261 refund is a split effect.
+  - **`STRATA_STAGE_TRIM=1` CHANGED NOTHING ON ONE CARD BECAUSE IT WAS IGNORED - the arm is void as a trim test, not a
+    null result.** Re-checked at 3000 slots the numbers stood: same cache, same chunk, VRAM free at end **547 vs 604 MiB**,
+    and the pair's 810.7 vs 766.9 prefill tracks the resident grant (6.65 vs 5.29 GiB). What changed on 2026-10-29 is the
+    *reason*: Strata **#4603** quotes the engine printing `--trim-stage-weights needs a layer split across GPUs (ignored)`
+    on one card, and documents `STRATA_ARENA_PIN_GIB` as the same - **a single card registers the whole arena**. So both
+    arms compared "trim off" with "trim off"; on a split with a fixed K the switch is worth **+9.6 % decode, +16.9 %
+    slots** (#4603, measured on a 5070 + 5060 Ti pair with `CMAKE_CUDA_ARCHITECTURES=120`). Consequence: **this cannot be
+    re-run on one card at all** - item (4) in the shortlist is a split-only experiment, and any future arm must grep the
+    engine's log for `needs a layer split` rather than infer a null from identical numbers.
+    *Evidence gap worth naming:* a grep of every retained log under `ai_bench` for `trim-stage-weights needs a layer split`
+    finds **nothing** (2026-10-29), so the 2026-10-27 run's own log is not kept and that arm's evidence cannot be
+    re-examined. The numbers above survive in this note; the log line they were missing does not.
   - **THE LEND REGION WAS 0 OF 1,373-2,541 SLOTS IN ALL 21 ARMS AND NOTHING COLLAPSED.** The #669 warning fired every
     time; the page cache covered the experts, so it is a witness, not a lever. The lever is the **cache slots** (which set
     the granted chunk) and the **VRAM headroom**.
@@ -455,7 +599,8 @@
     **`STRATA_PREFILL_ROUTED_STREAM=1` A/B** on q2_0 with the artifact hash, since bit-identity is the claim (two
     starts, ~40 min); (3) **the cache ladder on a build that logs the cache (>= b11732, past #30848)** - answers SLRU +
     ramped protected set and the video's quarter/85 % rule at once (one Windows CUDA download, gated on Kevin); (4)
-    **`STRATA_STAGE_TRIM=1` on a single card** - the 2.54 GiB is a split measurement (two starts, rides behind the gated
+    **`STRATA_STAGE_TRIM=1` needs a split** - on one card the engine ignores it (`needs a layer split`), so the 2.54 GiB
+    refund is a split measurement and there is nothing to measure here (two starts on a split, rides behind the gated
     bump); (5) the **sm_86 env switch set as an sm_120 transfer test** (~1 h, no install); (6) **a cache-isolation check
     for two conversations sharing one conversation cache** (one engine, two requests); (7) **declare #4304's
     503/tail signature and #31245's event-2004/commit correlation** in the runner (an edit, no engine). Nothing

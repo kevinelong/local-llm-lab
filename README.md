@@ -617,6 +617,35 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-30 &middot; [Daily news scan: Strata ships 0.2.8 and switches the 12 GB routing default back off, llama.cpp's new cache policy collapses at the rung we measured, and our oldest error string gets a named cause](NEWS-2026-10-30.md)**
+&ndash; a **24.0 h** window (2026-10-29T14:30Z &rarr; 14:30Z today). Strata **`v0.2.8` / engine `0.1.54`** published
+**2026-10-29T22:40:43Z**, and its first effect here is a reversal: **the 0.2.7 routing speed-up is off again by default
+on cards of 12 GB or less**, because *"your reports and our own checks tied it to repeated text in long sessions"* &ndash;
+the action on the **+22.9 % perplexity** our 2026-10-28 file headlined, so the bump declaration is now the **absence** of
+`STRATA_ROUTE_PRIOR`. It also fixes **#4474** (the expert cache leaves the reserve you asked for), **#4518** (the
+conversation cache with the PLE table locked, Windows commit side untested) and **#4420** (a parked slot keeps the shared
+prefix, **0.66 s against 3.3 s**), and all its rate rows are A6000 / R9700 / Arc / Radeon &ndash; **no row for this card**.
+**llama.cpp's SLRU cache collapses at exactly the slot count our ladder occupies**: at **240 slots** (one token's experts)
+**0.6 % hits and 8.8 tok/s** against LRU's **37.5 % / 12.9** with the same 53,284 tokens generated every run
+(**#31421**), first bad commit **#30637 (b11732)**, and **#30848's fix was closed 2026-10-27 unmerged** &ndash; so `v0.8.0`
+is past SLRU *and worse at the low end*, and our ladder (measured on pre-SLRU **b11480**) does not transfer to it.
+**Our oldest error string got a cause**: `CUDA error: shared object initialization failed` plus `0xc0000409` on Windows
+sm_120 is a **failed `cudaHostAlloc` that degrades silently to unpinned** and kills the first kernel launch with error 303
+(Ollama **#17380**), told by one log line &ndash; `CUDA_Host` vs `CPU` &ndash; which makes our 2026-10-11 shared-memory
+attribution one of two causes. **`T=0` differs 4/4 on 0.1.52 and 4/4 on 0.1.54** (Strata **#4673**), seed does nothing,
+and the cell the reporter did not test &ndash; **single card, `--spec 0`, `--pipeline-windows 0`** &ndash; is ours, with a
+30-second reproducer. **`--prefill auto` cannot exceed 8192** (`generate.cpp:706`/`:8704`): a 117.7K prompt takes
+**108-127 s** against **58-64 s** at `auto:32768`, which reconciles our +8 % chunk result at 19,769 tokens and makes the
+chunk optimum a function of prompt length. Also: a **305-tag registry audit** finds **7 official GGUF tags (2.3 %)**
+functionally broken with **five matching a clean rebuild tensor for tensor** (arXiv **2609.05881**); llama.cpp **#31368**
+adds the rollback guard and shows **Qwen3.8-27B MTP output byte-identical to no-speculation**, with **b12008** the tag that
+carries both fixes; the **231 GB DeepSeek pack decision got tested** &ndash; unsloth and mrfakename packs fail, **ISTA
+GSQ-RCO IQ2_XS loads**; Colibri silently truncates Cyrillic through a **16-byte buffer** with a confirmed fix; the first
+**22.2 GB Kolibri-1** quant and a **17.5 GB Flint IQ3_M** appear on the Hub; **arXiv advanced** to 2026-10-30 (279 cs.CL +
+608 cs.LG); one in-window YouTube upload offers a **10 %-of-expert-bytes** cache rule that our own ladder refutes and a
+**32-token cache ceiling** that predicts no prefill gain while we measured one; **Reddit is down for the fourth time in
+five days**; and **HN carried nothing on axis** for the first day since 10-27.
+
 **2026-10-29 &middot; [Daily news scan: the reserve is a paging contract, CPU-lane experts make greedy output non-repeatable, and our own STAGE_TRIM null had a cause printed in the log](NEWS-2026-10-29.md)**
 &ndash; a **24.0 h** window (2026-10-28T14:30Z &rarr; 14:30Z today). `--vram-reserve-mib` is not a tuning value but a
 **threshold against WDDM paging**, and the engine never re-checks it (Strata **#4516**): on a **12 GB** card the identical
