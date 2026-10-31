@@ -617,6 +617,33 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-31 &middot; [Daily news scan: the vendor confirms the expert cache is what breaks greedy repeats, Colibri ships its first release in 25 days, and a closed-unmerged PR can still ship](NEWS-2026-10-31.md)**
+&ndash; a **24.0 h** window (2026-10-30T14:30Z &rarr; 14:30Z today). **Strata's own 0.2.9 release notes name the cause of
+this lab's oldest reproducibility puzzle**: `v0.2.9` (published **2026-10-31T08:02:32Z**, app 0.2.9, Control and every
+engine **0.1.55**) states under *Known problems* that *"the expert cache ... moves experts between the CPU and the GPU
+between requests; the two round differently"*, that `--set=--no-expert-cache=on` restored identity, that the price is
+**8&ndash;10 % of decode on four R9700s and 58 % on one**, and that **`DS4_ASYNC_T=16` gave 20 of 20 identical answers**
+&ndash; the same mechanism as Maya **#644** (2026-10-29) and llama.cpp **#25618**/**#31472**, so **three engines now agree**
+and our 2026-10-08 MTP row is a **speed-and-letters** result that cannot be quoted as determinism. **llama.cpp #31472**
+puts the sharpest case on our family: with `draft-dflash`/`draft-dspark` on a **qwen35moe** target, **184 of 184 drafts
+accepted, zero rejects, and the output still differs by 8 lines**, fidelity **non-monotonic** in `p_min` &ndash;
+a duplicate of **#25618**, whose condition is a **quantised** target (bf16 and ngram match) and which one reporter
+reproduced at **RTX 5080 sm_120 with Qwen3.6-35B-A3B UD-Q4_K_M**. **Colibri shipped `v2.1.0`** (2026-10-31T12:50:50Z) &ndash;
+the first release since v2.0.0 &ndash; with a **25.8 MB Windows CUDA archive**, native GGUF *"no conversion, no second
+quantization"*, `compute 8.0 and newer` covering sm_120, **GGUF block formats on CUDA for Qwen3.6/3.8 chains**, **float16
+KV by default**, Qwen3.8 at 262K decoding **9.6 &rarr; 45.7 tok/s**, and **#2509's Windows overlapped positional reads**,
+the same change llama.cpp's **#26014** still has unmerged with *"one handle per thread: 2.22x"*. A Strata decode
+"regression" (**#4778**) was **refuted from the source and retracted** &ndash; `nv_defaults.cpp` branches on `mj == 8 &&
+mn == 6`, **never sm_89** &ndash; leaving **MTP acceptance 79&ndash;81 % &rarr; 70&ndash;75 %** and a triangle where
+**0.1.55 reads +1 %** against 0.1.52. The auto expert cache **leaves headroom it does not need**: `--vram-reserve-mib 1536`
+*raised* the granted cache **3,429 &rarr; 4,112 MiB** and restored 20K prefill **1,139 &rarr; 1,588 tok/s**, while
+`--vram-elastic` did nothing and `Shared Usage` stayed flat. On Windows the resident budget is **one `cudaHostAlloc`**
+(**#4808**): past the driver's limit it silently becomes pageable, `STRATA_PARTIAL_PIN` stops at **~20 GiB of 34.7** where
+the arena pins **41 GiB in 43 slices** &ndash; a candidate cause for our declared-vs-granted gap. An **architecture-mismatched
+engine fails every request** with *"unspecified launch failure"* (**#4662**), **291 GGUF repos** were created with one
+tracked pack **moving revision at identical sizes**, **arXiv did not advance** (279 + 608, still dated 10-30), **YouTube
+captions failed twice** so its one in-window upload is unread, and **Reddit failed a fifth time in six days**.
+
 **2026-10-30 &middot; [Daily news scan: Strata ships 0.2.8 and switches the 12 GB routing default back off, llama.cpp's new cache policy collapses at the rung we measured, and our oldest error string gets a named cause](NEWS-2026-10-30.md)**
 &ndash; a **24.0 h** window (2026-10-29T14:30Z &rarr; 14:30Z today). Strata **`v0.2.8` / engine `0.1.54`** published
 **2026-10-29T22:40:43Z**, and its first effect here is a reversal: **the 0.2.7 routing speed-up is off again by default
