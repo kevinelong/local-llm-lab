@@ -174,9 +174,10 @@ with that tax held constant. What *is* affected is any cross-source prefill comp
 - `C:/Users/kevin/ai_bench/lend-chunk-1024-20261101/` and `lend-chunk-4096-20261101/` - the two chunk arms, one process
   each, including the clamp line and the void reason for the 4096 request.
 - Engine logs: `staged-strata-0.1.47/logs/chunk-q<rung>-r<n>-a1.log`, one per arm, with the argv echo, the grant lines,
-  the lend region, and the commit readback. **Caveat found the hard way:** the log name is keyed on the arm label, not the
-  outdir, so two runs that both use `q8-r1` overwrite each other's log - the second chunk arm overwrote the first one's.
-  The parsed readback in each arm JSON survived, which is why the numbers here are complete; the next runner change is to
-  put the outdir in the log name.
+  the lend region, and the commit readback. **Caveat found the hard way, and fixed the same day:** the log name was keyed
+  on the arm label, not the evidence directory, so two runs that both used `q8-r1` overwrote each other's log - the second
+  chunk arm overwrote the first one's. The parsed readback in each arm JSON survived, which is why the numbers here are
+  complete. The name now carries the evidence directory as a tag (`chunk-<tag>-<label>-a<n>.log`, with the config file
+  renamed to match), verified by two same-label runs producing two distinct files.
 - Latest summary JSONs: `summary-20261101-010757.json`, `summary-20261101-074925.json`, `summary-20261101-075451.json`,
   `summary-20261101-075656.json`, `summary-20261101-075751.json`.

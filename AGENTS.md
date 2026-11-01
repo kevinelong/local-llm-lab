@@ -37,9 +37,15 @@
     ~**32.8 GiB**, which the gate prices at **51.1 GiB free commit - 14.5 GiB beyond this box's 36.65 GiB peak**. Our
     prefill numbers therefore carry a **100 %-uncovered lend region**, which cancels in the rung comparison and does not
     cancel in any cross-source one.
-  - **Instrument defect found and recorded, not fixed yet:** `chunk_ladder.py` names the engine log on the **arm label**,
-    not the outdir, so two runs both using `q8-r1` overwrote one log. The parsed readback in each arm JSON survived, which
-    is why today's numbers are complete; the next runner change is the outdir in the log name.
+  - **Instrument defect found, fixed and verified the same day:** `chunk_ladder.py` named the engine log on the **arm
+    label**, not the evidence directory, so two runs both using `q8-r1` overwrote one log. The name now carries a per-run
+    tag - `chunk-<tag>-<label>-a<attempt>.log`, with the config file renamed to match - and the tag defaults to
+    `--armdir`'s parent directory name, so any run keeping its arms in its own directory is distinct **by construction**;
+    `--logtag` overrides it. **Verified** by running the same arm (`q8-r1`, 8 GiB, prefill 2048) into two directories:
+    `chunk-logfix-verify-a-20261101-q8-r1-a1.log` (11,394 B) and `chunk-logfix-verify-b-20261101-q8-r1-a1.log`
+    (11,541 B) both exist and each arm JSON points at its own. The untagged `chunk-q8-r1-a1.log` from the 08:15 run is
+    left in place and no new run can overwrite it. `--forensics` still globs `chunk-*.log` and still keys rows by name, so
+    it reads the new names unchanged.
 
 - **2026-11-01, SECOND scan (early, 31-minute window): a prefill knob that cannot fire under `--parallel`, KVA
   hard-disabled in exactly the mode serving uses, and llama.cpp's multi-seq KV PR still breaks shared prompts.**
