@@ -374,10 +374,13 @@ VRAM, and none was void: no clamp, no start failure, no un-granted cache, no res
 - **Reserve 900 vs 2000 at a declared cache: +0.5 % to +4.4 % prefill in all four matched cells**, because 900 buys 3000
   slots against 2168 - the reserve's effect *is* the slot effect, which is #4261 again from the reserve side. Decode
   differences here (70.9-85.8 vs 70.9-84.0) are inside the 12 % bar and are not claimed.
-- **`STRATA_STAGE_TRIM=1` on a single card changed nothing.** Arm 13 against arm 4, the same cell: cache **2168 = 2168**,
+- **`STRATA_STAGE_TRIM=1` on a single card changed nothing *because the engine ignored it* (corrected 2026-10-29).** The
+  engine prints `--trim-stage-weights needs a layer split across GPUs (ignored)` on one card (Strata #4603, quoting it
+  verbatim), so arms 13 and 4 are both "trim off" and the cell is **void as a trim measurement** rather than a null
+  result. The numbers are kept as recorded: arm 13 against arm 4, the same cell: cache **2168 = 2168**,
   chunk **4096 = 4096**, VRAM free with everything loaded **1,673 vs 1,461 MiB**, resident granted 9.93 vs 10.18 GiB,
   prefill **854.2 vs 841.8 (+1.5 %, inside the 1.6 % bar)** and decode **78.1 vs 78.8**. It refunded no cache-usable VRAM,
-  added no slots and moved no clamp. That is consistent with the #4261 report being a *split* effect: the trim returns a
+  added no slots and moved no clamp - as it must, since nothing was trimmed. The #4261 refund is a *split* effect: the trim returns a
   card's share of stage buffers, and a single card with no layer split has nothing to return.
 - **`--expert-cache N` is honoured or shrunk, never traded for headroom the way `auto` is.** At reserve 2000, declared
   3000 was granted **2787** and left **731-865 MiB** free, and the arm ran at **137.5 / 132.8 tok/s prefill**; declared
