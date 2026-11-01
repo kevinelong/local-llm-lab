@@ -10,6 +10,11 @@
     14 **733.1** (2), 16 **779.2** (2). **2 -> 8 fits +11.39 per GiB at R^2 = 1.000** (segments +11.2/+11.1/+11.3, which
     reproduces the 10-31 file's +11.2 on an independent night); **8 -> 16 fits +15.77 per GiB at R^2 = 0.963**. **16 GiB is
     +20.5 % over 8 and +34.8 % over 2** on the same prompt and flags.
+  - **REVISION 08:44, by an n=5 run at 8/12/16 GiB (4 clean arms per rung; three contended arms and one unflagged
+    outlier excluded): prefill reads 659.1 / 727.3 / 815.6 tok/s, so 8 -> 16 is +19.6 tok/s per GiB and +23.8 %, and the
+    n=5 single-run slope supersedes the pooled +15.8.** Batch offset at the upper rungs is real - 16 GiB read 779.2 at
+    07:50 and 815.6 at 08:35 (+4.7 %), 12 GiB +5.0 %, 8 GiB +1.9 % - which is why a slope is taken inside a run and
+    never by subtracting across batches.
   - **The rule this changes: a prefill number now carries `resident=`, `prefill=`, `cache=` and `reserve=` or it is not
     comparable** - the undeclared rung is worth up to a fifth of the number, which is the same defect as a decode rate
     without a numerator. Two arms are excluded and named: `q12-r1` lost its expert cache (**220 of 1500** slots, void by
@@ -17,16 +22,19 @@
   - **No pinning ceiling at 16 GiB**, so **#4860's ~23 GiB per-allocation limit is still untested** rather than confirmed.
     24 GiB needs **42.35 GiB** free commit; the box peaks at 35.3, so the reachable ceiling is **17.0 GiB**. Raising the
     page file would change that and is a system change - **gated on Kevin**.
-  - **DECODE IS NOT QUOTABLE ACROSS DAYS, AND NOW WE KNOW WHICH METRIC MOVES.** Same rung, same flags: prefill **645.3 ->
-    649.5 (+0.6 %)** while decode reads **72.5 -> 61.6 (-15 %)**. The 10-31 file's 12 % offset is real and it is
-    **decode-side**; decode stays within-run only, and the 16 GiB decode row (75.8, n=2) must not be quoted as a rung
-    advantage.
+  - **DECODE MOVES WITH THE RUNG AFTER ALL; THE EARLIER "DECODE DOES NOT TRAVEL" READING WAS AN n=2 ARTIFACT.** Same
+    rung, same flags: 8 GiB read **72.5** at 01:07 and **61.6** at 07:38 while prefill moved +0.6 %, which looked like a
+    day offset; at n=4-5 inside one run decode reads **68.4 at 8 GiB and 80.1 at 16 GiB** (+11.7, Welch t = 2.58) with a
+    **28 % spread inside a single rung** (58.3-75.0). **Correction: it is variance, not a day offset.** Decode is quotable
+    per rung with n>=5 and an sd, never across batches, and no per-GiB decode coefficient is justified by this evidence.
   - **The lend region is 0 of 790 in RAM at every rung 2-16, and the engine says why: "0.00 GiB of the budget's
     remaining".** The ranked set is **24,576 pairs** and eats whatever is declared, so the lend region never sees a
     remainder - and the two fixes the engine names are both closed here: a bigger `--resident-budget-gib` is out of
     commit reach, and **a smaller `--prefill` was tested and fails** (`--prefill 1024` lends **498** slots, still 0 in
     RAM, and costs **-23.4 %** prefill: 494.9 against 646.5). `--prefill 4096` is refused at this cache and resident
-    (*"prompt chunk 4096 -> 2048 tokens so its buffers fit in every expert cache"*), reproducing the 10-31 clamp. Our
+    (*"prompt chunk 4096 -> 2048 tokens so its buffers fit in every expert cache"*), reproducing the 10-31 clamp. **Why coverage is out of reach, in arithmetic rather than adjectives:** 790 lend slots weigh 1.02 GiB, so a
+    ranked slot is ~1.32 MiB and the **24,576 ranked pairs alone need ~31.7 GiB** of resident; ranked plus lend is
+    ~**32.8 GiB**, which the gate prices at **51.1 GiB free commit - 14.5 GiB beyond this box's 36.65 GiB peak**. Our
     prefill numbers therefore carry a **100 %-uncovered lend region**, which cancels in the rung comparison and does not
     cancel in any cross-source one.
   - **Instrument defect found and recorded, not fixed yet:** `chunk_ladder.py` names the engine log on the **arm label**,
