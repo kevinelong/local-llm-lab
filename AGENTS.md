@@ -30,7 +30,7 @@
     1536 is the noisy cell. Across the arms, cache vs decode **r=+0.593, +8.6 tok/s per GiB of cache**. **#4811
     reproduces from the other side**: their 3,429 -> 4,112 MiB at 1536 and 2,577 at 2,048 match our 3,328 and 2,857, so
     their "1536 restored the prompt rate" is a *lowering* of a ~2 GiB default, not a property of 1536. **A GiB of cache is
-    worth ~5x a GiB of resident for decode (+8.6 vs +1.70 tok/s)**; resident is the prefill/长-prompt lever. On this card:
+    worth ~5x a GiB of resident for decode (+8.6 vs +1.70 tok/s)**; resident is the prefill and long-prompt lever. On this card:
     spend the last GiB on cache.
   - **Contention is the design risk, not the engine:** 4 of 12 arms in the first sequential run were destroyed by the
     user's ComfyUI renders (gate refuses to start while it is busy but cannot hold the card), and the one void arm -
