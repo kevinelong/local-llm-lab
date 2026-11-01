@@ -617,6 +617,20 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-01 &middot; [The resident budget above 8 GiB: +11.4 prefill tok/s per GiB to 8, +15.8 above it, and no ceiling reached at 16](RESIDENT-ABOVE-8-2026-11-01.md)**
+&ndash; 13 clean arms, engine **0.1.47**, `q2_0` pack, `--prefill 2048 --reserve 900 --cache 1500`, a **19,769-token**
+prompt, one process per arm. Prefill reads **578.0** (2 GiB, n=5), **600.4** (4), **622.6** (6), **646.5** (8, n=7),
+**683.2** (10, n=2), **692.8** (12), **733.1** (14), **779.2** (16) tok/s, with `granted == declared` and
+`resident_pinned: true` at every rung. **2 &rarr; 8 fits +11.39 tok/s per GiB at R&sup2; = 1.000** (reproducing the
+10-31 file's +11.2 on another night) and **8 &rarr; 16 fits +15.77 at R&sup2; = 0.963** &ndash; so **16 GiB is +20.5 % over
+8 and +34.8 % over 2**, and the old 8 GiB top rung was a commit limit, not an optimum. **A prefill number now carries its
+`resident=` or it is not comparable.** Nothing clamps at 16, so **#4860's ~23 GiB per-allocation ceiling stays untested**:
+24 GiB needs **42.35 GiB** free commit against a 35.3 GiB peak, making **17.0 GiB** the reachable rung. Decode is the
+metric that does not travel &ndash; same rung, same flags, **72.5 &rarr; 61.6 (-15 %)** while prefill moved **+0.6 %**, so
+decode stays within-run only. And the **lend region is 0 of 790 in RAM at every rung** because *"0.00 GiB of the budget's
+remaining"* after **24,576 ranked pairs**: the engine's two fixes are both closed, since `--prefill 1024` lends **498**
+slots with still **0** in RAM and costs **-23.4 %** prefill, and `--prefill 4096` is clamped to 2048 at this cache.
+
 **2026-11-01, second run &middot; [Daily news scan: a prefill knob that cannot fire under `--parallel`, KVA hard-disabled in exactly the mode serving uses, and llama.cpp's multi-seq KV PR still breaks shared prompts](NEWS-2026-11-01a.md)**
 &ndash; a **0.5 h** window (2026-11-01T14:36Z &rarr; 15:07Z), run early on request; the 06:30 task had already closed at
 **14:35:16Z**, so this file is additive and re-covers nothing. **Strata #4929**: `STRATA_PREFILL_HELPER_SOURCE` is gated

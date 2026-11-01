@@ -1,5 +1,38 @@
 # Local AI lab working instructions
 
+- **2026-11-01, resident above 8 GiB: the lever steepens to +15.8 tok/s per GiB, nothing clamps at 16, and the lend
+  region is unfixable on this box.** `RESIDENT-ABOVE-8-2026-11-01.md`, 13 clean arms, engine **0.1.47**, pack `q2_0`,
+  `--prefill 2048 --reserve 900 --cache 1500`, 19,769-token prompt, one process per arm. Gates at start: free physical
+  37.3-44.5 GiB, commit free 34.3-35.3 GiB, VRAM 9,876-10,932 MiB free, ComfyUI idle. The old ladders stopped at 8 GiB
+  because commit could not honour more, not because 8 was an optimum.
+  - **The curve, prefill tok/s (grants identical to declarations at every rung, `resident_pinned: true` throughout):**
+    2 GiB **578.0** (n=5), 4 **600.4** (5), 6 **622.6** (5), 8 **646.5** (7), 10 **683.2** (2), 12 **692.8** (2),
+    14 **733.1** (2), 16 **779.2** (2). **2 -> 8 fits +11.39 per GiB at R^2 = 1.000** (segments +11.2/+11.1/+11.3, which
+    reproduces the 10-31 file's +11.2 on an independent night); **8 -> 16 fits +15.77 per GiB at R^2 = 0.963**. **16 GiB is
+    +20.5 % over 8 and +34.8 % over 2** on the same prompt and flags.
+  - **The rule this changes: a prefill number now carries `resident=`, `prefill=`, `cache=` and `reserve=` or it is not
+    comparable** - the undeclared rung is worth up to a fifth of the number, which is the same defect as a decode rate
+    without a numerator. Two arms are excluded and named: `q12-r1` lost its expert cache (**220 of 1500** slots, void by
+    the declared-cache rule) and `q12-r2` decoded **16.8 tok/s** on a contended card; the 12 GiB row is the clean re-run.
+  - **No pinning ceiling at 16 GiB**, so **#4860's ~23 GiB per-allocation limit is still untested** rather than confirmed.
+    24 GiB needs **42.35 GiB** free commit; the box peaks at 35.3, so the reachable ceiling is **17.0 GiB**. Raising the
+    page file would change that and is a system change - **gated on Kevin**.
+  - **DECODE IS NOT QUOTABLE ACROSS DAYS, AND NOW WE KNOW WHICH METRIC MOVES.** Same rung, same flags: prefill **645.3 ->
+    649.5 (+0.6 %)** while decode reads **72.5 -> 61.6 (-15 %)**. The 10-31 file's 12 % offset is real and it is
+    **decode-side**; decode stays within-run only, and the 16 GiB decode row (75.8, n=2) must not be quoted as a rung
+    advantage.
+  - **The lend region is 0 of 790 in RAM at every rung 2-16, and the engine says why: "0.00 GiB of the budget's
+    remaining".** The ranked set is **24,576 pairs** and eats whatever is declared, so the lend region never sees a
+    remainder - and the two fixes the engine names are both closed here: a bigger `--resident-budget-gib` is out of
+    commit reach, and **a smaller `--prefill` was tested and fails** (`--prefill 1024` lends **498** slots, still 0 in
+    RAM, and costs **-23.4 %** prefill: 494.9 against 646.5). `--prefill 4096` is refused at this cache and resident
+    (*"prompt chunk 4096 -> 2048 tokens so its buffers fit in every expert cache"*), reproducing the 10-31 clamp. Our
+    prefill numbers therefore carry a **100 %-uncovered lend region**, which cancels in the rung comparison and does not
+    cancel in any cross-source one.
+  - **Instrument defect found and recorded, not fixed yet:** `chunk_ladder.py` names the engine log on the **arm label**,
+    not the outdir, so two runs both using `q8-r1` overwrote one log. The parsed readback in each arm JSON survived, which
+    is why today's numbers are complete; the next runner change is the outdir in the log name.
+
 - **2026-11-01, SECOND scan (early, 31-minute window): a prefill knob that cannot fire under `--parallel`, KVA
   hard-disabled in exactly the mode serving uses, and llama.cpp's multi-seq KV PR still breaks shared prompts.**
   `NEWS-2026-11-01a.md`, written against `NEWS-2026-11-01.md` (which the 06:30 task closed at **14:35:16Z**), window
