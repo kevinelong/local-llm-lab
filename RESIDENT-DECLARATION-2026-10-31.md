@@ -162,7 +162,9 @@ a measured decode cache hit rate of **1.1 % (135 hits / 11,883 lookups)**.
 | 8 GiB | 1 | 652 | 67.9 | 21 |
 
 * **prefill: r = +0.926, +11.0 tok/s per GiB** (588 -> 652 for 6 GiB)
-* **decode: r = -0.012, flat** (70.2 / 70.8 / 72.4 / 67.9 - no trend outside a 4 % spread)
+* **decode: r = -0.012, flat** (70.2 / 70.8 / 72.4 / 67.9 - no trend outside a 4 % spread). **Superseded by section 7**:
+  that flat reading came from n=1-3 with the res8 cell resting on a single low arm; at n=5 the slope is +1.70 tok/s per
+  GiB and the same number reproduces the 2026-10-27 curve.
 
 So section 5's "+87 % decode from 6 GiB of resident" is **not** a general result, and this is the correction: it was
 measured with the rungs **clamped**, where the low-resident arms had too little RAM for the experts the 3,000-slot cache
@@ -185,3 +187,41 @@ line: with enough resident RAM, the cache is a decode device, not a prefill devi
 next design either (a) runs while nothing else renders, declared up front, or (b) records a `comfy_active` boolean per arm
 by sampling the queue during the arm - and of the two, (a) is the honest one, because contention cannot be subtracted
 after the fact.
+
+
+## 7. The clean re-run: 20 of 20 arms honoured, both slopes measured
+
+`ai_bench/resident-ladder-idle-20261101/` - the same design as section 6 (`prefill=2048`, `cache=1500`, `reserve=900`,
+`resident = 2/4/6/8`), but **five replicates per rung** and the card to itself: ComfyUI and the Z-Image window were
+closed, nothing else held the GPU, and every arm ran in its own process. Commit free stayed **30.93-31.62 GiB** for the
+whole 21.9 min run - the decay of section 5 does not exist when each arm gets a fresh process and nothing else competes.
+
+**20 of 20 arms valid**: granted == declared, chunk 2048, cache 1.93 GiB, `resident_pinned: true`, no voids.
+
+| resident | n | prefill tok/s | decode tok/s | accepted | answer text |
+|---|---|---|---|---|---|
+| 2 GiB | 5 | 578 +/- 5 | 62.2 +/- 2.0 | 23,23,23,23,25 | identical |
+| 4 GiB | 5 | 600 +/- 13 | 66.6 +/- 3.4 | 20,20,20,21,20 | identical |
+| 6 GiB | 5 | 623 +/- 13 | 69.5 +/- 4.9 | 24,20,20,24,21 | identical |
+| 8 GiB | 5 | 645 +/- 10 | 72.5 +/- 3.4 | 20,21,21,21,21 | identical |
+
+* **prefill: 578 -> 645 (+12 %), r = +0.933, +11.2 tok/s per GiB**
+* **decode: 62.2 -> 72.5 (+17 %), r = +0.763, +1.70 tok/s per GiB**
+* greedy answer text identical in **20 of 20** arms, acceptance 20-25 drafts with no trend
+
+So the resident budget buys **both** paths, and the sizes are now quotable:
+
+* **+11.2 tok/s of prefill per GiB** at cache 1500 / chunk 2048 (the 2026-10-27 set, read as a granted curve over
+  0.65-8.00 GiB, gave +18.0 - the difference is that set's low tail, where 0.65-2 GiB arms were disk-bound).
+* **+1.70 tok/s of decode per GiB** - the *same* figure the 2026-10-27 arms produced from a completely different design
+  (declared sweep, cache 3000, clamped grants). Two designs, one number: that is the lab's first cross-design
+  reproduction of a resident effect.
+* Sections 5 and 6's "+87 % decode" and "-0.012, flat" are both withdrawn. The first was measured on clamped,
+  cache-starved rungs; the second on n=1-3 where the res8 cell was one low arm (67.9 against 70.2-72.4). n = 5 with an
+  idle card settles it at +17 %.
+* **Day-to-day offset:** res2 decode was 70.2 yesterday and 62.2 today at identical flags - a **12 % offset** between
+  sessions, which is exactly the lab's existing 12 % bar. Within-run slopes are quotable; absolute tok/s across days are
+  not.
+
+**Design rule now settled for the resident axis:** hold cache, chunk and reserve; run >= 5 replicates; one process per
+arm; require the card idle for the whole run; declare the granted chunk.

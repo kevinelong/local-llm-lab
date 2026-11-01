@@ -16,14 +16,18 @@
   - **The clean pair, both rungs honoured at near-identical ambient cost** (commit free 24.87 vs 24.71 GiB): `res2`
     2.00 GiB granted -> **374.9 prompt / 12.4 decode**; `res8` 8.00 GiB -> **477.9 / 23.2**. **+27 % prompt, +87 %
     decode for 6 GiB of resident RAM**, answer text identical (`42`/`150`) in all 24 arms.
-  - **Corrected the same day by a second run (section 6 of the note):** with the rungs *honoured* (granted == declared
-    in 12 of 12) at a fixed `cache=1500`, `prefill=2048`, the clean 8-arm set gives **prefill r=+0.926, +11.0 tok/s per
-    GiB (588 -> 652)** and **decode r=-0.012, flat (70.2 / 70.8 / 72.4 / 67.9)**. The +87 % decode below holds only when
-    the rungs are *clamped*, i.e. when low-resident arms also lack RAM for the experts a 3,000-slot cache does not hold.
-    Three tiers, measured: **VRAM cache carries decode, resident RAM carries prefill (+11 tok/s/GiB, ~0 for decode), and
-    disk is the collapse mode** (~220 prefill / 4.7-7.9 decode on the contended arms). An accidental n=1 A/B on the one
-    void arm - 8 GiB resident with a **10-slot** cache - scored 648.8/55.9 against 651.8/67.9 for 1,500 slots: at 8 GiB
-    resident the cache is worth ~3 tok/s of prefill (noise) and ~12 tok/s of decode (-18 %).
+  - **Corrected twice the same day; the settled run is section 7 (2026-11-01), n=5 per rung, 20 of 20 arms honoured on
+    an idle card:** **prefill 578 -> 645 tok/s (+12 %), r=+0.933, +11.2 tok/s per GiB**; **decode 62.2 -> 72.5 (+17 %),
+    r=+0.763, +1.70 tok/s per GiB**; greedy text identical in 20 of 20, acceptance 20-25 with no trend, commit free
+    steady at 30.93-31.62 GiB for the whole 21.9 min. The **+1.70 tok/s per GiB decode slope reproduces the 2026-10-27
+    granted curve exactly** from a different design - the lab's first cross-design reproduction of a resident effect.
+    Withdrawn: section 5's "+87 % decode" (clamped, cache-starved rungs) and section 6's "flat, r=-0.012" (n=1-3, res8
+    resting on one low arm at 67.9). **Day-to-day offset is 12 %** - res2 decode 70.2 yesterday vs 62.2 today at
+    identical flags - so only within-run slopes are quotable, never absolute tok/s across days.
+  - **Contention is the design risk, not the engine:** 4 of 12 arms in the first sequential run were destroyed by the
+    user's ComfyUI renders (gate refuses to start while it is busy but cannot hold the card), and the one void arm -
+    8 GiB resident with a **10-slot** cache at 0 MiB VRAM free, decode cache hit rate **1.1 % (135/11883)** - scored
+    648.8/55.9 against 651.8/67.9 for 1,500 slots. A ladder needs the card idle for its whole run, declared up front.
   - **Contention cost 4 of 12 arms**, and the gate cannot prevent it: it refuses to start while ComfyUI is busy but
     cannot hold the card, so three arms overlapped the user's renders and one was void with a 10-slot cache at 0 MiB VRAM
     free (decode cache hit rate **1.1 %**). A ladder needs the card **for its whole duration**, not just at each start.

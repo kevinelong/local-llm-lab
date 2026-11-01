@@ -629,11 +629,14 @@ re-run below. **All 24 arms are void** because the engine granted chunk **2048**
 declared, and **commit headroom decayed 24.87 -> 13.91 GiB within the run** (only the first two arms bound) - so the
 next design needs the granted chunk declared from a probe and **one process per arm**. Both were built the same evening
 (`control/resident_ladder_seq.py`) and the re-run honoured **every rung** (granted == declared in 12 of 12, chunk 2048,
-cache 1.93 GiB): the clean 8-arm set gives **prefill r=+0.926, +11.0 tok/s per GiB (588 -> 652)** and **decode r=-0.012,
-flat (70.2 / 70.8 / 72.4 / 67.9)**. So the earlier "+87 % decode" was an artefact of clamped rungs, and the tier
-hierarchy is measured: **VRAM cache carries decode, resident RAM carries prefill, disk is the collapse mode** (~220 prefill
-and 4.7-7.9 decode on arms the user's renders overlapped - 4 of 12, which is why a ladder now needs the card for its whole
-duration rather than at each start).
+cache 1.93 GiB), and then at **n=5 per rung on an idle card with 20 of 20 arms honoured**: **prefill 578 -> 645 (+12 %),
+r=+0.933, +11.2 tok/s per GiB**, and **decode 62.2 -> 72.5 (+17 %), r=+0.763, +1.70 tok/s per GiB** - a decode slope that
+**reproduces the 2026-10-27 granted curve exactly** from a different design, the lab's first cross-design reproduction of
+a resident effect. Both earlier readings ("+87 % decode" and "flat") are withdrawn: the first came from clamped,
+cache-starved rungs, the second from n=1-3. Greedy text was identical in 20 of 20 arms, accept 20-25 with no trend, and
+**day-to-day offset is 12 %** (res2 decode 70.2 yesterday, 62.2 today at identical flags), so only within-run slopes are
+quotable. Contention, not the engine, is the design risk: 4 of 12 arms in the first sequential run were destroyed by
+concurrent renders, which is why a ladder now requires the card for its whole duration.
 
 **2026-10-31 &middot; [Daily news scan: the vendor confirms the expert cache is what breaks greedy repeats, Colibri ships its first release in 25 days, and a closed-unmerged PR can still ship](NEWS-2026-10-31.md)**
 &ndash; a **24.0 h** window (2026-10-30T14:30Z &rarr; 14:30Z today). **Strata's own 0.2.9 release notes name the cause of
