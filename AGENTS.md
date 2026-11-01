@@ -19,7 +19,8 @@
     rate**; the log says *"the prompt path borrows 1277 CUDA0 cache slots (3.73 GiB)"*, *"only 0 of their experts fit in
     RAM ... prompts can read ~3x slower than with `--prefill auto`"*, and the planner prices it at *"about 271.2 GB read
     from the drive per 32768-token prompt (4 chunks); no option does better (the set cannot fit: fewest passes win)"*.
-    **Applies here as a shape, not as a denial:** 12 GB / 32 GB cannot hold a 63.2 GiB expert set, so the SSD path is our
+    **Applies here as a shape, not as a denial:** 12 GB VRAM and **63.46 GiB RAM** cannot hold a 63.2 GiB expert set once
+    the OS and file-cache headroom are paid, so the SSD path is our
     normal case - but a budget *lent* to the prompt path stops being available to the path ranked for it, which is the
     same tax our reserve sweep priced on 2026-10-31. Testable here in one serve-mode arm, no download.
   - **KVA IS OFF IN EXACTLY THE MODE SERVING USES, AND THE PATCHED NUMBERS CARRY THE RULE.** Strata **#4927** (created
