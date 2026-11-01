@@ -24,6 +24,14 @@
     Withdrawn: section 5's "+87 % decode" (clamped, cache-starved rungs) and section 6's "flat, r=-0.012" (n=1-3, res8
     resting on one low arm at 67.9). **Day-to-day offset is 12 %** - res2 decode 70.2 yesterday vs 62.2 today at
     identical flags - so only within-run slopes are quotable, never absolute tok/s across days.
+  - **Reserve sweep (section 8, 2026-11-01, 9 arms, card idle, no voids): a reserve is a ~1:1 tax on the expert cache.**
+    `cache=auto`, `resident=4`, reserves 900/1536/2000: cache **4.03 / 3.25 / 2.79 GiB**, prefill 646/638/634 (**+2 %** for
+    1.1 GiB of reserve), decode **89.2 / 74.3 / 79.3** - so **900 MiB beats 2,000 by +9.9 tok/s (+12 % of decode)** and
+    1536 is the noisy cell. Across the arms, cache vs decode **r=+0.593, +8.6 tok/s per GiB of cache**. **#4811
+    reproduces from the other side**: their 3,429 -> 4,112 MiB at 1536 and 2,577 at 2,048 match our 3,328 and 2,857, so
+    their "1536 restored the prompt rate" is a *lowering* of a ~2 GiB default, not a property of 1536. **A GiB of cache is
+    worth ~5x a GiB of resident for decode (+8.6 vs +1.70 tok/s)**; resident is the prefill/长-prompt lever. On this card:
+    spend the last GiB on cache.
   - **Contention is the design risk, not the engine:** 4 of 12 arms in the first sequential run were destroyed by the
     user's ComfyUI renders (gate refuses to start while it is busy but cannot hold the card), and the one void arm -
     8 GiB resident with a **10-slot** cache at 0 MiB VRAM free, decode cache hit rate **1.1 % (135/11883)** - scored

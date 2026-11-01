@@ -225,3 +225,33 @@ So the resident budget buys **both** paths, and the sizes are now quotable:
 
 **Design rule now settled for the resident axis:** hold cache, chunk and reserve; run >= 5 replicates; one process per
 arm; require the card idle for the whole run; declare the granted chunk.
+
+## 8. The reserve sweep: a reserve is a 1:1 tax on the expert cache, and #4811 reproduces from the other side
+
+`ai_bench/reserve-sweep-20261101/` - 9 arms, `--expert-cache auto`, `resident=4` GiB, `prefill=2048`,
+`--vram-reserve-mib = 900 / 1536 / 2000`, 3 replicates interleaved, card idle, no contention, no voids.
+
+| reserve | granted cache | prefill tok/s | decode tok/s | accepted |
+|---|---|---|---|---|
+| 900 MiB | **4.03 GiB** (sd 0.10) | 646 (sd 8) | **89.2** (sd 4.2) | 24, 24, 23 |
+| 1536 MiB | 3.25 GiB (sd 0.03) | 638 (sd 8) | 74.3 (sd 7.0) | 23, 23, 21 |
+| 2000 MiB | 2.79 GiB (sd 0.04) | 634 (sd 8) | 79.3 (sd 3.6) | 23, 21, 21 |
+
+* **The reserve is subtracted from the cache almost exactly 1:1**: +1,100 MiB of reserve cost **1.24 GiB of cache**
+  (4.03 -> 2.79). Whatever the reserve protects, it is paid for in expert cache slots.
+* **Prefill barely moves** (646 -> 634, **+2 %** for the whole 1.1 GiB of reserve) - inside the 12 % bar and in the
+  direction cache size predicts.
+* **Decode tracks the cache**, not the reserve: 900 MiB beats both larger reserves by **+9.9 tok/s (+12 %)** against
+  2,000 MiB, and the 1536 cell is the noisy one (sd 7.0). Across the 9 arms, cache vs decode is **r = +0.593,
+  +8.6 tok/s per GiB of cache**.
+* **#4811 reproduces from the other side, and its direction is the one this sweep measures.** Their 20 GB Ada card read
+  cache **3,429 -> 4,112 MiB** moving to `--vram-reserve-mib 1536` and **2,577 MiB** at 2,048. Our card gives 3,328 MiB
+  at 1536 and 2,857 MiB at 2,000 - the same numbers within ~10-20 %. So their "1536 restored prompt rate" is a *lowering*
+  of a ~2 GiB default, not a special property of 1536; and their 2,048 "collapse" is the 1:1 tax, exactly as here.
+* **The actionable ratio:** a GiB of **VRAM expert cache** is worth **+8.6 tok/s of decode** (this sweep), a GiB of
+  **resident RAM** is worth **+1.70 tok/s** (section 7). Cache is **~5x more valuable per GiB for decode**, and the
+  reverse holds for prefill (+9.9 per GiB of cache here vs +11.2 per GiB of resident there). On a 12 GB card the config
+  that reads "spend the last GiB on cache, not on resident" is the measured one; resident is the lever for long prompts.
+
+**What this closes:** the scan's #4811 item, and the reserve question generally - on this card `900` is simply better
+than `1536` or `2000` at a fixed resident budget, by 12 % of decode, because it buys back a GiB of cache.

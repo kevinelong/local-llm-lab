@@ -636,7 +636,12 @@ a resident effect. Both earlier readings ("+87 % decode" and "flat") are withdra
 cache-starved rungs, the second from n=1-3. Greedy text was identical in 20 of 20 arms, accept 20-25 with no trend, and
 **day-to-day offset is 12 %** (res2 decode 70.2 yesterday, 62.2 today at identical flags), so only within-run slopes are
 quotable. Contention, not the engine, is the design risk: 4 of 12 arms in the first sequential run were destroyed by
-concurrent renders, which is why a ladder now requires the card for its whole duration.
+concurrent renders, which is why a ladder now requires the card for its whole duration. The reserve sweep that followed
+(`cache=auto`, resident 4 GiB, reserves 900/1536/2000, 9 arms, no voids) shows the reserve is a **~1:1 tax on the expert
+cache**: cache **4.03 / 3.25 / 2.79 GiB**, decode **89.2 / 74.3 / 79.3 tok/s**, prefill up 2 % - so **900 MiB beats 2,000
+by 12 % of decode**, and a GiB of cache is worth **~5x** a GiB of resident for decode (+8.6 vs +1.70 tok/s). **#4811
+reproduces from the other side** (their 3,429->4,112 MiB at 1536 and 2,577 at 2,048 match our 3,328 and 2,857): "1536
+restored the prompt rate" because their default was ~2 GiB, not because 1536 is special.
 
 **2026-10-31 &middot; [Daily news scan: the vendor confirms the expert cache is what breaks greedy repeats, Colibri ships its first release in 25 days, and a closed-unmerged PR can still ship](NEWS-2026-10-31.md)**
 &ndash; a **24.0 h** window (2026-10-30T14:30Z &rarr; 14:30Z today). **Strata's own 0.2.9 release notes name the cause of
