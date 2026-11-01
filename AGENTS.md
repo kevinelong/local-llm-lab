@@ -1,5 +1,62 @@
 # Local AI lab working instructions
 
+- **2026-11-01, SECOND scan (early, 31-minute window): a prefill knob that cannot fire under `--parallel`, KVA
+  hard-disabled in exactly the mode serving uses, and llama.cpp's multi-seq KV PR still breaks shared prompts.**
+  `NEWS-2026-11-01a.md`, written against `NEWS-2026-11-01.md` (which the 06:30 task closed at **14:35:16Z**), window
+  **2026-11-01T14:36Z -> 15:07Z** (0.5 h), run early on Kevin's instruction. Reading only - nothing downloaded,
+  installed, built or run, no engine started, no inference, no benchmark, **WSL not started** (so no YouTube query, and
+  the omission is recorded as one), `ai_bench` untouched.
+  - **CORRECTION TO THIS MORNING'S OWN FILE, not to a vendor.** `NEWS-2026-11-01.md` line 3 says it was *"read on
+    2026-11-01 between 14:30Z and 16:10Z"*; the file was written **14:35:16Z** and the run logged
+    `daily news scan exit 0` at **14:36:27Z**, so the true read interval is **14:30Z -> 14:35Z** and `16:10Z` is
+    impossible. This morning's entry here states the window correctly (2026-10-31T14:30Z -> 2026-11-01T14:30Z) and no
+    claim inside that file depends on the extra 100 minutes, but the header sentence is wrong. **Rule: the header's read
+    interval comes from the start and exit lines in `%TEMP%\daily-news-scan.log`**, not from an estimate.
+  - **THE INERT-KNOB CLASS, THIS TIME ON THE PROMPT PATH.** Strata **#4929** (2026-11-01T14:55:19Z, open, no maintainer
+    reply): **`STRATA_PREFILL_HELPER_SOURCE` is gated on `o.batch <= 0`, so it never engages with `--parallel N`**, and it
+    halves prompt TTFT when it does. Four-card box, every prompt paying **~7.4 s to first token regardless of length**
+    (524 tokens 7.4 s, 8,012 in 22.4 s, 34,300 in 110 s) while decode holds **55-60 tok/s at a 100 % expert-cache hit
+    rate**; the log says *"the prompt path borrows 1277 CUDA0 cache slots (3.73 GiB)"*, *"only 0 of their experts fit in
+    RAM ... prompts can read ~3x slower than with `--prefill auto`"*, and the planner prices it at *"about 271.2 GB read
+    from the drive per 32768-token prompt (4 chunks); no option does better (the set cannot fit: fewest passes win)"*.
+    **Applies here as a shape, not as a denial:** 12 GB / 32 GB cannot hold a 63.2 GiB expert set, so the SSD path is our
+    normal case - but a budget *lent* to the prompt path stops being available to the path ranked for it, which is the
+    same tax our reserve sweep priced on 2026-10-31. Testable here in one serve-mode arm, no download.
+  - **KVA IS OFF IN EXACTLY THE MODE SERVING USES, AND THE PATCHED NUMBERS CARRY THE RULE.** Strata **#4927** (created
+    2026-11-01T14:30:25Z, six minutes before this window opened): `else if (o.batch > 0) ke.blocked = "batch slots
+    (--batch)";` - with `parallel: 2` KVA never runs. On one **RTX 5090 Laptop 24 GB**, Qwen3.8-Flash-Next IQ3_S, 200K:
+    **70K/190K TTFT 22.5 s -> 19.1 s (~+15 %)**, prompt **3,134 -> 3,568 tok/s**, **solo and batch tokens identical**, and
+    app-side gates on engine 0.1.55 **PASS** (Agentic 0.992, refusal 0/48, KV 100/150/180/190K) - at the cost of the
+    second slot (concurrent 25K request **18.35 s -> 37.1 s**), which **#4930** exists to fix and has not measured yet.
+    **The figure that governs us is the fidelity row, not the speed row:** *"approximated 32768 of 38914 positions in 1
+    of 2 chunks"*. Our metric is a **92/93-letter** near-tie check, which is what a 1.6 K-position approximation can flip,
+    so any KVA arm carries the letters metric and not just tok/s. Fork-only binary, no release: **not scheduled**.
+  - **`-kvu` FOR MULTI-SEQ IS ON HOLD, ON THE MAINTAINER'S OWN READING.** llama.cpp **#29510** (20 comments, updated
+    14:54:21Z): author *"The latest commit has a bug for shared sequences, ie shared prompts are broken"* (03:13:50Z),
+    SWA out-of-window cells still in kv-rows with Gemma **~20 % worse**, `ggerganov` at 06:21:33Z *"I completely
+    overlooked those ... we likely have to rework the `llama_kv_cells` to be better suited for the KV rows
+    construction"*, and the author's fix is an unprototyped `cells_of_seq[s]` bitset (14:54:21Z). Shared prefixes are
+    ours to use, so this is a **correctness hold**, recorded so nobody re-litigates it next week.
+  - **TWO DECLINES WITH VENDOR-AUTHORED REASONS.** **#4856** `STRATA_SPEC_PCUM` (PR, updated 15:05:04Z): the draft-window
+    product rule is **+1.5 % HIP decode when sampling, byte-identical greedy**, and **4-6 % slower at 33 K and 110 K** on
+    P100 - the reporter's own words are *"the gain is small or negative, because this model's verify cost hardly grows
+    with depth"*. **#31079** (Vulkan NVFP4, 128-entry `ue4m3_fp32_lut` indexed by a raw scale byte, so **>= 0x80 reads past
+    shared memory**): llama.cpp's own quantizer never sets bit 7, and the author's backend survey puts **Blackwell native
+    in the "undefined" branch** - so any future NVFP4 arm from an unfamiliar publisher needs a row-data validation pass
+    first. Zero work until such a file is proposed.
+  - **WHAT DID NOT MOVE, and that is the finding.** **No release, no merge, no new build**: Strata still **v0.2.9**
+    (2026-10-31T08:02:32Z), llama.cpp still **b12032** (09:00:59Z) with **master's head at `dde879bc` 06:46:43Z**, Ollama
+    **0** updates, Strata `main` **0** commits and the repo object still `pushed_at` **2026-10-31T07:39:18Z**. **Strata
+    #4860 - this morning's WDDM headline - was not updated**, so our **~31.7 GiB `[INFERENCE]`** in
+    `WDDM-SHARED-SEGMENT-2026-10-22.md` is **still uncorrected**, and that edit remains the cheapest item on the board.
+    **#4826/#4841** got no comment either: the `--kv-resident` A/B still has not been run by anyone.
+  - **Shortlist, cheapest first:** (1) edit the WDDM note (20 minutes, unchanged); (2) hold `-kvu` for multi-seq and say
+    why; (3) decline `STRATA_SPEC_PCUM` with its own numbers; (4) one serve-mode arm at `--parallel 1`/`2` with
+    `STRATA_PREFILL_HELPER_SOURCE` on/off reading the lend lines back - the only item here testable on 12 GB; (5) an
+    NVFP4 row-data rule before any such arm; (6) no KVA scheduling until #4930 has numbers; (7) an idle-server check on
+    any AMD arm, since #3770 now has a **second reporter** (`herosea`, 14:55:04Z). **Nothing in this window is gated on
+    Kevin**; the candidate tests and any Strata bump are unchanged.
+
 - **2026-11-01, daily scan: the WDDM ceiling we have quoted since 2026-10-22 is the wrong rule, three cards report a
   0.1.54/0.1.55 decode regression, and llama.cpp wrote batch invariance down as a kernel contract.**
   `NEWS-2026-11-01.md`, written against `NEWS-2026-10-31.md`, window **2026-10-31T14:30Z -> 2026-11-01T14:30Z** (24.0 h).

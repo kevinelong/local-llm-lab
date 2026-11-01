@@ -617,6 +617,26 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-01, second run &middot; [Daily news scan: a prefill knob that cannot fire under `--parallel`, KVA hard-disabled in exactly the mode serving uses, and llama.cpp's multi-seq KV PR still breaks shared prompts](NEWS-2026-11-01a.md)**
+&ndash; a **0.5 h** window (2026-11-01T14:36Z &rarr; 15:07Z), run early on request; the 06:30 task had already closed at
+**14:35:16Z**, so this file is additive and re-covers nothing. **Strata #4929**: `STRATA_PREFILL_HELPER_SOURCE` is gated
+on `o.batch <= 0`, so it **never engages with `--parallel N`** and halves prompt TTFT when it does &ndash; a four-card box
+paying **~7.4 s to first token regardless of prompt length** while decode holds **55-60 tok/s at a 100 % cache hit rate**,
+because the prompt path borrows 1,277 cache slots and **0 of their experts** are in RAM, so the planner prices
+**271.2 GB of drive reads per 32 K prompt**. **Strata #4927/#4930**: `STRATA_KVA=1` is blocked by `o.batch > 0`, i.e.
+off in the mode serving uses; a fork patch on one **RTX 5090 Laptop 24 GB** takes **70K/190K TTFT 22.5 s -> 19.1 s** with
+**solo and batch tokens identical** and engine-0.1.55 app gates PASS, but the concurrent short request goes
+**18.35 s -> 37.1 s** &ndash; and it **approximates 32,768 of 38,914 positions**, which is why any KVA arm here carries the
+92/93-letter metric. **llama.cpp #29510** still *"breaks shared prompts"* per its author and the maintainer concedes
+`llama_kv_cells` may need reworking: **`-kvu` for multi-seq is on hold**. **Two declines with vendor-authored reasons**:
+**#4856** `STRATA_SPEC_PCUM` (**+1.5 % HIP sampling, 4-6 % slower at 33 K/110 K**, *"the gain is small or negative"*) and
+**#31079** (NVFP4's high scale byte reads past a 128-entry LUT on Vulkan; the author's survey leaves **Blackwell native
+undefined**). **Nothing shipped**: Strata still **v0.2.9**, llama.cpp still **b12032** with master's head at 06:46:43Z,
+**0** Strata commits, **0** Ollama updates, and **#4860 - this morning's WDDM headline - did not move**, so our
+**~31.7 GiB** figure is still uncorrected. **3** GGUF repos in 31 minutes (~5.8/h, matching yesterday's ~5.9/h), **arXiv
+frozen a fourth day**, **Reddit 403 a seventh time**. One correction to this morning's own file: its header's *"14:30Z and
+16:10Z"* read interval is impossible, since the run exited at **14:36:27Z**.
+
 **2026-11-01 &middot; [Daily news scan: the WDDM "50 % of RAM" ceiling is a per-allocation limit and not a pool rule, three cards report a 0.1.54/0.1.55 decode regression, and llama.cpp states batch invariance as a kernel contract](NEWS-2026-11-01.md)**
 &ndash; a **24.0 h** window (2026-10-31T14:30Z &rarr; 14:30Z today). **Strata #4860 (2026-10-31T22:31:46Z, unmerged, with
 its own measurements on a 64 GiB Windows box) refutes the folk rule this lab has quoted since 2026-10-22**: one
