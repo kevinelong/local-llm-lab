@@ -617,6 +617,35 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-01 &middot; [Daily news scan: the WDDM "50 % of RAM" ceiling is a per-allocation limit and not a pool rule, three cards report a 0.1.54/0.1.55 decode regression, and llama.cpp states batch invariance as a kernel contract](NEWS-2026-11-01.md)**
+&ndash; a **24.0 h** window (2026-10-31T14:30Z &rarr; 14:30Z today). **Strata #4860 (2026-10-31T22:31:46Z, unmerged, with
+its own measurements on a 64 GiB Windows box) refutes the folk rule this lab has quoted since 2026-10-22**: one
+`cudaHostAlloc`/`cudaHostRegister` **succeeds at 23 GiB and fails at 24 GiB with 58 GiB of RAM free**, while
+**cumulative 1 GiB pins reach 45.0 GiB** (46.0 fails) - exactly the `IDXGIAdapter3` **NON_LOCAL budget of 47,268 MiB** -
+so *"the folklore '50 % of RAM' is this per-allocation ceiling, not a pool rule"*. Our note's **~31.7 GiB `[INFERENCE]`**
+(`WDDM-SHARED-SEGMENT-2026-10-22.md`) is therefore the right order **for one allocation** and **~14 GiB too low as a pool**,
+the failure at the limit is **silent** (`page-locking refused (out of memory); trying pageable memory`), and the same PR
+prices the pin modes at **6.25 against 4.29 GB/s** H2D with **4/4 byte-identical** output. **Three cards now report
+0.1.54/0.1.55 decode far slower than 0.1.52** &ndash; **#4826** on an **RTX 5070**, our card (**17.49 s -> 21.46 s,
+&minus;22.7 %** on the same model and flags), **#4841** on a 3090 (**80 -> 60 tok/s**), and a commenter on a 3070 8 GB
+(**30 -> 8-10 tok/s**) for whom `STRATA_ROUTE_PRIOR=1.5` **does not help**; the candidate mechanism our own instrument has
+already priced is that **`--kv-resident 32768` stopped being a default** (*"enabled by default in 0.1.52, and 0.1.53; now a
+flag"*) &ndash; **q1** measured that flag at **7.2 -> 69.1/83.0 tok/s**. No maintainer has answered, so this is enough to
+**change the bump's declaration** and not enough to name a version as slower. **llama.cpp #31504 writes batch invariance
+down as a kernel contract** (*"a kernel scoring M>1 rows at once must be bitwise identical to the serial result"*), names
+**batched requests, prefix-cache hit-vs-miss and speculative verify** as the places it was violated, verifies **ub1 vs
+ub512 bitwise-identical logits over 140 positions at twelve ub values** and **MTP 2-row verify delta +0.25 -> 0.0**, and
+declares its remainder (**past position 196 in 4 of 8 prompts**). **Strata #4879** shows a **local `sm_120` build on nvcc
+13.2 scoring 0/10 on a tool-call probe where the prebuilt 1.55 scored 10/10 on the same host**, with short factual smokes
+passing throughout and a second reporter on nvcc 13.4.92 clean. **Ollama #19432 merged** (2026-10-31T22:46Z): `/v1` was
+injecting `temperature 1.0`/`top_p 1.0` and resetting penalties, so **qwen3.6's `presence_penalty 1.5` became 0** &ndash;
+Strata **#2940**'s class in a second engine. **One in-window video (`Kai`, 2026-10-31) was read from captions**: the fork
+**Avalon** does **not run on Windows**, and its transferable mechanism is a draft head with a **65,000-token vocabulary
+sharing the target's expert cache** plus a **400 MB** reserve. **Hugging Face**: **>=100** GGUF repos created in seventeen
+hours, `mudler/Kolibri-1-APEX-GGUF` **moved revision again with identical sizes**, no first-party publication for the third
+day. **arXiv did not advance** (third frozen day), and **Reddit returned 403 on every endpoint for the sixth time in seven
+days**.
+
 **2026-10-31 &middot; [The resident budget is a clamp, not a lever - and the run that measured it is void on the chunk](RESIDENT-DECLARATION-2026-10-31.md)**
 &ndash; 24 starts on the staged Q2_0 pack at `prefill=4096;reserve=900;cache=1500;resident=2/4/6/8`. The engine prints its
 own clamp, so **granted = available commit &minus; 4.25 GiB**, verified **18 of 18** on the 2026-10-27 arms (declared 16

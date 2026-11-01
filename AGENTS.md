@@ -1,5 +1,172 @@
 # Local AI lab working instructions
 
+- **2026-11-01, daily scan: the WDDM ceiling we have quoted since 2026-10-22 is the wrong rule, three cards report a
+  0.1.54/0.1.55 decode regression, and llama.cpp wrote batch invariance down as a kernel contract.**
+  `NEWS-2026-11-01.md`, written against `NEWS-2026-10-31.md`, window **2026-10-31T14:30Z -> 2026-11-01T14:30Z** (24.0 h).
+  Reading only - nothing downloaded, installed, built or run, no engine started, no inference, no benchmark, **`ai_bench`
+  untouched**. WSL started once for `yt-dlp` (four searches, sixteen metadata calls, one caption fetch that **succeeded**)
+  and shut down again, verified.
+  - **THE "WINDOWS PINS AT 50 % OF RAM" FOLKLORE IS A PER-ALLOCATION CEILING INSIDE A BIGGER POOL, AND WE HAVE BEEN
+    CARRYING THE WRONG NUMBER.** Strata **#4860** (2026-10-31T22:31:46Z, unmerged, measured on an RTX 3090 Ti + 3090,
+    64 GiB RAM, Win11, CUDA 13): *"A single pinned allocation caps at ~23 GiB regardless of free RAM or pool ... one-shot
+    `cudaHostAlloc` and `cudaHostRegister` succeed at 23 GiB and fail at 24 GiB with 58 GiB RAM free - while cumulative
+    1-GiB pins reach 45.0 GiB (46.0 fails), exactly the `IDXGIAdapter3` NON_LOCAL budget (47268 MiB, one global pool
+    shared by all adapters incl. desktop D3D charges). The folklore '50 % of RAM' is this per-allocation ceiling, not a
+    pool rule."* Our `WDDM-SHARED-SEGMENT-2026-10-22.md` derives **~31.7 GiB `[INFERENCE]`** from ComfyUI **#17416**'s
+    *"Windows cap = 50 % of RAM = 32.6 GB"*, so on this evidence our figure is **the right order for one allocation and
+    ~14 GiB too low as a pool**. Two further facts from the same PR: stock 0.1.55 at a **23.24 GiB** complement logs
+    **`page-locking refused (out of memory); trying pageable memory`** and silently stages on the CPU with **~22 GiB of
+    pool still free** (the same silent class as #4808 and #4879, third this month), and the pin modes differ in copy rate -
+    **6.25 GB/s H2D registered against 4.29 GB/s `Mapped|Portable`** (*"measured 2026-10-24"*) - with **4/4 byte-identical**
+    output for the env switch on the same binary. **This is the cheapest correction in the file: an edit to our note, not
+    an experiment.** Not claimed: the patch is unmerged, and its own limits say a >23 GiB end-to-end load and
+    Linux/HIP/SYCL were **not** run.
+  - **THREE CARDS, ONE STORY: 0.1.54/0.1.55 DECODE FAR SLOWER THAN 0.1.52, AND ONE OF THEM IS OUR CARD.** **#4826**
+    (2026-10-31T17:37Z, **15 comments, no maintainer reply**): RTX 5070 11.9 GiB, Qwen3.8-Flash-Next **IQ3_XXS**, context
+    204,800, MTP drafting, same script both arms - **0.1.54 wall 17.49 s against 0.1.55 21.46 s (-22.7 %)**, per-prompt
+    decode 120.1-145.1 tok/s at acceptance 0.62-0.84. **#4841** (RTX 3090, 128 GB, UD-Q4_K_XL, 4,445 experts / 13.0 GB in
+    VRAM): *"reduced tokens/s from about 80 to 60"*. A commenter on an **RTX 3070 8 GB**: **30 tok/s on 0.1.52 against
+    8-10 on 0.1.54/0.1.55**, and **`STRATA_ROUTE_PRIOR=1.5` does not recover it** (*"makes no difference in decode
+    speed"*) - so 0.2.8's revert is not the whole explanation. **The mechanism our own instrument has already priced** is
+    the next comment from the same reporter: **`--kv-resident 32768` *"was enabled by default in 0.1.52, and 0.1.53; now a
+    flag ... without this ... my vram expert cache is cut in half or worse"*** - and **q1** (2026-10-20) measured that
+    exact flag at **7.2 tok/s base against 69.1 and 83.0**, letters **92/93 in all four arms**. `[INFERENCE]` a default
+    that flipped from resident to streaming KV reproduces the shape exactly, and **nobody in the thread ran that A/B on one
+    binary**. Under the lab's noise rule this is enough to **change the bump's declaration** (a decode-regression arm
+    against 0.1.52 plus `--kv-resident` declared rather than inherited) and **not** enough to name a version as slower.
+    Also verified in the thread: **`setup` re-downloads the current engine, so an old engine is restored by replacing
+    `engine/` from the matching release tag's asset**, not by pointing setup at an old app.
+  - **THE ROUTE PRIOR'S COST NOW HAS A TASK-LEVEL MEASUREMENT, WHICH IS WHAT 2610.37126 DEMANDED.** #4841's thread
+    (2026-11-01T12:31Z), Qwen3.8FN IQ3_S, defaults vs `STRATA_ROUTE_PRIOR=1.5`: **IFEvalCode 20.0 -> 16.7 % (-3.3)**,
+    **AIME 2026 76.7 -> 66.7 % (-10.0)**, **IFeval 81.3 -> 78.7 % (-2.6)**, speed **72.3 -> 104.6 tok/s (+45 %)**. We hold
+    only the quality half as teacher-forced perplexity (**+22.9 %** at prior 1.5, 2026-10-28) and the standing rule that
+    perplexity must never be quoted alone. This **strengthens the 0.2.8 revert from a third direction**.
+  - **llama.cpp #31504 STATES BATCH INVARIANCE AS A KERNEL CONTRACT, AND IT NAMES OUR OLD ARTIFACTS.** (2026-11-01T13:56Z,
+    3 commits, AI-assisted with disclosure.) The definition, from the **#25618** umbrella: *"a kernel scoring M>1 rows at
+    once must be bitwise identical to the serial result, because even one ULP of drift flips near-tie greedy picks and
+    breaks draft acceptance."* The diagnosis: *"Same prompt at different `-ub` values currently gives different output.
+    Anything scoring multiple tokens in one forward pass disagrees with sequential decoding - **batched server requests,
+    prefix-cache hit-vs-miss, and speculative verify steps**."* Verified: **ub1 vs ub512 bitwise-identical logits over 140
+    positions at every ub in {1,2,3,4,5,7,8,9,15,16,17,512}**, **MTP 2-row verify position-1 delta +0.25 -> 0.0**,
+    pp8192/tg128 within noise. Declared remainder: **past generated position 196 in 4 of 8 battery prompts**, and the tiled
+    K-quant path at `n_ubatch >= 8` declined via `GGML_CPU_TILED_MM` rather than repaired. **Three of our artifacts get a
+    mechanism**: the 2026-10-20 **prefill artifact** (first request ~99 tok/s, second 50-60 because it hits the prompt
+    cache) is a *cache-hit-vs-miss output* difference and not only a timing one; the **2026-10-08 MTP row** sits on the
+    verify path whose 2-row delta this drives to zero; and the **`-b 512 -ub 512`** Kolibri load fix was a ubatch change,
+    i.e. the variable this makes numerically inert. Nothing recorded is invalidated (all rows predate the patch on
+    b11480/b11461/b10883), and the declaration template gains **the ubatch a row decoded at**.
+  - **A LOCALLY COMPILED ENGINE CAN BE SILENTLY WRONG ON sm_120 WHERE THE PREBUILT IS CLEAN - AND THE SMOKE TEST DOES NOT
+    SEE IT.** Strata **#4879** (2026-11-01T07:12Z): a source build at the v0.2.9 tag, **`sm_120` only, nvcc 13.2**, on an
+    RTX 5090 Laptop 24 GB scored **0/10** on an agent tool-call markup probe (IQ3_S) and **33/70** (IQ1_M) where the
+    **prebuilt 0.1.55** scored **10/10 (97/100)** and **70/70 (99/100)** - same host, GGUFs, tokenizer, profile, drafts and
+    env, minutes apart; server defaults (`STRATA_GDN_TC=0`, `STRATA_GDN_CONVL2=0`, `--conversation-cache-mib 0`,
+    `STRATA_DEFAULTS=026`) changed nothing. The reporter's own words on why it shipped: *"the same broken build served
+    short factual prompts perfectly ... the damage only shows on tool-call-shaped prompts, which is why it survived the
+    local 30-min soak + 61-task-style checks we ran at upgrade time."* A second reporter on the **same GPU with nvcc
+    13.4.92** is clean (8/8, 5/5), so the field is **binary + nvcc minor**, not "local is bad". Our rows are packaged
+    assets (`sm_75/86/89/120/compute_120` verified in the feed), so **nothing recorded changes**; the rule added is that a
+    **tool-call workload's load check is a tool-call-shaped probe**.
+  - **OLLAMA'S OPENAI ENDPOINTS WERE OVERWRITING THE MODEL'S OWN SAMPLER SETTINGS, AND #19432 MERGED THE FIX.**
+    (2026-10-31T22:46:22Z, closes **#17744** and **#18690**, supersedes #17763.) `/v1` sent **temperature 1.0 / top_p 1.0**
+    when a client omitted them and **0** for both penalties on `/v1/completions`, so **qwen3.6's `presence_penalty 1.5`
+    became 0** and **qwen3.6 / qwen3.8 / gemma4 / nemotron-3.5 all ship `top_p 0.95` and got 1.0** (lfm3 0.1 -> 1.0,
+    qwen3-coder 0.7/0.8 -> 1.0/1.0, deepseek-r1 0.6/0.95 -> 1.0/1.0). Omitted fields are now left unset. This is Strata
+    **#2940**'s class in a second engine; the declaration field it adds is one line: **did the client send sampler values,
+    or did the server's defaults stand in.** Our Ollama rows used the CLI `--ask` and the pin is **0.40.6**, so no
+    recorded row is affected.
+  - **A QUANT DEQUANT PRODUCED NaN, THE ROUTER STORED `0x7fffffff`, AND THE KERNEL FAULTED ON THAT INDEX.** Strata
+    **#4825** (2026-10-31T17:22Z, gfx1151 Strix Halo, UD-IQ1_M): every prompt **>= 96 tokens** dies in `moe_sort_kernel`;
+    `DS4_DUMP_S` shows `attn_x nonfinite=0` but **`qr_raw nonfinite=452977`** / `kvr_raw 183414` on a 397-token prompt,
+    with `wq_a`/`wkv` at **Q6_K** going through the row-per-lane `dq_rows_kernel`; *"`route_kernel` never beats `-FLT_MAX`
+    and stores `0x7fffffff` as the pick"*. `DS4_DQ_OLD=0` fixes it. A NaN that reaches a router is a **fault**, not a wrong
+    answer, and no rate or floor instrument of ours would see it - the check that would is a **finite-check on an
+    activation dump**, which we do not take.
+  - **llama.cpp #31497 FIXES THE CACHE/DRAFT COLLISION AND PRICES THE CACHE'S USELESSNESS.** (2026-11-01T09:39Z)
+    `--moe-cache-mib N` with a **dense** draft kept `moe_cache_size` in the draft params, so the draft context failed
+    (*"MoE cache requires a MoE model"*) and `llama-speculative` **segfaulted on the null context** (exit **139**; exit 0
+    after). Fixed by zeroing it for the draft, matching the server path. The target's own line in the after-log is the
+    keeper: **`hit rate = 0.19 % at ubatch <= 8`** - engaged and useless, which is why q2c's VRAM-readback rule stands.
+    Our cache arms and MTP arms never ran in one process, so nothing recorded is at risk; what closes is the question of
+    whether the two knobs compose - **they do, on the target, and the draft must not inherit the cache**.
+  - **[GH] SILENT-BACKEND AND CLOSED-WITH-NO-RULING, ONE LINE EACH.** **#31479** (`BUILD_SHARED_LIBS=ON` + `GGML_CUDA=ON`
+    with `GGML_BACKEND_DL` OFF): CUDA is compiled, linked, mapped - *"after which it never opens `/dev/nvidia0`"* - and
+    `--list-devices` shows no `CUDA0` with **no error**; the one line that appears is noise printed for every backend. The
+    check belongs in any build declaration: **`--list-devices` names the backend you think you are measuring.** And
+    **#30001 closed 2026-11-01T09:05:22Z with zero comments** - it is the `q8_0-q4_0` FA kernel request, and it closes
+    carrying a **priced** answer: **+9.5 / +22.9 / +26.0 % decode at 4K/16K/32K** (RTX 4090) for **+0.47 MiB of binary**
+    and ~+25 MiB of CUDA compute buffer. Closed is not declined; the **#31213** declaration rule is unchanged and now has
+    a number attached to its exception.
+  - **MERGED IN llama.cpp (12), and one is a numerics change on our family:** **#31406** *"fix rotation of attention
+    tensors in layers with shared KV"* - the rotation of `attn_*` tensors must follow the **source layer's** rotation so Q
+    and KV heads land on the same device; required for #31401's Gemma 4 tests, and it moves Gemma logic out of
+    `llama-model.cpp`. Also merged: #31442 (hexagon DMA strides), #31431 (LFM3 tensor split), #31401 (Gemma 4 in
+    `test-llama-archs`), #31338 (opencl iq3), #31076 (sycl PkgConfig), #30959 (`/v1/responses` extra_params), #30922
+    (Gemma 4 image resize), #30886 (InternVL CLS order), #30831 (lfm2 conv reshape), and - decision-track adjacent -
+    **#30710** `/v1/systemone` no longer returns 500 when questions **share option tokens** across slots (it caps the
+    shared prefix at the first output position).
+  - **COLIBRI MERGED THREE (all README/site/UI) AND ITS BEST OPEN PR IS THE LAB'S OWN RULE APPLIED BY SOMEONE ELSE.**
+    **#2520** (updated 2026-11-01T13:00Z): bit-exact SSE2 int4 expert dots for pre-AVX2 CPUs. The author **rejected faster
+    prototypes**: *"the faster C1/C2 candidates generated about 14 % more tokens per second on the processor and 69-72 %
+    more in the hybrid scenario than E, but each failed **1,586 existing strict expert-test comparisons** and changed
+    generated text."* The accepted one is exact by construction (PMADDWD integer lane sums, the reference's accumulators,
+    offset correction, block order, reduction tree; `fmaf`s emulated with double products, Knuth TwoSum and **rounding to
+    odd**, because *"simply calculating in double and casting back is insufficient near float midpoints"*), with dispatch
+    gated on AVX2/FMA absence and **no fast-math or FMA contraction**. That **-14 % / -41 %** is the price of refusing to
+    change answers, and it is the number to weigh against 0.2.9's `--no-expert-cache` price (8-10 % decode, 58 % on one
+    card) if identity is ever bought here.
+  - **[YT] ONE IN-WINDOW UPLOAD, CAPTIONS WORKED, AND THE VIDEO DEBUNKS ITS OWN HEADLINE.** Kai, *"Avalon Just Beat Strata
+    by 47 % on AMD (9x Faster)"*, uploaded **2026-10-31**, **1,659 s**, `0F63pTS8Gt0`, captions read (`en-orig.vtt`,
+    241,593 bytes). Second-hand, one presenter, and the comparison arm is **Strata 0.1.43** - fourteen releases old -
+    against a **mit**-licensed llama.cpp fork, greedy, 512-token prompts, an RX 7900 XT we do not have. What it does
+    supply: **[00:12:06]** the safety reserve is computed at **400 MB** (4x smaller than Strata's shipped 1,536 MiB, and
+    the same lever as our reserve sweep where 900 beat 2,000 by +9.9 tok/s); **[00:11:45]** the cache is filled by
+    **lending compute buffers and the un-grown KV window**; **[00:14:46]** the draft head *"cuts the vocabulary to the
+    65,000 most common tokens, and **shares the main model's expert cache instead of competing with it for VRAM**"* -
+    llama.cpp **#31497** from the same window, as product; **[00:21:50]** the README's **32 GB RAM** claim against an
+    **89 GB** file, tested at **28 GB capped: 91.2 -> 89 tok/s** on short prompts but *"you pay for every cache miss"* at
+    **19k context**; **[00:23:50]** **"if you're on Windows, Avalon simply doesn't run there yet"**; and **[00:24:17]**
+    the presenter catching an **error in Avalon's own accounting** (the experts' file counted as X GB against a correct
+    53). Not citable as a benchmark; recorded as a symptom and a recipe.
+  - **[HFR] >= 100 GGUF repos created in seventeen hours (page cap hit), and `mudler/Kolibri-1-APEX-GGUF` MOVED REVISION
+    FOR THE SECOND DAY WITH EVERY SIZE AND LFS OID IDENTICAL.** `c18261477f` -> **`0fd62efaf9`** (2026-10-31T16:18:50Z),
+    11 files, **358.795 GB**, I-Micro 22.173 / I-Nano 24.414 / I-Mini 28.974 / I-Compact 36.222 / I-Quality 49.180 /
+    I-Balanced 56.214 GB - all unchanged, so the pack stays **logged, not recommended** pending a task check. New and
+    logged only: a third-publisher `DSV4.1 Uncensored GSQ-RCO` with an **IQ2_XXS backbone + IQ4_NL Engram** (2026-11-01T13:28Z)
+    and `mudler/Huihui-LFM2-24B-A2B-abliterated-APEX-GGUF` (10:58Z). The other **seven** tracked packs unchanged by
+    revision and last-modified, and **first-party `ggml-org` published nothing for the third day**.
+  - **PLATFORM HEALTH.** [GH] all five answered (ComfyUI via the issues API; its search API still 422s). **[REL]** **zero**
+    new releases: Strata **v0.2.9** unchanged, Ollama **v0.40.13** unchanged with **`v0.40.14` 404**, Colibri **v2.1.0**
+    unchanged, llama.cpp **v0.8.0** unchanged with rolling tags to **b12032** (2026-11-01T09:00:59Z) and **12 PRs merged**;
+    ComfyUI newest published is still **v0.43.0** and `releases/tags/v0.43.2` now answers **301** rather than 404 - a
+    redirect, not a release. **[HFR]** >= 100 created. **[ARX] DID NOT ADVANCE for the third day** (279 cs.CL / 608 cs.LG,
+    still *"Friday, 30 October 2026"*), and nothing was re-read to fill the gap. **[YT]** metadata and captions both
+    answered, one in-window upload. **[RD] DOWN** - 403 on `new.json`, `api.reddit.com` and `old.reddit.com/.rss` plus a
+    fourth attempt: **sixth failure in seven days, fourth consecutive**. **[HN]** 12 distinct across 8 queries (a Sunday):
+    one full practitioner survey worth reading, the DRAM quote again in three more submissions.
+  - **A SECOND EXTERNAL ENGINE NAME FOR OUR CARD CLASS, RECORDED AS A LEAD.** **[HN]** Jacques Mattheij, *"Local Inference
+    with LLMs"* (page dated **2026-10-29**, submitted 2026-10-31T16:25Z, 3 points): named **Ninfer**, an open-source
+    engine *"initially made to run Qwen 3.5 ... it squeezes every last drop of performance out of a **single NVidia 5000
+    series GPU**"*, with forks for 3000/4000 series and its own **`.ninfer` artifact format that is not backwards
+    compatible between versions**. No measurement, and the conversion requirement is the cost we already refused once
+    with Magnitude (2026-10-17) - so a lead, not an item. The same post gives the hardware rule that matches our own data
+    (*"keep your RAM at least as large as VRAM and largest model size"*) and repeats the **BAR1 / resizable >4 GB decode**
+    requirement.
+  - **Shortlist, cheapest first**: (1) **correct the WDDM ceiling** in `WDDM-SHARED-SEGMENT-2026-10-22.md` from a
+    50 %-of-RAM pool rule to a **~23 GiB per-allocation limit inside a ~46 GiB NON_LOCAL pool**, with the
+    `page-locking refused ... trying pageable memory` line and the 6.25 vs 4.29 GB/s pair (an edit; no engine); (2) **add
+    `binary` + `toolchain` to every Strata row** (#4879, and the tool-call probe as the load check for a tool-call
+    workload - an edit); (3) **add the ubatch to the determinism declaration** and note that pre-patch a different `-ub`
+    is a different answer (#31504 - an edit); (4) **declare `--kv-resident` explicitly in any Strata A/B** and treat a
+    default flip as a confound, with the manual `engine/` swap as the rollback for anything older than 0.1.54 (#4826,
+    #4841 - an edit); (5) **record the route prior's task-level price** beside our perplexity row (AIME -10.0 pts for
+    +45 % - an edit); (6) **add "did the client send sampler values" to `/v1` rows** (#19432 - an edit); (7) the **0.2.9
+    bump keeps its gate and gains a 0.1.52 decode-regression arm plus a `--kv-resident` declaration**, and its field list
+    gains **"a locally compiled engine is not a qualified build"** (gated). Nothing scheduled.
+  - **Gated on Kevin**: the candidate tests; any Strata bump (**target unchanged: app 0.2.9 / engine 0.1.55 / Control
+    0.1.55**, now carrying the decode-regression control); a llama.cpp download at any tag past **b11480** (best named
+    **>= b12032**); the **DeepSeek IQ2_XXS download**; the display-to-iGPU cable change; the TTQ 35B-A3B pack; the
+    **Colibri v2.1.0** probe; and the **Clover / Groot** task checks.
+
 - **2026-10-31, second run: the resident budget is a clamp, and the run that measured it is void on the chunk, not on the
   resident.** `RESIDENT-DECLARATION-2026-10-31.md`. Read-only first: the engine prints its own clamp
   (`--resident-budget-gib 16.00 exceeds available commit (12.90 GiB minus 4 GiB headroom and a 0.25 GiB margin): 8.65
