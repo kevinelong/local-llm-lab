@@ -617,6 +617,19 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-10-31 &middot; [The resident budget is a clamp, not a lever - and the run that measured it is void on the chunk](RESIDENT-DECLARATION-2026-10-31.md)**
+&ndash; 24 starts on the staged Q2_0 pack at `prefill=4096;reserve=900;cache=1500;resident=2/4/6/8`. The engine prints its
+own clamp, so **granted = available commit &minus; 4.25 GiB**, verified **18 of 18** on the 2026-10-27 arms (declared 16
+granted **5.29&ndash;10.18 GiB**, spread **4.89**, all clamped, all still `resident_pinned: true` - a smaller page-locked
+block, *not* #4808's pageable fallback). Every rung costs **declared + 14.75 GiB** of free commit before it can bind.
+**The clean pair, both honoured at 24.8 GiB free commit:** 2 GiB resident -> **374.9 prompt / 12.4 decode**; 8 GiB ->
+**477.9 / 23.2**, answer text identical in all 24 arms. Over the whole set (granted 0.65&ndash;8.00 GiB) prompt is
+**r=+0.929, +18.0 tok/s per GiB** and decode **r=+0.923, +1.7 per GiB** - which corrects the lab's own earlier reading
+of decode as resident-independent: that set held **cache 3000** over 5&ndash;10 GiB, so the slope is a function of the
+cache and is never quotable without it. **All 24 arms are void** because the engine granted chunk **2048** where 4096 was
+declared, and **commit headroom decayed 24.87 -> 13.91 GiB within the run** (only the first two arms bound) - so the
+next design needs the granted chunk declared from a probe and **one process per arm**.
+
 **2026-10-31 &middot; [Daily news scan: the vendor confirms the expert cache is what breaks greedy repeats, Colibri ships its first release in 25 days, and a closed-unmerged PR can still ship](NEWS-2026-10-31.md)**
 &ndash; a **24.0 h** window (2026-10-30T14:30Z &rarr; 14:30Z today). **Strata's own 0.2.9 release notes name the cause of
 this lab's oldest reproducibility puzzle**: `v0.2.9` (published **2026-10-31T08:02:32Z**, app 0.2.9, Control and every

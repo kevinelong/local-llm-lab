@@ -1,5 +1,33 @@
 # Local AI lab working instructions
 
+- **2026-10-31, second run: the resident budget is a clamp, and the run that measured it is void on the chunk, not on the
+  resident.** `RESIDENT-DECLARATION-2026-10-31.md`. Read-only first: the engine prints its own clamp
+  (`--resident-budget-gib 16.00 exceeds available commit (12.90 GiB minus 4 GiB headroom and a 0.25 GiB margin): 8.65
+  GiB`), so **granted = engine-available commit - 4.25 GiB**, verified on **18 of 18** arms declared at 16 GiB (granted
+  5.29-10.18, mean 7.75, **spread 4.89 GiB**, all clamped, all still reporting `resident_pinned: true` - *not* #4808's
+  pageable failure, a smaller page-locked block). Declared 2 granted **2.00 exactly** in every arm. The process has
+  already committed **10.48 GiB mean** (9.39-13.60) when the resident allocation is attempted, so a rung needs
+  **declared + 14.75 GiB** free commit at start.
+  - **Then 12 arms (24 starts, 3 replicates, interleaved) at `prefill=4096;reserve=900;cache=1500;resident=2/4/6/8`**
+    (`ai_bench/resident-ladder-20261031.json`, `ai_bench/resident-ladder-20261031/`). Gates passed at the start
+    (35.43 GiB free physical, 26.26 GiB free commit, 9,172 MiB VRAM free, ComfyUI down, WSL stopped). **All 24 arms are
+    void** because the engine **granted chunk 2048 where 4096 was declared** - the phase-2 lesson (`--cache-preflight`)
+    has to be applied to the chunk too, since the chunk is sized from what the smaller cache leaves.
+  - **The clean pair, both rungs honoured at near-identical ambient cost** (commit free 24.87 vs 24.71 GiB): `res2`
+    2.00 GiB granted -> **374.9 prompt / 12.4 decode**; `res8` 8.00 GiB -> **477.9 / 23.2**. **+27 % prompt, +87 %
+    decode for 6 GiB of resident RAM**, answer text identical (`42`/`150`) in all 24 arms.
+  - **The curve in granted terms (n=24, 0.65-8.00 GiB): prompt r=+0.929 (+18.0 tok/s per GiB, 297-478), decode
+    r=+0.923 (+1.7 per GiB, 3.6-23.2).** Within `res8` alone: **477.9/23.2 at 8.00 GiB** vs **344.7/10.9 at 1.08**.
+    This corrects the lab's own reading of the 2026-10-27 arms (decode r=+0.02 there): that set held **cache 3000** and
+    spanned 5-10 GiB, so fewer experts came off the resident copy and decode stopped riding it. **The resident->decode
+    slope is a function of the cache size and is never quotable without it.**
+  - **Commit headroom decays inside a run: 24.87 -> 13.91 GiB over 24 starts**, `wait_commit` timing out at 130 s from
+    the third start; only the first two arms bound. A declared sweep needs **one process per arm** or an explicit
+    re-baseline, not a longer cooldown.
+  - **Next, in order:** probe and declare the granted chunk (2048 at cache 1500) with one process per arm and a
+    recorded baseline; then #4811's `--vram-reserve-mib 1536` at one resident value on a card with more than today's
+    9,172 MiB free; then the 0.2.9 / engine 0.1.55 bump (gated on Kevin). Nothing from the scan's gated list was started.
+
 - **2026-10-31, daily scan: the vendor confirms the expert cache is what breaks greedy repeats, Colibri ships its first
   release in 25 days, and a closed-unmerged PR can still ship.** `NEWS-2026-10-31.md`, written against
   `NEWS-2026-10-30.md`, window **2026-10-30T14:30Z -> 2026-10-31T14:30Z** (24.0 h). Reading only - nothing downloaded,
