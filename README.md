@@ -623,12 +623,17 @@ own clamp, so **granted = available commit &minus; 4.25 GiB**, verified **18 of 
 granted **5.29&ndash;10.18 GiB**, spread **4.89**, all clamped, all still `resident_pinned: true` - a smaller page-locked
 block, *not* #4808's pageable fallback). Every rung costs **declared + 14.75 GiB** of free commit before it can bind.
 **The clean pair, both honoured at 24.8 GiB free commit:** 2 GiB resident -> **374.9 prompt / 12.4 decode**; 8 GiB ->
-**477.9 / 23.2**, answer text identical in all 24 arms. Over the whole set (granted 0.65&ndash;8.00 GiB) prompt is
-**r=+0.929, +18.0 tok/s per GiB** and decode **r=+0.923, +1.7 per GiB** - which corrects the lab's own earlier reading
-of decode as resident-independent: that set held **cache 3000** over 5&ndash;10 GiB, so the slope is a function of the
-cache and is never quotable without it. **All 24 arms are void** because the engine granted chunk **2048** where 4096 was
+**477.9 / 23.2**, answer text identical in all 24 arms. Read as a granted curve, that set is prompt **r=+0.929, +18.0
+tok/s per GiB** and decode **r=+0.923** - but its low-rungs were clamped, so the decode number does not survive the
+re-run below. **All 24 arms are void** because the engine granted chunk **2048** where 4096 was
 declared, and **commit headroom decayed 24.87 -> 13.91 GiB within the run** (only the first two arms bound) - so the
-next design needs the granted chunk declared from a probe and **one process per arm**.
+next design needs the granted chunk declared from a probe and **one process per arm**. Both were built the same evening
+(`control/resident_ladder_seq.py`) and the re-run honoured **every rung** (granted == declared in 12 of 12, chunk 2048,
+cache 1.93 GiB): the clean 8-arm set gives **prefill r=+0.926, +11.0 tok/s per GiB (588 -> 652)** and **decode r=-0.012,
+flat (70.2 / 70.8 / 72.4 / 67.9)**. So the earlier "+87 % decode" was an artefact of clamped rungs, and the tier
+hierarchy is measured: **VRAM cache carries decode, resident RAM carries prefill, disk is the collapse mode** (~220 prefill
+and 4.7-7.9 decode on arms the user's renders overlapped - 4 of 12, which is why a ladder now needs the card for its whole
+duration rather than at each start).
 
 **2026-10-31 &middot; [Daily news scan: the vendor confirms the expert cache is what breaks greedy repeats, Colibri ships its first release in 25 days, and a closed-unmerged PR can still ship](NEWS-2026-10-31.md)**
 &ndash; a **24.0 h** window (2026-10-30T14:30Z &rarr; 14:30Z today). **Strata's own 0.2.9 release notes name the cause of

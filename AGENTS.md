@@ -16,17 +16,26 @@
   - **The clean pair, both rungs honoured at near-identical ambient cost** (commit free 24.87 vs 24.71 GiB): `res2`
     2.00 GiB granted -> **374.9 prompt / 12.4 decode**; `res8` 8.00 GiB -> **477.9 / 23.2**. **+27 % prompt, +87 %
     decode for 6 GiB of resident RAM**, answer text identical (`42`/`150`) in all 24 arms.
-  - **The curve in granted terms (n=24, 0.65-8.00 GiB): prompt r=+0.929 (+18.0 tok/s per GiB, 297-478), decode
-    r=+0.923 (+1.7 per GiB, 3.6-23.2).** Within `res8` alone: **477.9/23.2 at 8.00 GiB** vs **344.7/10.9 at 1.08**.
-    This corrects the lab's own reading of the 2026-10-27 arms (decode r=+0.02 there): that set held **cache 3000** and
-    spanned 5-10 GiB, so fewer experts came off the resident copy and decode stopped riding it. **The resident->decode
-    slope is a function of the cache size and is never quotable without it.**
+  - **Corrected the same day by a second run (section 6 of the note):** with the rungs *honoured* (granted == declared
+    in 12 of 12) at a fixed `cache=1500`, `prefill=2048`, the clean 8-arm set gives **prefill r=+0.926, +11.0 tok/s per
+    GiB (588 -> 652)** and **decode r=-0.012, flat (70.2 / 70.8 / 72.4 / 67.9)**. The +87 % decode below holds only when
+    the rungs are *clamped*, i.e. when low-resident arms also lack RAM for the experts a 3,000-slot cache does not hold.
+    Three tiers, measured: **VRAM cache carries decode, resident RAM carries prefill (+11 tok/s/GiB, ~0 for decode), and
+    disk is the collapse mode** (~220 prefill / 4.7-7.9 decode on the contended arms). An accidental n=1 A/B on the one
+    void arm - 8 GiB resident with a **10-slot** cache - scored 648.8/55.9 against 651.8/67.9 for 1,500 slots: at 8 GiB
+    resident the cache is worth ~3 tok/s of prefill (noise) and ~12 tok/s of decode (-18 %).
+  - **Contention cost 4 of 12 arms**, and the gate cannot prevent it: it refuses to start while ComfyUI is busy but
+    cannot hold the card, so three arms overlapped the user's renders and one was void with a 10-slot cache at 0 MiB VRAM
+    free (decode cache hit rate **1.1 %**). A ladder needs the card **for its whole duration**, not just at each start.
+
   - **Commit headroom decays inside a run: 24.87 -> 13.91 GiB over 24 starts**, `wait_commit` timing out at 130 s from
     the third start; only the first two arms bound. A declared sweep needs **one process per arm** or an explicit
     re-baseline, not a longer cooldown.
-  - **Next, in order:** probe and declare the granted chunk (2048 at cache 1500) with one process per arm and a
-    recorded baseline; then #4811's `--vram-reserve-mib 1536` at one resident value on a card with more than today's
-    9,172 MiB free; then the 0.2.9 / engine 0.1.55 bump (gated on Kevin). Nothing from the scan's gated list was started.
+  - **Next, in order:** (1) **done** - the granted chunk (2048 at cache 1500) is now declared and one process runs per
+    arm (`control/resident_ladder_seq.py`, gated on ComfyUI idle + VRAM + commit); (2) a ladder or reserve sweep that
+    needs the card **for its whole duration**, with Kevin's renders stopped and declared before the start, since
+    contention cost 4 of 12 arms and cannot be subtracted afterwards; (3) #4811's `--vram-reserve-mib 1536` at one
+    resident value; (4) the 0.2.9 / engine 0.1.55 bump (gated on Kevin). Nothing from the scan's gated list was started.
 
 - **2026-10-31, daily scan: the vendor confirms the expert cache is what breaks greedy repeats, Colibri ships its first
   release in 25 days, and a closed-unmerged PR can still ship.** `NEWS-2026-10-31.md`, written against

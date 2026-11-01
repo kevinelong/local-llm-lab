@@ -135,3 +135,53 @@ compensate - which is the trade-off 0.2.8 moved when it switched its own 12 GB d
 3. Keep the rung span wide enough to see a slope (0.65-8.0 GiB was enough) and keep cache and chunk fixed while the
    resident budget moves.
 4. n >= 5 for anything that will be compared to a 20 % decode spread; 3 was enough for the slope, not for a cell.
+
+## 6. The sequential run: rungs honoured, prefill follows resident, decode does not
+
+`ai_bench/resident-ladder-seq-20261031/` - 12 arms, one process each, `prefill=2048` (the granted chunk at this cache),
+`cache=1500`, `reserve=900`, `resident = 2/4/6/8`, 3 replicates interleaved, each arm gated on ComfyUI idle, >= 8,000
+MiB VRAM free and commit >= rung + 18.35 GiB.
+
+**Every rung was honoured**: granted == declared (2.00 / 4.00 / 6.00 / 8.00 GiB) in 12 of 12 arms, `resident_pinned:
+true`, chunk 2048, cache 1.93 GiB. The fixes in section 5 hold.
+
+**Four arms are excluded and the reason is not the engine.** Three (q2-r1, q4-r3, q8-r2) show a separate mode - prefill
+**216-229 tok/s** against 585-653, two of them with decode **4.7 / 7.9 tok/s** - and every readback field is identical to
+the clean arms (cache 1.93 GiB, lend 0 of 790, same file tier). They overlap the user's ComfyUI renders: the gate can
+refuse to start while the card is busy, but it cannot hold the card, and ComfyUI took it mid-arm. The fourth (q8-r1) is
+void: the cache was granted **10 slots (0.01 GiB)** instead of 1500, with **0 MiB of VRAM free at the request start** and
+a measured decode cache hit rate of **1.1 % (135 hits / 11,883 lookups)**.
+
+**The clean set (n = 8, rungs honoured, no contention):**
+
+| rung | n | prefill tok/s | decode tok/s | drafts accepted |
+|---|---|---|---|---|
+| 2 GiB | 2 | 588 | 70.2 | 23, 25 |
+| 4 GiB | 2 | 613 | 70.8 | 21, 20 |
+| 6 GiB | 3 | 634 | 72.4 | 20, 21, 20 |
+| 8 GiB | 1 | 652 | 67.9 | 21 |
+
+* **prefill: r = +0.926, +11.0 tok/s per GiB** (588 -> 652 for 6 GiB)
+* **decode: r = -0.012, flat** (70.2 / 70.8 / 72.4 / 67.9 - no trend outside a 4 % spread)
+
+So section 5's "+87 % decode from 6 GiB of resident" is **not** a general result, and this is the correction: it was
+measured with the rungs **clamped**, where the low-resident arms had too little RAM for the experts the 3,000-slot cache
+did not hold. With the rungs honoured at a fixed cache, resident RAM buys **prefill breadth** and nothing for decode.
+
+**The three tiers, as measured:**
+
+* **VRAM cache** carries decode: it holds the experts a reply re-uses, and its size is what keeps decode at ~70 tok/s.
+* **Resident RAM** carries prefill: a 19,769-token prompt touches far more experts than any cache holds, so the RAM copy
+  is worth **+11 tok/s of prefill per GiB** and ~0 to decode.
+* **Disk** is the collapse mode: the contended arms read the same tier and fell to ~220 tok/s prefill and, when the
+  reader was cold too, 4.7-7.9 tok/s decode. A 2.5-15x loss, not a percentage.
+
+**The accidental A/B on the void arm is worth keeping, at n=1:** 8 GiB resident with a **10-slot** cache scored
+**648.8 prefill / 55.9 decode** against **651.8 / 67.9** for 8 GiB resident with 1,500 slots. At 8 GiB resident the expert
+cache is worth **~3 tok/s of prefill (inside noise) and ~12 tok/s of decode (-18 %)**. That is the tier hierarchy in one
+line: with enough resident RAM, the cache is a decode device, not a prefill device.
+
+**Operational consequence.** A ladder run needs the card to itself for its whole duration, not merely at each start. The
+next design either (a) runs while nothing else renders, declared up front, or (b) records a `comfy_active` boolean per arm
+by sampling the queue during the arm - and of the two, (a) is the honest one, because contention cannot be subtracted
+after the fact.
