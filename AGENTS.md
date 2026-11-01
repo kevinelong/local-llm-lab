@@ -46,6 +46,18 @@
     (11,541 B) both exist and each arm JSON points at its own. The untagged `chunk-q8-r1-a1.log` from the 08:15 run is
     left in place and no new run can overwrite it. `--forensics` still globs `chunk-*.log` and still keys rows by name, so
     it reads the new names unchanged.
+    **Two more checks on the same day, both passed:** the **retry path** still separates attempts - one arm forced to
+    void above (`prefill=4096` clamps) with `--max-retries 1` wrote `chunk-retrycheck-20261101-rt1-a1.log` (12,140 B) and
+    `...-a2.log` (11,483 B), both present, both recorded VOID for the clamp, so the attempt counter and the tag do not
+    compete. And **forensics spans both naming eras**: over all **113** logs on disk (109 untagged, 4 tagged) the table
+    returned **113 rows, none missing, none extra**.
+  - **Instrument defect found while checking the above, and fixed:** `--forensics-json` only understood the older result
+    shape (`rows` with a nested `long`), so **no arm file could be joined** and the prefill/decode columns stayed empty
+    for every modern run - the flag's whole purpose ("this is how a past arm is proved") was unreachable. It now reads
+    `rows`, `arms`, or a single top-level record, and prefers `long` over `prompt_tps`/`decode_tps`. **Verified** on three
+    files across both eras: `chunk-logfix-verify-a-20261101-q8-r1-a1.log` **666.8 / 74.0**, the untagged
+    `chunk-pauto-r1536-res16-a1.log` **627.1 / 90.6**, and `chunk-q16-r1-a1.log` **805.5 / 77.3**, the last matching the
+    n=5 arm recorded earlier the same morning.
 
 - **2026-11-01, SECOND scan (early, 31-minute window): a prefill knob that cannot fire under `--parallel`, KVA
   hard-disabled in exactly the mode serving uses, and llama.cpp's multi-seq KV PR still breaks shared prompts.**
