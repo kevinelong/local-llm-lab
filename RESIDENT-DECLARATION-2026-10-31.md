@@ -73,6 +73,13 @@ The cell is comparable **within today's set** and not to the 2026-10-27 rungs: t
 * Does not test #4811's `--vram-reserve-mib 1536` claim (a bigger cache from a *larger* reserve on a 20 GB card). That
   needs a reserve sweep at one resident value, and it must be run when the card is emptier than today's 9,172 MiB.
 * Does not test 0.2.9 / engine 0.1.55, and must not be read as one.
+* **The scan's shortlist item 5 is not answerable from the source we hold.** The staged tree
+  `ai_bench/staged-strata-20261007/engine-src-v0.1.40.3` (git `d5ea713`, tag "Version 0.1.40.3") contains **no
+  `nv_defaults` file, no speed table and no `sm_121` anywhere** - the auto-table branch #4778 quotes arrived after
+  0.1.40.3, so a checkout at 0.1.55 is required before anyone can say whether an sm_120 card reads one of its tables.
+  What that tree does show is the architecture policy behind #4662: `src/core/device_main.cpp` keeps the run-time half
+  of the sm_120 rule - *"CMake refuses to COMPILE for another architecture, and this refuses to RUN on one"* - which is
+  the mechanism that produced "unspecified launch failure" on a mismatched engine.
 
 ## 5. The 2026-10-31 run: void as a declared sweep, usable as a granted curve
 
