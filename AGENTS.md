@@ -1,5 +1,121 @@
 # Local AI lab working instructions
 
+- **2026-11-02, daily scan: the 0.1.54/0.1.55 decode regression is retracted by its own reporter, a seven-engine sweep on
+  our card family finds no version difference, and the routing prior is revealed as a 2.3x cache-hit lever the 0.2.9
+  default removed without a log line.** `NEWS-2026-11-02.md`, written against **`NEWS-2026-11-01a.md`**, window
+  **2026-11-01T15:07Z -> 2026-11-02T14:30Z** (23.4 h); this is the scheduled 06:30 run, whose own start line is in
+  `%TEMP%\daily-news-scan.log`. Reading only - nothing downloaded, installed, built or run, no engine started, no
+  inference, no benchmark, **`ai_bench` untouched**. WSL started **once** for `yt-dlp` (4 searches, 39 videos date-checked,
+  1 caption set) and shut down again, verified.
+  - **THE REGRESSION WE CARRIED AS A BUMP-GATE FACT IS A WARM-UP ARTIFACT, RETRACTED BY THE MAN WHO FILED IT.** Strata
+    **#4826** (created 2026-10-31T17:37Z, **closed 2026-11-02T12:42:17Z**, 20 comments) was our only **RTX 5070** witness
+    that 0.1.55 decodes **22.7 % slower** than 0.1.54. His closing words: *"due to strata's caching of experts, a second
+    sequential run of mtp-bench.py shows much better performance than the first run, and fully explains the performance
+    regression I had observed and **wrongly attributed to different engine versions**"* - and he keeps only *"`STRATA_ROUTE_PRIOR=1.5`
+    does provide a nice boost on 8GB and 12GB cards"*. **A second independent negative the same day (#4996)**: RTX 5070
+    12 GB + 5060 Ti 16 GB, **Windows 11, CUDA 13**, NVFP4 pack at 262,144, `--kv q4_0`, `--spec 16`, `--vram-reserve-mib 0`,
+    layer split K=27, **seven engines 0.1.47 -> 0.1.55**: decode **66.6-70.0 tok/s** with a **3.6-7.9 tok/s spread inside
+    each engine's own runs**, so his own verdict is *"the ranking is not statistically meaningful"*; prefill flat within
+    1.4 %; all seven loaded in 76-80 s with no `0 slots` and no crashes. **This is the family's third self-correction**
+    (#4778 sm_89, #4410 "the 0.2.2 arm looks like the outlier", #4826). The arm survives, the claim does not: **any
+    sequential decode A/B warms the expert cache with an untimed request first**, or it manufactures the regression again.
+  - **#5000: THE ROUTING PRIOR IS A CACHE-HIT LEVER, AND 0.2.9 REMOVED IT SILENTLY.** Same engine (0.1.52), IQ3_XXS,
+    only the prior changing, RTX 4070 Laptop **8 GB**, 24-run tool-calling suite, same prompts and seeds: decode
+    **28.0 vs 22.6 tok/s**, decode expert-cache hit **60.8 % vs 27.0 %**, tokens/task 3,767 vs 3,941, **24/24 passed in
+    both**. After the update, IQ3_S: **0.1.52 prior 1.5 = 24.2 t/s / 45.9 % hit** against **0.1.55 prior 0 = 16.3 t/s /
+    20.9 % hit** (**-33 %**), and experts over PCIe 7.6 % -> 11.3 %. **0.1.52 printed the routing state; 0.1.55 prints
+    nothing when the prior is off** - *"so our `strata update` from 0.2.7 to 0.2.9 changed which experts run, and our
+    speed, without a line in the log."* The reporter states his own limit: *"the pass rates are too coarse to show a small
+    quality cost like the IFEval/AIME drop reported in #4841; we have no PatchEval run with the prior off"* - so 24/24 is
+    **not** a quality measurement, and it does not weigh against our **+22.9 % teacher-forced perplexity** or the
+    **AIME -10.0 pts for +45 %** task-level price. **Consequence: every Strata row gains `prior=`, read from the log**, and
+    our surviving arms (all on **0.1.47**, which predates the 0.1.52 prior) are marked **prior absent by construction**,
+    not "prior 0".
+  - **THE BUMP'S WINDOWS PREREQUISITE IS NOW A FAILURE WE CAN NAME, AND THE ALTERNATIVE PATH IS DOCUMENTED.** Strata
+    **#4994** (2026-11-02T09:44:32Z): with a **working 0.1.54** serving 45-78 tok/s on **Windows 11, RTX 5070 Ti, driver
+    621.01**, `strata.py update` (feed sequence **118**) fails both components - **Control 0.1.55 exits 3221225781
+    (`0xC0000135`, DLL not found)**, and the **engine test-start** aborts because `default_test_start` in
+    `strata_control/updater.py` does `cfg.pop("lib_dirs", None)`, dropping `.venv\Lib\site-packages\nvidia\cu13\bin\x86_64`
+    where **`cublas64_13.dll`** lives. The reporter's cause is unconfirmed by a maintainer (0 comments); the fact is that
+    the update was a **no-op leaving 0.1.54 in place**. **And #4996 supplies the safe path**: `serve/server.py` resolves
+    `"exe": "component:strata-engine"` through `engine_component.resolve()`, which reads **`engine.pinned` from
+    `components/.updates/state.json` at every engine start** - so a bump A/B rewrites that one field and cycles the model,
+    verified against the engine's own `session is up (engine X)` line. **Use that, not the updater.**
+  - **MTP PLUS A VISION PROJECTOR ABORTS AT STARTUP ON EVERY BUILD AFTER #30257, AND OUR STAGED PACK SHIPS BOTH FILES.**
+    llama.cpp **#30698** (open, 6 comments, updated 14:23:22Z) - `-md` + `--mmproj` trips
+    `GGML_ASSERT(ubatch->embd_state ...)` at `llama-graph.cpp:155`, because `common_context_can_seq_rm()` builds a
+    token-only probe batch with no image patches; first bad commit **`781dbc5ac` (#30257)**, three reporters, and one of
+    them (**`tv1wnd`**) sees it **without any mmproj**, with a working patch restoring the older `if (ubatch->embd)` form.
+    Our `ggml-org/Qwen3.6-35B-A3B-GGUF` revision ships `mtp-{BF16,Q4_0,Q8_0}` beside `mmproj-{BF16,Q8_0}` (re-read today,
+    unchanged), so the pairing is exactly this one. **Our rows are safe** - b11480 was published 2026-10-07 and the bad
+    commit is the first-bad-commit of an issue filed against build 11700 `[INFERENCE]` from those dates - and the check for
+    any build we stage is `git tag --contains 781dbc5ac` plus **one load with `-md` and `--mmproj` together**.
+  - **`--moe-cache-cpu-share` NOW HAS A NAMED BLOCKER AND A NAMED SUCCESSOR.** #30966 is unmerged at **50 comments** and the
+    maintainer's own line (2026-11-02T09:37:55Z) is *"I'll take a look soon - just want to wrap the KV rows first"*;
+    **#29510** is converging, not stuck - its author reports patch **`18ed903b7`** *"seems to solve both issues by
+    converting the uneven splits into one slice and also enabling spec-dec verify to use kv-rows"*. So the item is **not**
+    "needs a build from the PR" any more: it is blocked behind a correctness fix that is close, and #31286's
+    `--moe-cache-cpu-share auto` is the intended successor (its benchmark gist published 2026-11-02T10:12:48Z).
+  - **TWO MEMORY-ACCOUNTING FACTS FROM OTHER ENGINES, BOTH ON OUR GATE.** **Colibri #2156** merged 2026-11-02T00:42:09Z:
+    *"the Windows setup probe and planner treat `ullAvailPageFile=0` as unknown and use free physical memory instead. At
+    exhausted commit headroom they can advertise a large runnable memory budget even though Windows cannot commit another
+    byte"* - the **fourth** engine with a Windows commit bug and the **first fixed upstream**, and the exact fail-open our
+    runner must not have. **Ollama #19463** (2026-11-02T06:49:24Z, 0 comments): `PredictServerVRAM` over-predicts the KV
+    cache **4-8x** for hybrid/recurrent models and **always bills f16 regardless of `OLLAMA_KV_CACHE_TYPE`**, so the
+    `predicted > 80 % * available` pre-flight in `server/sched.go` evicted a `keep_alive: -1` runner at
+    **predicted 24.9 GiB against available 22.5 GiB** while the load log showed KV **8,704 MiB** + recurrent **748 MiB**.
+  - **llama.cpp #31274 IS SMALLER THAN ITS OWN HEADLINE, BY ITS AUTHOR'S OWN CORRECTION**: the PR body's **4,039 MiB /
+    9,831 MiB** host-memory savings are *"largely due to scheduler-sizing commit; if we isolate to just calloc, the savings
+    are smaller"* - **81.9 MiB (DFlash2) and 213.0 MiB (MTP-7) of peak working set on RTX 5090 / Windows**, 50.2 / 168.6
+    MiB RssAnon on Linux, *"allocator/OS dependent"*. Recorded so nobody quotes the 9,831 MiB.
+  - **IMAGE TRACK: ComfyUI's dynamic VRAM was silently disabling native FP8 on sm_120, and the fix merged four hours before
+    this scan.** **#16551** closed 2026-11-02T04:02:18Z by **#16941** (merged 04:02:17Z): `fp8_e4m3fn_fast` fell back to
+    bf16 compute under dynamic VRAM, **1.07 vs 1.72 it/s** on Flux dev at 1024²/20 steps on an **RTX 5070 Ti 16 GB**,
+    runs **interleaved**, one fresh server each, first image excluded. The related freeze report **#16946** is
+    **Windows 11 build 26300 + RTX 3060 12 GB**: full-PC freezes at the **text-encoder offload** step, fixed for one
+    commenter across ~1,400 prompts by keeping the encoder **fully on one device**.
+  - **ARXIV ADVANCED for the first time since 2026-10-30: 86 new cs.CL (707 total) and 198 new cs.LG (1,431 total), dateline
+    Mon, 2 Nov 2026.** Three read: **2610.41177 TraceSpec** - *"aggregate acceptance can rise with context length while
+    declining within matched late browsing actions"*, on 10,000 training / 2,500 test agent states, which is the formal
+    statement of why our **+31.2 % per token** MTP row hides a **~33 % acceptance on free-form code**; **2610.41366** -
+    renormalizing survivors' gates in training-free MoE pruning *"costs 0.8-8.5 points and reverses whether rerouting beats
+    MoNE"*, i.e. a routing change that keeps the same experts is not quality-neutral; **2610.41420 SparseGDN** - a prefill
+    cost decomposition for **Gated Delta Networks**, the hybrid layer family both Strata's KV accounting and Ollama's 4-8x
+    mis-prediction treat specially.
+  - **PACKS: the Coder pack our notes pin was RE-PUBLISHED MID-WINDOW AND IS CURRENTLY INCOMPLETE.**
+    `ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-Coder-GGUF` has `createdAt` reset to **2026-11-02T13:52:10Z**, sha
+    **`0b1d5da5`**, 14 files, 183.69 GB listed - and **shard 1 of 6 is 6 MB** with **shard 6 absent**, so a re-stage today
+    fetches a broken set and our pinned revision (`5348543e`; `bba88856f8c3` since 2026-10-19) is not retrievable from
+    this repo. The other five tracked packs are unchanged by revision and last-modified (Qwen3.6 `7878dc9a` 2026-10-19,
+    Qwen3.8-Flash-Next `91fb0035` 2026-10-21, ISTA DSV4.1 `65d53bc8`, Flint `468307a1`, Kolibri APEX `0fd62efa`).
+    `lavendercomputing/Clover-35B-A3B-Preview-GSQ-RCO-GGUF` (2026-11-02T14:27:59Z) is **one file, `.gitattributes`** - an
+    empty placeholder, logged so it cannot become a fact.
+  - **PLATFORM HEALTH.** [GH] all five answered. **[REL]** **zero** new releases: Strata **v0.2.9** with **0 commits on
+    `main`** against **153** updated items, Ollama **v0.40.13** with **no `v0.40.14`**, ComfyUI newest published
+    **v0.43.0** with **`v0.43.1` and `v0.43.2` both still 404** (day 5 and 6), Colibri **v2.1.0** with **22 PRs merged**,
+    llama.cpp **v0.8.0** unchanged with rolling tags to **b12040** and **26 commits / 26 PRs merged**. **[HFR]** the
+    Coder move above; five of six unchanged. **[ARX]** advanced, 86 + 198. **[YT]** reachable; 4 searches enumerated 39
+    videos, **two** dated 2026-11-02; the one mined (SkildCore, 324 s, `Mz-pmUN30Yw`, captions 43,715 B) gives the
+    **one-hit-waste** mechanism for LRU and repeats the **10 %-of-expert-size** sizing rule that our ladder contradicts at
+    **24-31 %**, plus a **~1.5-tokens-of-slack** figure for segmented policies and the confirmation that the ramped
+    protected share **closed unmerged while v0.8.0 shipped the straight 50/50 cache**. **[RD] 403 on both endpoints -
+    eighth failure in nine days, fifth consecutive**; one item seen only as search snippets, recorded unread and not
+    citable (`u/zyxciss`, Qwen3.8-Flash-Next at **22 tok/s on an RTX 3060 12GB + 16GB RAM**, 100 % bit-exact claim).
+    **[HN]** 1,892 stories in ~36 h, 6 keyword matches, **none on axis**.
+  - **Shortlist, cheapest first**: (1) make the **routing state** a declaration field read back from the log (#5000, an
+    edit); (2) **downgrade the version-regression claim** and precondition the arm on an untimed warm-up (#4826 + #4996, an
+    edit); (3) put the **Windows updater failure and the `engine.pinned` path** into the bump's prerequisites (#4994, an
+    edit that gates the download); (4) add the **#30257 MTP+mmproj abort** to the load check for any staged build (#30698,
+    one grep plus one start); (5) the **route-prior KL arm** at `prior=0` vs `1.5`, n>=2 starts - `+24 %` decode against
+    `+22.9 %` perplexity is now a real disagreement, and it needs an engine **>= 0.1.52** we do not have, so it rides
+    behind 3 (gated); (6) record that `--moe-cache-cpu-share` is blocked behind #29510 and succeeded by #31286 (an edit);
+    (7) re-measure one image arm with `--disable-dynamic-vram` after #16941 (image track, ~15 min). **Gated on Kevin**: the
+    candidate tests; any Strata bump (target unchanged: app **0.2.9** / engine **0.1.55** / Control **0.1.55**, now
+    carrying the decode-regression **retraction** and the Windows updater prerequisite); a llama.cpp download at any tag
+    past **b11480** (best named **>= b12040**, and see item 4 before loading it); the **DeepSeek IQ2_XXS download**; the
+    display-to-iGPU cable change; the TTQ 35B-A3B pack; the **Colibri v2.1.0** probe; and the **Clover / Groot** task
+    checks. Nothing scheduled.
+
 - **2026-11-01, resident above 8 GiB: the lever steepens to +15.8 tok/s per GiB, nothing clamps at 16, and the lend
   region is unfixable on this box.** `RESIDENT-ABOVE-8-2026-11-01.md`, 13 clean arms, engine **0.1.47**, pack `q2_0`,
   `--prefill 2048 --reserve 900 --cache 1500`, 19,769-token prompt, one process per arm. Gates at start: free physical

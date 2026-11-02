@@ -617,6 +617,38 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-02 &middot; [Daily news scan: the 0.1.54/0.1.55 decode regression is retracted by its own reporter, a seven-engine sweep finds no version difference on our card family, and the routing prior is a 2.3x cache-hit lever the 0.2.9 default removed silently](NEWS-2026-11-02.md)**
+&ndash; a **23.4 h** window (2026-11-01T15:07Z &rarr; 2026-11-02T14:30Z) from the scheduled 06:30 run. **Strata #4826 is
+closed 2026-11-02T12:42:17Z by the reporter who filed it**, and the correction is his own: *"due to strata's caching of
+experts, a second sequential run of mtp-bench.py shows much better performance than the first run, and fully explains the
+performance regression I had observed and **wrongly attributed to different engine versions**"* &ndash; so the only **RTX
+5070** witness for the **&minus;22.7 %** that `NEWS-2026-11-01` headlined is a **warm-up artifact**, the family's third
+self-correction after #4778 and #4410. **A second negative lands the same day (#4996)**: RTX 5070 12 GB + 5060 Ti 16 GB
+on **Windows 11 / CUDA 13**, NVFP4 at 262,144, `--kv q4_0`, `--spec 16`, `--vram-reserve-mib 0`, layer split K=27 - **seven
+engines 0.1.47 &rarr; 0.1.55 read decode 66.6-70.0 tok/s with a 3.6-7.9 tok/s spread inside each engine's own runs**, and
+its author's own verdict is *"not statistically meaningful"*. **#5000 supplies the day's real mechanism**: same engine, only
+`STRATA_ROUTE_PRIOR` changing, on an 8 GB card - decode **28.0 vs 22.6 tok/s** and expert-cache hit **60.8 % vs 27.0 %**,
+**24/24 passing in both**; after the update **0.1.52 prior 1.5 = 24.2 t/s at 45.9 % hit** against **0.1.55 prior 0 = 16.3
+t/s at 20.9 %** (**&minus;33 %**), and *"0.1.55 prints nothing about routing when the prior is off, so our `strata update`
+changed which experts run, and our speed, without a line in the log"* &ndash; the hit-rate mechanism behind the **+22.9 %
+perplexity** we measure, with a pass rate too coarse to see it. **#4994** names the bump's Windows prerequisite: on a
+**working 0.1.54** at 45-78 tok/s, `strata.py update` (feed 118) fails **Control 0.1.55 with `0xC0000135`** and the engine
+test-start because `default_test_start` **strips `lib_dirs`** and loses `cublas64_13.dll` &ndash; while **#4996 documents
+the safe path**, rewriting **`engine.pinned`** in `components/.updates/state.json`, which `serve/server.py` re-resolves at
+every start. **llama.cpp #30698**: **MTP plus `--mmproj` aborts at startup** on every build after **#30257 (`781dbc5ac`)**,
+with three reporters and a working patch &ndash; and our Qwen3.6 pack ships `mtp-*` beside `mmproj-*`. **Two
+memory-accounting facts on our gate**: **Colibri #2156** merged a fix treating `ullAvailPageFile=0` as unknown (*"can
+advertise a large runnable memory budget even though Windows cannot commit another byte"*), and **Ollama #19463** has
+`PredictServerVRAM` over-counting hybrid KV **4-8x** and always billing f16, evicting a `keep_alive=-1` runner at
+**predicted 24.9 GiB against 22.5 GiB available** while the log showed **8,704 MiB** of KV. **Image track**: ComfyUI's
+**dynamic VRAM was silently disabling native FP8 on sm_120** &ndash; **1.07 vs 1.72 it/s** on Flux dev, RTX 5070 Ti,
+interleaved &ndash; fixed the same morning by **#16941**. **Zero releases** anywhere; **arXiv advanced** for the first time
+since 10-30 (**86 cs.CL + 198 cs.LG**) and gave **TraceSpec** (*"aggregate acceptance can rise with context length while
+declining within matched late browsing actions"*), the formal form of our own MTP aggregate; the **Coder pack we pin was
+re-published mid-window and is currently incomplete** (shard 1 is 6 MB, shard 6 absent); **Reddit 403 an eighth time in
+nine days**, **HN 1,892 stories with nothing on axis**, and one in-window **YouTube** upload (SkildCore, 324 s) whose
+**10 %-of-expert-size** rule our ladder contradicts at 24-31 %.
+
 **2026-11-01 &middot; [The resident budget above 8 GiB: +11.4 prefill tok/s per GiB to 8, about +20 above it, no ceiling at 16, and decode moves too](RESIDENT-ABOVE-8-2026-11-01.md)**
 &ndash; **28 arms in two runs**, engine **0.1.47**, `q2_0` pack, `--prefill 2048 --reserve 900 --cache 1500`, a
 **19,769-token** prompt, one process per arm. First run, rungs 2-16: prefill **578.0** (2 GiB, n=5), **600.4** (4),
