@@ -619,6 +619,46 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-04 &middot; [Daily news scan: Strata ships 0.2.10 and makes DFlash2 the default drafter on our architecture, two independent reports put engine 0.1.56 slower than 0.1.54, and llama.cpp's held multi-seq KV PR has merged into v0.9.0](NEWS-2026-11-04.md)**
+&ndash; a **48.0 h** window (2026-11-02T14:30Z &rarr; 2026-11-04T14:30Z), twice the usual width because **the log carries
+no entry of any kind for 2026-11-03** &ndash; the previous line is `[Mon 11/02 6:38:51] daily news scan exit 0` and the
+next is this run's start, so the wrapper did not run that morning. **Strata shipped `v0.2.10`** (2026-11-02T23:52:47Z, 40
+assets, Control and every engine **0.1.56**) 9.4 h after the last scan closed, and **the bump target moves to app 0.2.10 /
+engine 0.1.56 / Control 0.1.56**. What reaches this box is the drafter: **DFlash2 becomes the default for Qwen3.8 on CUDA
+architectures 8.6, 8.9, 12.0 and 12.1** &ndash; ours is 12.0 &ndash; at **625 MiB** against the **5.2 GB MTP layer** it
+replaces, worth **+7.88 % greedy / +6.23 % short sampled / +1.38 % long** on the release's one sm_120 row. **Against that,
+the window carries the first two independent reports that 0.1.56 is *slower* than 0.1.54, naming two different
+mechanisms**: **#5115**, four mirrored arms with fresh engines 30 s apart on an **RTX 5080 16 GB / Windows 11 / sm_120**,
+reads decode **114.1 &rarr; 85.5 tok/s (&minus;25.1 %)** with **expert slots unchanged (3083/3185 vs 3104/3062)** and
+non-overlapping ranges &ndash; so not a cache-size effect; **#5199** shows the other mechanism in the log, because
+**0.1.56 defaults the prompt chunk to 16384** and the prompt path lends VRAM out of the expert slots, taking on-card
+experts **572 &rarr; 258** and decode **&minus;12-18 %**, while `--prefill-chunk 8192` restores **707** slots &ndash; with
+**arm 5 as its control: 0.1.55 given 16384 by hand also falls to 240**. **#5059 is the bump prerequisite**: on a **64 GB
+Windows** box the **0.2.10 app stops sending `--resident-budget-gib`**, so the engine takes the `mmap` path and a **~43 GiB
+page-locked copy** the app never accepts as started, while the same **0.1.56 engine under the 0.2.9 app works**. **llama.cpp
+published `v0.9.0`** (2026-11-04T13:08:06Z) &ndash; the first versioned release since v0.8.0 &ndash; carrying **#29510
+merged 2026-11-02T16:13:34Z** (49 files, +1205/&minus;331): the `flash_attn_ext_rows` op that restores multi-seq prefill,
+**2982 &rarr; 8626 tok/s on Gemma-26B** and **1106 &rarr; 2778 on Qwen3.8-27B** at N_KV 400000. That PR is the one we held on
+2026-11-01a for a shared-prefix bug, and **I checked the released tree: the `TAG_KV_ROWS_SIMPLE_SPLIT` disable guard its
+maintainer proposed on 2026-11-02 is absent from `v0.9.0`, and `init_batch` still enters "first try simple split"** &ndash;
+so the release runs the path rather than routing around it, and the hold is **lifted but not verified by a test**.
+**#4402 closed 2026-11-04T08:46:40Z as solved while the 16 GB class it could not explain was never re-run**, and its
+reporter supplied the closing objection plus the log line that belongs in every speculative row: **draft acceptance
+saturates to 98.9-99.3 % minutes before a repetition collapse**, against 65-85 % on healthy turns. **Hugging Face**: five of
+six tracked packs unmoved; the **Coder pack moved revision again** (`0b1d5da5` &rarr; `54229d38`) and is **still not a
+coherent 6-shard set** &ndash; shard 1 is **5.78 MB**, shard 6 is **absent** &ndash; while **shards 2-5 sum to exactly the
+72.1 GB** 0.2.10 publishes for its built-in `--model ISTA-DAS-Coder`, so the app pins a subset and a hand-built download is
+still broken. **arXiv advanced two batch days** (63 cs.CL + 37 dated 11-03/11-02; 100 cs.LG all 11-03), and **Bevy
+(2611.04794) argues against one of our own shortlisted levers**: *"prefetching can be harmful when there is an expert cache
+in GPU memory... proper request scheduling beats prefetching"* &ndash; which is #4978's prefetch-only design. **[YT]** one
+in-window upload (Local Explained, 2026-11-03, `j9eFE-apHdw`, 1,934 s) reproduces our thread ladder from the other side
+(**12 threads &rarr; 6 took 20-21 to 24.4 tok/s because 65 % of CPU time was spinning**; our no-SMT box prefers **16 over
+24**, so the rule is about SMT) and prices the decode/prefill RAM split (**24 GB answers at 22 tok/s, 20 GB at 9, 12 GB at
+4.5; prefill 115 &rarr; 34 &rarr; 15 &rarr; 40 GB recovers**). **[RD] 403 on both endpoints &ndash; ninth failure in ten
+days, sixth consecutive**; **[HN]** 2,386 stories, two leads, nothing on axis. Three engines in one window (Strata,
+llama.cpp, Colibri) independently moved a drafter default and a host-memory allocation, which is why the shortlist's first
+three items are declaration edits rather than experiments.
+
 **2026-11-02 &middot; [Daily news scan: the 0.1.54/0.1.55 decode regression is retracted by its own reporter, a seven-engine sweep finds no version difference on our card family, and the routing prior is a 2.3x cache-hit lever the 0.2.9 default removed silently](NEWS-2026-11-02.md)**
 &ndash; a **23.4 h** window (2026-11-01T15:07Z &rarr; 2026-11-02T14:30Z) from the scheduled 06:30 run. **Strata #4826 is
 closed 2026-11-02T12:42:17Z by the reporter who filed it**, and the correction is his own: *"due to strata's caching of
