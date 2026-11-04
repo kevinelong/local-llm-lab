@@ -1,5 +1,15 @@
 # What to steal from iimage for our Tk/Python build
 
+> **Corrected 2026-11-03, after the map was taken.** This note was written from the Rust app alone. A structural map of
+> `ai_bench/image-models-20261020/zimage_ui.py` (12,749 lines) then showed that **most of these mechanisms already exist
+> there**, several with the measurement that motivated them: `_photo_of` keyed by `(path, bucket)` in a bounded LRU
+> ("9.5 ms a tile, 172 ms for 18" before it), `.thumbs` on disk, one 60 ms poll with a single coalesced thumbnail repaint,
+> `_prefetch(ahead=2)`, `LoadingMeter` with measured percentages and the <1 s / 1-3 s / >3 s rule, 1/2/3/4-picture folder
+> sheets, and an always-on `_Profile` with p50/p90. Read this as a **checklist of what a gallery like this should have**,
+> not as a list of gaps. The three that were genuinely missing are fixed in that repo at v0.28.0 and written up in its
+> `STATE-2026-11-03.md`; the two that remain (per-refresh widget destroy/recreate, and a photo-cache miss decoding on the
+> UI thread) are named there as design work.
+
 **Source read:** `C:/Users/kevin/iimage` (Rust, Win32 + GDI/GDI+, v0.14.0), 2026-11-03.
 **Target:** our own reimplementation of the z-image UI in Tk + Pillow.
 **Scope:** mechanisms, not features - the feature gap is in
