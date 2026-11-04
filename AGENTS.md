@@ -42,6 +42,26 @@
     and a prose state block that drifted three versions.
   - **Nothing here is a lab result and nothing was scheduled.** It is a reading of two codebases; the Tk/Python build
     it targets is separate work.
+  - **The Tk target was then found and changed** - `ai_bench/image-models-20261020/zimage_ui.py` (**12,749 lines**, its
+    own git repo on `master`, previously at v0.27.10), located through a structural map rather than by guesswork. The
+    map **overturned most of the lessons doc**, which is now headed with that correction: `_photo_of` is already keyed by
+    `(path, bucket)` in a bounded LRU with the **9.5 ms a tile / 172 ms for 18** measurement that motivated it, `.thumbs`
+    is on disk, one **60 ms** poll does one coalesced thumbnail repaint, `_prefetch(ahead=2)` exists, `LoadingMeter`
+    already implements the <1 s / 1-3 s / >3 s rule with measured percentages, and folder sheets already lay out 1, 2, 3
+    or 4 pictures as shapes. Three things were genuinely missing and are fixed at **v0.28.0** (`8dd2e45`, pushed):
+    (1) `_visible_files` threw away the walk's `(path, mtime)` pairs and re-`stat`ed every picture inside the sort key -
+    measured on the real gallery, **3,224 pictures: 49.23 ms by fresh stat against 0.55 ms by the walk's map** (dict
+    build 0.14 ms); (2) `_persist` wrote **six** settings keys that `save_settings` filtered out against `SETTINGS_KEYS`
+    - `steps_by_model`, `rephrase_intensity`, `rephrase_matching` died at exit in silence - and `sort` plus
+    `last_folder` were never stored at all, the folder now reopened by name through a pure `restored_folder(plan,
+    was_open, saved)` that is consumed once so a re-group cannot reopen it; (3) **Ctrl+D** copies one paste-ready
+    diagnostics block (build, pid, Python/Tk, window and DPI, theme, source and counts, sort/filter/layout, the open
+    folder, server state, live jobs, and the worst eight operations as **n/p50/p90/p95/max** - p95 added to `_Profile`
+    for it). Verified: `test_gallery_ui.py` **ALL PASS** (883 checks), `test_tiles.py` ALL PASS, and `test_sizing.py`
+    **3 failures that are pre-existing** - the same file on the stashed tree fails **6**, including those three. Written
+    up in that repo's `STATE-2026-11-03.md`, with the two remaining design items named rather than attempted: every
+    refresh still destroys and re-creates each visible tile widget, and a `_photo_cache` miss still decodes on the UI
+    thread.
   - **A closing section turns the reverse reading into 13 suggestions for iimage**, cost-ordered, because the missing
     generation surface is cheap in its own code: `comfy::workflow()` already accepts negative/width/height/denoise/base
     image (`comfy.rs:527-577`), so items 1-3 (real parameter rows, options generated from `max_steps` instead of a
