@@ -104,3 +104,80 @@ just gaps.
    irreversible gap.
 4. Batch/layout + `ALL` sweep - the parity item that changes what the app is for.
 5. Masks, hires and outpaint last: they need a canvas layer that does not exist yet.
+
+---
+
+## Suggestions, after reading it the other way round
+
+`IIMAGE-LESSONS-FOR-TK-2026-11-03.md` reads the same tree for what *we* should copy.
+Reading it that way changes what is worth fixing here, because most of the missing
+generation surface is **cheap in their own code**: `comfy::workflow()` already takes
+negative, width, height, denoise and the base image, their render thread already streams
+phases, and their own harnesses (`isolated.ps1`, `baseline.ps1`) already make a change
+provable. So the first four items are not new engineering, they are closing a gap between
+what the graph accepts and what the panel offers.
+
+Ordered by cost, with the intent question answered where it matters.
+
+1. **Make the parameter row the truth.** `workflow()` accepts `negative`, `width`,
+   `height`, `denoise` and `sampler` (`comfy.rs:527-577`); the panel offers five rows
+   (`view.rs:4072`) and hardcodes three of those values. Four rows - negative, size,
+   denoise (0.5-0.9, default 0.70 from our pose probe), sampler - and a render that
+   passes them through. Nothing else in the app changes.
+2. **Generate the options from the profile, not from a constant.** `const STEPS: [i64; 5]
+   = [2,4,8,12,20]` (`view.rs:3533`) against `clamp(1, profile.max_steps)` (`view.rs:3106`)
+   is a list that lies. Build it as `2..=profile.max_steps`, and the clamp becomes
+   unreachable rather than silently active.
+3. **Write down the run that happened.** The sidecar records `"denoise": 1.0` for a run
+   that used 0.6 (`view.rs:3234`) and omits the sampler and the negative. The exact graph
+   is already kept in `last_graph` for the diagnostics block - write it, or write the six
+   numbers it was built from, next to the PNG. A record that cannot reconstruct its run is
+   a picture with a story attached.
+4. **A settings file.** `%LOCALAPPDATA%\iimage\settings.json` with last parameters, sort,
+   filter, last folder and window size, loaded at start and saved on exit. It costs one
+   serde struct and it is the difference between an app that remembers and one that is
+   retyped every launch. Diagnostics already prints the exact fields that need saving.
+5. **Trash, multiselect, Delete.** Their own next step, and the only irreversible gap.
+   `.trash/<stamp>/` mirroring the folder layout, a confirm dialog, and the same
+   sidecar+thumbnail move our web build does. `isolated.ps1` already asserts that a vote
+   lands in a sidecar; a delete is the same shape of test.
+6. **Batch and layout, then the `ALL` sweep.** The parity item: `batch_size: 1`
+   (`comfy.rs:559`) is the only thing standing between this app and producing the
+   contact sheets our gallery already groups. The render thread already emits phases, so
+   per-tile events are an extension of `RenderEvent`, not a rewrite. `ALL` is the cheap
+   half: every profile once at its ceiling, which is the comparison a sweep exists for.
+7. **img2img from the gallery, with a strength row.** `seed_draft_from` (`view.rs:2238`)
+   already carries base image and lineage; it is reachable only through `New...`. An
+   image-screen action plus the global denoise row from item 1 covers it, and 0.70 is the
+   measured pose threshold, so the default is not a guess.
+8. **A preview pass.** Same graph, 2 steps, 256 px, written outside the folder. Eight
+   seconds to check a prompt is the difference between iterating and waiting.
+9. **Prompt history and saved styles.** The multiline editor is real (`editor.rs`), and
+   the style is already a suffix (`view.rs:3099-3103`) - history is a list in the settings
+   file, user styles are the same list keyed by name.
+10. **A window over what it already logs.** The graph and the full action log exist but
+    are only reachable as text. A read-only pane showing the last graph and the tail of
+    `IIMAGE_DEBUG_LOG` is the same data with a frame, and it is what makes the Ctrl+D
+    block unnecessary for everything except a bug report.
+11. **Take the machine out of the source.** `COMFY_PY` and `COMFY_PATHS`
+    (`comfy.rs:25-26`) are one person's disk layout; a config file plus `COMFY_CMD`
+    keeps the ownership rule ("only stop what we started") and makes a second machine
+    possible. Keep the profile table compiled-in if that is a deliberate choice, but say
+    so in the README - right now the README implies models are discovered and usable.
+12. **Stop the docs from drifting.** The `## State` block and the `## Creating images`
+    section describe v0.7.0 while the binary is v0.14.0. Generate the state line from
+    `version::VERSION` and assert it in `cargo test`, the way the grouping rules are
+    already asserted against the live gallery.
+13. **Put the baseline in the release path.** `baseline.ps1` already records per-operation
+    p50/p95 with the machine and the version; running it on every tag is what keeps the
+    407 ms first paint from coming back unnoticed.
+
+### One intent question worth answering first
+
+Items 1-5 assume the app wants to be a generator as well as a viewer, which its own
+screens already claim (Compose, Options, Render). If the intent is curation-first, then
+the honest move is the opposite: **remove** `Render` and the Options stubs rather than
+finish them, and point at the web build for generation. What should not survive is the
+current middle - a Render button that produces exactly one shape while three of its own
+rows suggest otherwise.
+

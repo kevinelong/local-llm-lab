@@ -42,6 +42,16 @@
     and a prose state block that drifted three versions.
   - **Nothing here is a lab result and nothing was scheduled.** It is a reading of two codebases; the Tk/Python build
     it targets is separate work.
+  - **A closing section turns the reverse reading into 13 suggestions for iimage**, cost-ordered, because the missing
+    generation surface is cheap in its own code: `comfy::workflow()` already accepts negative/width/height/denoise/base
+    image (`comfy.rs:527-577`), so items 1-3 (real parameter rows, options generated from `max_steps` instead of a
+    constant list, and a sidecar that records the run that happened) are an afternoon and remove both defects above.
+    Then a settings file, trash+multiselect, batch/layout and `ALL`, img2img from the gallery with a strength row,
+    a 2-step preview pass, prompt history and user styles, a pane over the graph + action log it already keeps,
+    config-file server paths, a README state line generated from `version::VERSION` and asserted in `cargo test`, and
+    `baseline.ps1` moved into the release path. The section ends with the intent question it raises: if the app is
+    curation-first, the honest move is to **remove** Render and the Options stubs rather than finish them - what should
+    not survive is a Render button that produces one shape while three of its own rows suggest otherwise.
 
 - **2026-11-02, daily scan: the 0.1.54/0.1.55 decode regression is retracted by its own reporter, a seven-engine sweep on
   our card family finds no version difference, and the routing prior is revealed as a 2.3x cache-hit lever the 0.2.9
