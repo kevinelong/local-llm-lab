@@ -595,6 +595,8 @@ no code and no author.
 - [METHODOLOGY.md](METHODOLOGY.md) - how we benchmark (probes, tok/s, placement).
 - [RESULTS.md](RESULTS.md) - the measured numbers.
 - [benchmarks/](benchmarks/) - the benchmark scripts.
+- [IIMAGE-REVIEW-2026-11-03.md](IIMAGE-REVIEW-2026-11-03.md) - the Rust/Win32 z-image UI (`iimage`, v0.14.0) read against `ai_bench/zimage-web`: what its generation side is missing, plus two defects where it contradicts itself (offered steps the render clamps away, a sidecar that records the wrong `denoise`).
+- [IIMAGE-LESSONS-FOR-TK-2026-11-03.md](IIMAGE-LESSONS-FOR-TK-2026-11-03.md) - the mechanisms worth porting into our Tk/Pillow build: retained view model, decode-once-at-display-size, one heartbeat timer, viewport prefetch, phased loading off a capped thread pool, no white flash, app-side frame dump, and the profiling/baseline pair that caught a 407 ms first paint.
 
 ## How to reproduce quickly
 

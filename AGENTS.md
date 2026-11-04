@@ -1,5 +1,48 @@
 # Local AI lab working instructions
 
+- **2026-11-03, review of the Rust z-image UI and what to take from it into our Tk build.** Two notes, both read-only
+  against `C:/Users/kevin/iimage` (Win32 + GDI+, **v0.14.0**, 20 commits, **9,551 lines**) and
+  `C:/Users/kevin/ai_bench/zimage-web` (2,034 lines): nothing built, run, downloaded or started, **`ai_bench`
+  untouched**. `ai_bench/zimage-native` (v0.1.0, 2026-10-28) is a second Rust attempt with the job/model layers and
+  almost no UI; it is not the comparison.
+  - **`IIMAGE-REVIEW-2026-11-03.md` - what it does not have.** Verdict: **a strong reader and a thin writer.** Its
+    curation half is ahead of ours (438 root prompts fold to **92 folders** by word-folding plus tail-drift and
+    label-merge, asserted against the live gallery by `cargo test`; folder icons as 2x2 mini grids; one precomputed
+    lowercase haystack per image for filtering; one sort model driving paint, hit-test and arrow step; full-screen
+    gallery with zoom/pan/slideshow; A/B with dHash greedy pairing plus Swiss rounds writing `vs` into sidecars).
+    Its generation half is one fixed shape: `"batch_size": 1` (`comfy.rs:559`), **`let size = 1024i64`**
+    (`view.rs:3108`), negative prompt always `""` although the node exists (`view.rs:3157`), **denoise hardcoded 0.6**
+    (`view.rs:3171`), sampler pinned `euler`/`simple` (`comfy.rs:574-575`), no mask/inpaint, no outpaint, no hires,
+    no preview pass, no trash/delete (`remove_file` appears **nowhere** in `src/`), no stars, no multiselect, no
+    prompt history, no settings file, no LLM rephrase/enhance, graph and run-log only inside the Ctrl+D text dump.
+  - **Two defects worth more than the gap list, because they are wrong rather than absent.** (1) **Steps 12 and 20
+    are offered and silently discarded** - the option cycles `[2,4,8,12,20]` (`view.rs:3533`) and the render does
+    `clamp(1, profile.max_steps)` = 9 / 4 (`view.rs:3106`). (2) **The sidecar lies about its own run**: every render
+    writes `"denoise": 1.0` (`view.rs:3234`) while an img2img run used 0.6, so a record cannot be read back to tell
+    the two modes apart. Also: its `## State` block and its `## Creating images` section are **three versions stale**
+    (state says generation "not started, options are stubs, nothing written to disk" while 0.12+ submits real graphs),
+    and `COMFY_PY` / `COMFY_PATHS` are absolute `C:/Users/kevin/...` constants (`comfy.rs:25-26`), so a profile is a
+    compile-time `const` and a second machine cannot start the server.
+  - **`IIMAGE-LESSONS-FOR-TK-2026-11-03.md` - the mechanisms to port into our Tk/Pillow build**, each with its
+    source line and its Tk form. The load-bearing ones: a **retained view model** (`rebuild_visible()` at
+    `view.rs:1222`, measured **0.013 ms mean / 0.035 ms p95** for 326 items) that paint, hit-test and stepping all
+    read, so the three orders cannot disagree; **decode once at final display size and only blit** (`imaging.rs:1-3`),
+    with tiles keyed by image and folder icons by `(image, w, h)` and a bounded FIFO that frees on eviction; **one
+    80 ms heartbeat** driving every poll with a single coalesced repaint (`main.rs:492-510`); **prefetch two items in
+    the rows just outside the viewport**, skipped while a menu is open; **loading as a screen with phases**
+    (`data.rs:207-260`) fed by a worker thread over a channel, sidecar parsing in parallel chunks **capped at 8
+    threads** (`data.rs:627-632` - the same cap our own 8/16/24-thread ladder argues for); **desktop colour then
+    wallpaper before content**, so there is no white flash; a **frame dump from the app itself**
+    (`WM_APP+1` + `IIMAGE_FRAME_DIR`) because `PrintWindow`'s surface went stale on a private desktop; a **Ctrl+D
+    diagnostics block** carrying version, screen, sort, filter, server, profile usability, draft parameters, render
+    phase and the exact graph; **tri-state availability** where `None` means "could not ask" and never greys a model
+    (`view.rs:3090-3096`); **`prof::perf` + baseline compare**, whose first baseline caught a **407 ms first paint**
+    against a 23 ms p95; and **golden assertions on the real corpus** via `folder '<label>' images=N top=<file>`
+    (`data.rs:452-475`). The "do not copy" list is the four fixed knobs, the absolute paths, the clamped step list,
+    and a prose state block that drifted three versions.
+  - **Nothing here is a lab result and nothing was scheduled.** It is a reading of two codebases; the Tk/Python build
+    it targets is separate work.
+
 - **2026-11-02, daily scan: the 0.1.54/0.1.55 decode regression is retracted by its own reporter, a seven-engine sweep on
   our card family finds no version difference, and the routing prior is revealed as a 2.3x cache-hit lever the 0.2.9
   default removed without a log line.** `NEWS-2026-11-02.md`, written against **`NEWS-2026-11-01a.md`**, window
