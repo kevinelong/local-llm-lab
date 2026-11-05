@@ -619,6 +619,36 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-05 &middot; [Daily news scan: Strata ships 0.2.11 and 0.1.57 with a +102 % decode lever on exactly our shape, the vendor states that agent prompts are non-deterministic under any chunk change, and a third engine reproduces the half-size expert cache](NEWS-2026-11-05.md)**
+&ndash; a **24.0 h** window (2026-11-04T14:30Z &rarr; 2026-11-05T14:30Z), the scheduled 06:30 run, after a clean exit and
+`verify OK` the day before. **Strata published `v0.2.11`** (2026-11-05T12:49:59Z, 40 assets, Control and every engine
+**0.1.57**, feed sequence 121) **two hours before the scan**, so the bump target moves again to **app 0.2.11 / engine
+0.1.57 / Control 0.1.57**; the Windows CUDA 13 engine still names **sm_120** with build id `0bdcef4682c5+cuda13.0`, while
+the body's `975eaab2bb40` is the manifest id. **The number that reaches this box is not the headline feature: the
+CPU/upload share for missed experts now follows the CPU's measured speed (ceiling 0.95, was 0.60), and the vendor's own
+12 GB row is "one card, 12 GB, 2 CPU workers: 31.1 &rarr; 62.7 tok/s (+102 %)"**, with 4 workers **58.3 &rarr; 79.1
+(+40 %)** and 32 workers flat &ndash; the shape our own 8/16/24-thread ladder found. **The `--prefill auto` ceiling moves
+8192 &rarr; 32768 on sm_80+**, but the release itself says a 12 GB card picks **4,608** tokens by itself and that on the
+**RTX 5070 the chunk was 7,936 whatever the ceiling**, so last scan's #5199 warning cannot fire here through the default.
+**The vendor now states that attack block selection sits on near-ties under 1e-3 on 75-93 % of queries, so any chunk
+change flips blocks on 70-90 % of queries** &ndash; an O(1) KL on agent prompts against ~1e-5 on plain text &ndash; and
+says its own agent-prompt KL figures (route-tail skip **0.203**, K-quant **0.065/0.052**) "may be inflated by this effect
+and were not re-measured". **`#5059` closed, and the fix is the symptom**: the app no longer declares a false start
+failure, but nothing says the app restores a resident budget, so `resident_budget_gib` stays explicit. **#5115 and #5199
+are still open and mentioned nowhere in 0.1.57**, so the 0.1.54-versus-0.1.56 control stands and gains a third arm.
+**`#5213` gained a second vendor**: an RX 7900 XTX 24 GB picking `--draft-conf` **0.7** where its 10,712 slots prescribe
+0.5, worth **85.3 &rarr; 94.5 tok/s (+11 %)**. **An independent 100 GB MoE (`ik_llama.cpp` #2849) says more cache is not
+better** &ndash; 20 GB 38.7, 25 GB 37.6, 30 GB **34.5 tok/s**, because decode tracks **host bytes per token** &ndash; and
+that **mlocking 106 GB changed nothing (32.1 vs 32.6 tok/s)**, which bounds what our WDDM note can promise. **A third
+engine (`QEngine` #8) reproduces Qwen3.8-Flash-Next decoding on half its expert cache after multi-conversation work**
+(166.8 &rarr; 134.0, &minus;20 %, slots 3,766 of 9,070) **and names the covariate our ladders never recorded**: how many
+conversations the process served earlier. **arXiv advanced one batch day and its best paper is an instrument we lack**
+(2611.06397: non-prefix KV reuse loses **19-100 %** of context-dependent answers), and **Hugging Face's in-window movement
+is the pack 0.2.11 now ships** &ndash; `unsloth/Qwen3.8-Flash-Next-GGUF` `d9620119` at 2026-11-04T17:43:43Z, whose
+per-set totals verify the release's download table and whose UD-Q2_0 (**70.55 GB**) is **not** our staged `q2_0` pack
+(~66.4 GB). **Seven shortlist items, cheapest first, three of them edits**; the first is putting the near-tie mechanism
+into the determinism section. No engine started, `ai_bench` untouched, WSL shut down and verified.
+
 **2026-11-04 &middot; [Daily news scan: Strata ships 0.2.10 and makes DFlash2 the default drafter on our architecture, two independent reports put engine 0.1.56 slower than 0.1.54, and llama.cpp's held multi-seq KV PR has merged into v0.9.0](NEWS-2026-11-04.md)**
 &ndash; a **48.0 h** window (2026-11-02T14:30Z &rarr; 2026-11-04T14:30Z), twice the usual width because **the log carries
 no entry of any kind for 2026-11-03** &ndash; the previous line is `[Mon 11/02 6:38:51] daily news scan exit 0` and the

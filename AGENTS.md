@@ -1,5 +1,192 @@
 # Local AI lab working instructions
 
+- **2026-11-05, daily scan: Strata shipped 0.2.11 and 0.1.57 two hours before the scan, and the lever that reaches this
+  box is a +102 % decode row on exactly our shape; the same release states that agent prompts are non-deterministic under
+  any chunk change; and a third engine reproduced the half-size expert cache on our model.** `NEWS-2026-11-05.md`,
+  written against **`NEWS-2026-11-04.md`**, which closed at **2026-11-04T14:30Z**; window
+  **2026-11-04T14:30Z -> 2026-11-05T14:30Z, 24.0 h**, the scheduled 06:30 run (`[Thu 11/05/2026  6:30:01.74] daily news
+  scan start` after `[Wed 11/04/2026  6:38:18.81] ... exit 0` and `verify OK`). Reading only - nothing downloaded as a
+  model, installed, built or run, **no engine started**, no inference, no benchmark, **`ai_bench` untouched**; the only
+  file fetched was the release's own `strata-feed.json` (15,552 B). WSL started **once** for `yt-dlp` and shut down,
+  verified (`wsl -l -v` -> `Ubuntu  Stopped`, no `vmmem*`).
+  - **THE BUMP TARGET MOVED AGAIN AND THE ONE SENTENCE WE NEED IS IN THE FEED, NOT THE PROSE.** `v0.2.11` published
+    **2026-11-05T12:49:59Z** (created 12:24:20Z the same day), `prerelease: false`, **40 assets, 9.5 GB**, feed
+    **sequence 121**; app and Terminal 0.2.11, Control and every engine **0.1.57**. Target is now **app 0.2.11 / engine
+    0.1.57 / Control 0.1.57**; rollback `strata components rollback` -> 0.1.56 with Control staying 0.1.57. **The Windows
+    CUDA 13 engine names `sm_75, sm_86, sm_89, sm_120, compute_120`**, `min_driver` **580.65**, **build id
+    `0bdcef4682c5+cuda13.0`** - while the body's own "every package ... build id `975eaab2bb40`" is the *manifest* id and
+    the Qwen engine's `--version` prints no commit, so **the feed's build id is the only quotable identifier for a Qwen
+    engine row.** CUDA 12 still stops at `compute_89`. Sizes: windows cuda13 engine **627,812,560 B** against
+    627,806,827 at 0.1.56 (**+5,733 B** in a 628 MB package - recorded, not read as evidence), control zip 73,411,113,
+    app 113,010,362, dsv41 cuda13 422,613,464.
+  - **THE LARGE NUMBER THAT REACHES US IS NOT THE HEADLINE FEATURE: THE CPU/UPLOAD SHARE FOR MISSED EXPERTS NOW FOLLOWS
+    THE CPU'S MEASURED SPEED (ceiling 0.95, was 0.60), AND THE VENDOR'S OWN 12 GB ROWS ARE OUR SHAPE.** "one card,
+    **12 GB, 2 CPU workers: 31.1 -> 62.7 tok/s (+102 %)**"; 4 workers `58.3/57.0/53.8 -> 79.1 (+40 %)`; 8 workers
+    `82.1 -> 91.4` (inside the 7 % launch spread); 32 workers flat ("same share decisions"); two cards held to 12 GB per
+    card `133.6 -> 151.0 (+13 %)`. Quality: first-token KL **0.0316** against share 0.55 (92.3 % top-1) on the two-card
+    split, single-card shipped rule 0.0310 (92.2 %); 61-task suite `54/53 -> 53/54`, agent `7/6 -> 4/5`, with the release
+    itself noting one arm moved by a task between launches. Off: `STRATA_PCIE_AUTO_SPLIT=0`, `STRATA_PCIE_K_RULE=0`,
+    `STRATA_PCIE_SHARE_MAX=0.60`; **not applied to integrated GPUs, HIP layer splits, or `STRATA_DEFAULTS=026`**. The
+    shape - large at 2-4 workers, nothing at 32 - is our own 8/16/24 thread ladder read from the other end, which makes
+    **the worker count a declared variable of any share A/B**.
+  - **THE `--prefill auto` CEILING MOVES 8192 -> 32768 ON sm_80+, AND THE VENDOR STATES BOTH CARVE-OUTS THAT DECIDE
+    WHETHER IT CAN HURT US - IT CANNOT, THROUGH THE DEFAULT.** "On a 12 GB card or a layer split the engine picked a
+    smaller chunk by itself and speed did not change (one 12 GB card **4,608** tokens, two 12 GB cards **7,168**)"; and
+    under Known problems, "**on the RTX 5070 (12 GB) the engine's chunk was 7,936 whatever the ceiling (RAM guard and fit
+    scan), so no chunk above 8K ran on Windows**". So last scan's #5199 warning (0.1.56's 16384 default lends ~3.5 GB of
+    slots away on a 16 GB card) cannot fire here via the default, and **our declared `--prefill` stays the only chunk
+    lever we hold**. The sizes elsewhere are real: A6000 20K **+43.4 %**, 32K +22.5 %, 64K +21.3 %; a cgroup-limited
+    PRO 5000 with every model file evicted 20K +32.6 %, 32K **+70.6 %**; the loan is explicit ("4,663 slots / 13.64 GiB
+    against 1,576 / 4.62 GiB"), then returned.
+  - **THE VENDOR NOW STATES THAT AGENT-SHAPED PROMPTS ARE NON-DETERMINISTIC UNDER ANY CHUNK CHANGE, BY CONSTRUCTION, AND
+    SAYS ITS OWN EARLIER AGENT KL FIGURES MAY BE INFLATED BY IT.** The sparse block selection "sits on near-ties (the gap
+    ... under **1e-3 on 75 to 93 %** of queries), so any change in rounding flips which blocks are picked on **70 to
+    90 %** of queries", giving agent prompts an **O(1) KL** where plain text moves about **1e-5**; the enumerated chunk
+    values 4096/6144/12288/16384/32768 against 8192 all move it, and "it is not specific to 32768". The retraction that
+    matters: "**Earlier agent-prompt KL figures (the route-tail skip 0.203, the K-quant kernels 0.065 and 0.052) may be
+    inflated by this effect and were not re-measured.**" Consequences: **a KL row without `chunk=` is unreadable** for
+    agent prompts; "same flags, same answer" is a claim about **plain text only**; and this is the same class as the
+    near-tie *words* we recorded from the 0.2.5 note (`NEWS-2026-10-25`), extended from sampling to attention blocks at a
+    far higher flip rate.
+  - **#5059 CLOSED (2026-11-05T13:20:25Z, 8 comments) AND THE FIX IS THE SYMPTOM, NOT THE CAUSE.** The body's line is
+    "**#5177, #5059: the app declared a start failed while the engine finished loading fine**" - planning now runs in a
+    thread with phases and **the first-token check has its own 180 s budget**. **Nowhere does 0.2.11 say it restores a
+    resident budget of its own**; the only `resident-budget-gib` in the whole release is a *test* config under Known
+    problems. So the bump rule is unchanged: **declare `resident_budget_gib` explicitly**. A second declaration fact from
+    #3750's entry applies to every Strata row we have ever taken: "**the engine still skips every memory adaptation when
+    `--vram-reserve-mib` is given and the app always passes it**; that part needs an engine change and is not in this
+    release" - our arms all pass a reserve, so adaptation was off by construction (constant across arms, so not a
+    confound, but a reserve is not a hint the engine may override).
+  - **THE TWO 0.1.56 SLOWNESS REPORTS ARE STILL OPEN AND 0.1.57 DOES NOT CLAIM THEM.** **#5115** (-25.1 % decode on an RTX
+    5080 16 GB, mirrored arms, 1 comment - the reporter's own "two different mechanisms, same release") and **#5199**
+    (chunk default, 0 comments) were both still open at read time (updated 2026-11-04T09:31Z), neither is mentioned in
+    the body, and the body's speed rows are explicitly from "branches before the last merge". The control from
+    `NEWS-2026-11-04` therefore stands, now with a **third arm**: 0.1.54 / 0.1.56 / 0.1.57, mirrored, fresh engine per
+    arm, untimed warm-up first, `--draft-conf` and `--prefill-chunk` declared rather than inherited.
+  - **#5213 NOW HAS TWO VENDORS' CARDS AND IS A ONE-START CHECK ON OURS.** Original: 32 GB R9700, Auto picks
+    `--draft-conf 0.35` where its **8,312** slots prescribe 0.5 - **66.7 -> 71.1 tok/s, 58.4 -> 67.0 %** acceptance. New
+    (2026-11-05T11:39:45Z): **RX 7900 XTX 24 GB, HIP**, Auto picks **0.7** where its **10,712** slots prescribe 0.5 -
+    **85.3 -> 94.5 (+11 %)**, 0.35 worse at 78.9. Cause unpatched: `drafting.py:505` `expected_slots()` does not read
+    `--kv-resident`, pricing the KV session 1,590 MiB high and landing ~815 slots off. **0.2.11 fixed the 0.35-vs-0.8
+    launch-file bug (#5178/#5132/#4985) but not this one**, and Known problems still carries "`--set draft-conf=off`
+    with DFlash2 is replaced by the automatic value (0.35) with no notice". The only durable remedy reported is a
+    `user_args` entry, because `strata launch` regenerates the config. Our declarations match the trigger by
+    construction (`--kv-resident` below `--max-context`, no explicit conf) and our granted counts sit in a third band,
+    so the check is "read both lines and compare to `CONF_STEPS`", never "expect 0.5".
+  - **THE MEMORY-SHAPED DEFECT 0.2.11 SHIPS WITH, ON A 64 GB PC, IS A REQUEST-TIME GROWTH THE LOAD-TIME BUDGET DOES NOT
+    BOUND.** Known problems: Windows app with `--max-context 65536 --draft dflash2 --resident-budget-gib 7
+    --conversation-cache-mib 768 --spec 6 --batch 4` - four requests at once took the PC from **25,074 MB to 7,416 MB
+    available**, engine private **28.2 GB**, everything else constant; at 32K the same run stayed at 10.5 GiB and
+    answered all four; agent turns at 64K with a 7 GiB resident budget went under **8 GiB available 4 times**
+    (7,955-8,159 MiB, private 23.6-24.3 GB). Our box is 63.46 GiB and our gate *is* commit headroom, and the app's own
+    floor is the same 8 GiB. Also shipped broken and named: **#5153** (conversation snapshots fail with "invalid K/V
+    extent" on DFlash2-only runs; "the fix is in the engine and is not in this release"), and engine-side reports
+    "**triaged on paper only this round** ... **None is fixed here**" (#5103, #5147/#5149, #5104, #5021); #5188
+    (`--prefill-head-alias`) is likewise absent.
+  - **A TASK-LEVEL DATUM CONTRADICTS THE PERPLEXITY-ONLY READING OF THE ROUTING PRIOR, AT 0.5 AND ON 24 GB CARDS.**
+    `#4978`'s new comment (coryjett, 2026-11-05T14:22:43Z): 2x RTX 3090, IQ3_S, layer split, **99.6 % cache hits without
+    the prior**, GPQA-Diamond via lm-eval (198 questions, thinking budget 16384): **prior 0.5 = 0.899 +/- 0.022 (178/198)
+    against off = 0.859 +/- 0.025 (170/198)**; paired 167 both, 11 prior-only, 3 off-only; McNemar p = 0.057. Speed
+    **+11 % decode with thinking off** (137.8 -> 152.6), **+10 % after a 32K prompt**, unchanged with thinking on; cache
+    hit 99.62 -> 99.96 %. The reporter's own limit: "That does not answer the 12 GB case: there the prior swaps far more
+    experts." So the prior's cost is prior-value- and regime-dependent (1.5 = +22.9 % perplexity from `NEWS-2026-10-28`;
+    0.5 = +1.1 %; AIME -10.0 pts at 1.5 from `NEWS-2026-11-01`), and **0.5 is the step worth pricing**, not 1.5.
+  - **THE 540-ITEM BULK CLOSE AT 14:16-14:30Z CLOSED MEMORY-SHAPED ITEMS WE QUOTE, AND THE BODY DOES NOT NAME THEM AS
+    FIXED.** Closed in the sweep: **#4516** (the `--vram-reserve-mib` contract, `NEWS-2026-10-29`), **#3693** (explicit
+    `--expert-cache N` is not a cap), **#3692** (Windows HIP auto-cache shrinks with VRAM free), **#3303** (q36 KV is
+    always fp32), **#3719**, **#4033**, **#4168**, **#3834**, **#4514**, **#5001**. The body names a fix for exactly one
+    (#3750: reserve capped at 1536 MiB for <=16 GB cards in 0.2.10, "now pinned by tests") and its related sentence says
+    the adaptation skip **remains**. **So a closed memory-shaped item on that repo is not a fixed one** - the standing
+    2026-10-20 rule ("closed is unreadable as evidence") now has a second mechanism beside the tracker reset.
+  - **llama.cpp: 35 COMMITS, AND TWO MERGES LAND ON OUR AXES.** v0.9.0 is **still the newest versioned release** (1
+    asset) and rolling tags moved **b12110 -> b12128**. **#31005** (+3/-0, 1 file): post-bias **NaNs in the CUDA MoE
+    top-k** reach the warp argmax, where "comparisons involving NaN are false, so **different lanes can select different
+    winning experts and write conflicting values to `ids[k]`**" - the same class as Strata #4825, and invisible to every
+    rate instrument. **#30541** (+6/-4): `LLAMA_STATE_SEQ_FLAGS_ON_DEVICE` used `size / ggml_element_size`, which for a
+    quantized cache is **blocks, not elements**, so **q8_0/q4_0 restored 1/32 of each range** ("the restored state was
+    wrong, or the copy crashed"); f16/f32 unaffected - **our Kolibri rows ran `-ctk/-ctv q8_0` through a server that
+    saves state, so the row's provenance now includes that fix**. Also: **#31569** (+30/-8) fixes "#31531 `--fit on`
+    leaves one layer on the CPU, and performance halves" - a named mechanism for our dense-27B probe, which ran
+    `--fit on --fit-target 1536` on b11461 and read 4.28 tok/s (the conclusion stands - the model is RAM-bound - but the
+    row was measured on a build carrying that bug); **#30137** (reference-counted checkpoints, cache update 529.2 ->
+    250.8 ms, "effects become larger as context grows"); **#31047** (linearized MoE tile layout for MMQ/MMF);
+    **#31660** (MTP conv snapshots in one `set_rows`, GLM-5.3 MTP bit-identical **+7 to +11 %**); **#31679** (+1/-0:
+    host used the real compute capability while the kernel's bounds came from the PTX that runs - a mismatched build
+    **aborted at `-ub` 5-8**, so **declare the build's arch list beside `-ub`**); **#31717** (external
+    `chat_template.jinja` now wins over `tokenizer_config.json`, which decides which template a converted GGUF uses).
+  - **THREE ENGINES, ONE DAY, ON SESSION-STATE COPIES, AND A THIRD ENGINE REPRODUCES OUR CACHE SYMPTOM ON OUR MODEL.**
+    **QEngine #8** (open, 3 comments): 8 slots, five 5-turn conversations, then a lone stream settles at **134.0 vs
+    166.8 fresh (-20 %)** with live expert slots at **3,766 then 4,962 of 9,070** against 8,394-8,862 fresh - because
+    `reclaim_idle()` is called only from `qe_step_batch()`, so "a lone stream never gets the expert cache's room back";
+    at **1 slot** the drop is **-4 %** and slots stay at **8,902 of 8,954**. Our `--parallel 1` is documented as not
+    triggering it, but the finding names **a covariate our ladders never recorded: how many conversations the process
+    served earlier** (the mirror of #4826's warm-up artifact). **LiteRT-LM #4407** (every session switch deep-copies the
+    outgoing KV cache - 1.46 s Adreno, 420-435 ms M4 Metal, 5-14 ms CPU, all to microseconds with a hand-over patch)
+    and **llama.cpp #30137** are the same defect fixed twice in one day; **vLLM #65218** is its silent variant (NVFP4 KV
+    corruption with a smaller prefill block).
+  - **AN INDEPENDENT 100 GB MoE SAYS "MORE CACHE IS NOT BETTER" AND BOUNDS WHAT PINNING BUYS.** `ik_llama.cpp` **#2849**
+    (2026-11-05T14:34:37Z): decode is bound by **host bytes per token** (483 MB/token at 32K, 27.2 ms, ~17.8 GB/s =
+    70 % of line rate, ~29 % of the token in host-side GEMV; "each ~10 GB/token less is worth roughly +4-5 tok/s"); the
+    cache sweep past the optimum is **monotone down** - 18 GB starves, **20 GB 38.7, 22 GB 38.1, 25 GB 37.6, 30 GB
+    34.5** - "a fit that fills VRAM can be measurably slower than one that leaves 2-4 GB free" (our reserve sweep,
+    reproduced with more points); and the specific negative for our WDDM thread: **mlock 106 GB plus direct DMA gave
+    32.1 vs 32.6 tok/s**, because "the CPU copy and the DMA are already pipelined ... the bounce is part of the optimal
+    pipeline". Second WDDM-adjacent witness in the same window: Strata **#5311** (a gpu-unlock'ed 3090 hard-locks when
+    the default `--pcie-mode auto` reads missed experts "from mapped pinned host memory with GPU threads";
+    `--pcie-frac 0` and `--pcie-mode dma` each 30/30 clean at the same rate).
+  - **arXiv ADVANCED ONE BATCH DAY (cs.CL 67 new dated 11-04, cs.LG 100 all 11-04; newest 2026-11-04T18:58:23Z), AND THE
+    BEST PAPER IS AN INSTRUMENT WE LACK.** **2611.06397**: non-prefix KV reuse "**loses 19-100 % of the
+    context-dependent questions that full prefill answers**", worse when the other chunks are of the same kind, and the
+    repair budget belongs on the **target** - the ceiling of reuse can be zero while the mechanism works, which is the
+    paired test our harness can run and never has. **2611.05804**: expert deactivation is decided by the **weight rule**
+    (removal/freezing/renormalization/unnormalized re-routing) across five checkpoints, not by which experts you remove -
+    the third scan in a row saying a same-experts weight change is not quality-neutral, i.e. the mechanism behind the
+    route-prior and route-tail-skip rows. **2611.06384**: typed decision models (**Jev, Clef Flash, Perplexity Decider**,
+    **702,000 judgments**) are presentation-sensitive - **Jev's second-position advantage 6.11 pp**, reversing reader
+    endorsements changes Perplexity's pick on **40.40 %** of pairs - larger than the 1-3 point gaps between our staged
+    decision models, so **a decision row must name its presentation**. Also: **2611.06133** (training-free sparse
+    attention for the full-attention layers of hybrid models: sliding window + pinned prefix + per-layer relevance
+    budget, six models 4B-397B) and **2611.06425** (D3D: a diffusion drafter decoupled from target hidden states, i.e.
+    the structural fix for the wall-clock tax 0.2.11 measured on DFlash2 at 3.2 % of its own wall time).
+  - **HF: THE PACK THE NEW RELEASE SHIPS MOVED IN-WINDOW, AND IT IS NOT OUR PACK.** `unsloth/Qwen3.8-Flash-Next-GGUF`
+    revision **`d9620119`**, `lastModified` **2026-11-04T17:43:43Z**, 77 files, "Dynamic v3.1" - the exact set 0.2.11
+    now downloads. Its per-directory totals verify the release's table to four figures (UD-IQ1_M **68.01 GB / 3**,
+    UD-IQ2_XS 75.83/3, UD-Q2_0 70.55/3, UD-Q2_K_XL 79.58/4, UD-IQ3_XXS 83.63/4, UD-Q3_K_XL 89.46/4, UD-IQ4_XS
+    **93.67/4**, UD-IQ1_S 66.38/3 which Strata says does not load), and **every set's last file is 28.80 GB** - the
+    release's "28.8 GB table the model reads per token" is literally that shard. The repo's current `UD-IQ4_XS` is the
+    four-file v31 layout, so Strata's `UD-IQ4_XS-v31` name distinguishes its own pinned 09-30 copy, not the Hub. **Our
+    staged `q2_0` pack is ~66.4 GB against UD-Q2_0's 70.55 GB, so this is a pack change, not a refresh.** The six tracked
+    packs are unchanged second scan running, and the Coder pack is **still** not a coherent 6-shard set.
+  - **[YT] one in-window upload, unread; [RD] 403/302, tenth failure in eleven days; [HN] 1,121 stories, one on-axis
+    lead.** Three to five searches enumerated 21 candidates and dated 12; the only in-window upload is **`T-dygpUacgg`**
+    (Luke's Dev Lab, 2026-11-04, 1,278 s, 32,334 views), whose captions returned **429 twice** - named, unread, nothing
+    quoted. One out-of-window video (`ZjQKWVptq7w`, 2026-10-04, 79,052 B of captions) gave a **third independent
+    statement of the `-ub` lever** with the gen-side price attached - `-ub` 512 -> 8192 taking prompt processing
+    **380 -> 2,091 tok/s at ~-7 % generation** (third-hand, attributed to a Reddit user) - which is the cheapest
+    untested knob we hold; it also repeats the Q8_0-KV model dependence (KL 0.04 Qwen 72B vs 0.108 Gemma 31B) and a
+    **+59 %** MTP row that is above our +31.2 % per token and is not portable. **Reddit**: `new.json` **403**
+    (189,908 B block page) and old-Reddit RSS now **302** rather than 403 - tenth failure in eleven days, seventh
+    consecutive, last success 2026-10-25. **HN**: 1,121 stories, 45 matches, one on-axis lead (**KVGuard**, the KV cache
+    cross-request leak behind Cloudflare's GLM leak, arXiv 2611.06138) recorded **unread and not citable**.
+  - **Shortlist, cheapest first**: (1) put the **near-tie mechanism** into the determinism section and give every KL row a
+    `chunk=` (an edit, and it changes the reading of rows we already hold); (2) **correct the WDDM note** - fourth
+    consecutive scan - adding **#5311** and ik_llama **#2849**, with the two sentences *registration succeeding is not
+    residency being acquired* and *acquiring it is not automatically worth anything* (an edit); (3) **write the
+    0.2.11/0.1.57 bump declaration** with `--prefill-chunk`, granted slots, `--draft-conf`, an **explicit
+    `resident_budget_gib`**, and the reserve-skips-adaptation line (an edit; download gated); (4) **read the launcher's
+    `--draft-conf` against the engine's logged slots** (#5213, both vendors) - one start, no benchmark, the remedy a
+    `user_args` entry; (5) **the CPU/upload share A/B at two worker counts** on our own card (`STRATA_PCIE_AUTO_SPLIT` /
+    `STRATA_PCIE_SHARE_MAX`, 4 arms, ~40 min) - the largest number in the window that reaches our hardware; (6) **the
+    0.1.54 / 0.1.56 / 0.1.57 control** by #5115's protocol verbatim, mirrored with an untimed warm-up (three downloads,
+    ~1.5 h, gated); (7) **re-baseline one image arm** after ComfyUI v0.44.0, because **#17523** reports a fixed-seed
+    output change ("Krea2 Turbo" loses detail at the same seed; reverting to v0.43.0 restores it) - ~15 min, and it is
+    the check our image harness exists for. Nothing scheduled.
+  - **Gated on Kevin**: the **0.2.11 / engine 0.1.57 / Control 0.1.57** bump; a llama.cpp download at any tag past
+    **b11480** (best named **>= b12128**, and #30541 means a q8_0-KV row on an older build restored 1/32 of its state);
+    the **DeepSeek IQ2_XXS download** and the ISTA-DAS Coder route; the candidate tests; the display-to-iGPU cable
+    change; the TTQ 35B-A3B pack; the **Colibri v2.1.0** probe (v2.1.0 unchanged, 5 days, `dev` +29 commits); and the
+    Clover / Groot task checks. Nothing scheduled, no engine started, no gate touched, `ai_bench` not read.
+
 - **2026-11-04, daily scan (a doubled window): Strata shipped 0.2.10 and made DFlash2 the default drafter on our
   architecture, two independent reports then put engine 0.1.56 slower than 0.1.54 with two different mechanisms, and
   llama.cpp's held multi-seq KV PR merged into v0.9.0.** `NEWS-2026-11-04.md`, written against `NEWS-2026-11-02.md`, which
