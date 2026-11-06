@@ -1,5 +1,124 @@
 # Local AI lab working instructions
 
+- **2026-11-06, daily scan: llama.cpp merged the third expert-cache policy in three weeks, the CPU-share lever got a
+  machine-calibration script that prices it on a card one step below ours, and ComfyUI's Windows pinned pool turned out
+  to be 40 % of RAM.** `NEWS-2026-11-06.md`, written against **`NEWS-2026-11-05.md`**, which closed at **2026-11-05T14:30Z**;
+  window **2026-11-05T14:30Z -> 2026-11-06T14:30Z, 24.0 h**, the scheduled 06:30 run (`[Fri 11/06/2026  6:30:01.76] daily
+  news scan start` after `[Thu 11/05/2026  6:38:58.40] ... exit 0` and `verify OK`). Reading only - nothing downloaded as
+  a model, installed, built or run, **no engine started**, no inference, no benchmark, **`ai_bench` untouched**. WSL
+  started **once** for `yt-dlp` (3 searches, 6 metadata calls, 1 caption fetch of 62,077 B) and shut down, verified
+  (`wsl -l -v` -> `Ubuntu  Stopped`).
+  - **llama.cpp MERGED ClassLRU (`#31233`, commit `c4fb579`, 2026-11-06, 28 comments) - THE THIRD EXPERT-CACHE POLICY IN
+    THREE WEEKS, AND ITS AUTHOR NAMES THE BAND WHERE IT IS WORSE THAN THE SECOND.** Eight LRFU/MQ-style classes on a
+    decaying score `new = old x 2^(-elapsed/128) + 1` (half-life 128 tokens; `CRF_max = 1/(1-2^(-1/128)) = 185.165`, so
+    `floor(log2()) = 7`, hence 8 classes), evicting the largest class-normalised age. Its numbers: **+6 % decode on QFN,
+    +7 % on GLM versus SLRU, 8 % fewer uploads**; hit rates SLRU **86.5 %**, ClassLRU **87.6 %**, Belady **93.8 %** (so
+    "+25 % decode at the same cache size" is an upper bound for a hypothetical policy, not for this one). **It trails the
+    ramp-down SLRU at 1.0-1.1x of single-token capacity** ("1720 MB for QFN") and wins "anywhere above 1.2x (and below
+    1x)". **Consequence: our 512 MiB rung = 0.95 tokens' worth sits inside the known-bad band and our 1024 MiB rung =
+    1.90 does not** (`tokens-worth` conversion from `NEWS-2026-10-31`), so our own ladder already contains a prediction
+    about this policy with no new arm needed. Also in it: "**Prefill skips this entirely**", and use counts are per
+    ubatch, so ten tokens routed to one expert add one.
+  - **THE CACHE NOW PRINTS THE UNIT OUR LADDER HAD TO DERIVE, AND IT SPLITS THE HIT RATE BY UBATCH.** A tester's paste
+    shows `CUDA0 MoE cache size = 1391.58 MiB for 23981.25 MiB of host experts` and per layer
+    `208 slots (5.8%, 1.5 tokens worth)`, plus **`ubatch <= 8: hit rate = 42.49 %` against `ubatch > 8: 0.86 %` in the
+    same process** - i.e. the cache serves decode and not prefill by construction. So a rung can be declared as "1.9
+    tokens' worth" instead of "1024 MiB", which is the unit that transfers between models, and a future ladder reads two
+    lines instead of inferring from VRAM.
+  - **`#30966` IS STILL OPEN (55 comments, updated 2026-11-06T10:51:58Z) AND IT NOW PRICES THE CPU SHARE ON THREE
+    MACHINES, ONE OF THEM OUR CARD CLASS ON OUR MODEL.** It ships `scripts/moe-cache-tune.py`, which runs six
+    (cache x share) cells and prints the machine's own constants - `uploads 9.6 GiB/s, CPU experts 48.7 GiB/s, CPU part
+    2.99 ms/token, overlap -19.9 ms/GiB, rest 6.82 ms/token`. **The 2080 Ti 11 GiB row: Qwen3.6-35B-A3B UD-Q6_K_XL,
+    `-cmoe -c 32768 -t 22 --load-mode none` - 42.11 tok/s with no cache, 23.5 at 2752 MiB share 0 (-44 %), 64.5 at
+    6784 MiB share 0.95 (+53 %).** Two rules fall out: **a cache smaller than ~1 token's worth is a large loss, not a
+    small gain**, so our rung-0 arm is not a fair control for a small-cache arm; and **the share's sign depends on the
+    cache size** (the author's own arms: 6464 MiB 24.2 -> 47.6 with share; 19392 MiB 65.5 -> 54.1), so an A/B must hold
+    `--moe-cache-mib` **and** `--load-mode` fixed. `--load-mode dio` also OOMs one cell above the non-dio one
+    (@satoyon: 5632 works, 8192 dies in `cublasGemmEx`), and the script's `device_room()` ignores the `--mmproj`
+    footprint, so multimodal tuning picks caches that do not fit.
+  - **STRATA `#5391` MEASURES THE RESIDENT-VERSUS-MMAP REVERSAL, AND ADDS THE THIRD 0.1.56/0.1.57 SLOWNESS REPORT - ON
+    THE DISK PATH, WHICH IS OURS.** Proposal, 0 comments, but the best measurement in the window: mmap **11.5** vs a
+    ranked RAM tier **20.2** at a 46 GiB budget (**797 GB read from the SSD against 64 GB**, a **12x** re-read factor),
+    and **27.7** fully warm. **The reversal is the keeper**: at 512K the tier **loses 6 %** (mmap 24.5 vs 23.1) because
+    the page cache covers the hot subset, at 1M it wins +26 %, and a too-small 13 GiB budget is **-9 %** versus mmap. Then
+    the datum that binds our bump: "both cold-tier arms' recall decode dropped ~20% on 0.1.57 (mmap 11.0 -> 8.7, tier
+    13.9 -> 10.1)" while the tier's advantage held - so **0.2.11's +102 % share row is a GPU-side mechanism that does not
+    reach a disk-read expert path**, and the bump needs **two** A/Bs (share on a cache that holds the working set; and
+    the 0.1.54/0.1.56/0.1.57 control with a low-RAM arm).
+  - **COMFYUI `#17578`: THE WINDOWS PINNED POOL IS `ram * 0.40`, AND LOCKING IT STUTTERS THE DESKTOP AT 52 % VRAM.**
+    Windows 11, RTX 5080 16 GB, 64 GB RAM: 0.44.1 (comfy-aimdo **0.6.0**) makes the whole desktop stutter during
+    generation where 0.42.3 (**0.5.6**) is smooth at *identical* VRAM, and the ANIMA-2B arm stutters at **8.5 GB of
+    16.3**. `--disable-pinned-memory` removes it entirely: **+41 % wall** when weights stream (295 -> 418 s, CPU 24 -> 60 %)
+    and **free when they fit** (int8 checkpoint 123 s, no stutter). Startup line: `Enabled pinned memory **26180.0**`;
+    the rule is `ram * 0.40` in `comfy/model_management.py`. **`[INFERENCE]` that is ~25.4 GiB of the pool on this
+    63.46 GiB box - more than the 17.8 GiB of `Shared Usage` we measured under a llama.cpp load** - so **every
+    image-track row we hold carries an undeclared pinned pool**, and the check is one log line plus the aimdo version,
+    not the upstream release number.
+  - **A DR AFTER IS NOW CHOSEN BY A FILESYSTEM PROBE, AND TWO REPORTS SHOW IT DROPPING SILENTLY.** Strata **`#5395`**
+    (Arc SYCL): every start since 0.2.10 logs `Drafting: off (no drafter is downloaded yet)`, **strips `--mtp` and
+    `--spec-min-p` from the engine's arguments**, and reads **43.4 against 64.1 tok/s**; cause is **`mtp_ready()` in
+    `strata_control/drafting.py`, added in `13edeb7f` ("One drafter per run", v0.2.10)**, which probes
+    `Path(<--mtp>) / "experts.bin"` on the host while a SYCL config holds the container's `/work/...` path - and
+    `data_dir_of()` has the same defect, so `pack_ready()`/`vocab_path()` look in the wrong place too. **`#5388`** is the
+    other half on our architecture (2x 3090, `UD-IQ4_XS-v31`, `FAMILY=unsloth`): the generated config still passes
+    `--mtp` with no `--draft dflash2` **and no `--parallel`/`--batch` at all although `PARALLEL=8` was set** - consistent
+    with the recorded "Auto picks MTP on the all-cards split", and new in that **an environment declaration did not
+    reach the generated args**. Third 0.2.10+ case of a silently dropped flag costing 30-45 % of decode.
+  - **THREE WINDOWS/STATE WITNESSES.** Strata **`#5397`** (Windows 11 **26H2 build 26300 - ours**, RTX **3060 12 GB**,
+  D: as the model drive): since 2026-11-02 inference triggers **stornvme 129/11**, NTFS 140/50, Disk 51/157 and the NVMe
+    drops off the bus (0.1.50 previously fine, failures up to 0.1.57), while **DiskSpd over the same GGUFs reads
+    975.6 GB at 1,550.65 MiB/s with no error** and CHKDSK/SMART pass; the WPR capture shows "87 %" of commands at
+    256 KiB; recovery without reboot is `pnputil /restart-device` on the **AMD PCIe root port** `VEN_1022 DEV_1634`.
+    llama.cpp **`#31777`**: Windows Vulkan **VIDEO_TDR_FAILURE 0x116** (`igdkmdnd64.sys`), avoided at `-ub <= 64` -
+    fourth Windows GPU-timeout witness in a month. ik_llama **`#2854`**: a tensor hot-swap clears KV and slot tokens but
+    **not the RAM prompt cache or the slot checkpoints**, and the log still says "cleared"; `timings.prompt_n` reads
+    **1** where a fresh server computes **1,481**. **Declaration field it earns: `prompt_n` on the first request after any
+    reload, reload-mode switch or session restore.**
+  - **RELEASES: TWO SHIPPED, THREE DID NOT MOVE, AND ONE 404 MYTH DIED.** Strata **no new release** (`v0.2.11`
+    unchanged, 2026-11-05T12:49:59Z) so the bump target is unchanged for the first time in three scans; Colibri no
+    release for 6 days; llama.cpp `v0.9.0` versioned unchanged with tags **b12128 -> b12171** (target `80088fa` =
+    the ReBAR merge) and **CUDA 13.5 in the release assets from `#31788`**; **Ollama `v0.40.15`** published
+    2026-11-06T01:47:18Z - tag committed 11-03, page says "released this 03 Nov 22:52", feed says 11-06, an 8th dating
+    trap - adding **AutoTrust decision models (9b/35b/27b-vl) that are Apple-silicon-only in this release**, so the
+    decision track's next candidate is platform-blocked, not unmeasured; **ComfyUI `v0.44.1`** published with an
+    **empty body**, and **`v0.43.1`/`v0.43.2` now resolve with 2026-10-28/2026-10-30 dates after nine days of 404** -
+    so a 404 on a release tag is not evidence a release does not exist.
+  - **ARXIV ADVANCED TO 2026-11-06: 94 new cs.CL (606 total) and 224 new cs.LG (1,458 total).** Two read in full:
+    **`2611.08133`** - for hybrid linear-attention models the "KV cache" is three states (FA KV, recurrent REC, conv
+    history), Conv perturbations reach REC, and "**more accurate REC reconstruction need not improve continuation**",
+    with 89.88 %/94.11 % task retention on Qwen3.5 4B->27B and 21.66x/21.91x handoff speedups - the validity statement
+    for this month's six separate state-copy fixes; and **`2611.08439`** - a 307M typed-decision encoder gains "up to
+    **0.24**" from label-wording augmentation on ordinary words but **nothing on abbreviations and opaque codes** (at or
+    below chance), which is larger than the 1-3 point gaps between the decision models we staged: a decision row must
+    name its presentation.
+  - **PLATFORM HEALTH.** [GH] all five answered plus ik_llama.cpp; **the issue/PR reader ignores its query string**, so
+    closed items cannot be enumerated (the 2026-11-05 bulk-close finding cannot be extended) and `compare/A...B` refuses
+    large ranges, so commit timing is not available. **[HFR]** six tracked packs **unchanged by revision** for a third
+    scan plus `unsloth/Qwen3.8-Flash-Next-GGUF` still `d9620119`; broad sweep **head-sampled only** (12 repos in 29
+    minutes), one lead logged unread: `bottlecapai/ThinkingCap-Qwen3.8-Flash-Next-GGUF-RCO-3.8bpw` (2026-11-06T14:07:51Z,
+    licence `other`). **[YT]** 3 searches, 18 candidates, 6 dated, **0 in-window**; one out-of-window video mined
+    (NoCodeAbode `BSEDJFnvdqE`, 2026-10-16, 454 s, 4,948 views, captions on the `en-orig` track after `en` returned 429)
+    - a fourth small-cache dead-zone instance (**2 GB below no cache**, 11 vs 13), **auto placement beating both
+    hand-set arms** (15 tok/s and 85 s long-prompt TTFT against cache-on and cache-off), and Strata looping 2 of 3 runs
+    with thinking off. **[RD]** 403 on `new.json` and now a **login redirect** on the RSS - eleventh failure in twelve
+    days, eighth consecutive. **[HN]** 1,144 stories, `llama.cpp` **0 hits** (tokenisation, not silence), `VRAM` 23 hits,
+    one tool lead unread.
+  - **Shortlist, cheapest first**: (1) give every cache rung a **`tokens-worth`** value and stop quoting MiB (an edit;
+    it re-reads rows we hold and puts our 512 MiB rung in ClassLRU's bad band); (2) **correct the WDDM note with the
+    pinned-pool default** - `ram * 0.40`, `--disable-pinned-memory` at +41 %/+0 %, stutter at 52 % VRAM (an edit;
+    fifth consecutive scan); (3) **read `ComfyUI version:`, `comfy-aimdo version:` and `Enabled pinned memory N`** from
+    our own log to decide whether item 2's pair applies (one log read, gates the deferred image re-baseline);
+    (4) **write the 0.2.11 / 0.1.57 bump declaration** with the share's two-sided price - GPU-side only, and sign
+    depends on cache size - plus the drafter/flag read-back (an edit; download gated); (5) **run
+    `scripts/moe-cache-tune.py` on our own pack** (6 starts, ~40 min, one gated download >= b12171; give the `dio` arm
+    its own rung); (6) **the 0.1.54/0.1.56/0.1.57 control** now with a low-RAM arm (~1.5 h, three downloads, gated);
+    (7) **one `--disable-pinned-memory` image pair** (~15 min) if item 3 says aimdo >= 0.6.0. Nothing scheduled.
+  - **Gated on Kevin**: the **0.2.11 / engine 0.1.57 / Control 0.1.57** bump (target unchanged, declarations larger); a
+    llama.cpp download at any tag past **b11480**, now best named **>= b12171** (ClassLRU + the `tokens worth` lines);
+    the **DeepSeek IQ2_XXS download** and the ISTA-DAS Coder route; the candidate tests; the display-to-iGPU cable
+    change; the TTQ 35B-A3B pack; the **Colibri v2.1.0** probe; and the Clover / Groot task checks. Nothing scheduled,
+    no engine started, no gate touched, `ai_bench` not read.
+
 - **2026-11-05, daily scan: Strata shipped 0.2.11 and 0.1.57 two hours before the scan, and the lever that reaches this
   box is a +102 % decode row on exactly our shape; the same release states that agent prompts are non-deterministic under
   any chunk change; and a third engine reproduced the half-size expert cache on our model.** `NEWS-2026-11-05.md`,

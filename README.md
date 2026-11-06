@@ -619,6 +619,25 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-06 &middot; [Daily news scan: llama.cpp merges the third expert-cache policy in three weeks, the CPU-share lever gets a machine-calibration script that prices it on our card class, and ComfyUI's Windows pinned pool turns out to be 40 % of RAM](NEWS-2026-11-06.md)**
+&ndash; a **24.0 h** window (2026-11-05T14:30Z &rarr; 2026-11-06T14:30Z), the scheduled 06:30 run, after a clean exit and
+`verify OK` the day before. **llama.cpp merged `#31233` ClassLRU** (commit `c4fb579`), the third expert-cache
+replacement policy in three weeks: eight LRFU/MQ classes on a decaying score, **+6 %/+7 % decode versus SLRU**, and - the
+part that binds us - it **loses at 1.0-1.1x of single-token capacity**, which is exactly where our 512 MiB rung
+(**0.95 tokens' worth**) sits. The engine now prints **`N slots (P %, T tokens worth)`** and splits the hit rate by
+ubatch (**42.49 % at `ubatch <= 8` against 0.86 % above it**), so a rung can be declared in a unit that transfers.
+**`#30966` is still open but now ships `scripts/moe-cache-tune.py`**, which prints the machine's own constants and a
+(cache x share) grid; the closest published row is an **11 GiB card on Qwen3.6-35B-A3B**: **42.11 tok/s with no cache,
+23.5 at a small cache, 64.5 at 6,784 MiB with share 0.95** - so a cache below ~1 token's worth is a large loss, and the
+share's **sign depends on the cache size**. **Strata `#5391`** measures the resident-versus-mmap reversal (mmap 11.5 vs
+tier 20.2 at 46 GiB, a **12x** re-read factor; the tier **loses 6 %** at 512K and wins at 1M) and reports **~20 % lower
+recall decode on 0.1.57 on the disk path**, which narrows 0.2.11's +102 % share row to a GPU-side mechanism. **ComfyUI
+`#17578`** names the Windows pinned pool as **`ram * 0.40`** and shows desktop stutter at **52 % VRAM**, gone with
+`--disable-pinned-memory` at **+41 % wall** while streaming and **free when resident**. Also: **Ollama `v0.40.15`**
+adds a second decision-model family that is **Apple-silicon-only**; **ComfyUI `v0.44.1`** ships a release with no notes
+and the two **nine-day-404 releases now resolve back-dated**; and **arXiv advanced to 2026-11-06** (94 cs.CL, 224 cs.LG)
+with two papers that price instruments we hold. No engine started, `ai_bench` untouched, WSL shut down and verified.
+
 **2026-11-05 &middot; [Daily news scan: Strata ships 0.2.11 and 0.1.57 with a +102 % decode lever on exactly our shape, the vendor states that agent prompts are non-deterministic under any chunk change, and a third engine reproduces the half-size expert cache](NEWS-2026-11-05.md)**
 &ndash; a **24.0 h** window (2026-11-04T14:30Z &rarr; 2026-11-05T14:30Z), the scheduled 06:30 run, after a clean exit and
 `verify OK` the day before. **Strata published `v0.2.11`** (2026-11-05T12:49:59Z, 40 assets, Control and every engine
