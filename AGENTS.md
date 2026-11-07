@@ -1,5 +1,111 @@
 # Local AI lab working instructions
 
+- **2026-11-07, daily scan: Strata ships 0.2.12 with a file-tier accounting fix on the 12 GB path, llama.cpp's pinned
+  buffer turns out to be reallocated 33 times per batch on our exact card, and a third engine runs the 510 GB model by
+  gating 2-bit words on the model's own confidence.** `NEWS-2026-11-07.md`, written against **`NEWS-2026-11-06.md`**,
+  which closed at **2026-11-06T14:30Z**; window **2026-11-06T14:30Z -> 2026-11-07T14:30Z, 24.0 h**, the scheduled 06:30
+  run (`[Sat 11/07/2026  6:30:01.78] daily news scan start` after `[Fri 11/06/2026  6:40:41.57] ... exit 0` and
+  `verify OK`). Reading only - nothing downloaded as a model, installed, built or run, **no engine started**, no
+  inference, no benchmark, **`ai_bench` untouched**. WSL started **once** for `yt-dlp` (5 searches, 7 metadata
+  extractions, 2 caption attempts, one succeeded at 108,090 B) and shut down, verified (`wsl -l -v` -> `Ubuntu  Stopped`).
+  - **STRATA SHIPPED `v0.2.12` / ENGINE `0.1.58` (2026-11-07T08:54:40Z, tag commit `146df3c`, feed sequence 122, 42
+    assets, 9.70 GiB) AND ITS 12 GB SECTION IS THREE TESTABLE STATEMENTS.** (a) **Prompts on UD-IQ4_XS-v31 read 87 -> 264
+    tok/s at 2K and 361 -> 981 at 32K** on an RTX 3060 12 GB, with output **code +37 %, agent +34 %, JSON -18.9 %**.
+    (b) **THE SECOND START-UP CHECK NO LONGER COUNTS THE ENGINE'S OWN MEMORY AS FREE**, so it stops switching to the
+    slower file cache - **3 of 3 starts on 0.2.11, 0 of 3 on 0.2.12** - with the new line `strata: expert reads now go
+    through the file cache (X GiB of RAM free for them, Y GiB limit)` and `STRATA_FILE_TIER_HONEST=0` as the back-out.
+    That is the switch that cost an order of magnitude in our own 2026-10-27 arms (file-cache arms decoded **4.1-16.6**
+    against **23.1/87.0**), so **the file-tier line becomes a declaration field**. (c) A **tuned DFlash2 drafter
+    (0.34 GB; 0.52 GB Intel Arc)** becomes Auto on 12 GB NVIDIA cards **for UD-IQ4_XS-v31 only** - our pack is `q2_0`,
+    which appears in no Auto rule, so the drafter decision is unchanged by name. **Two declarations bound every row**:
+    *"speeds were not measured again on the final 0.1.58 packages"*, and reporting changed so **"a short request admitted
+    into a slot now reads 125, not 215, tokens per second because admission time is counted"** - a 42 % move with no
+    engine change. Rollback `strata components rollback` -> engine **0.1.57** with Control staying 0.1.58. Windows CUDA 13
+    engine **630,769,464 B** (+2,956,904 on 0.1.57), control zip 73,442,655 B.
+  - **LLAMA.CPP REALLOCATES AN ~80 MiB PINNED HOST BUFFER EVERY TIME A REQUEST FINISHES, MEASURED ON AN RTX 5070 12 GiB
+    SM120 - OUR CARD.** `#31840` (2026-11-07T06:16:50Z): v0.9.0, driver 595.99.02, CUDA 13.4,
+    `CMAKE_CUDA_ARCHITECTURES=120`, `--backend-sampling`, **no speculative decoding**; one batch of 32 after a 32-request
+    warmup gives **`cudaMallocHost` 33 calls / 1.043083 s and `cudaFreeHost` 33 / 0.365828 s** on an **~80.02 MiB
+    `CUDA_Host` buffer**, plus **32 `sched_reserve` calls above 1 ms totalling 1.433764 s**, *"all overlapping periods with
+    no recorded GPU kernel/memcpy/memset activity"*. `#31841` (07:01:34Z) keeps the scheduler when node capacity suffices:
+    **70.554291 s -> 59.156930 s, -16.15 %**, `cudaMallocHost 33 -> 0`, `sched_reserve 1.435 -> 0.042 s`, 256/256 length
+    checks, 133,966 output tokens. **This is the third mechanism behind two of our own rules** - *a rate inherits the
+    machine's prior workload* and *commit headroom decays inside a run* - and it is a **sixth WDDM-note item**: the pinned
+    pool is not only a ceiling, it is **churned**, and commit sees it while tok/s does not. Our `--parallel 1` arms may not
+    trigger the path at all; the check is one scheduler/commit sample during a multi-request run.
+  - **STRATA'S OWN NEW BUG IS THE ACCOUNTING FAILURE OUR GATE EXISTS FOR.** `#5496` (2026-11-07T14:07:06Z, 0 comments):
+    0.2.11's prompt-path auto pick reads `cudaMemGetInfo` **before** `arena_fill` allocates the expert pool's slots, so it
+    sees **5.4-6.3 GiB more free VRAM than will exist**, takes the largest pass, and then stops -
+    `pool 3 has 271 slots, a window needs 320`. Source lines named: `src/split/src/engine.cu` ~84, `model.cpp` ~319. Three
+    cards, but the lesson is 12 GB-sized: **1.8 GiB is 15 % of the budget**. Same class as `--resident-budget-gib 16`
+    granted 5.29-10.18 GiB (`NEWS-2026-10-31`) and `#4474`'s auto-vs-granted pair (`NEWS-2026-10-28`).
+  - **THREE MORE STRATA REPORTS LAND ON OUR OS OR OUR ENGINE LINE.** **`#5478`** (2026-11-07T11:45:05Z): Windows RTX 3090,
+    OS **`10.0.26300.0` = ours**, our tracked pack revision `ed59f92082`, engine 0.1.56 build `06698c674673+cuda13.0` -
+    **GPU lost during 620-1362-token batched prefill, correlated WHEA-17, reproduced in three runs including one with no
+    suffix, no prompt lookup and no lookup chain**; root cause not established and the reporter has stopped. **Fifth
+    Windows GPU-loss witness in a month.** **`#5328`** (4 comments, updated 13:21:38Z): 0.1.57 slower than 0.1.56 on
+    sm_89 Windows - **agent -7.1 %, 16K prompt -13.0 %**, median of 3 - and it names the mechanism: **0.2.11's prompt
+    chunk of up to 32768 tokens on CC 8.0+**, which **includes our CC 12.0**. Second independent 0.1.57 regression after
+    `#5115`. **`#5490`** (13:31:25Z): decode halves after several requests and **GPU power falls 400+ W -> 300-330 W**
+    while the **cache hit stays ~99 %**, and a reload restores >100 tok/s even at 300K context - a decay our token and VRAM
+    instruments cannot see; the field it earns is **a power sample per arm**. Also **`#5354`**: Coder IQ1_M crashes
+    0.1.56/0.1.57 with **`0xC0000409`** on an RTX 4070 12 GB in the tool-call path (**0.1.55 completes the same request**),
+    and **`#5449`**: a **12-token verify window (110.2 MiB of device buffers)** faults deterministically on sm_86 where
+    **0.1.54's 5-token window (69.7 MiB)** works - so **verify-window MiB is a declaration field**.
+  - **A THIRD ENGINE RUNS THE 510 GB MODEL ON 64 GB + ONE 12 GB CARD, AND REFUSES OUR COMPUTE CAPABILITY.** [HN]
+    **PROMETHEVS** (2026-11-06T16:14:47Z, 13 points; `github.com/Magnvs7/Promethevs`, 140 stars, engine Apache-2.0,
+    report CC BY 4.0): *compress-then-correct* - every word on a **2-bit expert copy**, and any word whose **top-2 gap
+    falls under 0.45** is recomputed at exact FP4 from a stored correction plane. **98.3 % agreement with the full model
+    over 960 words (2-bit alone 97.4 %), 99.17 % by the unchecked count, 100 % at 4,288 tokens, GSM8K 9/10 both arms**;
+    **5.8-7.4 tok/s against 2.14 for exact decoding on the same PC**. It requires **compute capability 8.6-8.9** - an
+    RTX 5070 is **CC 12.0 and is refused by the bundle's own check** - and needs ~1,009 GiB of disk. What transfers is the
+    **instrument**: a decode-time confidence gate is a **task-level** quality lever on 2-bit experts (**97.4 -> 98.3 %**
+    agreement for the correction pass), and neither of our engines has one.
+  - **THE PACK STRATA SHIPS MOVED REVISION IN-WINDOW WITH EVERY FILE SIZE IDENTICAL.** `unsloth/Qwen3.8-Flash-Next-GGUF`
+    **`d9620119` -> `084c631ac2`** (2026-11-07T06:28:34Z), three **README-only** commits (02:01:40Z, 02:01:54Z,
+    06:28:34Z), 77 files, **1,863.3 GB**, and all fourteen quant sets at exactly the totals `NEWS-2026-11-05` recorded
+    (UD-IQ1_M 68.01 / UD-IQ2_XS 75.83 / UD-Q2_0 70.55 / UD-Q2_K_XL 79.58 / UD-IQ3_XXS 83.63 / UD-Q3_K_XL 89.46 /
+    UD-IQ4_XS 93.67 / UD-IQ1_S 66.38 GB). **The 13-line diff is the finding**: a **"50 % less token use and 5 % faster"**
+    claim against a caption saying **0.5-8 %** (the two disagree), and one line that now reads *"please use llama.cpp,
+    **Strata** or Unsloth Desktop"* - a **vendor naming our engine as a supported runner**. No size check can see this.
+  - **ARXIV DID NOT ADVANCE** - both listing pages still head **"Fri, 6 Nov 2026"** (`/new` carries 160 cs.CL and 417
+    cs.LG titles), **0 new dated 2026-11-07** (a Saturday), and the **export API lags the listing by one batch day**
+    (newest entry 2026-11-05T18:58:17Z) - a count taken from the API alone would have declared yesterday's advance
+    un-happened. Four Friday papers read, best **`2611.08363` StrataFlux**: recover accuracy lost to 2-4-bit weights and
+    2-3-bit KV by making **host RAM and SSD sources of additional precision**, with reuse across decode steps -
+    **2-bit Llama-3.1-8B WikiText-2 ppl 9.46 -> 8.40 at 95.4 % of the quantized throughput on an RTX 5090**, and
+    **2-bit weights + KV: Qwen3-8B AIME 2024/2025 11.0 % -> 47.1 % at unchanged GPU memory**. That is our `q2_0` regime
+    priced: **a 2-bit floor is partly a property of the delivery design, not of 2 bits.**
+  - **METHOD FAULTS FOUND AND RECORDED.** (1) **A release asset can be the previous release's file**:
+    `strata-feed.json` inside v0.2.12 parses to `sequence 121`, `app 0.2.11`, `generated_at 2026-11-05T12:11:23Z`, with
+    **zero** occurrences of `0.1.58` - while the body says sequence 122, so a feed claim must name its URL and be checked
+    against `sequence`/`generated_at`. (2) **[YT] `en` captions return 429 and `en-orig` works** (108,090 B after 429).
+    (3) **HF's API dropped two connections** (`WinError 10054`) and both succeeded on retry, so **a failed HF read is not
+    evidence a repo is gone**. **[RD] 403 on both endpoints - twelfth failure in thirteen days, ninth consecutive.**
+  - **Shortlist, cheapest first**: (1) add **three declaration fields** an arm now needs - the **file-tier line**, the
+    **verify-window MiB**, and the **`--mtp` runtime dir's quant and bytes** (an edit; all three change the reading of rows
+    we already hold); (2) **correct the WDDM note with `#31840`/`#31841`** - the pinned pool is churned *and* capped, on
+    our card (an edit; sixth consecutive scan, first with our card's number); (3) **grep our retained logs for the
+    file-cache line** to learn whether any ladder arm was a file-tier number (one grep, no engine; gates 4 and 5);
+    (4) **write the 0.2.12 / 0.1.58 bump declaration** - target moved for the third time in four scans, and it carries the
+    two declarations in item (a) above plus `STRATA_FILE_TIER_HONEST` (an edit; download gated); (5) **the 0.1.56 / 0.1.57
+    / 0.1.58 control with a chunk arm and a power sample** - now **three** reports justify it (an edit's worth of protocol,
+    three downloads, ~1.5 h, gated); (6) **`scripts/moe-cache-tune.py` on our own pack** with `GGML_MOE_TRACE`
+    (gated download **>= b12189**, ~40 min); (7) **the ComfyUI two-log-line check, then one `--disable-pinned-memory`
+    pair** (one log read, then ~15 min - `v0.44.2` shipped with an **empty body**, so the log is the only record).
+    Nothing scheduled.
+  - **Gated on Kevin**: the **0.2.12 / engine 0.1.58 / Control 0.1.58** bump (target moved, declaration larger); a
+    **llama.cpp download at any tag past b11480** - now best named **>= b12189** (17 tags in window, `b12172` ->
+    `b12189`), which is past ClassLRU, the meta-view-limit fix and where `#31802`'s fused **q8_0/q4_0 KV dequant** would
+    land if it merges (**+17.6/+33.9/+63/+79 % decode at 32/64/131/171k, -496 MiB/GPU of f16 FA scratch**); a **native
+    IQ3_XXS/IQ4_XS pack** for the 5070 prefill gap that Strata `#5166` measures (same card, Linux: **prefill 2,729 tok/s at
+    16K, decode 118.7**, against our best **815.6 tok/s** - `NEWS-2026-11-01`); the **DeepSeek IQ2_XXS download** and the
+    ISTA-DAS Coder route; the candidate tests; the display-to-iGPU cable change; the TTQ 35B-A3B pack; the **Colibri
+    v2.1.0** probe (no release for 7 days, `dev` merged `#2646` at 2026-11-06T15:12:50Z, unreleased); and the
+    Clover / Groot task checks - llama.cpp `#31848` now shows a **Clover quantisation refusal**
+    (`missing the metadata key 'clover_moe.expert_shared_count'`) whose workaround is the project's own
+    `llama-clover-b4838ffb`. Nothing scheduled, no engine started, no gate touched, `ai_bench` not read.
+
 - **2026-11-06, daily scan: llama.cpp merged the third expert-cache policy in three weeks, the CPU-share lever got a
   machine-calibration script that prices it on a card one step below ours, and ComfyUI's Windows pinned pool turned out
   to be 40 % of RAM.** `NEWS-2026-11-06.md`, written against **`NEWS-2026-11-05.md`**, which closed at **2026-11-05T14:30Z**;

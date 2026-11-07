@@ -619,6 +619,32 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-07 &middot; [Daily news scan: Strata ships 0.2.12 with a file-tier accounting fix on the 12 GB path, llama.cpp's pinned buffer turns out to be reallocated 33 times per batch on our exact card, and a third engine runs the 510 GB model by gating 2-bit words on the model's own confidence](NEWS-2026-11-07.md)**
+&ndash; a **24.0 h** window (2026-11-06T14:30Z &rarr; 2026-11-07T14:30Z), the scheduled 06:30 run, after a clean exit and
+`verify OK` the day before. **Strata published `v0.2.12` / engine `0.1.58`** (2026-11-07T08:54:40Z, tag commit
+`146df3c`, 42 assets), and its 12 GB section is three testable statements: prompts on UD-IQ4_XS-v31 read **87 -> 264
+tok/s at 2K and 361 -> 981 at 32K** on a 3060; **the second start-up check no longer counts the engine's own memory as
+free**, which is what was pushing 12 GB cards onto the slower file cache (**3 of 3 starts on 0.2.11, 0 of 3 on 0.2.12**,
+`STRATA_FILE_TIER_HONEST=0` to revert); and a tuned DFlash2 drafter becomes Auto **for that quant only** - not for our
+`q2_0`. The declarations that bound it: speeds were **not re-measured on the final packages**, and reporting changed so
+a short request now reads **125 instead of 215 tok/s** because admission time is counted. **llama.cpp reallocates an
+~80 MiB pinned host buffer every time a request finishes, and both the report and the fix are on an RTX 5070 12 GiB
+SM120**: `#31840` counts **33 `cudaMallocHost` calls in 1.043 s** and **32 `sched_reserve` calls totalling 1.434 s**
+over stretches with no GPU work; `#31841` keeps the scheduler and reads **70.554 s -> 59.157 s (-16.15 %)** with
+`cudaMallocHost 33 -> 0`. That is the sixth item for the WDDM note and the first with our card's number: the pinned pool
+is not only **capped**, it is **churned**. Strata's own new bug is the accounting failure our gate exists for -
+`#5496`: 0.2.11's prompt-path pick reads free VRAM **before** the expert arena allocates it, over-estimates by
+**5.4-6.3 GiB per card**, and stops at `pool 3 has 271 slots, a window needs 320` - plus three reports on our OS or
+engine line (**Windows GPU loss with WHEA-17 at build 26300**; **0.1.57 slower than 0.1.56 on sm_89 Windows** with the
+**32768-token chunk on CC 8.0+** named as the mechanism, which includes our CC 12.0; and **decode halving while power
+drops 100 W** at a 99 % cache hit). A third engine, **PROMETHEVS**, runs the full 510 GB DeepSeek-V4.1 on 64 GB + one
+12 GB card by gating a **2-bit copy** on the model's own top-2 confidence and correcting at exact FP4 -
+**98.3 % agreement against 97.4 % uncorrected, at 5.8-7.4 tok/s against 2.14 exact** - and its hardware check
+**refuses our compute capability**. The shipped pack moved revision with **every size identical** (README-only, and the
+README now names **Strata** as a runner). **arXiv did not advance** (Saturday; the export API lags the listing by a
+batch day), but its `StrataFlux` paper prices our `q2_0` regime: **2-bit weights and KV recover AIME 11.0 % -> 47.1 %
+at unchanged GPU memory**. No engine started, `ai_bench` untouched, WSL shut down and verified.
+
 **2026-11-06 &middot; [Daily news scan: llama.cpp merges the third expert-cache policy in three weeks, the CPU-share lever gets a machine-calibration script that prices it on our card class, and ComfyUI's Windows pinned pool turns out to be 40 % of RAM](NEWS-2026-11-06.md)**
 &ndash; a **24.0 h** window (2026-11-05T14:30Z &rarr; 2026-11-06T14:30Z), the scheduled 06:30 run, after a clean exit and
 `verify OK` the day before. **llama.cpp merged `#31233` ClassLRU** (commit `c4fb579`), the third expert-cache
