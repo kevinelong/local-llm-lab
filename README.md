@@ -619,6 +619,33 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-08 &middot; [Daily news scan: the cache-share lever we could never build finally merges, our own reference pack was silently re-converted, and a Q2_0 native pack still hard-crashes the newest engine](NEWS-2026-11-08.md)**
+&ndash; a **24.0 h** window (2026-11-07T14:30Z &rarr; 2026-11-08T14:30Z), the scheduled 06:30 run, after a clean exit and
+`verify OK` the day before. **llama.cpp merged `#30966` at 2026-11-07T16:20:59Z** (+1169/-183, 18 files) - the
+`--moe-cache-cpu-share` lever recorded as blocked since 2026-10-24 - and it ships
+**`scripts/moe-cache-tune.py`**, which runs six (cache x share) cells and prints the machine's own curve: **24.2 -> 47.6
+tok/s at a 6,464 MiB cache and 65.5 -> 54.1 at 19,392**, so the share's sign depends on cache size, measured rather than
+argued. The safe build name is now **`>= b12202`**, not b12189. Two merges beside it reprice knobs we hold: `#31888`
+(Gemma 4 CPU no longer waits on cached experts, **+7-9 % TG**, "logits were identical", and share 0.95 at a 4x cache goes
+**86.9 -> 93.2**) and `#31854`, which switches the CPU backend's F16 matmul to **F32 `src1`** - a numerics change on the
+`--cpu-moe` path we run. **Our reference pack was re-converted in-window and the source model changed with it**:
+`ggml-org/Qwen3.6-35B-A3B-GGUF` `7878dc9a90 -> eb0b3cc97f`, `.src_sha` `995ad96e -> 345d467b`, Q4_K_M **19,473 -> 19,591
+MiB (+118)**, total 126.97 GiB at the same 14 files - so our staged `baec3ebe` copy is **two conversions old** and a fresh
+download is different bytes under the same name. **`#5289` reproduced 8/8 on engine 0.1.58**: a **Q2_0 native pack under
+`STRATA_KVA=1`** SIGSEGVs on the first long prefill (`Prefill::run_impl`, offset `+0x34caa7`), clean with KVA off
+(prefill 952.8, decode 49.9) and clean on IQ3_XXS with KVA on - **our pack family, so it is a hard stop, not a note**.
+`#5570` then names a switch we never declared - the Qwen engine's **`--prefill-borrow` / `--no-prefill-borrow`**
+(`generate.cpp:835-837`, priced in three docs files) - and decomposes a 16 GB card to show a **2.03 GB `scratch` region
+the engine's own layers line omits**, printed only behind an env var, while the engine reported 16.71 GB in use and
+`nvidia-smi` 15,489 MiB. Ollama's VRAM accounting is being fixed in public (`#19609` fixes the 4-8x hybrid KV
+over-prediction, `#19393` stops billing CPU-resident input tensors, `#18978` corrects our own 2026-10-11 attribution of
+`shared object initialization failed` to **lazy module loading under memory pressure**, `CUDA_MODULE_LOADING=EAGER` 6/6
+against 8/8 crashes). ComfyUI's `int8_convrot` unload leaks **+9.3 GiB VRAM and +20.1 GiB RAM** past `POST /free`, plus
+three `aimdo.dll` access violations on **RTX 50-series**. **arXiv did not advance** (second day); three frozen-batch
+papers were read, and the keeper says **English-calibrated expert pruning costs 1.7 points of English and 21.4 of
+Lithuanian at 25 %** - our learned `.strp` expert profile is a task-specific instrument we have never tested. Reddit
+403 for the thirteenth day in fourteen. No engine started, `ai_bench` untouched, WSL shut down and verified.
+
 **2026-11-07 &middot; [Daily news scan: Strata ships 0.2.12 with a file-tier accounting fix on the 12 GB path, llama.cpp's pinned buffer turns out to be reallocated 33 times per batch on our exact card, and a third engine runs the 510 GB model by gating 2-bit words on the model's own confidence](NEWS-2026-11-07.md)**
 &ndash; a **24.0 h** window (2026-11-06T14:30Z &rarr; 2026-11-07T14:30Z), the scheduled 06:30 run, after a clean exit and
 `verify OK` the day before. **Strata published `v0.2.12` / engine `0.1.58`** (2026-11-07T08:54:40Z, tag commit

@@ -1,5 +1,141 @@
 # Local AI lab working instructions
 
+- **2026-11-08, daily scan: the cache-share lever we could never build finally merges, our own reference pack was
+  silently re-converted, and a Q2_0 native pack still hard-crashes the newest engine.** `NEWS-2026-11-08.md`, written
+  against **`NEWS-2026-11-07.md`**, which closed at **2026-11-07T14:30Z**; window
+  **2026-11-07T14:30Z -> 2026-11-08T14:30Z, 24.0 h**, the scheduled 06:30 run (`[Sun 11/08/2026  6:30:01.77] daily news
+  scan start` after `[Sat 11/07/2026  6:41:04.29] ... exit 0` and `verify OK`). Reading only - nothing downloaded as a
+  model, installed, built or run, **no engine started**, no inference, no benchmark, **`ai_bench` untouched**. WSL
+  started **once** for `yt-dlp` (4 searches, 7 metadata calls, 3 caption files, one landing at 85,608 B after a 429) and
+  shut down, verified (`wsl -l -v` -> `Ubuntu  Stopped`, no `vmmem*`).
+  - **llama.cpp MERGED `#30966` AT 2026-11-07T16:20:59Z - THE `--moe-cache-cpu-share` LEVER BLOCKED SINCE 2026-10-24,
+    WITH ITS TUNING SCRIPT.** +1169/-183, **18 files**, 14 commits, and it adds `scripts/moe-cache-tune.py`
+    (`python3 scripts/moe-cache-tune.py -- build/bin/llama-server -m model.gguf -cmoe -t 8 -c 32768`), six runs, the
+    model read once. Its own output (author's desktop, `Qwen3.8-Flash-Next-IQ4_NL`, 64,800 MiB of experts, 24,000 MiB
+    cache budget): **6,464 MiB -> 24.2 (share 0) / 29.6 (0.5) / 47.6 (0.95)**; **19,392 MiB -> 65.5 / 66.4 / 54.1**, hit
+    rates 73.3 -> 61.5 and 93.5 -> 71.6 %. Two rules we already held are now in the tree: the **share's sign depends on
+    cache size**, and **a big cache at share 0 beats a small one at a high share**. The hold was `#29510`'s
+    correctness fix, so the item changes from "needs a hand-build" to **"needs any tag from 17:00Z on 11-07"**. Tags in
+    window: **b12202** (11-08T08:11:09Z), b12206, **b12207** (14:20:48Z); anything published before 16:20:59Z on 11-07
+    cannot carry it, so **the safe name is >= b12202, not b12189** (yesterday's figure). `v0.9.0` is still the versioned
+    release and still carries one 7-byte `nightly-tag.txt`.
+  - **`#31888` MERGED TOO AND IT REPRICES THE SHARE: at a 4x cache, share 0.95 goes 86.9 -> 93.2 tok/s.** +3/-0, **one
+    file**, merged 2026-11-08T13:29:12Z: "Expanding `cur` before the lookup fixes the issue where the CPU waits for the
+    GPU in every layer with models such as Gemma 4"; Gemma 4 TG **+7-9 %** with `-cmoe` and an optimal share, **"logits
+    were identical"** (dummy-verified on Muse Spark, Nemotron H latent, Kimi K3/K3.1). **So a share row now names its
+    build**, exactly as a cache row names its policy. Also merged: **`#31497`** (2026-11-08T06:11:07Z) - the MoE cache is
+    no longer applied to the draft model, the collision we priced 2026-11-01 - and **`#31854`**, which switches the CPU
+    backend's F16 matmul to **F32 `src1`** (conv "more precise", `vec_dot_type(F16)` now `F32`), i.e. a **numerics change
+    on the `--cpu-moe` path we run**; **a row crossing that merge cannot claim text identity without re-baselining**.
+    `#31861` (UTF-8 sanitising in four PEG tool-call paths, two new failing-before tests) matters to the agent track;
+    **17 commits** total in the window.
+  - **OUR REFERENCE PACK WAS RE-CONVERTED AND THE SOURCE MODEL MOVED WITH IT.** `ggml-org/Qwen3.6-35B-A3B-GGUF`
+    **`7878dc9a90` -> `eb0b3cc97f`** (2026-11-08T04:19:45Z, "Upload folder using huggingface_hub"), 14 files,
+    **136,330,127,729 B = 126.97 GiB**, and `.src_sha` now reads **`PRIMARY=345d467b...`** against **`995ad96e...`**
+    recorded 2026-10-22 (`DFLASH=f181eece...`). **Q4_K_M grew 19,473 -> 19,591 MiB (+118)**, so it is a re-quantisation,
+    not a README edit - **our staged `baec3ebe` copy is two conversions old** and a fresh download is different bytes
+    under the same name. Sidecars unchanged in role (mmproj BF16 902,822,144 / Q8_0 614,194,304; mtp 3,735,545,920 /
+    1,060,038,720 / 1,990,649,920; dflash 782,819,776 / 421,061,056), so the 2026-11-02 sidecar arithmetic stands and the
+    **pack_revision field is the fix**. New and logged, not recommended: `Ninnix96/Qwen3.8-Flash-Next-GSQ-RCO-Coder-22GB-gguf`
+    (created 11-08T12:00:36Z, two `IQ2_XXS` shards, licence `other`) which ships `SHA256SUMS`, `quantization.json`,
+    `recipe.json`, `tensor-sha256.json` and `validation.json` - the self-validating shape we asked for on 2026-11-02.
+  - **`#5289` REPRODUCES ON ENGINE 0.1.58: Q2_0 NATIVE + `STRATA_KVA=1` IS 8/8 SIGSEGV ON THE FIRST LONG PREFILL.** The
+    2026-11-08T11:41 comment builds from tag `v0.2.12`, sm_86, same no-AVX512 Zen2 host: **8/8 crashes across a
+    16K/40K/64K/120K ladder, 9 coredumps**, `Prefill::run_impl` offset **`+0x34caa7`** (was `+0x2de9fa` on 0.1.56),
+    `read at NULL+0x128`. Its A/B/A is three rows: IQ3_XXS + KVA clean (prefill 1,043-1,088, decode 47-49); **Q2_0 + KVA
+    crashes**; Q2_0 without KVA **clean** (prefill 952.8, decode 49.9). **Our pack family is `q2_0`, so this is a
+    VOID-before-start rule, not a slowdown note** - our 0.1.47 predates KVA (`#4927`'s `--batch`/`--parallel` gating
+    arrived with 0.1.55), so no row of ours is at risk.
+  - **`#5570` NAMES THE SWITCH OUR CHUNK LADDER HAS BEEN MEASURING AND DECOMPOSES A 16 GB CARD.** The Qwen engine
+    **does** document **`--prefill-borrow` / `--no-prefill-borrow`** (`src/program/generate.cpp:835-837`, parsed at
+    `:3552`; prices at `docs/INTEL.md:184-186`, `docs/BATCHING.md:613`, `docs/STRIX_HALO_WINDOWS.md:96`) - the loan our
+    2026-10-27 and 2026-10-31 ladders measured from the outside. The DSV4 engine has only the undocumented
+    `DS4_BORROW` (`ds4_model.cu:1993`), and the reporter's A/B is the trade in one table: **297 -> 612 experts in VRAM,
+    decode 12.37 -> 13.56 (+9.6 %), prefill 752 -> 663 (-12 %), four-way parallel 6.20/24.81 -> 7.09/28.35**. The second
+    comment is the instrument finding: **`ds4: CUDA0 memory report: ... scratch 2.03 GB (1933 MiB), in use 16.71 GB,
+    free 340 MiB`** - a region the layered line omits, **2 GB = 12 % of a 16 GB card**, printed only behind an env var,
+    while `nvidia-smi` during the run read 15,489 MiB used / 489 free. The decomposition: weights+experts+caches 11,663
+    MiB, CUDA context 230, cuBLAS/Lt 12, vision tower 319, staging ring 813, prompt chunk buffers ~864, desktop+driver
+    772, unexplained ~940.
+  - **THREE MORE STRATA ITEMS, EACH ONE DECLARATION-SHAPED.** **`#5589`** (RTX 4090 **48 GB** + 282 GiB, engine 0.1.58
+    `8a42a9457`): DSV4.1 2.25 bpw reads **~1.55K tok/s prefill at 18K** and **58-79 tok/s decode**, and its four A/Bs
+    are all ours - **the borrow is worth +25 % prefill**, **`--prefill-chunk 2048` costs 49 %**, **`--parallel 2` adds
+    nothing**, DSpark `auto` decides off. **`#5585`**: 0.2.12 + `--vision cpu` inflates a load from 552 s to 726 s and
+    then >945 s, past `--startup-wait 948`, giving **exit code 6 and a restart loop** on two independent boxes - the
+    `startup_wait_expired` class, and the log's `no CUDA-capable device is detected` is the kill, not the cause.
+    **`#5297`** (8 comments): a user asks whether Strata will support Unsloth's Dynamic V3.1 `UD-IQ2_XS`, claimed ~9 GB
+    smaller while matching GSQ-RCO `IQ3_S`. Strata took **0 commits on `main`** and merged **0 PRs** in the window.
+  - **OLLAMA'S VRAM ACCOUNTING IS BEING FIXED IN PUBLIC, AND ONE PR CORRECTS OUR OWN ATTRIBUTION.** **`#19609`**
+    (created 2026-11-08T12:24:20Z) fixes **`#19463`** - the 4-8x hybrid KV over-prediction from 2026-11-02 - by reading
+    `attention.key_length`/`value_length`, counting only non-recurrent layers, and scaling by `OLLAMA_KV_CACHE_TYPE`
+    (`q8_0` 1.0625 B, `q4_0` 0.5625 B). **`#19393`** stops billing CPU-resident input tensors: Gemma 4 E-series keeps
+    `per_layer_token_embd` on the CPU, **5.25 of the 8.01 GiB file**, so the prediction drops **10.6 -> ~5.35 GiB** under
+    a 6.24 GiB eviction threshold, tested on an **RTX 5070 Ti Laptop 12 GB Windows**. **`#18978` fixes `#17380` and
+    corrects us**: `CUDA error: shared object initialization failed` + `0xc0000409` is **lazy CUDA module loading failing
+    under host memory/commit pressure**, not the `CUDA_Host` -> `CPU` buffer fallback (that is a co-symptom;
+    `GGML_CUDA_NO_PINNED=1` loads 5/5 with RAM free, **8/8 crash under pressure**, `CUDA_MODULE_LOADING=EAGER` loads
+    6/6, a desktop 5080 saw 5/5, 5/5, 3/3). EAGER costs every load (**17.1 -> 19.6 s**, ~110 MiB VRAM) so the fix is a
+    **retry**. `#19463` itself is still open; **1 PR merged** in Ollama's window and it is MLX-only.
+  - **COMFYUI: THE `int8_convrot` UNLOAD LEAKS, AND THREE aimdo.dll CRASHES LAND ON RTX 50-SERIES.** **`#17597`**:
+    after one `int8_convrot` txt2img, `POST /free {"unload_models": true, "free_memory": true}` returns 200 and
+    **+9.3 GiB VRAM and +20.1 GiB RAM stay held** (+13.4 / +26.3 on the Qwen stack), the next job OOMs at `VAEDecode`;
+    reproduces on v0.41.0 **and** v0.44.0, aimdo 0.5.6 **and** 0.6.0; plain `flux1-dev-fp8` leaves **+0.4 GiB**. The tell:
+    torch's accounting still lists the unloaded weights as **allocated**, "live references, not fragmentation".
+    **`#17609`**: Dynamic VRAM (the default) crashes with `CUDA error: invalid argument` on the **second** prompt while
+    re-preparing a Qwen 3.5 9B `int8_convrot` encoder, 4060 Ti 16 GB; **`--disable-dynamic-vram` is 100 % stable** at
+    11.5 GB instead of 14.5. **`#17559`** (closed) / **`#17606`** / **`#17595`**: `aimdo.dll` `0xc0000005` stack
+    overflows from `cleanup_prefetch_queues -> cleanup_malloc_graph`, 5060 Ti, with a 96-150 GB page file so memory is
+    not the constraint. Our image arms run **nvfp4** (the `int8_convrot` checkpoint was the one that **failed to load**
+    on 2026-10-20), so the leak is not yet our failure mode - but the crash cluster is our card family. The **5 PRs
+    merged** in ComfyUI's window are none of them VRAM-shaped.
+  - **A THIRD OF THE OLLAMA/STRATA EVIDENCE IS THE SAME DEFECT, AND IT IS OUR GATE.** Three engines now report that the
+    memory a scheduler predicts is not the memory that exists - Ollama by **4-8x** on hybrid KV, Strata's `#5496` by
+    **5.4-6.3 GiB per card** (2026-11-07), and `#5570` by an unreported **2.03 GB scratch**. Our admission rule reads
+    free commit and free VRAM from the OS and never reads the engine's own report. **The cheapest correction on the
+    board is a readback field**, and it changes the reading of rows we already hold.
+  - **ARXIV DID NOT ADVANCE, SECOND CONSECUTIVE DAY** - both listings still dateline **"Fri, 6 Nov 2026"**, cs.CL **606
+    / 94 new** and cs.LG **1,458 / 224 new**, `/new` at 160 and 417 blocks (identical to yesterday). Three frozen-batch
+    papers read: **`2611.07605`** "The Gating Mechanism of KV Cache Eviction" - a gate inside the softmax **cancels when
+    constant**, so a frozen backbone's loss **prefers the no-op**: eviction that looks free under a perplexity
+    instrument is measuring the instrument. **`2611.07217`** TileQuant - precision per **hardware-aligned 2D tile**, not
+    per column, because "sensitivity varies within columns"; the training-free form of the within-tensor axis our packs
+    already exercise blind. **`2611.07654`** - REAP pruning of four MoE models: at **25 %** pruning, English
+    comprehension falls a median **1.7** points and **Lithuanian 21.4**, asymmetric in both directions. **That is the
+    strongest single item about our own `.strp` expert profile**, which we have never tested for provenance.
+  - **PLATFORM HEALTH.** **[GH]** all five answered; llama.cpp 17 commits and 3 relevant merges; Strata 0 commits on
+    main; Ollama 1 merge; ComfyUI 5 merges. **[REL]** zero new releases - Strata `v0.2.12`, llama.cpp `v0.9.0`, Ollama
+    `v0.40.15` (5 days), ComfyUI `v0.44.0`, Colibri `v2.1.0` (8 days) all unchanged. **[HFR]** the reference pack moved
+    (above); `unsloth` `084c631ac2`, ISTA DSV4.1 `65d53bc8be`, Coder `54229d38`, Kolibri APEX `0fd62efa` unchanged by
+    revision **and** lastModified; 60 GGUF repos created in-window, all small personal builds. **[YT]** 4 searches, 24
+    candidates, 7 dated, **0 in-window** (Sunday); mined Stack Current `pBSyKf1BJf8` (2026-11-05, 655 s, 49 views) -
+    which **independently reproduces our 512 MiB dead zone** (26.8 no cache, **20.4 at half a gigabyte, -24 %**, 80.7 at
+    10.5 GB and still rising), gives a **cliff with no error** (`--n-cpu-moe` 48 -> 44 = 80 -> 23.6 tok/s, -70 %), states
+    that **llama-bench cannot set the cache and feeds random tokens** (**67.5 real text against 93.6 random, 38 %**), and
+    says plainly "**I found no published tokens per second for this cache on a 12 GB card**". **[RD]** 403 on both JSON
+    endpoints (189,908 B block page) and a 302 on the RSS - **thirteenth failure in fourteen days, tenth consecutive**.
+    **[HN]** 392 stories, 20 matches: Maple (Show HN, 13 points, sub-2-BPW MoE pruning, 27 stars, licence NOASSERTION,
+    **README 404** - a lead, not an item), a single commit claiming the MTP **drafter's** quant moves acceptance (third
+    such datum), and VindexLLM (a Delphi Vulkan Windows engine, unmeasured).
+  - **Shortlist, cheapest first**: (1) put the **engine's own memory report incl. `scratch`** into the declaration
+    template and read engine-reported in-use against `nvidia-smi` (an edit; three engines disagree by 4-8x / 5.4-6.3 GiB
+    / 2.03 GB); (2) add **`--prefill-borrow` / `--no-prefill-borrow`** to the declaration list and check it exists in our
+    engine line (`--help | grep`, a normal session - item 1 of the last three scans to survive); (3) make
+    **`STRATA_KVA=1` on a `q2_0` pack VOID before start** (`#5289`, 8/8 on 0.1.58 - an edit); (4) add **`pack_revision` +
+    `.src_sha` + a file digest** (the reference pack moved twice since our copy - an edit plus one read); (5) the
+    **`--moe-cache-cpu-share` sweep** with `scripts/moe-cache-tune.py`, cache and `-ncmoe` fixed per cell (one gated
+    download **>= b12202**, ~40 min - unblocked after five weeks); (6) **test the expert profile's provenance** with and
+    without `--expert-profile` on two task shapes (two starts, no download - `2611.07654`); (7) add the **top-k
+    implementation and CCCL version** to the determinism declaration (`#31084`: non-deterministic KLD 0.0004-0.011, and
+    `DeviceTopK` still serves single-token decode at CCCL >= 3.4.3). Items 1-4 and 7 start nothing.
+  - **Gated on Kevin**: the **0.2.12 / engine 0.1.58 / Control 0.1.58** bump (target unchanged for a second scan, now
+    with four more declaration fields and bounded by `#5289` and `#5585`); a **llama.cpp download at any tag past
+    b11480, now best named `>= b12202`** (first window tag certainly carrying `#30966` + `#31888` + `#31497`); the
+    **DeepSeek IQ2_XXS download** and the ISTA-DAS Coder route; the candidate tests; the display-to-iGPU cable change;
+    the TTQ 35B-A3B pack; the **Colibri `dev` probe** (further ahead again after a six-part DSV4 merge at
+    2026-11-08T14:10:01Z, still unreleased); the Clover / Groot task checks; and one ComfyUI image pair if the
+    `int8_convrot` leak is to be an image-track row. Nothing scheduled, no engine started, no gate touched, `ai_bench`
+    not read.
+
 - **2026-11-07, daily scan: Strata ships 0.2.12 with a file-tier accounting fix on the 12 GB path, llama.cpp's pinned
   buffer turns out to be reallocated 33 times per batch on our exact card, and a third engine runs the 510 GB model by
   gating 2-bit words on the model's own confidence.** `NEWS-2026-11-07.md`, written against **`NEWS-2026-11-06.md`**,
