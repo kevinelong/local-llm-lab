@@ -1,5 +1,169 @@
 # Local AI lab working instructions
 
+- **2026-11-09, daily scan: Strata ships 0.2.13 and deletes eight env switches, llama.cpp's deterministic Top-K lands
+  exactly on b12208, and `ollama ps` turns out to under-report VRAM by 4x.** `NEWS-2026-11-09.md`, written against
+  **`NEWS-2026-11-08.md`**, which closed at **2026-11-08T14:30Z**; window
+  **2026-11-08T14:30Z -> 2026-11-09T14:30Z, 24.0 h**, the scheduled 06:30 run (`[Mon 11/09/2026  6:30:01.27] daily news
+  scan start` after `[Sun 11/08/2026  6:37:33.83] ... exit 0` and `verify OK`). Reading only - nothing downloaded as a
+  model, installed, built or run, **no engine started**, no inference, no benchmark, **`ai_bench` untouched**. WSL
+  started **once** for `yt-dlp` and shut down, verified (`wsl -l -v` -> `Ubuntu  Stopped`, no `vmmem*`).
+  - **STRATA SHIPPED `v0.2.13` / ENGINE AND CONTROL `0.1.59` AT 2026-11-09T12:46:51Z, AND IT IS A DEFAULTS RELEASE,
+    NOT A SPEED ONE.** Feed **sequence 123**, `prerelease: false`, 42 assets, 9.70 GiB; Windows CUDA 13 engine
+    **630,783,433 B** (+13,969 on 0.1.58), archs **sm_75/86/89/120/compute_120**, min driver **580.65**, build id
+    **`712fec6b4297+cuda13.0`**; Control zip 73,567,347 B; both drafter packs byte-identical to 0.2.12. **Bump target is
+    now app 0.2.13 / engine 0.1.59 / Control 0.1.59**; `strata components rollback` returns the engine to 0.1.58 with
+    Control staying 0.1.59. Three changes alter how a row reads: (a) **six launcher-written settings are now the
+    engine's own defaults** (*"so a plain engine start matches the app and the Terminal"*), the Windows-relevant one
+    being **the Q8_0 hyper-connection read for Unsloth UD files on CUDA** - so a config that declared nothing inherited
+    the launcher's value before and the engine's own now; (b) **eight opt-in switches were deleted as finished
+    experiments** (`STRATA_METAL_ROUTE`, `_METAL_PARTIAL`, `_METAL_WPF_MIB`, `_MMVQ_PF`, `_MMVQ_SG`, `_GR_Q32_PL`,
+    `_DF2_GATE`, `_DF2_ROW_MS`) and **`docs/SETTINGS.md` is new**, the registry we have been rebuilding by hand since
+    2026-10-22; (c) **the fit label now measures the model files *without the lookup table*** - the **28.8 GB** shard -
+    so a "fits" read from 0.2.13 is not comparable with one from 0.2.12. **Its DFlash2 per-card defaults (window 6->8,
+    confidence 0.35->0.55) apply to cc 12.0 cards with 48 GB or more, so not ours** - the release says the other cards
+    keep 0.2.12 values, and *"on cards where Auto picks MTP (for example 12 GB cards), the first load from the app's
+    setup screen runs without a drafter"* is unchanged from 0.2.12. Speeds are bounded by two vendor declarations:
+    **"Speeds were not measured again on the final 0.1.59 packages"** and "other machines and models were not measured
+    again" (the measured rows are Strix Halo UD-Q4_K_XL **46.6 -> 49.1** with text differing on 30 of 36 prompts, Strix
+    UD-IQ4_XS-v31 +2.0 % identical, RTX PRO 5000 IQ3_S **256-261 -> 263-265** identical). **Two items name our card:**
+    a fresh install's first launch on an **RTX 5070 took 398-406 s** (against 107-118 s on 11-07, and 398/595 s for the
+    same install on 0.2.12 that day) with **"We did not find the cause"** - so a first launch is not a timing baseline;
+    and the vendor's tested set now includes tool chats **on an RTX 5070 with Gyro-S**. Also: **Intel Arc determinism
+    fixed** (50/50 identical on an A750 against 3-5 different in 5 runs before, because **oneMKL's small bf16 matmuls
+    changed from launch to launch**; `STRATA_SYCL_BF16_DET=0` restores it) - the fourth vendor library in a month
+    identified as a non-determinism source, and the first fixed by a fixed-order reimplementation.
+  - **`#5327` CLOSED AND IT IS THE CLEANEST `q2_0` A/B ANOTHER REPORTER HAS PUBLISHED: 0.1.54 DECODED 116.7 / 119.9
+    tok/s AND 0.1.57 DECODED 45.7 / 54.3 AT 1M CONTEXT.** Single RTX 3090 24 GB, 64 GB, Linux, `--max-context 1048576
+    --rope-scaling yarn --rope-scale 4 --kv int8 --kv-resident 32768`, one ~11.4k-token coding-agent payload, lane
+    restarted between arms, machine rebooted before the session; the healthy arm logs **97.8 % decode cache hit** and
+    **99.94 % of KV block reads from VRAM**. Two things beyond the headline: **Unsloth UD-IQ1_M paid the same regression
+    (~32.6 tok/s)**, so the band is 0.1.56-0.1.58 on the host-expert path for at least two quant families; and the fix
+    is **Linux-scoped** (*"the expert store loads again when free memory, the file cache or a reserved huge-page pool can
+    hold it"*, contributor's own 1M-context figure **47 -> 124 tok/s**), because a hugetlb pool and a droppable file
+    cache are not the Windows path - so on this box the regression's existence is **unestablished, not fixed**. The
+    reporter found it by accident: *"the lane config had been pointing at the repo-local `engine/` binary, so component
+    updates only took effect once the exe path was switched"* - our own 2026-10-22 stale-server class, from the other
+    side.
+  - **`#5289` SURVIVED 0.1.58 (8/8) AND IS NOT MENTIONED IN THE 0.2.13 NOTES, SO THE VOID RULE STANDS - AND ITS REPORTER
+    RETRACTED TWO OF HIS OWN COMMENTS AS HALLUCINATED.** 8/8 long-prefill crashes across a 16K/40K/64K/120K ladder on
+    0.1.58, 9 coredumps, `Prefill::run_impl` at **`+0x34caa7`** (was `+0x2de9fa` on 0.1.56); `STRATA_KVA=1` with an
+    IQ3_XXS pack does not fault, so the pack family is the trigger. Two corrections to yesterday's file: the clean
+    **`STRATA_KVA=0` arm is a 0.1.56 result and was never re-tested on 0.1.58**, and at 2026-11-05T11:46:30Z the
+    reporter deleted comments citing *"a maintainer root-cause reply and a fix ('#5277', 'engine 0.1.57', a self-update
+    dated 2026-11-05): none of that exists"* - **a self-retraction of fabricated citations inside a thread, which is the
+    failure mode this file's dating rules exist for, and a reason to enforce the rule in the runner rather than trust the
+    thread.**
+  - **llama.cpp `#31084` MERGED AT 2026-11-08T14:42:58Z AND TAG `b12208` *IS* THAT MERGE COMMIT** (compare
+    `b12208...57d04820df` -> **identical**; b12210 is 2 behind, b12220 12, b12224 16). The deterministic radix Top-K:
+    **mean KLD 0.0011 -> 0.000000**, same-top-p **99.48 -> 100.000 %**, benchmark **geomean 0.89 of master** (faster, and
+    `131072x32 k=2048` **61.65 -> 46.55 ms**). Declared remainder: **with CCCL 3.4.3+ one or two rows still go through
+    `DeviceTopK`** (single-token decode for the indexer), and other backends were not touched. So **the safe download
+    name for everything we have shortlisted is `>= b12208`** (supersedes `>= b12202`), and a determinism row now names
+    build + top-k implementation + CCCL, exactly as `ubatch` was added on 2026-11-01.
+  - **A WINDOWS WORKING-SET LEAK HAS A MEASURED FIX AND ITS OWN LIMITATION EXCLUDES US.** `#31709` makes
+    `llama_mmap::impl::unmap_fragment()` actually release pages: **22.75 -> 0.51-0.53 GB** full offload, **22.93 ->
+    11.41 GB** partial, **23.73 -> 2.74 GB** `mmap+mlock`, identical output text (Arc Pro B70, SYCL, Qwen3.8-27B
+    UD-Q6_K_XL). But *"a separate heavy expert-offload test showed no reduction because the retained spans covered almost
+    all of the files"* - **which is `--cpu-moe`**, our configuration. What it supplies is a mechanism for something we
+    measure but never explain: free physical at ready is not a function of file size, and the working set stays behind
+    (our "a rate inherits the machine's prior workload" and the in-run commit decay). Also in-window and ours:
+    **`#31927` moves MTP's target hidden states to a device buffer, "4-10 % faster prefill on all the models I
+    tested"** (+453/-61, 31 files) - a third MTP-path change in three weeks, so our 2026-10-08 MTP row stays a b11461
+    row; **`#31896`** makes backends **refuse** a precision they cannot honour (CUDA rejects `PREC_F32` for `MUL_MAT` on
+    Ampere+ and for `MUL_MAT_ID`) instead of silently approximating; **`#31943`** is the inert-knob class again -
+    `LLAMA_LAZY_MODE_AUTO` keys on the *device* rather than on whether mmap is in use, so an explicit `--load-mode mmap`
+    on an iGPU still disables it and `llama-bench -p 512` reads **671.24 -> 247.09 tok/s** (**-2.7x**, fixed to 586.17
+    with `-lzm on`); **`#31947`** is a fourth engine whose load-time VRAM prediction disagrees with reality
+    (unsloth GLM-5.3-Flash UD-IQ3_XXS); **`#31913`** (sticky NaN in recurrent state) and **`#31937`** (escape control
+    characters in tool arguments - the tool-call argument path has now had two correctness fixes in two days) ride any
+    bump; `#26014` (Windows unbuffered load) still open; 23 commits in-window, newest tag **b12224** with
+    `llama-b12224-bin-win-cuda-13.5-x64.zip` **170,949,548 B**.
+  - **THE TOOL BEHIND LAST SCAN'S TOP EXPERIMENT HAD A 3.4x ACCOUNTING BUG, FOUND AND FIXED IN-WINDOW.** `#31934`:
+    `device_room()` in **`scripts/moe-cache-tune.py`** returns the last free-memory report but sums buffer sizes over the
+    **whole log**, so with a draft model (`--spec-type`, `-md`) the main model's buffers are subtracted twice and
+    `--moe-cache-mib` is capped at **1,691 MiB where 5,696 MiB runs fine** (the fix reports 4,809). Single-model is
+    unchanged, and there was no real-hardware reproduction. **A cache sweep therefore runs single-model or carries this
+    fix** - the same configuration `#31497` had to fix in the engine on 2026-11-08.
+  - **`ollama ps` IS NOT A MEMORY MEASUREMENT: 2.50 GB AGAINST `nvidia-smi`'s 10,966 + 11,748 MiB, AND "100 % GPU" FOR
+    A SPLIT MODEL.** `#17251`, open since 2026-07-18, 7 comments, new comment 2026-11-09T05:27:08Z on **2x RTX 3060
+    12 GB**; two earlier boxes show the same shape (**23 GB then 12 GB** against *"around 90 GB across 4 GPUs"*;
+    **851 MiB** against `mem_info_vram_used` **8,127,397,888 / 8,573,157,376 B**, where the log says *"failed to measure
+    the memory of the extra model, fitting without it"* and the figure matches only the assistant model). **Two of our
+    own notes used this readout as evidence** - the 2026-10-09 iGPU probe and the 2026-10-20 decision replay (*"1.1 GB,
+    100 % GPU"*) - so both need a dated correction line. Cross-engine, the same window adds **Ollama `#19616`**
+    (*"OLLAMA_LOAD_TIMEOUT of 300 seconds is too damn short"*), the fifth `startup_wait_expired` instance in three weeks
+    and the third engine shipping a load deadline our packs can exceed.
+  - **COMFYUI `#17634` STATES THE DEFECT AS A FEATURE: "PRECISION FOLLOWS MEMORY PRESSURE, SO CHANGING AVAILABLE VRAM CAN
+    CHANGE GENERATED OUTPUT".** A draft PR (created 2026-11-09T13:58:21Z) that drops refinement tiers under VRAM
+    pressure in Full/Compact/Core VBARs and restores them after compact residency is evicted, with its own honest
+    validation line: *"Short smoke checks only; not a full platform, low-VRAM, quality or determinism validation."* Our
+    image harness declares a **0.5 GiB free-VRAM floor** and scores determinism as same-prompt-same-seed PNG bytes, so a
+    run clearing the floor by 0.4 GiB and one clearing it by 1.4 GiB could render **different images at the same seed**
+    and both pass the floor. Also `#17630` (INT8 linear, cuBLAS handle 1), `#17626` (AIMDO host-buffer mmap), `#17624`
+    (Windows + ROCm partial load). **Nothing merged in-window**, so v0.44.0 still carries the dynamic-VRAM defects.
+  - **STRATA'S 60-ITEM BURST CONTAINS THE BEST PACK-ACCOUNTING MEASUREMENT WE HAVE.** `#5296`: unsloth's 2026-11-04
+    re-upload of UD-IQ4_XS moved **33 of 48 down layers to Q5_0**, which is not in `d_covered()`, so those layers leave
+    the fused prompt path - prompt reads **870 -> 381 tok/s at 2.5K (-56 %)** and **1234 -> 718 at 100K (-42 %)**, agent
+    run **80.1 -> 148.2 s**, back to 80.1 on the pinned revision. DFlash2 acceptance also falls **0.75 -> 0.68**. So **an
+    expert-type histogram, not a file size or a revision, is what a pack declaration needs.** `#5595` (+48) is the
+    Q4_K-down instantiation `#3699` asked for on 2026-10-22, validated on **Windows CUDA (MSVC 14.51, sm_86)** and
+    **still unmerged, so 0.1.59 does not carry it**. `#5659` prices the host output head: **25.4 ms/window at 46.4 tok/s
+    in VRAM against 67.4 ms at 19.6 tok/s in pinned host**, i.e. ~12 GB/s PCIe read against 47.6 GB/s from the engine's
+    own CPU kernels - the cleanest host-head number we hold.
+  - **ARXIV ADVANCED TO MONDAY 9 NOVEMBER AFTER THREE FROZEN DAYS: 41 new + 37 cross + 68 replacements = 146 cs.CL, and
+    121 + 92 + 204 = 417 cs.LG.** The three read: **`2611.09825` BitDecoding-FP4** puts the FP4-KV accuracy loss in the
+    **query** (*"cutting query logit error from 60 % to 1 %"*) rather than in the cache keys - which explains why a naive
+    `q4_0` KV measured as a wash and why nobody could demonstrate FP4 KV (2026-10-29); **`2611.09424` MINE** is
+    *lossless* dtANS entropy coding for single-stream decode, the one compression class that cannot move answers, aimed
+    at exactly our bandwidth-bound **0.527 GiB/token** regime; **`2611.09709` RidgeFill** is the published retrofit of
+    what Strata already ships as a product (prompts over ~3,700 tokens skipping the last 20 layers, **16K ~34 % faster,
+    top-1 unchanged in 99.5 % of 799 positions**, 2026-10-24) - a 34 % prefill win we have never measured as a switch,
+    and it depends on calibration text, the same provenance problem as our `.strp` profile. Screen: 22 of 146 and 41 of
+    417 titles matched our axes.
+  - **[HN] 1,000 STORIES, 58 MATCHES; THE 446-POINT ITEM IS A FIT CLAIM ITS OWN THREAD DISPUTES.** **llama-modchip**
+    (`synchopate/llama-modchip`, 695 stars, created 2026-10-29, Apache-2.0, Windows pack included) claims 284B DeepSeek
+    at **56.56 GiB / 1.71 bpw**, **57.61 GiB VmRSS at 256K**, 44.36 tok/s prefill on 16-core Zen 5 and 9.1-14.7 tok/s
+    decode with **0 GPUs**, via a quantisation transcoder, 4-level AVX-512BW cache-blocked tiling, **non-temporal MoE
+    streaming "so cold expert weights do not evict hot KV cache lines from L3"**, and a **live-VRAM `--n-cpu-moe`
+    solver**. The thread contradicts the baseline arithmetic (*"unsloth's IQ2_XXS GGUF is 91GB, even their smallest
+    IQ1_S is 82.5GB... I wonder which model/quant the number even refers to"*), notes the quant is unstated, and the
+    measured complaint is latency: *"116 seconds to process 43 input tokens"*. `[INFERENCE]` it cannot run here: 57.61
+    GiB RSS leaves ~5.9 GiB free of 63.46 on Windows, under the 9 GiB floor. The transferable piece is the **NTA
+    mechanism**, which explains our rate moving with prior workload. Also kept: **DSpine for Qwen3.8-27B** (pairs with
+    llama.cpp `#31941`, a fourth drafter family) and AMD's admitted driver writing continuously to SSD.
+  - **[YT] ZERO UPLOADS IN-WINDOW, AND THIS `yt-dlp` HAS NO `ytsearchdate` AT ALL.** `ytsearchdate6:` and `ytsearchdate:`
+    both fail with `Unsupported url scheme`, so previous scans' "searched by date" was really `ytsearch` plus per-video
+    metadata; this run used `ytsearch6` (**30 candidates**) and **11 metadata calls** to date **10** - none on 11-08 or
+    11-09. Mined the newest on-axis one, Execute Automation **2026-11-06** (`q3NIYKpVIMs`, 625 s, captions 92.56 KiB on
+    `en-orig` after `en` returned **429**): it puts our two pack families on one machine - **Unsloth UD v3.1 at ~111 GB
+    reading 107-117 tok/s against GSQ-RCO 3-bit at <70 GB reading ~110**, with the quality difference *"not a lot"* -
+    which prices the +15 %-accuracy claim at **+58 % bytes and no speed loss**. One machine, no repeats, vendor claim.
+  - **[RD] 403 ON ALL THREE ENDPOINTS WITH A ZERO-BYTE BODY** - different from the 189,908-byte block page of 2026-11-08,
+    which is why neither status nor byte count is a read. Fourteenth failure in fifteen days, tenth consecutive day
+    without Reddit. **[HFR]** all five tracked packs unchanged by revision and lastModified; the broad sweep returned
+    **80 repos created in-window, all 0 downloads**, two on our family (`oguzeldereli/ttf-Qwen3.8-Flash-Next-GGUF`;
+    **`kaban-baku/Qwen3.8-Flash-Next-UD-IQ1_M-384Exp-Fast-GGUF`**, whose name advertises **384 experts** where we route 8
+    of 256 - a second pack field to declare), plus a **REAP-25** Mistral port (the `2611.07654` regime).
+  - **Shortlist, cheapest first**: (1) **re-pin the Strata declaration to 0.1.59** - drop the eight deleted switches,
+    cite `docs/SETTINGS.md`, add "engine default, not launcher-written" (an edit, and it changes the reading of rows we
+    hold); (2) **record which readout produced every memory number and never let `ollama ps` stand alone**, which also
+    absorbs the working-set readback and the new fit-label caveat - one field, three defects (an edit plus one sample);
+    (3) **add the build gate to the determinism declaration: `>= b12208` plus the CCCL version** (an edit); (4) **put
+    the pack's expert-type histogram beside its revision**, because a re-uploaded quants set cost -56 % prompt at 2.5K
+    (an edit plus one header read); (5) **make `STRATA_KVA=1` on a `q2_0` native pack VOID before start and re-establish
+    the KVA=0 control on 0.1.58+** (an edit, then one start); (6) **check `--prefill-borrow` exists in our engine line**
+    (one grep plus an edit, still unverified because the binary is under `ai_bench`); (7) **the
+    `--moe-cache-cpu-share` sweep on `>= b12208`**, single-model or with `#31934`, cache and `--n-cpu-moe` fixed per cell
+    (one gated download, ~40 min). Items 1-6 are edits; nothing was started.
+  - **Gated on Kevin**: the **0.2.13 / engine 0.1.59 / Control 0.1.59** bump (target moved again, now bounded by
+    `#5289`, the 398-406 s RTX 5070 first launch, and *"speeds were not measured again on the final 0.1.59 packages"*); a
+    **llama.cpp download at any tag `>= b12208`**; the DeepSeek IQ2_XXS download and the ISTA-DAS Coder route (now with
+    `#4818`'s **SWE-bench Verified 75.60 -> 79.20** on the rebuilt IQ1_M); the candidate tests; the
+    display-to-iGPU cable change; the TTQ 35B-A3B pack; the Colibri `v2.1.0` / `dev` probe (9 days); the Clover / Groot
+    task checks; the Strata 0.1.54/0.1.56/0.1.57/0.1.58 control (now with §2's 2.4x expected effect size on the Linux
+    path); and one ComfyUI image pair if `#17634`'s determinism declaration is to become an image-track row. Nothing
+    scheduled, no engine started, no gate touched, `ai_bench` not read.
+
 - **2026-11-08, daily scan: the cache-share lever we could never build finally merges, our own reference pack was
   silently re-converted, and a Q2_0 native pack still hard-crashes the newest engine.** `NEWS-2026-11-08.md`, written
   against **`NEWS-2026-11-07.md`**, which closed at **2026-11-07T14:30Z**; window

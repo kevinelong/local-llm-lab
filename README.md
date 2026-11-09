@@ -619,6 +619,36 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-09 &middot; [Daily news scan: Strata ships 0.2.13 and deletes eight env switches, llama.cpp's deterministic Top-K lands exactly on b12208, and `ollama ps` under-reports VRAM by 4x](NEWS-2026-11-09.md)**
+&ndash; a **24.0 h** window (2026-11-08T14:30Z &rarr; 2026-11-09T14:30Z), the scheduled 06:30 run, after a clean exit and
+`verify OK` the day before. **Strata `v0.2.13` / engine and Control `0.1.59`** published 2026-11-09T12:46:51Z (feed
+sequence 123, Windows CUDA 13 engine **630,783,433 B**, sm_75/86/89/120, min driver 580.65) and it is mostly a
+*defaults* release: **six launcher-written settings are now the engine's own defaults**, **eight opt-in switches were
+deleted** (`STRATA_DF2_GATE`, `_MMVQ_PF`, `_GR_Q32_PL` and five more), and the **fit label stopped counting the lookup
+table** - the 28.8 GB shard - so a "fits" from 0.2.13 is not comparable with one from 0.2.12. Its DFlash2 per-card
+defaults (window 6&rarr;8, confidence 0.35&rarr;0.55) apply to **cc 12.0 cards with 48 GB or more**, so **not ours**, and
+the vendor ran tool chats on an **RTX 5070** while recording a **398-406 s first launch on that card with the cause
+unknown**. **`#5327` closed** with the cleanest A/B on our quant family from another reporter: `q2_0` decoded **116.7 /
+119.9 tok/s on 0.1.54 against 45.7 / 54.3 on 0.1.57** at 1M context, and the fix is on the **Linux file-cache/hugetlb
+path**, so the Windows exposure is unestablished rather than fixed. **`#5289` survived 0.1.58 (8/8)** and its reporter
+**retracted two comments as hallucinated** - a maintainer reply and a fix that never existed. **llama.cpp `#31084`
+merged at 2026-11-08T14:42:58Z and tag `b12208` *is* that commit** (compare: identical): mean KLD **0.0011 ->
+0.000000**, same-top-p **99.48 -> 100.000 %**, **geomean 0.89 of master's time**; with CCCL 3.4.3+ one or two rows still
+use `DeviceTopK`, so a determinism row now names its build. `#31927` moves MTP's target hidden states to a device buffer
+(**4-10 % prefill**), `#31419` stops uploading unread inputs (bit-identical), and **`#31709` releases Windows working-set
+pages (22.75 -> 0.51 GB full offload)** - but its own limit says **heavy expert offload sees no reduction**, which is our
+config. **`#31934` found a 3.4x under-report in `scripts/moe-cache-tune.py`** whenever a draft model loads (**1,691 vs
+5,696 MiB**), the tool behind last scan's top experiment. **`ollama ps` reported 2.50 GB against `nvidia-smi`'s 10,966 +
+11,748 MiB** and printed "100 % GPU" for a split model - the readout two of our own notes used as evidence. ComfyUI
+`#17634` states in its own body that **"precision follows memory pressure, so changing available VRAM can change
+generated output"**. arXiv **advanced to Monday 9 November** (41 new cs.CL, 121 new cs.LG) after three frozen days;
+BitDecoding-FP4 puts the FP4-KV accuracy loss in the **query** (logit error 60 % -> 1 %). HN's 446-point
+**llama-modchip** claims 284B at 56.56 GiB / 1.71 bpw, and its thread contradicts its own baseline arithmetic while
+supplying the one transferable mechanism: non-temporal MoE streaming so cold experts stop evicting hot KV from L3.
+**Zero YouTube uploads in-window** (`ytsearchdate` does not exist in this `yt-dlp`; 10 of 30 candidates date-checked).
+Reddit **403 with a zero-byte body** for the fourteenth day in fifteen. No engine started, `ai_bench` untouched, WSL shut
+down and verified.
+
 **2026-11-08 &middot; [Daily news scan: the cache-share lever we could never build finally merges, our own reference pack was silently re-converted, and a Q2_0 native pack still hard-crashes the newest engine](NEWS-2026-11-08.md)**
 &ndash; a **24.0 h** window (2026-11-07T14:30Z &rarr; 2026-11-08T14:30Z), the scheduled 06:30 run, after a clean exit and
 `verify OK` the day before. **llama.cpp merged `#30966` at 2026-11-07T16:20:59Z** (+1169/-183, 18 files) - the
