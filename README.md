@@ -619,6 +619,36 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-10 &middot; [Daily news scan: llama.cpp merges a Windows unbuffered load path and a separate PLE shard, the CPU share that is on by default makes Strata output non-reproducible, and a cache-tuning fix was closed unmerged](NEWS-2026-11-10.md)**
+&ndash; a **24.0 h** window (2026-11-09T14:30Z &rarr; 2026-11-10T14:30Z). **llama.cpp merged `#26014` "Windows unbuffered
+model load" (+504/-35) at 2026-11-09T18:22:09Z and `#31185` "external PLE file loading" (+313/-93) at 18:41:02Z, and tag
+`b12233` is the first carrying both** - `compare/b12230...b12233` is **exactly three commits** (`#31027`, `#26014`,
+`#31185`). The Windows PR's 1-3 &rarr; >9 GB/s figure is the **Linux DirectIO** number on the author's PCIe 5.0 NVMe and
+it asks for testers, so **the Windows speed is unmeasured**; the PLE PR adds `--shard` / `--ple` and PLE-only conversion
+for **Gemma4, Qwen3.8Next, GLM5.3Flash**, which is the separate home for the **28.8 GB** lookup table 0.2.13's fit label
+stopped counting. `#30542` (VMM pool reserved a fixed 32 GB of VA and died with three pools) merged next day, and
+`#31957`'s two lines close `#31943`'s **2.7x pp512** inert knob. **Strata `#5626` says the prompt-path CPU share is ON by
+default on one CUDA card** and both of its parameters come from per-process CUDA-event timings - `STRATA_DBG_CPU_GATE=1`
+shows **23 vs 36 of 42** layers on one request - so at temperature 0 the same request differs between engine processes
+unless the share is fixed; our 0.1.47 rows were all taken with `auto`. **`ollama #19636` puts the WDDM rule in a fourth
+engine with a table**: the shared budget is *"about half of RAM: 63.6 GB on a 128 GB"*, a 75 GB model goes **62.9 ->
+47.2 GB** with `--no-host`, and pageable host weights cost **-43 % pp512 at `-ngl 0`** with decode unchanged. `v0.40.16`
+shipped and does **not** carry the accounting fix (`#19632` unmerged, `#19631` closed as duplicate). **Correction to
+yesterday's file: `#31934` is closed *unmerged* and master still carries the 3.4x `device_room()` over-count** - read from
+`scripts/moe-cache-tune.py` today. Four Windows items carry numbers: a refused page-lock alone costs **60.9 s**
+(`#5714`), the 4 KB-page fallback reports **0.00 GiB free** after sleep/resume while **45.7 of 47.7 GB** of shared memory
+is held (`#5708`), WMMA **silently masks** the thread scorer at **1747 / 3048 / 3174 tok/s** (`#5693`), and **`#5715` is
+our own box** - RTX 5070, 64 GB, Windows 11 26H2 - where Qwen3.6 starts only at 32K near **20 tok/s** against ~60 on
+llama.cpp. **`#5328` was closed by its own reporter**: 0.1.59 is **not** slower than 0.1.56 (chat 93.4 &rarr; 95.0, 16K
+prefill 3419 &rarr; 3697), which withdraws one of three reports behind the gated engine control. ComfyUI `#17656` shows
+the split a sum hides (**dedicated 12.2 &rarr; 9.95 GB**, shared 0.46 &rarr; 2.69, sum unchanged) and a **5x** slower
+sampling step in **1 run of 8**. Colibri fixed two **silent-fallback** bugs in `dev` twenty minutes before this scan
+closed. arXiv advanced to **Tuesday 10 November** (127 + 80 + 157 cs.CL; 295 + 214 + 517 cs.LG) and **Ostinato** states
+llama.cpp's 32-token cache cliff as its motivation while sending **84 %** of a short prefill's routes to a resident set.
+HN's budgeted MoE engine loses **9 %** under +8 GiB of external load where a configured one loses **27 %**. Zero YouTube
+uploads in-window; the mined 2026-10-26 video names **RTX 5070 at 49.7 vs 15.7 tok/s**. Reddit **403** with a 1,522-byte
+body, fifteenth failure in sixteen days. No engine started, `ai_bench` untouched, WSL shut down and verified.
+
 **2026-11-09 &middot; [Daily news scan: Strata ships 0.2.13 and deletes eight env switches, llama.cpp's deterministic Top-K lands exactly on b12208, and `ollama ps` under-reports VRAM by 4x](NEWS-2026-11-09.md)**
 &ndash; a **24.0 h** window (2026-11-08T14:30Z &rarr; 2026-11-09T14:30Z), the scheduled 06:30 run, after a clean exit and
 `verify OK` the day before. **Strata `v0.2.13` / engine and Control `0.1.59`** published 2026-11-09T12:46:51Z (feed

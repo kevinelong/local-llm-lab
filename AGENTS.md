@@ -1,5 +1,123 @@
 # Local AI lab working instructions
 
+- **2026-11-10, daily scan: llama.cpp merges a Windows unbuffered load path and a separate PLE shard, the CPU share that
+  is on by default makes Strata output non-reproducible, and a cache-tuning fix was closed unmerged.**
+  `NEWS-2026-11-10.md`, written against **`NEWS-2026-11-09.md`**, which closed at **2026-11-09T14:30Z**; window
+  **2026-11-09T14:30Z -> 2026-11-10T14:30Z, 24.0 h**, this run started 2026-11-10T14:30:08Z. Reading only - nothing
+  downloaded as a model, installed, built or run, **no engine started**, no inference, no benchmark, **`ai_bench`
+  untouched**. WSL started **once** (`gh` plus `yt-dlp`) and shut down, verified.
+  - **llama.cpp MERGED `#26014` "Windows unbuffered model load" (+504/-35) AT 2026-11-09T18:22:09Z AND `#31185`
+    "external PLE file loading" (+313/-93) AT 18:41:02Z, AND TAG `b12233` IS THE FIRST CARRYING BOTH** - checked with
+    `compare/b12230...b12233`, which is **exactly three commits** (`#31027`, `#26014`, `#31185`), not inferred from tag
+    times. `#26014` is the Windows I/O issue we tracked as open since 2026-07; its body gives the 1-3 -> >9 GB/s figure
+    for **Linux DirectIO on the author's PCIe 5.0 NVMe** and asks for testers, so **the Windows speed is unmeasured in the
+    PR** - the code path changed, the number did not. `#31185` adds `--shard` / `--ple` (aliases) and PLE-only GGUF
+    conversion for **Gemma4, Qwen3.8Next, GLM5.3Flash**: the separate home for the **28.8 GB lookup table** that 0.2.13's
+    fit label stopped counting, and a way to serve several quants from one fragment. Then **`#30542` merged
+    2026-11-10T11:36:29Z** (CUDA VMM pool reserved a fixed **32 GB** of VA and died on unified-memory devices with three
+    pools - LLM + MTP + mmproj; halves and retries; first tag **b12246**) and **`#31957`** the two-line iGPU lazy-mode fix
+    that closes `#31943`'s **2.7x pp512** inert knob. 38 commits, twelve tags `b12230 -> b12246`; `v0.9.0` unchanged.
+  - **STRATA `#5626` (open, 0 comments, 2026-11-09T16:23:48Z) SAYS THE PROMPT-PATH CPU SHARE IS ON BY DEFAULT ON ONE CUDA
+    CARD AND ITS TWO PARAMETERS COME FROM PER-PROCESS CUDA-EVENT TIMINGS.** From `src/prefill/prefill.cpp`, annotated
+    *"0.1.41: ON BY DEFAULT"*: with `auto`, `cpu_arm` alternates until 3 ratios are in then a median wall ratio
+    `cpu_gate` (probe every 29th layer), and `cpu_share_now = clamp(g/(c+g), 0.05, 0.9)` from running means - so *"a
+    different timing hands a different set of experts to the CPU, and the result changes"*. `STRATA_DBG_CPU_GATE=1` shows
+    two processes sharing **23 and 36 of 42** layers on one request; the vendored recipe (`STRATA_IQ_MT_MIN=1`,
+    `--prompt-cache 0 --adapt-swaps 0 --pcie-frac 0`) is **not enough**, and `STRATA_PREFILL_CPU_SHARE=0.5` or `0` makes
+    repeats byte-identical. **Our engine is 0.1.47, so every single-card Strata row we hold was taken with `auto` in
+    force** - the q1 KV row, the resident ladder and the MTP row can no longer be quoted as determinism results.
+  - **`OLLAMA #19636` PUTS THE WDDM SHARED-SEGMENT RULE IN A FOURTH ENGINE WITH A MEASURED TABLE.** Device buffers and
+    pinned host buffers share one budget, *"about half of RAM: **63.6 GB on a 128 GB machine**"*; a 75 GB
+    `llama3.3:70b-instruct-q8_0` at 131072 on a Ryzen AI Max+ 395 reads **62.9 GB** of shared memory and fails to
+    allocate KV, **47.2 GB with `--no-host`** (loads), 46.9 with `GGML_CUDA_NO_PINNED=1`, 47.2 with `--load-mode mmap`.
+    And it prices the fix: **pp512 905 -> 514 t/s at `-ngl 0`** and 997 -> 817 at `-ngl 16` with pageable host weights,
+    decode unchanged - our `--cpu-moe` arms are the `-ngl 0` shape, so "make it pageable" buys RAM at a large prefill
+    cost. Its own conclusion: *"`--fit` doesn't count pinned host memory on iGPUs"*. Its sibling **`#19632`** (open,
+    unmerged, +2440/-35) fixes `#19463`'s 4-8x KV over-count (65 blocks counted as cached instead of 16; sliding window at
+    full context; hardcoded x2 for f16; head dim from `embedding_length/head_count`), while **`#19631` was closed as a
+    duplicate** - the issue closed, the fix not in the tree.
+  - **OLLAMA SHIPPED `v0.40.16` AT 2026-11-09T18:21:19Z AND IT DOES NOT CARRY THE ACCOUNTING FIX.** Ripple Preview (65B
+    dense), *"Qwen3.8 Flash Next uses about **27 GiB less memory on Apple silicon**"*, `/v1/responses` **no longer
+    silently truncates** unless asked, `/v1/models` returns `[]` not `null`, CUDA 13.5 Windows-on-ARM, *"updated
+    llama.cpp"* with no version.
+  - **CORRECTION TO `NEWS-2026-11-09` SECTION 5.5: `#31934` IS CLOSED UNMERGED AND MASTER STILL CARRIES THE 3.4x BUG.**
+    `merged: null`, only the bot's template/AI warning, and `device_room()` in `scripts/moe-cache-tune.py` at master
+    (25,404 B, read today) still sums `(model|KV|RS|compute|output) buffer size` over the **whole log** for the main
+    device. So the cache sweep runs **single-model** or carries the 15-line diff and says so.
+  - **FOUR WINDOWS MEMORY ITEMS WITH NUMBERS, AND `#5715` IS OUR EXACT BOX.** `#5714`: a refused page-lock alone costs
+    **60.9 s** (`11:52:03.787 -> 11:53:04.735`) and the whole start **107 s**, against **32 s** at 99 GiB - so
+    `page-locking refused (out of memory); trying pageable memory` is a declaration field, not noise. `#5708`: after
+    sleep/resume the **4 KB-page fallback** (`VirtualAlloc error 1450`) reports **0.00 GiB free and 0 slots** while Task
+    Manager shows 7.3 of 31.5 GB dedicated used and **45.7 of 47.7 GB shared** - the shared segment can make a start
+    refuse, and the read that refuses it is wrong; reboot fixes. `#5693`: **WMMA masks `STRATA_SCORES_THREAD` silently**,
+    and the A/B is 1747.2 (warp) / 3048.4 (thread) / 3174.6 (WMMA) tok/s - the reporter got 0.03 % and nearly called the
+    kernel broken. `#5715`: **RTX 5070 12 GB, 64 GB DDR4, Windows 11 26H2**, Qwen3.6 UD-Q4_K_XL, engine 0.1.59 - starts
+    only at **32K** at **~20 tok/s** against **~60** on llama.cpp with `-ncmoe 36`, `moe-cache-mib 2048`,
+    `moe-cache-cpu-share 0.95`, `ub 256` and `spec-type draft-mtp,ngram-mod` (a pairing we have never tested). Single
+    runs, no control: a symptom and a recipe, never a benchmark.
+  - **`#5328` WAS CLOSED BY ITS OWN REPORTER: THE 0.1.57 Ada SLOWDOWN IS GONE ON 0.1.59.** Same rig, same day, same
+    method: chat 93.4 -> **95.0**, agent 110.7 -> **113.6**, 4K 2325 -> **2388**, 16K 3419 -> **3697**, needle recall 6/6
+    in `#5709`. That withdraws one of the **three** reports behind the gated 0.1.56/0.1.57/0.1.58 control, and a second
+    was a two-card negative that never ran the 32,768 chunk. The mechanism (`--prefill auto` takes 32,768 on CC 8.0+) is
+    unchanged, so `--prefill-chunk` stays a declared field.
+  - **COMFYUI `#17656` IS THE SPLIT THAT A SUM HIDES.** Windows, aimdo 0.6.0, RX 6900 XT: about **1 run in 8** takes
+    sampling **430-480 s** instead of 83 s, with dedicated VRAM **12.2 -> 9.95 GB**, shared **0.46 -> 2.69 GB**, and
+    **dedicated+shared the same ~12.6 GB** - *"although ~6 GB of VRAM was free"*. aimdo's own `get_total_vram_usage()`
+    moved (12.45-12.69 -> 11.56) while the split's sum did not, so a "total" readout is not a substitute for the split.
+    Our image arms admit on a **0.5 GiB free-VRAM floor** and score PNG bytes, so both arms pass and differ by 3.5x.
+  - **COLIBRI: TWO SILENT-FALLBACK BUGS, BOTH FIXED IN `dev` 20 MINUTES BEFORE THIS SCAN CLOSED.** `#2734` (per-row int4
+    container gets no host-pool staging: 12.7k prompt **134 s vs 10 s** with gs64; `CUDA_EXPERT_GB=auto` OOMs a 19k
+    prompt and **falls to the CPU silently**) and `#2733` (Vulkan `--kv-slots 2` on 8 GB sends KV through the host,
+    **10.5 vs 36 tok/s**, and the expert tier never gets its memory back) - both closed by **`#2741` merged
+    2026-11-10T14:10:50Z** (+699/-66, 16 files), unreleased. `#2712` turns on a **packed KV cache by default** with
+    `COLI_VK_KV_FP32=1` as the exact opt-out.
+  - **ARXIV ADVANCED TO TUESDAY 10 NOVEMBER: cs.CL 127 new + 80 cross + 157 replacements, cs.LG 295 + 214 + 517** - the
+    largest batch in two weeks. **`2611.11533` Ostinato** states llama.cpp's limitation as its motivation (*"the expert
+    cache skips forward passes of more than 32 tokens to keep the experts of decode cached, so an agent waits 2.1-2.8 s
+    after each tool output"*) and its insight is that a short prefill **sends 84 % of its routes to a stable set that fits
+    in GPU memory**; with DeepSeek-V4-Flash on four RTX 4090D it cuts median post-tool wait **22-55 %** and finishes
+    sessions **1.4-2.5x** sooner than llama.cpp and KTransformers. **`2611.12832`**: NVFP4 needs **1.32x / 1.52x** the
+    exposures for the same rare-fact recall at a loss that differs by only 0.5-2 % - the loss-shaped instrument, again.
+    **`2611.11299` EASE-KV**: stored memory is not **usable** memory (25.0 points from causal encoding). Methodology note
+    for the next scan: `class=.list-title` matched **0** titles on pages carrying 364 and 1,026 ids; the title parse that
+    works is to strip tags and take the line after a bare `Title:`.
+  - **[HN] 138 STORIES OVER TWELVE QUERIES, AND THE ONE THAT PRICES OUR GATE IS A 16 GiB BUDGET CHECKED AGAINST THE OS.**
+    *"I ran 120B MoE models on my 32GB M1 Max using under 16 GiB"* (34 points, 2026-11-09T19:20:34Z, engine not
+    released): 8 prompts x 3 alternating rounds, weights verified byte-for-byte (144 expert tensors + all 471 non-expert),
+    gpt-oss-120b MXFP4 experts at **7.84 tok/s against TUFF 10.2.2's 5.78**; under **+4 GiB** of external page-touching
+    load **7.61 vs 4.43**, under **+8 GiB 7.12 vs 4.21**. An engine that *enforces* a budget lost **9 %** where one that
+    only configures a number lost **27 %** - and our ladder lost 4 of 12 arms to a render the gate could not hold.
+    Also logged: MoEShift (`davide-troiani/moeshift`, Qwen3.8 Flash Next at 374 tok/s prefill), and a vendor "compress any
+    LLM 3x in one click" claim recorded unread.
+  - **[YT] ZERO UPLOADS IN-WINDOW; THE MINED 2026-10-26 VIDEO IS THE ONLY ONE IN THE CORPUS THAT NAMES OUR CARD AND BOTH
+    ENGINES.** 5 searches, 30 candidates, 8 date-checked, none in-window. Code Unpacked `uJoWWuMHNeQ` (782 s, 13,605
+    views, captions 108,970 B on `en-orig`): **RTX 5070 12 GB + 64 GB RAM reads 49.7 tok/s on Strata against 15.7 on
+    llama.cpp [00:02:53]**; 4K prompt 9.1 vs 41.6 [00:02:11]; TTFT 12.4 s vs 4.4 s; the **drafter needs 3.4 GB of VRAM**
+    and a 3060 drops 9.1 -> 7.0 with it [00:06:39]; cache lifts llama.cpp 30.8 -> 67.8 [00:07:41] but **loses** on a
+    32 GB card, 42.9 -> 35.2 [00:08:15]; one arm has llama.cpp **faster**, 87.3 vs 59.2 [00:08:59]; `--parallel` on 12 GB
+    turns an 11.2 s wait into 1.8 s and costs 24 % throughput [00:09:44]. Its llama.cpp arm reads **9.1 tok/s** where our
+    b11480 rows read 47-83, i.e. it is almost certainly mmap-streaming experts - which is what `#26014` and Ostinato are
+    about. Second-hand: a symptom and a recipe, never a benchmark.
+  - **[RD] 403 ON ALL THREE ENDPOINTS WITH A 1,522-BYTE BODY** (yesterday 0 B, 2026-11-08 189,908 B - neither the status
+    nor the size is a read). Fifteenth failure in sixteen days, last success 2026-10-25. **[HFR]** all five tracked packs
+    unchanged by revision and lastModified; the sweep returned **100 repos, all created in-window, all 0 downloads** (page
+    cap), named in the file and none recommended.
+  - **Shortlist, cheapest first**: (1) add `STRATA_PREFILL_CPU_SHARE` to the determinism block and mark every single-card
+    Strata row "share = auto" (an edit plus one two-start check); (2) stop relying on `#31934` - sweep single-model or
+    carry its diff (an edit); (3) correct the WDDM note with `#19636`'s 63.6-of-128 GB, the **-43 % pp512** pageable
+    price and `#5714`'s 60.9 s refusal, and add "page-locking refused" as a field (an edit); (4) record the build gates
+    `>= b12233` (unbuffered load + `--ple`) and `>= b12246` (VMM pool) beside `>= b12208` (an edit); (5) make `--ple` a
+    pack question - the 28.8 GB table on another drive, one fragment for two quants (one conversion plus one start);
+    (6) the Ostinato prediction against our 512 MiB dead zone, per-ubatch hit rate at two rungs (gated download
+    `>= b12246`, ~40 min); (7) two starts pricing contention (a 4 GiB page-touching process present vs absent, ~15 min).
+    Items 1-5 are edits; nothing was started.
+  - **Gated on Kevin**: the **0.2.13 / engine 0.1.59 / Control 0.1.59** bump (unchanged for a second scan, now with two
+    more declaration fields, with `#5328` **withdrawn** on 0.1.59 and `#5715` failing on our exact box); a **llama.cpp
+    download at any tag `>= b12246`**; the DeepSeek IQ2_XXS download and the ISTA-DAS Coder route; the candidate tests;
+    the display-to-iGPU cable change (now with `#5708` behind it); the TTQ 35B-A3B pack; the Colibri `dev` probe (two
+    silent-fallback fixes landed today); the Clover / Groot task checks; the Strata 0.1.56/0.1.57/0.1.58 control
+    (expected effect size down); and one ComfyUI image pair if the shared-memory split is to become an image-track row.
+
 - **2026-11-09, daily scan: Strata ships 0.2.13 and deletes eight env switches, llama.cpp's deterministic Top-K lands
   exactly on b12208, and `ollama ps` turns out to under-report VRAM by 4x.** `NEWS-2026-11-09.md`, written against
   **`NEWS-2026-11-08.md`**, which closed at **2026-11-08T14:30Z**; window
