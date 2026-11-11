@@ -619,6 +619,29 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-11 &middot; [Daily news scan: llama.cpp merges an FP8 KV cache and deletes the GDN knobs, ComfyUI's host-buffer staging takes a second NVMe off the Windows bus, and Ollama's VRAM-accounting fix is closed without merging](NEWS-2026-11-11.md)**
+&ndash; a **24.0 h** window (2026-11-10T14:30Z &rarr; 2026-11-11T14:30Z). **llama.cpp merged `#28392` "Add FP8 KV-cache
+support" (+710/-25) at 2026-11-10T16:08:33Z, and `b12274` is the first tag carrying it** - `compare/202c1a22...b12273` is
+**behind 1**, `...b12274` is **identical**. Its scales are graph-level, its tests include **context shifts** (where
+`#30541`'s quantised-KV restore bug lived), and `#28413` CUDA OCP FP8 merged the next morning. `#32078` (+13/-510) then
+deleted the non-fused GDN path and the **ubatch-dependent graph budget**, closing our never-tested `#31987` eleven minutes
+later - so graph topology is independent of `-ub` again, and a build below it can have a different graph at a different
+`-ub`. **ComfyUI `#17677` and a datapoint in its 79-comment `#15255` describe the same failure from two reporters: the
+aimdo host-buffer path's parallel `read_file_to_device` takes a second NVMe off the Windows bus** (`GetOverlappedResult
+error=433`, then `hostbuf_file_reader_read failed`, drive gone until reboot), reproduced across a reformatted drive, a
+different M.2 slot and a different NVMe, and fixed by `--disable-dynamic-vram --disable-pinned-memory` at **25-35 %**
+wall - the second engine in two weeks with an NVMe dropping out under inference, after Strata `#5397`. **Ollama `#19609`,
+the accurate VRAM prediction for hybrid models and quantised KV, was closed unmerged with 0 comments** at
+2026-11-11T13:39:38Z, the second memory-accounting fix closed without merging in two days. **Strata `#3354` explains our
+`drafts accepted 0 of 0`**: the model card's `presence_penalty 1.5` reaches `temperature: 0` requests and the q36 engine
+drafts only when `needs_logits()` is false, so every Strata arm must declare its sampling block. **[ARX] prefix-cached
+agent serving is metastable** (`2611.13412`): a few minutes of extra arrivals leave a vLLM server at a ~10 % hit ratio and
+half throughput for seventy minutes, **throttling admissions recovered 1 of 7 collapsed runs while suspending admitted
+sessions recovered all**, and a CPU offload tier only delays it. **[YT] one in-window upload** names the precondition
+nobody else does: `--moe-cache-cpu-share` is inert *"until every slot in a section of the cache holds an expert"*. [RD] 403
+on all three endpoints, sixteenth failure in seventeen days; [HFR] all five tracked packs unchanged. No engine started,
+`ai_bench` untouched, WSL shut down and verified.
+
 **2026-11-10 &middot; [Daily news scan: llama.cpp merges a Windows unbuffered load path and a separate PLE shard, the CPU share that is on by default makes Strata output non-reproducible, and a cache-tuning fix was closed unmerged](NEWS-2026-11-10.md)**
 &ndash; a **24.0 h** window (2026-11-09T14:30Z &rarr; 2026-11-10T14:30Z). **llama.cpp merged `#26014` "Windows unbuffered
 model load" (+504/-35) at 2026-11-09T18:22:09Z and `#31185` "external PLE file loading" (+313/-93) at 18:41:02Z, and tag

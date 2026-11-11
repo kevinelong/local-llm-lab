@@ -1,5 +1,122 @@
 # Local AI lab working instructions
 
+- **2026-11-11, daily scan: llama.cpp merges an FP8 KV cache and deletes the GDN knobs, ComfyUI's host-buffer staging
+  takes a second NVMe off the Windows bus, and Ollama's VRAM-accounting fix is closed without merging.**
+  `NEWS-2026-11-11.md`, written against **`NEWS-2026-11-10.md`**, which closed at **2026-11-10T14:30Z**; window
+  **2026-11-10T14:30Z -> 2026-11-11T14:30Z, 24.0 h**, read interval **15:23Z -> ~15:55Z** from this run's own start line
+  (`[Wed 11/11/2026  7:23:53.34] daily news scan start`). The task's last run was **11/10 06:30 (result 0)** and its next
+  is **11/12 06:30**; today's run is the hand run. Reading only - nothing downloaded as a model, installed, built or run,
+  **no engine started**, no inference, no benchmark, **`ai_bench` untouched**. WSL started **once** (`gh`, `curl`,
+  `yt-dlp`) and shut down, verified.
+  - **`#28392` "Add FP8 KV-cache support" (+710/-25) MERGED 2026-11-10T16:08:33Z, AND `b12274` IS THE FIRST TAG CARRYING
+    IT** - `compare/202c1a22...b12273` -> **behind 1**, `...b12274` -> **identical**. OCP-FP8 KV with *"run-time, static
+    per-tensor scales ... optional"*, scaled **at graph level instead of inside `ggml_flash_attn_ext`** (*"matches the
+    ownership-model we have in place for NVFP4/FP8"*), E2E tests including **context shifts** (where `#30541`'s
+    quantised-KV restore bug lived), motivated by `nvidia/Mistral-Medium-3.5-128B-NVFP4` whose KV scales are not unit.
+    `#28413` CUDA OCP FP8 compute merged the next morning; `#28898` (quant scales for fp8/nvfp4) still open. So the KV
+    axis now has **two** routes beside `-ctk q8_0 -ctv q4_0`, and `#31213` gained a third +1 with the RTX 5090 / 340k
+    unified-KV case priced: the f16 fallback costs **0.4-0.5 GiB** of workspace plus slower attention.
+  - **`#32078` (+13/-510, merged 2026-11-11T13:16:16Z) DELETES THE NON-FUSED GDN PATH AND THE UBATCH-DEPENDENT GRAPH
+    BUDGET, AND `#31987` WAS CLOSED BY IT ELEVEN MINUTES LATER.** `fused_gdn_ar/ch` / `auto_fgdn`, the GDN probes and the
+    fused-node tags are gone (`#27877` made fused always-on), and `graph_max_nodes()` no longer takes `n_tokens`, so
+    **graph topology is independent of the ubatch size again** - the second half of `#31504`'s batch-invariance contract.
+    `[INFERENCE]` a build below this merge can have a **different graph at a different `-ub`**, so "same flags, same
+    answer" across `-ub` now needs a `>= b12284`-class build, not just `>= b12208`. Fifth inert knob in a week resolved
+    by **deleting** it, as Strata 0.2.13 deleted eight switches.
+  - **COMFYUI `#17677` (2026-11-10T23:01Z) + A DATAPOINT IN THE 79-COMMENT `#15255` (23:17Z): THE AIMDO HOST-BUFFER PATH
+    TAKES A SECOND NVME OFF THE WINDOWS PCIE BUS.** Windows 11 26200, RTX 5060 Ti 16 GB, models on `E:` (Samsung 980
+    PRO), DynamicVRAM + pinned memory at defaults, aimdo 0.6.0: `fast_disk=True` fires **parallel async reads via
+    `read_file_to_device`**, the drive **disappears from Device Manager until a reboot**, and ComfyUI throws
+    **`GetOverlappedResult error=433` (ERROR_DEVICE_DOES_NOT_EXIST)** then `hostbuf_file_reader_read failed`. The reporter
+    **reformatted the drive, swapped M.2 slots and tried a different NVMe** - same disconnect - and fixed it with
+    `--disable-dynamic-vram --disable-pinned-memory` at **25-35 %** wall. **This is the second engine in two weeks**:
+    Strata `#5397` (`NEWS-2026-11-06`) reports the same NVMe-drop under inference on our OS build (stornvme 129/11, Disk
+    51/157) with DiskSpd reading the same GGUFs at 1,550 MiB/s clean. **Our packs and image models are on `D:`, a second
+    NVMe.** No row of ours shows it, so nothing recorded is invalid - but the volume is now a declared field and
+    `error=433`/`stornvme` is a VOID rule.
+  - **OLLAMA `#19609` - THE ACCURATE VRAM PREDICTION FOR HYBRID MODELS AND QUANTISED KV - WAS CLOSED UNMERGED AT
+    2026-11-11T13:39:38Z WITH 0 COMMENTS AND 0 REVIEW COMMENTS.** That corrects `NEWS-2026-11-08` section 5.3, which
+    carried it as the fix in progress for `#19463`, and makes **two memory-accounting fixes closed without merging in two
+    days** (the other is llama.cpp `#31934`). The same window's **`#19640` "use mmap for Vulkan integrated GPUs" merged
+    2026-11-10T18:42:12Z** and is the structural answer to `#19636`: *"Non-mmap loads put CPU-resident tensors in the
+    Vulkan host buffer, which is drawn from the same device budget as the weights ... roughly doubles the footprint"* -
+    fixes `#17748` and `#18531`. `v0.40.17-rc0` carries it plus a **llama.cpp bump to b12257**, and `compare` says
+    **b12257 is 17 commits behind FP8 KV**, so the next Ollama release can test neither FP8 KV nor `#32078`.
+  - **STRATA `#3354` NOW EXPLAINS OUR `drafts accepted 0 of 0`: the model card's `presence_penalty 1.5` reaches
+    `temperature: 0` requests, and the q36 engine drafts only when `needs_logits()` is false - which a penalty makes
+    true.** Confirmed on **Flash-Next too** (author, 2026-11-07; a third party on 4x3090 with v0.2.12, 2026-11-08; author
+    confirming 2026-11-11T08:35Z: *"Drafting being switched off is specific to qwen35moe"*). *"A client that wants greedy
+    output from Strata 0.2.x has to send `presence_penalty 0`, `frequency_penalty 0` and `repetition_penalty 1`
+    explicitly; leaving them out doesn't mean 'off'."* **Consequence for us:** the 2026-10-20 q1 KV row (letters 92/93 in
+    four arms) ran on `q2_0`/Flash-Next with the penalty attached, so it is a KV effect on **penalised** decoding; every
+    Strata arm must declare the sampling block. Second independent reason beside `#5626`.
+  - **STRATA `#5296` CLOSED WITH THE FIX NAMED: `STRATA_PF_FUSED_Q50=1`, an F16 fused prompt kernel for Q5_0 downs
+    (`src/prefill/moe_fused_iq.cu`), ON BY DEFAULT ON WINDOWS gfx1151 AND OFF ON LINUX.** So the 2026-11-09 pack finding
+    (a re-upload moved 33 of 48 down layers to Q5_0 and cut prompt reads 56 %) is a **per-type kernel whose default state
+    differs by OS**, and a companion comment gives a **bit-exact** load-time upcast (`STRATA_Q5_DOWN_Q8=1`, `d_type` 6->8,
+    blob x34/22, *"only the container changes"*) worth 1.8x decode on Intel. Our engine 0.1.47 predates both.
+  - **STRATA `#5715`: THE VENDOR CONFIRMS THE q36 KV IS fp32.** On our card/RAM/OS family (RTX 5070 12 GB, 64 GB, Win11
+    26H2, Qwen3.6 UD-Q4_K_XL): *"This model keeps its conversation memory in full precision on the graphics card, so on a
+    12 GB card a 64K or 128K context leaves no room for the rest. At 128K the engine stops with a bare memory error
+    instead of saying so ... For now, **32K is the setting that starts on your card**."* That is the 2026-10-21
+    `#3303` arithmetic (45,056 B/token) promoted from inference to vendor statement, and it makes the 32,768 default a
+    KV-arithmetic consequence, not a policy. `#5714` gained a partial-pin arm (`STRATA_PARTIAL_PIN=1`,
+    `STRATA_PARTIAL_PIN_GIB=96`, driver 610.88) and `#5784` shows the **cuda12** asset JITing **495 s on every start** on
+    an sm_120 card with no CUDA cache written - the hazard of the asset we do **not** use.
+  - **`#31351`: llama.cpp's OWN ROUTER MEMORY REPORT LEAVES OUT THE DRAFT MODEL** (`--models-memory-margin`, `#21231`), so
+    *"the router unloads too little"* - the `#31934` class in the server rather than a bench script, and our 2026-10-08
+    MTP row ran `-md`. Plus **`#32076`** (open, +2173/-44): *"On Vulkan or Windows there should be a huge speed-up"* for
+    the MoE cache without host/GPU syncs - so a cache ladder must not straddle its merge.
+  - **[HFR] all five tracked packs unchanged by revision and lastModified**; the sweep returned **100 repos in ~7 hours**
+    (page cap; yesterday's was 100 per day). New and named: **`Synchopate`**'s `DeepSeek-V4-Flash-0731-VQ3-64GB-CPU` and
+    `Nemotron-3.5-30B-A3B-VQ3-64-CPU` (the llama-modchip author, CPU-only 64 GB packs), **`AnubysIII`**'s
+    `Q8attn-Q4Kexp` scheme on GLM-5.3-Flash / gemma-4-26B-A4B / MiniMax-M2.7, **`Davidmg0815/Qwen3.8-Flash-Next-UD-
+    Q3_K_XL-256exp-MTP`** (256 experts, our routing count), **`elvezjp/DeepSeek-V4.1-Flash-1017-ELVEZ-FP4`**.
+  - **[ARX] THE INDEX ADVANCED TO WEDNESDAY 11 NOVEMBER: cs.CL 63 new + 49 cross + 66 replacements (178 ids); cs.LG 134 +
+    101 + 148 (383 ids)** - smaller than yesterday's 127/80/157 and 295/214/517. Three read: **`2611.13412` Bursts That
+    Outlast Themselves** - prefix-cached agent serving is **metastable**: a few minutes of extra arrivals leave a vLLM
+    server at **~10 % hit ratio, half throughput, a backlog growing for 70 min** (9 of 12 pairs, none reverse; also on
+    SGLang and Qwen3-32B SWE-bench shapes, absent without prefix caching), and **throttling admissions recovered 1 of 7
+    collapsed runs while suspending admitted sessions against a capacity limit recovered all**; a CPU offload tier
+    *delays* the collapse. **`2611.14246` SinkState** - hybrid (Mamba-2 + **GDN**) recurrent states are **low-rank**
+    (*"linear attention sink"*), so storing them dense costs **1.9x** memory on average and 1.58x decode, on 4 models
+    4B-120B. **`2611.13017` Multi-Future Drafting** - product-ranked draft trees (DFlash, DDTree) are **27-33 % chimeras**
+    on a 64-node tree, *"no product-ranked tree can hold two futures that disagree in m positions without 2^(m-1)-1
+    chimeras"*, so acceptance is a property of the **tree**, not only the drafter.
+  - **[YT] ONE IN-WINDOW UPLOAD AND IT IS THE ONLY PUBLISHED RECIPE FOR `--moe-cache-cpu-share` THAT NAMES ITS
+    PRECONDITION.** Cloud Codes, **2026-11-11**, `OG1Jd2hFhLA`, 502 s, 607 views, captions 80,802 B: *"**Every slot in a
+    section of the cache has to hold an expert before the CPU share kicks in.** Until the desk is full, misses still make
+    the trip"*; default **0**; needs **b12191**; author's table **24 -> 48** at a small cache and **65 -> 54** at a big
+    one; an 8 GB 3070 comment goes share-off -> nearly-full for *"one and a half times"*, and *"against a no-cache
+    baseline ... one and three quarters"*, so *"plan on half again, not double"*. The tuner tests two cache sizes (a tenth
+    of expert memory and 3x that), records routing, fits upload + CPU + flat-split + overlap costs, replays, and **picks
+    the lowest share within 5 % of the fastest** - on the author's desktop it chose **share off** at a big cache.
+  - **[RD] 403 ON ALL THREE ENDPOINTS WITH A 1,522-BYTE BODY** - identical status and size to 11-10 and 11-09. Sixteenth
+    failure in seventeen days, fifteenth consecutive; last success 2026-10-25. **[HN]** 200 stories (cap) over twelve
+    queries: `llama.cpp`, `GGUF`, `KV cache`, `speculative decoding`, `quantization`, `WDDM` each **0**; on-axis finds are
+    *"An Open Field Guide to Inference Engineering"* (**91 points**, unread), `NeuraCryption/SPECTRA` (**now has a repo**,
+    still unread), *"GSD-LQ: 7B in 3.78 GB VRAM"*, and a Kepler **nc-dequant** fork matching llama.cpp `#30338` (closed
+    unmerged). An adjacent sweep (`VRAM in:title`, **68** issues) found only `LocalHarness` `#69`/`#70` (a VRAM-aware
+    quant picker + dashboard, i.e. a second harness) and `school-ai-server`'s **GPU power** measurement.
+  - **Shortlist, cheapest first**: (1) declare the sampling block on every Strata arm (`presence_penalty`,
+    `frequency_penalty`, `temperature` - an edit plus one start); (2) add the model volume to the declaration and make
+    `error=433`/`stornvme` a VOID rule (an edit plus one grep); (3) record the build gates **`>= b12274`** (FP8 KV),
+    **`>= b12191`** (`--moe-cache-cpu-share`), **`>= b12284`**-class (ubatch-independent topology), and do not straddle
+    `#32076` (an edit); (4) make the CPU share's **fill state** a declared field - it is inert until a section is full, so
+    our 512 MiB rung cannot fire it (an edit; the arm rides 6); (5) the **admission hypothesis**: our gate throttles,
+    Bursts says suspension recovers what throttling does not (two starts, ~15 min); (6) `moe-cache-tune.py` at two rungs,
+    **single-model** because `#31934` is closed unmerged (gated download `>= b12274`, ~40 min); (7) **FP8 KV vs `q8_0`**
+    at one context reading KV bytes/token (gated download plus two starts). Items 1-4 are edits; nothing was started.
+  - **Gated on Kevin**: the **0.2.13 / engine 0.1.59 / Control 0.1.59** bump (third scan unchanged; its declaration list
+    gained the sampling block today, and its bounds moved again - a **vendor statement that 32K is the only starting
+    context on a 12 GB card**, a **token-corruption** report on Coder + four-shard Engram in `#5705`, and three Windows
+    device-detection failures); a **llama.cpp download, best named `>= b12284`**; the DeepSeek IQ2_XXS download (**now
+    with `#5774`/`#5757` showing 0.1.59 cannot load Unsloth's UD sets at all**) and the ISTA-DAS Coder route; the
+    candidate tests; the display-to-iGPU cable change; the TTQ 35B-A3B pack; the Colibri `v2.1.0`/`dev` probe (**now with
+    a `dev` HIP decode regression**, `#2757`); the Clover / Groot task checks; the 0.1.56/0.1.57/0.1.58 control (effect
+    still expected down); and one ComfyUI image pair - **now with a reason: `#17690` says Dynamic VRAM rounds bf16 LoRAs
+    away**, a same-seed output change.
+
 - **2026-11-10, daily scan: llama.cpp merges a Windows unbuffered load path and a separate PLE shard, the CPU share that
   is on by default makes Strata output non-reproducible, and a cache-tuning fix was closed unmerged.**
   `NEWS-2026-11-10.md`, written against **`NEWS-2026-11-09.md`**, which closed at **2026-11-09T14:30Z**; window
