@@ -1,5 +1,136 @@
 # Local AI lab working instructions
 
+- **2026-11-12, daily scan: ComfyUI's 12 GB Dynamic-VRAM failure is three separate bugs whose fixes are bit-identical, a
+  per-card table shows a small MoE cache slower than no cache at all (and Ollama can never turn it on), and llama.cpp's
+  idle weights are evicted from VRAM when commit headroom exists.**
+  `NEWS-2026-11-12.md`, written against **`NEWS-2026-11-11.md`**, which closed at **2026-11-11T14:30Z**; window
+  **2026-11-11T14:30Z -> 2026-11-12T14:30Z, 24.0 h**, read interval **14:30Z -> ~14:36Z** from this run's own start line
+  (`[Thu 11/12/2026  6:30:01.30] daily news scan start`). The task's last run was **11/11 07:32 (result 0, `verify OK`)**
+  and its next is **11/13 06:30**, so it is healthy and armed. Reading only - nothing downloaded as a model, installed,
+  built or run, **no engine started**, no inference, no benchmark, **`ai_bench` untouched**. WSL started **once**
+  (`gh`, `curl`, `yt-dlp`) and shut down, verified.
+  - **COMFYUI `#17703`/`#17701`/`#17700`/`#17702` ARE ONE BURST, FILED IN ONE MINUTE, ON ONE 12 GB CARD, AND EACH FIX IS
+    PROVED BIT-IDENTICAL.** All **v0.45.0 + comfy-aimdo 0.6.0 + RTX 3060 12 GB + Dynamic VRAM on**, the official FastH3
+    15 s 1344x768 templates, ~109k video tokens: the **MLP materialises all tokens** (`fc1` outputs 28672 features -> a
+    **6.3 GB** bf16 buffer; chain the MLP at 16384 tokens -> **0.9 GB**, *"max diff 0.0"*); the **malloc graph keeps its
+    VRAM between sampling steps** (`cleanup_malloc_graph()` only runs when sampling ends, so step 2 OOMs on a 40 MB
+    `model_output.float()` with **~28 MB free** while torch held under 700 MB; per-forward cleanup gives **step 130 ->
+    117 s**); and the **VSA RoPE cache keys on a `weakref` that never matches**, so every step allocates a second padded
+    table. `#17702` is the measured workaround instead of a fix: the second offload stream's cast buffer grows to
+    **424 MB** after block 0's activations (`cuda_free 7052 -> 148 MB`), `VRAM grow failed`, and **`--async-offload 1`**
+    costs **10-13 %** of step time. **All four say "Filed by Claude Opus 5.5 in Claude Code"** - now a normal provenance
+    line on that repo.
+  - **`#17704` IS THE SAME SUBSYSTEM SILENTLY DROPPING A LORA PATCH, MEASURED IN PIXELS - OUR IMAGE HARNESS'S EXACT
+    QUESTION.** With Dynamic VRAM on (default) a patch on a module **without `comfy_cast_weights`** is never applied and
+    nothing is logged (the load line says **`0 patches attached`**): `txt_in.text_norm` shows **0.000 mean pixel
+    difference, 0.00 % of pixels changed - an identical image**, against **47.8 and 99.98 %** with
+    `--disable-dynamic-vram`; the cast-module control moves in both modes, and the two **no-patch** renders are
+    pixel-identical. Companion: **`#17690`** (bf16 LoRA rounding) and **`#17687`** - the Windows portable updater now
+    force-installs **cu130** and leaves an install that dies with **`Torch not compiled with CUDA enabled`**, where
+    *"reverting to the previous version doesn't work"*. So an image re-baseline is justified three ways, and a
+    half-broken install presents as an OOM.
+  - **A SMALL MoE CACHE IS SLOWER THAN NO CACHE AT ALL, AND OLLAMA CAN NEVER TURN THE CACHE ON - BOTH NOW SOURCED.**
+    **[YT]** KernelBrief `OWhgJjePORk`, uploaded **2026-11-12**, 1,024 s, 134 views, captions 152,091 B on `en-orig`
+    after `en` 429, reading the five owner reports in the `--moe-cache-mib` PR: a **5060 Ti 16 GB** reads **44 tok/s**
+    without a cache and **18.7** with one at share 0, a **2080 Ti 11 GB** goes **42 -> 23.5**, and the CPU share recovers
+    **61** and **64.5** (1.5x / ~1.4x); mechanism *"a small cache misses a lot"* plus a **6.5 GB/s** slot copy; and on a
+    3090, October's cache alone at 5.5 GB gives **19.5** where filling the card gives **31 -> 68**. **I checked the
+    Ollama half in source rather than quoting it:** `llm/llama_server.go` at `main` (**92,992 B**) has **no `moe-cache`
+    string** (search returned 0; `llm/server.go` is now an 8,561-byte shim), so **every Ollama rate we hold is a no-cache
+    rate**. Our own q2 ladder's 256/512 MiB rungs sitting at or below rung 0 is the same shape at a smaller magnitude,
+    and the band `NEWS-2026-11-06` could not explain now has a mechanism.
+  - **LLAMA.CPP `#32124`: ON WINDOWS, IDLE WEIGHTS LEAVE DEVICE-LOCAL MEMORY, AND THE SWITCH IS COMMIT HEADROOM.** Strix
+    Halo APU, llama-server **b10909**, **~30 GiB** of device-local weights -> **~0.1 GiB within one 1.4 s sample** at a
+    64 GB UMA carve-out; resident **60 s** at 96 GB; **evicted again with a fixed 48 GB page file**. TTFT **35-50 s**
+    against **~22 s**; a 62.8 MiB context checkpoint **2,050 ms** against **490 ms**. `GGML_VK_ENABLE_MEMORY_PRIORITY`,
+    `--no-kv-unified`, `--no-cache-idle-slots`, memory compression and **keep-alive pings** all fail to hold it. The
+    addendum names the root cause on the AMD side (**ROcm/TheRock#7221**: the KMD does not declare which segments stay
+    active in **D3**; driver **26.9.2** fixes it on a dGPU) - not our vendor, but **commit headroom is the gate we read**,
+    and `#25646` shows **Intel** dGPUs losing weights after ~70 s idle. Third mechanism behind "a rate inherits the
+    machine's prior workload".
+  - **STRATA `#5104` GOT THE CONTROL OUR CHUNK RULE WAS ALREADY FOLLOWING: `--prefill auto` ABORTS, A FIXED CHUNK NEVER
+    DOES.** Windows 11 **build 26300 (ours)**, RTX 4070 Laptop **8 GB**, **engine 0.1.58**, Coder IQ1_M at 64K:
+    `--prefill auto` answers a 1,581-token prompt and **aborts on every prompt of ~2,300 tokens or more**
+    (`could not copy experts 256.. of layer 0`, exit **`0xC0000409`**, server restarts, aborts again); five auto arms
+    abort (bare, `auto:8192`, +`--vram-reserve-mib 1024`, +`STRATA_PREFILL_CPU_SHARE=0`, without `--mtp`) and **six fixed
+    chunks 1024-4096 abort 0 times**. Static gate: `generate.cpp:10886` turns the small-card layer-major walk on only for
+    an auto chunk. Our ladders declare `--prefill 2048` for other reasons - make it a rule, and treat an auto-chunk
+    Strata arm as VOID.
+  - **STRATA `#5852` MEASURES OUR PACK'S KV ON OUR ENGINE LINE: Q2_0 at `--kv int8` IS 12.3-12.4 KiB/TOKEN, `q4_0` IS
+    6.9, AND `--kv-resident` IS THE VRAM LEVER.** Engine **0.1.47** (ours), RTX 5090, Docker 0.2.2-cuda13, from the
+    engine's own start line: 65,536 int8 = **0.77 GiB**; 262,144 int8 = **3.09**; 1,048,576 int8 = **12.38**; q4_0
+    **6.9**. At 1M int8 the session's KV leaves the expert cache at **`0 slots`**, the prompt path cannot allocate and
+    the server exits - the engine's advice names context, `--kv q4_0` and the reserve, and the flag that moves it is
+    `--kv-resident` (1,147 -> 7,302 slots, **76.7 -> 93.8 tok/s**, cache hit **48-58 % -> 92-93 %**). `--pool-cores` at
+    12 logical processors halves decode (**76.7 -> 34.8**) because the pool is doing what the cache cannot. Our 65,536
+    int8 declaration therefore costs **0.77 GiB** of pinned RAM, and `q4_0` halves it.
+  - **STRATA `#5839`: 0.2.13's OWN SERVING CODE ENDS AGENT TURNS WITH REASONING ONLY.** 4090, Windows, Flash-Next
+    UD-IQ3_XXS, **Terminal 0.2.13 / Control 0.1.59 / engine 0.1.59**: partial `reasoning_content`, **empty `content`**, no
+    tool call, `finish_reason="stop"` - **3 empty replies in 6** (736/217/346 completion tokens), with the real **EOS
+    (248046) arriving while the model quotes a control marker**. That is our harness's `clean_finish: false` shape, on
+    the release we would bump to. The PR list also priced three bump hazards: **`#5841`** `--mtp-q4 all` **exits 1** on an
+    IQ4_XS head (`#5842` fixes it), **`#5836`** `/v1/models` **drops the context window**, **`#5869`** `strata launch`
+    **rejects Qwen3.6-35B-A3B**.
+  - **OLLAMA `#19457`: CONTEXT SHIFT RE-APPLIES THE YaRN AMPLITUDE TO CACHED KEYS, MULTIPLICATIVELY.** An independent
+    trace at **`LLAMA_CPP_VERSION` = `b12257`**: `build_rope_shift` re-ropes **already-roped** keys with
+    `cparams.yarn_attn_factor`, so each shift multiplies the cache (and the `--keep 4` prefix) by **1.138629**
+    (deepseek-r1:8b), **1.190238** (phi3.5), **1.459129** (olmo-3); measured **MATH-500 4/160 -> 38/160** and
+    **GSM8K 24 -> 0/30 after six shifts**, cured only by `ollama stop`. Fix belongs **upstream**, not in `llama/compat/`.
+    `[INFERENCE]` 1.138629 is `1 + 0.1 ln 4`, the same **mscale** Strata prints for a yarn factor 4 (`#5852`) - a
+    different code path, and a reminder that "yarn scaling" is no longer only a precision question. Our rows used
+    `-c 32768` without shift; one grep of retained logs for `context shift` settles it.
+  - **OLLAMA `#19670` IS THE FIFTH ENGINE WHOSE OWN PREDICTION DISAGREES WITH REALITY, AND `#17857` DATES OUR `ollama ps`
+    CAVEAT.** `#19670` (new, with unit cases that fail without the fix): an iGPU with a **firmware/UMA carve-out** is
+    capped at free system RAM, so a 96 GiB Strix Halo reports `available="27.2 GiB"` and a 120B load puts **36 GB** in
+    CPU buffers until the kernel OOM-kills it; the fix treats a carve-out larger than system memory as its own memory.
+    `#17857` - the fix for `#17251`, where a draft model's buffer lines **replaced the target's** so a 30B dflash read
+    **~2.3 GB** in `ollama ps` against **21 GB** - has been **open since 2026-08-18**.
+  - **LLAMA.CPP: 41 COMMITS, 41 MERGED PRs, NEWEST TAG `b12318` (11:36:10Z), AND A FIVE-PR SERVER SECURITY CLUSTER.**
+    `#32133` keeps the server awake while a request uses its state (fixes `#29689`, **ZDI-CAN-30902**, 3 of 3 failures
+    without), with `#32115`/`#32113`/`#32098`/`#32120` closing CORS-proxy, DNS-rebinding and child-instance paths. Also
+    merged: `#26048` **NVFP4 prefill** fused into the MMQ epilogue, `#31533` few-row MMQ for BS 2-24, `#32067` empty MoE
+    tiles, `#32089`/`#32043` graph-result reuse and metadata pages, `#32100` split-aware prefetch, and four `mtmd` PRs
+    that now **require** the projector tensors. `#28898` (**fp8/nvfp4 scale plumbing**) is **still open** - *"I'll update
+    this soon"* 2026-11-11T09:35Z - so **FP8 KV is one route, not two**, and the build gate becomes **`>= b12318`**.
+  - **HFR: OUR REFERENCE PACK MOVED AGAIN WITH THE SAME SOURCE, AND CLEF ARRIVED AT 16.59 GB.**
+    `ggml-org/Qwen3.6-35B-A3B-GGUF` **`eb0b3cc97f` -> `52f9f9b805`** (2026-11-12T11:11:39Z), 14 files, `.src_sha`
+    **identical** (`PRIMARY=345d467b`, `DFLASH=f181eece`), Q4_K_M **20,542,732,576 B = 19,591.25 MiB** (was 19,591) - so
+    a **third conversion of the same source** with a 0.25 MiB size change that no size, count or `.src_sha` check can
+    see, and our staged copy is four conversions old. Its README now advertises `llama serve -hf` and llama.app.
+    **`prithivMLmods/clef-GGUF`** (2026-11-12T06:37Z, apache-2.0, **348 downloads**) has a **Q4_K_M at 16.59 GB** against
+    the 54.06 GB BF16 that kept `clef` out of the decision track. The other four tracked packs are unchanged.
+  - **MACaQ - HUAWEI'S MODEL-AGNOSTIC CALIBRATED QUANTIZER - IS THE WINDOW'S BEST NEW TOOL AND IT TOUCHES BOTH TRACKS.**
+    **[HN]** 124 points, 30 comments, 2026-11-11T20:23:57Z; repo `huawei-csl/MACaQ`, created 2026-11-10, pushed today,
+    **175 stars**, **Apache-2.0**, paper **arXiv 2611.10649**. Claims **a 122B quantized in 64 min on 32.5 GB of device
+    memory** and *"lower perplexity than MR-GPTQ and DuQuant++, or match their best Llama-3-8B perplexity with 11x less
+    quantization time"*; backends **llama.cpp (2/3/4-bit GGUF)**, vLLM, **Diffusers W4A4**, PyTorch. Two properties are
+    ours: **`MACaQ-R` refines an existing GGUF while keeping standard llama.cpp compatibility** (a no-new-model
+    experiment on packs we already hold), and its Diffusers table names **`FLUX.2-klein-4B`**, the checkpoint our image
+    arm stages. A pack built with it ships its own **`recipe.json` (561,899 B)**.
+  - **COLIBRI `#2764` IS THE THIRD "SESSION STATE DEGRADES" REPORT THIS MONTH.** `dev` `15f810f0`, Windows/WSL2, RTX
+    5090, Qwen3.8 UD-IQ2_XS + MTP: after **~40 requests** in one process, **8 of 8** tool-call answers are **garbled**,
+    and the same request is **5 of 5** correct after a restart; not reproducible on a fresh server under five settings.
+    Unmerged and worth naming: **`#2774`** decodes **22.45 -> 9.55 s** for 35 tokens on a 16 GB card with **identical
+    greedy text** (experts 525 -> 218 ms/token, attention 81 -> 23). And **`#2712`**'s independent adversarial review
+    reproduces the packed KV bytes on **40,000/40,000 rows** with **0 differing e4m3 codes in 20.48 M**.
+  - **Shortlist, cheapest first**: (1) declare the KV arithmetic (`12.4 KiB/token` int8, `6.9` q4_0, **0.77 GiB at our
+    65,536**) and `--kv-resident` (an edit plus one start); (2) make `--prefill auto` a VOID and keep the explicit chunk
+    (an edit); (3) re-label the 512 MiB cache rung "expected below the no-cache control" and bind the share A/B to the
+    fill state (an edit); (4) record that an Ollama rate is a no-cache rate - checked in `llm/llama_server.go` - and that
+    `#17857` has been open since August (an edit plus one grep); (5) read device-local memory beside free commit at ready
+    and after idle (two starts, ~15 min); (6) the image re-baseline, now justified three ways (one pair, gated);
+    (7) `clef` Q4_K_M **16.59 GB** on the frozen decision set (gated download). Items 1-4 are edits; nothing was started.
+  - **Gated on Kevin**: the **0.2.13 / engine 0.1.59 / Control 0.1.59** bump (fourth scan unchanged, now with **three**
+    more declaration fields - KV arithmetic, fixed `--prefill`, reasoning-only stop - and three more bounds: `/v1/models`
+    drops context, the launcher rejects Qwen3.6-35B-A3B, `--mtp-q4 all` exits 1); a **llama.cpp download, now best named
+    `>= b12318`** for the security cluster alone; the DeepSeek IQ2_XXS download and the ISTA-DAS Coder route (still
+    token-corrupting, `#5705`); the candidate tests; the display-to-iGPU cable change; the TTQ 35B-A3B pack; the Colibri
+    `v2.1.0`/`dev` probe (now with a garbled-after-40-requests report and an unmerged 2.3x decode branch); the Clover
+    (an abliterated port appeared today) and Groot task checks; the 0.1.56/0.1.57/0.1.58 control; one ComfyUI image
+    pair (now the strongest gated item); and `clef` Q4_K_M. **[ARX] did not advance** - third count of the same 11
+    November batch (178 cs.CL / 383 cs.LG ids). **[RD] 403 on all three endpoints, 1,522 B - seventeenth failure in
+    eighteen days.** **[HN]** 1,123 stories in window, 200-story cap, MoE 1 match.
+
 - **2026-11-11, daily scan: llama.cpp merges an FP8 KV cache and deletes the GDN knobs, ComfyUI's host-buffer staging
   takes a second NVMe off the Windows bus, and Ollama's VRAM-accounting fix is closed without merging.**
   `NEWS-2026-11-11.md`, written against **`NEWS-2026-11-10.md`**, which closed at **2026-11-10T14:30Z**; window

@@ -619,6 +619,31 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-12 &middot; [Daily news scan: ComfyUI's 12 GB Dynamic-VRAM failure is three separate bugs with bit-identical fixes, a per-card table shows a small MoE cache slower than no cache at all, and llama.cpp's idle weights leave VRAM when commit headroom exists](NEWS-2026-11-12.md)**
+&ndash; a **24.0 h** window (2026-11-11T14:30Z &rarr; 2026-11-12T14:30Z). **ComfyUI filed four issues in one minute on one
+12 GB card - v0.45.0 + aimdo 0.6.0, FastH3 at 109k video tokens - and each fix is measured bit-identical**: the MLP
+materialises every token at once (a **6.3 GB** bf16 `fc1` buffer against **0.9 GB** chunked, *"max diff 0.0"*), the
+malloc graph keeps its VRAM between sampling steps so step 2 OOMs with **~28 MB free** while torch held under 700 MB, and
+the VSA RoPE cache keys on a `weakref` that never matches. **`#17704` is the same subsystem silently dropping a LoRA
+patch: 0.000 mean pixel difference and 0.00 % of pixels against 47.8 and 99.98 % with Dynamic VRAM off.**
+**A per-card table now says a small MoE cache is slower than no cache at all**: a 5060 Ti reads **18.7 tok/s** where it
+read **44** with no cache, a 2080 Ti **23.5** where it read **42**, and the CPU share recovers both - and the claim that
+**Ollama never passes the flag** is true in source (`llm/llama_server.go` at `main` has no `moe-cache` string), so every
+Ollama row we hold is a **no-cache** row. **llama.cpp `#32124` shows Windows evicting ~30 GiB of idle device-local
+weights to ~0.1 GiB *"within one sample"* when commit headroom exists** (TTFT 35-50 s against 22 s), with an AMD KMD D3
+root cause and an Intel witness. **Strata `#5104` supplies the control our chunk rule already followed**: `--prefill auto`
+aborts on every prompt over ~2,300 tokens on a Windows **build 26300** box at engine 0.1.58, while six fixed chunks from
+1024 to 4096 abort zero times; and **`#5852` measures our pack's KV on our engine line** - Q2_0 at `--kv int8` is
+**12.4 KiB/token** (**0.77 GiB at our 65,536**), `q4_0` is 6.9, and `--kv-resident` is the flag that decides how much of
+the session sits in VRAM (1,147 &rarr; 7,302 slots, 76.7 &rarr; 93.8 tok/s). **Ollama `#19457` traces a context shift
+that re-applies the YaRN amplitude to already-roped keys**, multiplying the cache per shift (MATH-500 4/160 &rarr;
+38/160); **`#19670`** is the fifth engine whose own memory prediction is wrong. **[HN] Huawei's MACaQ** (124 points,
+Apache-2.0, arXiv 2611.10649) ships a llama.cpp backend and a `MACaQ-R` mode that refines an existing GGUF - and names
+`FLUX.2-klein-4B`, our image arm's checkpoint. [HFR] our reference pack moved to a **third conversion of the same source**
+with a 0.25 MiB size change no size or `.src_sha` check can see; `clef` arrived at **Q4_K_M 16.59 GB**. [ARX] did not
+advance - third count of the same batch. [RD] 403, seventeenth failure in eighteen days. No engine started, `ai_bench`
+untouched, WSL shut down and verified.
+
 **2026-11-11 &middot; [Daily news scan: llama.cpp merges an FP8 KV cache and deletes the GDN knobs, ComfyUI's host-buffer staging takes a second NVMe off the Windows bus, and Ollama's VRAM-accounting fix is closed without merging](NEWS-2026-11-11.md)**
 &ndash; a **24.0 h** window (2026-11-10T14:30Z &rarr; 2026-11-11T14:30Z). **llama.cpp merged `#28392` "Add FP8 KV-cache
 support" (+710/-25) at 2026-11-10T16:08:33Z, and `b12274` is the first tag carrying it** - `compare/202c1a22...b12273` is
