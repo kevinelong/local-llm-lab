@@ -362,6 +362,26 @@
     still expected down); and one ComfyUI image pair - **now with a reason: `#17690` says Dynamic VRAM rounds bf16 LoRAs
     away**, a same-seed output change.
 
+- **2026-11-13, model-selection policy (Kevin): uncensored, fits, coding - in that order of preference, all three
+  required.** A model is a candidate only if (1) it is an uncensored/abliterated artifact where one exists, (2) it fits
+  this box - 12,227 MiB VRAM and 63.5 GiB RAM, which in practice means a **MoE at <= ~22 GB** run with experts in RAM
+  (`--cpu-moe` / `-ncmoe`), never a dense model above ~20 GB - and (3) the work is coding. Applied on 2026-11-13 to the
+  Ollama store (156.5 GB -> 75.5 GB, 81 GB reclaimed, C: 80 -> 144 GB free):
+  - **`Qwen3-Coder-30B-A3B` is the current official coder** - `ggml-org` publishes nothing newer (its newest repos are
+    **Qwen3.8-Flash-Next, Qwen3.8-27B, Qwen3.6-35B-A3B, Qwen3.6-27B**), so "there is a newer coder to download" was
+    false and the model stays until an uncensored 30B-A3B replaces it.
+  - **The replacement that fits: `mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF`** (134,611
+    downloads): IQ4_XS **16.4 GB**, Q4_K_M **18.6 GB**, Q3_K_M 14.7 - the same MoE shape as the model it replaces, so
+    the measured rates transfer (`qwen3-coder:30b` ran 34 tok/s here; the 35B-A3B pack 47-83).
+  - **Rejected on the memory rule, with the number that rejects them:** `Huihui-Qwen3-Coder-Next-abliterated` starts at
+    **IQ4_XS 43.1 GB** (Q4_K_M 48.5); `LuffyTheFox/Qwopus3.6-35B-A3B-Coder-Uncensored-Genesis-MTP` ships only
+    **Q8_0 37.8 GB**; and the most-downloaded uncensored coder of all,
+    `DavidAU/Qwen3.8-27B-TURBO-Fable-...-Heretic-Uncensored-NEO-CODER-MAX-MTP` (1.6 M downloads), is **dense 27B** -
+    it fits RAM and still runs at our measured **4.3 tok/s** for a dense 27B, which is not a coding agent.
+  - **Variant rule, unchanged from the scans:** take the official `ggml-org` quant for a first measured row, and prefer
+    a community variant only when it declares something checkable - an **MTP head** (+31.2 %/token measured here), an
+    **expert allocation table** (GSQ-RCO), or **fewer bytes at equal measured quality** (UD v3.1 ~111 GB vs GSQ-RCO
+    3-bit <70 GB at the same speed). Names like `Qwopus`, `Holo3`, `qx64y`, `heretic` carry no measurement here.
 - **2026-11-10, daily scan: llama.cpp merges a Windows unbuffered load path and a separate PLE shard, the CPU share that
   is on by default makes Strata output non-reproducible, and a cache-tuning fix was closed unmerged.**
   `NEWS-2026-11-10.md`, written against **`NEWS-2026-11-09.md`**, which closed at **2026-11-09T14:30Z**; window
