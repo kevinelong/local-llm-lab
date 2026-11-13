@@ -365,7 +365,10 @@
 - **2026-11-13, model-selection policy (Kevin): uncensored, fits, coding - in that order of preference, all three
   required.** A model is a candidate only if (1) it is an uncensored/abliterated artifact where one exists, (2) it fits
   this box - 12,227 MiB VRAM and 63.5 GiB RAM, which in practice means a **MoE at <= ~22 GB** run with experts in RAM
-  (`--cpu-moe` / `-ncmoe`), never a dense model above ~20 GB - and (3) the work is coding. Applied on 2026-11-13 to the
+  (`--cpu-moe` / `-ncmoe`); a dense model fits up to about ~20 GB - and (3) the work is coding. **Speed is a declared
+  field, never a veto** (Kevin, 2026-11-13): a slow model stays a candidate when its **reasoning or knowledge measures
+  higher** than the models we retain, because those tasks do not care about tok/s - an offline batch, a plan, a hard
+  review, one deep answer. The veto list below is therefore a **memory** list only. Applied on 2026-11-13 to the
   Ollama store (156.5 GB -> 75.5 GB, 81 GB reclaimed, C: 80 -> 144 GB free):
   - **`Qwen3-Coder-30B-A3B` is the current official coder** - `ggml-org` publishes nothing newer (its newest repos are
     **Qwen3.8-Flash-Next, Qwen3.8-27B, Qwen3.6-35B-A3B, Qwen3.6-27B**), so "there is a newer coder to download" was
@@ -373,11 +376,16 @@
   - **The replacement that fits: `mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF`** (134,611
     downloads): IQ4_XS **16.4 GB**, Q4_K_M **18.6 GB**, Q3_K_M 14.7 - the same MoE shape as the model it replaces, so
     the measured rates transfer (`qwen3-coder:30b` ran 34 tok/s here; the 35B-A3B pack 47-83).
-  - **Rejected on the memory rule, with the number that rejects them:** `Huihui-Qwen3-Coder-Next-abliterated` starts at
+  - **Rejected on the memory rule alone, with the number that rejects them:** `Huihui-Qwen3-Coder-Next-abliterated` starts at
     **IQ4_XS 43.1 GB** (Q4_K_M 48.5); `LuffyTheFox/Qwopus3.6-35B-A3B-Coder-Uncensored-Genesis-MTP` ships only
     **Q8_0 37.8 GB**; and the most-downloaded uncensored coder of all,
-    `DavidAU/Qwen3.8-27B-TURBO-Fable-...-Heretic-Uncensored-NEO-CODER-MAX-MTP` (1.6 M downloads), is **dense 27B** -
-    it fits RAM and still runs at our measured **4.3 tok/s** for a dense 27B, which is not a coding agent.
+    `DavidAU/Qwen3.8-27B-TURBO-Fable-...-Heretic-Uncensored-NEO-CODER-MAX-MTP` (1.6 M downloads) is **dense 27B**.
+  - **The most-downloaded uncensored coder of all is ADMISSIBLE, not rejected**: that DavidAU 27B heretic/Qwen3.8 coder
+    **fits** (~16-17 GB at Q4 against 63.5 GiB of RAM) and carries **MTP**; its cost is our measured **4.3 tok/s** for a
+    dense 27B, which makes it a *quality-at-leisure* model - admissible for offline batch, planning and hard one-shots,
+    never for an agent loop. It becomes a real candidate the moment the 414-check ranked subset or the 1,100-item
+    knowledge instrument says its reasoning/knowledge is **above** Qwen3.6-35B-A3B (414/414, 88.5-89.7 %). Until that
+    comparison exists, its slowness is a declared property and not an argument against it.
   - **Variant rule, unchanged from the scans:** take the official `ggml-org` quant for a first measured row, and prefer
     a community variant only when it declares something checkable - an **MTP head** (+31.2 %/token measured here), an
     **expert allocation table** (GSQ-RCO), or **fewer bytes at equal measured quality** (UD v3.1 ~111 GB vs GSQ-RCO
