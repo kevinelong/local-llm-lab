@@ -619,6 +619,32 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-13 &middot; [Daily news scan: llama.cpp ships v1.0.0 with every lever this lab has been shortlisting, and a quantisation-comparison noise floor is published that is larger than the effect we have been chasing](NEWS-2026-11-13.md)**
+&ndash; a **24.0 h** window (2026-11-12T14:30Z &rarr; 2026-11-13T14:30Z). **llama.cpp published `v1.0.0` at
+2026-11-13T10:20:19Z, and `compare/b12359...v1.0.0` is `identical`, so the release's tree *is* nightly `b12359`** (b12318
+is **ahead 41**; nightly b12360, published 18 minutes earlier, is **behind by 1**). One asset - `nightly-tag.txt`, 7 bytes -
+so a download is still a rolling tag, but the tree now carries **OCP FP8 KV** (`-ctk/-ctv f8_e4m3`), **the MoE cache with a
+CPU share and LRFU/ClassLRU**, **external PLE/engram shards** (`--ple`/`--shard`) and **the Windows unbuffered load** in one
+stable release, plus ggml v1.0.0; the prune removes **35 deprecated functions, `llama_set_warmup` and `--defrag-thold`**.
+**A published noise floor reframes our decision metric**: `2611.15671` measures every non-quantisation source on 2,400
+public decisions (**0-0.92 %**, with one stack's restarts **bit-identical on every record**, vLLM restarts flipping 0/5/20,
+an engine change 6-16, a batch-size change 8-15) and sets Q4_K_M at **5.79 % / 3.50 %**, NVFP4 at **5.79 % / 5.67 %** -
+**every 4-bit interval excludes every non-quantisation source** - while **accuracy hides it**: Clef's Q4_K_M moves accuracy
+by a **net six questions (-0.02 points)** as **436 decisions get worse**. **Strata `#5876` shows KV is reserved before
+expert placement**: at `--max-context 98304` an 11 GB card places **18 of 256** experts per layer against **116 of 256** at
+32,768, so a large window costs **6x the resident experts with no warning** - and our arms declare 65,536. **`#5874` puts a
+prerequisite on the gated display change**: enabling the iGPU (monitors still on the NVIDIA card) makes the VRAM probe read
+**0 GiB** and refuses every start **4/4** on 0.2.13 / 0.1.59. `#5919` shows the GUI delivering `--kv int8` from a `q4_0`
+selection on that same bump target, `#5890` shows `draft_n` reading **0** while the batch path drafts **69.6 %**, `#5880`
+adds a **fifth** slowness report (**-12-15 %** on 0.1.57/0.1.59, with **7,623 against 7,886 cache slots** as the mechanism),
+and `#5894` bounds the DSV4.1 route at **224.8 tok/s prefill where 0.1.49.2 read 2,220.6**. Ollama's fix for yesterday's
+headline is a **32-line PR that is `blocked`**. ComfyUI's **RAM pressure cache evicts a running workflow's models** and
+reloads from disk, keyed on **free RAM** - a covariate the image track has never declared - and its APG node changes the
+result at **cfg 1.0**, the setting every staged image arm uses. [HFR] our reference pack's README now documents
+**swapping the Engram table for a llama.cpp `--ple` shard** (revision moved, **1,863,300,417,477 B** unchanged). [ARX]
+**advanced**: cs.CL **237 / 86 new**, cs.LG **611 / 186 new**. [RD] 403, eighteenth failure in nineteen days. [HN] the 1.0
+drew **4 + 4 points** across two submissions. No engine started, `ai_bench` untouched, WSL shut down and verified.
+
 **2026-11-12 &middot; [Daily news scan: ComfyUI's 12 GB Dynamic-VRAM failure is three separate bugs with bit-identical fixes, a per-card table shows a small MoE cache slower than no cache at all, and llama.cpp's idle weights leave VRAM when commit headroom exists](NEWS-2026-11-12.md)**
 &ndash; a **24.0 h** window (2026-11-11T14:30Z &rarr; 2026-11-12T14:30Z). **ComfyUI filed four issues in one minute on one
 12 GB card - v0.45.0 + aimdo 0.6.0, FastH3 at 109k video tokens - and each fix is measured bit-identical**: the MLP

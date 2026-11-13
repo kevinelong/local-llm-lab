@@ -1,5 +1,119 @@
 # Local AI lab working instructions
 
+- **2026-11-13, daily scan: llama.cpp ships v1.0.0 carrying four shortlisted levers in one stable tag, a published
+  quantisation noise floor of 0-0.92 % reframes our decision metric, and Strata reserves KV before expert placement.**
+  `NEWS-2026-11-13.md`, written against **`NEWS-2026-11-12.md`**, which closed at **2026-11-12T14:30Z**; window
+  **2026-11-12T14:30Z -> 2026-11-13T14:30Z, 24.0 h**, read interval **14:30Z -> ~14:40Z** from this run's own start line
+  (`[Fri 11/13/2026  6:30:01.31] daily news scan start`). The task's last run was **11/12 06:30 (result 0, `verify OK`)**
+  and its next is **11/14 06:30**, so it is healthy and armed; today's run is it. Reading only - nothing downloaded as a
+  model, installed, built or run, **no engine started**, no inference, no benchmark, **`ai_bench` untouched**. WSL
+  started **once** (`gh`, `curl`, `yt-dlp`) and shut down, verified.
+  - **llama.cpp PUBLISHED `v1.0.0` AT 2026-11-13T10:20:19Z - THE FIRST 1.0 - AND `compare/b12359...v1.0.0` IS
+    `identical`, SO THE RELEASE'S TREE *IS* NIGHTLY b12359** (`b12318` is **ahead 41**; nightly `b12360`, published 18
+    minutes earlier, is **behind it by 1**, so it is not the release). One asset (`nightly-tag.txt`, 7 B), as with
+    `v0.8.0`/`v0.9.0`, so **a download is still a rolling tag**. On our axes in one stable tree: **OCP FP8 KV**
+    (`-ctk/-ctv f8_e4m3`, with optional static per-tensor scales, `#28392`), **the MoE cache with a CPU share and
+    LRFU/ClassLRU plus no CPU wait on cached experts** (`#30966`, `#31233`, `#31888` - and `moe_cache_size`/
+    `moe_cache_cpu_share` are now in `llama_context_params`), **external PLE/engram shards** (`--shard`/`--ple`,
+    `#31185`), **the Windows unbuffered model load** (`#26014`), plus scheduler/graph reuse (`#32009`/`#32089`/`#32043`),
+    the GDN+ubatch-budget deletion (`#32078`), the quantised-KV state-copy fix (`#30541`), `/v1/audio/speech`, four new
+    architectures and **ggml v1.0.0**. **The prune matters to our notes: `llama_set_warmup`, 35 deprecated functions,
+    `defrag_thold` and `--defrag-thold` are removed** and the NextN/speculative API is promoted into `llama.h`. **`#28898`
+    is still open** (updated today 07:04Z), so FP8 KV is a **one-route** row; unverified and stated as such: whether the
+    default Windows CUDA build compiles the FP8 FA kernel, and whether `--ple` opens the *unsloth* layout. **The build
+    gate therefore becomes `v1.0.0` / `>= b12359`**, retiring the `>= b12318` name four scans old.
+  - **`#32170` (open PR, 2026-11-12T23:04Z) WOULD END KV-BEFORE-EXPERTS: LAZY KV ALLOCATION IN 1 MiB BLOCKS.** Its own
+    numbers: 1B at **1,048,576 tokens 8.24 -> 0.86 GiB**, 4B at **262,144 8.94 -> 4.41**, CPU-only 1B at 262k
+    **2.87 -> 1.27**, generation within **1 %** on GPU and **~1 % slower on CPU**, *"responses byte-for-byte
+    identical"*, in its author's production since 12 November. That is a prediction about the **0.77 GiB at 65,536**
+    KV declaration this file adopted yesterday, not a switch yet.
+  - **STRATA `#5876` MEASURES THE ORDERING AND IT IS OUR DECLARATION: KV IS RESERVED BEFORE EXPERTS ARE PLACED.** On an
+    11 GB card with a q36 pack, `--max-context 98304` reserves **~8.4 GB** of KV and places **18 of 256** experts per
+    layer; **32,768 places 116 of 256**; decode at 24K reads **27.7 against 29.8 tok/s** (~7 %, because that context is
+    attention-bound) and prefill is **~380 in both**. **Choosing a large window costs 6x the resident experts with no
+    warning** - and our arms declare **65,536**. The engine's placement line is the field our JSON lacks.
+  - **STRATA `#5874` PUTS A PREREQUISITE ON THE GATED DISPLAY CHANGE: WITH THE iGPU ENABLED (MONITORS STILL ON THE
+    NVIDIA CARD) THE VRAM PROBE READS 0 GiB AND NO START IS POSSIBLE.** RTX 4090 24 GB, **app 0.2.13 / engine 0.1.59**,
+    Windows: `--expert-cache auto` refuses **4/4** with reserves 1024/512/256 (`needs at least 291 slots (966 MiB), about
+    2372 MiB more than this card has free` while `nvidia-smi` reads ~22 GiB free), `--expert-cache 5000` fails the
+    embedding allocation, and disabling the UHD 770 restores `expert cache auto: 16.71 GiB free ... -> 4652 slots`.
+    So the +20-30 % the 2026-10-26 video credits to moving the display can, on the bump target, stop the engine instead.
+  - **A FIFTH SLOWNESS REPORT, ON WINDOWS AND NVIDIA, WITH THE MECHANISM OUR ROWS SHOULD CARRY: `#5880`.** RTX 5060 Ti +
+    3060 layer split, IQ3_S, median of 8 answers per run, 0.1.52 **66.9/69.5/69.5/64.5/67.8** against 0.1.57
+    **60.5/59.7/58.6/57.3** and 0.1.59 **58.6/55.5/56.5/56.0/58.5** (**-12-15 %**), prompt unchanged, and the logs show
+    **0.1.59 holding 7,623 cache slots where 0.1.52 held 7,886** - a memory effect, not a kernel one, with
+    `STRATA_ADAPT_FETCH` inert on a layer split. The gated 0.1.56/0.1.57/0.1.58 control gains a **0.1.59 arm** and its
+    declaration gains **"expert cache slots at start"** on both sides.
+  - **`#5919` IS THE DELIVERED-VALUE RULE ON THE BUMP TARGET: THE GUI'S "Context memory" REVERTS TO INT8 AND `--kv q4_0`
+    NEVER REACHES THE ENGINE** (0.2.13 / `0.1.59-windows-x86_64-cuda-cuda13` / RTX 3060 12 GB; the reporter's log reads
+    `--kv q4_0` at 11-09 16:36 and 16:40, then `--kv int8` from 17:13 on, and an `args` entry does not appear either).
+    Since this file adopted `#5852`'s KV arithmetic into the bump's declaration, **an arm must read `--kv` back from the
+    engine argv, not from the app.** Related: **`#5890`** shows `timings.draft_n` reading **0** while the batch path
+    drafts **69.6 %** (1,655,458/2,377,984 in `/metrics`) - the third instance of "the acceptance log line is the only
+    witness"; **`#5894`** bounds the gated DSV4.1 route at **224.8 tok/s prefill at 131K where 0.1.49.2 read 2,220.6**
+    (one worker thread, wrong NUMA node, two-GPU prefill only 13 % faster); and `#5895`, `#5882`, `#5877`, `#5835`,
+    `#5824`, `#5701`, `#5441`, `#5913`, `#5920` are named and unranked.
+  - **A PUBLISHED NOISE FLOOR ON THE AXIS OUR DECISION TRACK REPORTS: `2611.15671`, 2,400 public decisions, Clef-flash
+    9B and Clef 27B, one GB10.** Non-quantisation sources move **0-0.92 %** of decisions (one stack's restarts are
+    **bit-identical on every record**; vLLM restarts flip **0/5/20** and **4/0/22** at BF16/FP8/NVFP4; an engine change
+    **6-16**; a batch-size change **8-15**; the **Gated DeltaNet kernel transformers selects unasked 10-14**), while
+    quantisation inside one engine flips **0.88/1.04 % at Q8_0, 2.12/1.62 at FP8, 5.79/3.50 at Q4_K_M, 5.79/5.67 at
+    NVFP4** - **every 4-bit interval excludes every non-quantisation source**. **Two of five pre-registered predictions
+    failed** (FP8 is not inside restart noise; an engine change moves fewer decisions than 8-bit). And **accuracy hides
+    it**: Clef's Q4_K_M moves accuracy by a **net six questions (-0.02 pts [-0.20, +0.16])** while **436 decisions get
+    worse**. So a decision row reports the **share of records whose label flipped**, beside accuracy, with its interval.
+  - **`2611.15842` PRICES THE ROUTING LEVER WE OPT INTO.** OLMoE-1B-7B, L40S, real timed CPU->GPU copies: **every policy
+    that fixes an expert set and decodes faster than LRU raises next-token loss by at least 0.067 nats**; evicting the
+    **farthest-next-use** expert instead copies **2.1x fewer experts at no quality loss**, within **3.5 %** of the floor,
+    and **the next 16 tokens of demand recover 96 %** where **past-request counts recover 27 %**. Our
+    `STRATA_ROUTE_PRIOR=1.5` (+22.9 % perplexity, AIME -10.0 for +45 %) is the same family and the same direction. Also
+    named: `2611.13607` (byteifying a 27B hybrid), `2611.16694`, `2605.12476`, `2611.16714`, `2610.32955`. **[ARX]
+    ADVANCED** for the first time since 11-11: cs.CL **237 entries / 86 new**, cs.LG **611 / 186 new**.
+  - **COMFYUI'S RAM PRESSURE CACHE EVICTS THE RUNNING WORKFLOW'S MODELS AND RELOADS FROM DISK, AND IT IS KEYED ON FREE
+    RAM - A COVARIATE THE IMAGE TRACK DOES NOT DECLARE.** `#17732` (2026-11-13T13:50Z, master `dc9ffe6add`): after **each
+    node** `ram_release(ram_headroom, free_active=True)` runs, and in `RAMPressureCache.ram_release` **only entries whose
+    outputs are all dynamic are skipped**, so a non-dynamic `CLIP`/`ModelPatcher` output (e.g. `--highvram`) is evicted
+    although its `ram_usage` counts only CPU tensors - freeing nothing and forcing a reload, on Linux for any shortfall.
+    `#17733` is the fix PR. Our arms admit on **free VRAM** and score **same-seed PNG bytes**, so two runs can differ only
+    because free RAM crossed a threshold. **`#17723`** adds a sampler defect on the same axis: APG at **cfg 1.0** applies
+    `torch.zeros_like(x)` as the negative because `calc_cond_batch` still returns two outputs, so its
+    `len(conds_out) == 1` guard never fires - and every staged image arm runs cfg 1.0. **v0.45.1 and v0.45.2 are tagged
+    and both 404 as releases**, the `v0.43.1`/`v0.43.2` shape again; newest published is still **v0.45.0**.
+  - **OLLAMA'S YARN SHIFT FIX EXISTS, IS 32 LINES, AND IS BLOCKED.** `#19680` (+31/-1, `Fixes #19457`) makes the shift
+    amplitude-neutral with `rp.attn_factor = 1/(1+0.1*log(1/freq_scale))` when `ext_factor != 0`, so the scale is exactly
+    `1.000000`; `mergeable_state` is **`blocked`**. Stable is still **v0.40.16**, rc0 still **b12257** - 67 builds below
+    the FP8-KV first tag and far below v1.0.0 - so **no Ollama build we can name carries either fix or either lever**.
+  - **COLIBRI `#2793` IS A SILENT FALLBACK WITH A PRINTED EXCUSE: `[VK] tier qwen36: the device stopped answering, the
+    experts stay on the CPU`, NO FENCE ERROR, AND THE CHAIN KEEPS RUNNING** (RTX 3070 8 GB, Vulkan, Linux, dev
+    `b92eccd7`: a 12.7k prompt takes **~300 s instead of 13 s** in 3 of 4 runs, decode **10 tok/s instead of 40-50** until
+    restart, **42.95 GiB copied over PCIe** for the prompt; `G.ready` cleared inside `vk_fence_wait` returns). Its
+    `#2797` gives the best published arithmetic for 1M-context indexers: the candidate mask is a dense `n x n` byte
+    buffer - **0.25/4/16/64 GiB at 16K/64K/128K/262144** - and block ids cut it to **2 GiB**. No release since v2.1.0
+    (**13 days**).
+  - **A PACK'S README DOCUMENTED THE LEVER THE NEW RELEASE JUST SHIPPED.** `unsloth/Qwen3.8-Flash-Next-GGUF` moved
+    **`084c631ac2` -> `f5d175de`** (2026-11-13T10:49:42Z) on a commit titled *"Document swapping the Engram table with
+    llama.cpp --ple (#107)"* - **77 files, 1,863,300,417,477 B**, the same 1,863.3 GB, so **README-only and invisible to
+    every size check**. The 28.8 GB tail shard in every quant set is that table, so the pair (pack documentation +
+    `--ple`) is the first route here that keeps it off a 12 GB card in a standard format. Six other tracked packs
+    unchanged by revision and lastModified.
+  - **Shortlist, cheapest first**: (1) rename the build gate to **`v1.0.0` / `>= b12359`** with three caveats - `#28898`
+    open so FP8 KV is one route, `--ple` untested against the unsloth layout, and 35 deprecated functions plus
+    `--defrag-thold` removed (an edit); (2) make **the engine's received `--kv` value** a declaration field
+    (`#5919`, an edit); (3) add **experts resident per layer** beside the cache rung and an **iGPU-enabled start as
+    VOID** (`#5876`, `#5874`, an edit); (4) **two starts at 32,768 vs 65,536** reading the placement line and decode at
+    24K (~15 min); (5) **one image pair** for `#17732` (free-RAM covariate) once the card is idle (~15 min); (6) **gated
+    v1.0.0** - `-ctk f8_e4m3` against `q8_0` plus the `--moe-cache-cpu-share` 0/0.5/0.95 ladder at a fixed 1,500 rung
+    (~40-60 min); (7) **gated `--ple` Engram route** (the 28.8 GB table alone). Items 1-3 are edits; nothing was started.
+  - **Gated on Kevin**: the **0.2.13 / engine 0.1.59 / Control 0.1.59** bump (fifth scan) now carrying **three more
+    fields** - the delivered `--kv` value, the placement line, and iGPU-enabled as a VOID - and a **fifth control arm at
+    0.1.59**; a llama.cpp download, **now `v1.0.0`**; the DeepSeek IQ2_XXS download (now bounded by the ~220 tok/s prompt
+    rate of `#5894`); the ISTA-DAS Coder route; the candidate tests; the **display-to-iGPU cable change** (`#5874` is its
+    prerequisite now); the TTQ 35B-A3B pack; the Colibri probe (`#2764` and `#2793` open); Clover/Groot; one ComfyUI
+    image pair (now `#17732` + `#17723`); and `clef` Q4_K_M 16.59 GB, now with the flip-share metric from `2611.15671` as
+    its instrument. **[RD] 403 on both endpoints, 189,908 B - eighteenth failure in nineteen days.** **[HN]** 1,090
+    stories in window, 200-story cap; the 1.0 itself drew **4 + 4 points** across two submissions, so the release body
+    is the record and not the thread.
+
 - **2026-11-12, daily scan: ComfyUI's 12 GB Dynamic-VRAM failure is three separate bugs whose fixes are bit-identical, a
   per-card table shows a small MoE cache slower than no cache at all (and Ollama can never turn it on), and llama.cpp's
   idle weights are evicted from VRAM when commit headroom exists.**
