@@ -362,6 +362,20 @@
     still expected down); and one ComfyUI image pair - **now with a reason: `#17690` says Dynamic VRAM rounds bf16 LoRAs
     away**, a same-seed output change.
 
+- **2026-11-13, privacy: the rust_lessons work is a PRIVATE repository (Kevin).** `kevinelong/rust_lessons` was
+  **public** until today and was flipped with kevinelong's instruction ("make sure the work is in a private github repo"):
+  verified `gh api repos/kevinelong/rust_lessons --jq .visibility` -> **private**, and there was **no Pages site** on either
+  repo (`/pages` answered 404 before the change), so nothing public was broken by it.
+  - **`kevinelong/rust-lessons-releases` stays public** and that is not an oversight: the `<project>-releases` pattern
+    exists to hold release **assets** (MP4s, SRTs, `SHA256SUMS`, binaries), never source. Source privacy and asset
+    publishing are different decisions.
+  - The trigger for the rule was a **study of a third party's site** (`ask-codey.com` - structure, imagery, character,
+    humour) being written into `docs/research/`. That kind of note belongs in a private repo, and so does any work that
+    characterises someone else's product, whether or not it quotes them.
+  - Standing consequence, matching the existing "never make a private repo public without asking" rule: **when a new
+    surface or a competitive study starts in one of Kevin's repos, check its visibility first** -
+    `gh api repos/<owner>/<repo> --jq .visibility` - and if it must be private, say so to the workers you spawned
+    **before** they push, because a public push is not undoable by flipping the repo afterwards.
 - **2026-11-13, model-selection policy (Kevin): uncensored, fits, coding - in that order of preference, all three
   required.** A model is a candidate only if (1) it is an uncensored/abliterated artifact where one exists, (2) it fits
   this box - 12,227 MiB VRAM and 63.5 GiB RAM, which in practice means a **MoE at <= ~22 GB** run with experts in RAM
