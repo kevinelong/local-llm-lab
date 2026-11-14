@@ -26,6 +26,7 @@ incident behind it gets dropped. `[INFERENCE]` marks a claim this lab has not me
 | `engine_binary_sha256` | A locally compiled engine is not a qualified build (2026-11-01, `#4879`: a source build scored 0/10 on a tool-call probe where the prebuilt scored 10/10). | `sha256sum strata.exe`; our 0.1.47 staged copy is 203,623,936 B |
 | `engine_arch_list` | The Windows CUDA 13 asset names `sm_75/86/89/120/compute_120`; the CUDA 12 asset stops at `compute_89`. Ours is sm_120, so only the CUDA 13 asset is ours. | feed asset metadata |
 | `toolchain` | 2026-11-01: a build's `--list-devices` must name the backend you think you are measuring; local nvcc minor changes behaviour. | `--list-devices`, `nvcc --version` |
+| `llama_cpp_version` | llama.cpp rows only. **`v1.0.0` = commit `b1b770d`, published 2026-11-13T10:20:19Z** - the first non-0.x release, carrying **FP8 KV caches** and the MoE expert cache in a stable tag; newest rolling tag `b12376` (2026-11-14T08:42:49Z). **`#32245`**, filed within a day of the release: *"significant prefill performance drop on V100 (sm_70) in v1.0.0"* - not our sm_120, and the reason a versioned release is a **name** for a gauntlet, not a qualification for a row. | `--version` -> build + commit (`git rev-parse v1.0.0`); release feed |
 
 ## 2. Pack identity
 
@@ -37,6 +38,14 @@ incident behind it gets dropped. `[INFERENCE]` marks a claim this lab has not me
 | `pack_file_digest` | A size check cannot see a re-conversion; only the digest can. Per file: `name`, `bytes`, `sha256`. | `staged.json` -> `items[]`; re-verify with `sha256sum` before any row that claims identity |
 | `pack_tensor_types` | The expert **down projection** type decides whether Strata's native kernels accept the pack (`#3699`: Q4_K downs are refused; our Qwen3.6 Q4_K_M has all 40 at Q4_K). | one GGUF header read |
 | `sidecars` | mmproj / MTP / DFlash each add bytes and can be the failure: `-md` + `--mmproj` aborts every build after `#30257` (2026-11-02). | `staged.json` `items[]` for the sidecars |
+
+**2026-11-14: the reference pack moved again, twice, and the copy on disk is now three conversions old.**
+`ggml-org/Qwen3.6-35B-A3B-GGUF` -> **`52f9f9b805`** (lastModified 2026-11-12T11:11:39Z, 14 files);
+`ggml-org/Qwen3.8-Flash-Next-GGUF` -> **`a3e717e662`** (11-12T11:11:49Z, 17 files);
+`unsloth/Qwen3.8-Flash-Next-GGUF` -> **`f5d175de2c`** (11-13T10:49:42Z, 77 files). The staged
+`baec3ebee244827cda0f4557eafa8b28f7545fa6` therefore describes bytes a fresh download no longer has, and the
+11-08 measurement of what one re-conversion can do - **33 of 48 down layers moved to Q5_0, -56 % prompt throughput
+at 2.5K** - is the reason `pack_file_digest` is per file. A re-stage names the new sha **and** the expert histogram.
 
 Recorded, both re-verified on disk 2026-11-09 (sizes match `staged.json` byte for byte):
 
@@ -99,6 +108,7 @@ A "same flags, same answer" claim is a claim about **plain text at one chunk siz
 | `adapt_async` | `--adapt-async 1` states **"Not bit-exact run to run"**; 0 is the blocking tier and the default. Declare it, because an asynchronous tier in any A/B voids text identity. | `--adapt-async` argv |
 | `route_prior` | 0.1.52 printed the routing state, 0.1.55 prints nothing when the prior is off (`#5000`). So a row is **"prior absent by construction"** (pre-0.1.52) or **"prior 0"**, never both. Price at 1.5: **+22.9 % perplexity** and AIME **-10.0 pts for +45 %**. | engine log (pre-0.1.52 only); ours: absent by construction on 0.1.47 |
 | `strata_kva` | `#5289`: `STRATA_KVA=1` + a `q2_0` native pack is **8/8 SIGSEGV** on the first long prefill on 0.1.58, clean without KVA. Not our engine: **0.1.47 has no `STRATA_KVA` string at all** (2026-11-09), so it cannot be set here. The rule arms when we move to >= 0.1.55. | strings check + environment |
+| `fa_quants` / `kv_types` | A quantised-KV row names the **binary's `GGML_CUDA_FA_QUANTS`** and the K/V types: the default Windows CUDA build does not compile the `q8_0-q4_0` pair and **silently converts to f16** (2026-10-28), so the row measures f16 while claiming a quant. **2026-11-14**: `#31802` fuses **q8_0 / q4_0 / `f8_e4m3`** dequant in the MMA flash-attention kernels and is still open, while **v1.0.0 ships FP8 KV caches** - so `f8_e4m3` joins the two types our KV rows had, and the list is three. | build configuration; engine log `no FlashAttention vector kernel compiled for K/V types ... converting K and V to f16 instead` |
 | `top_k_impl` / `cccl_version` | `#31084`: tied-selection ran a **non-deterministic KLD 0.0004-0.011**, and `DeviceTopK` still serves single-token decode at CCCL >= 3.4.3. llama.cpp rows only. | build configuration |
 | `expert_profile` | Our learned `.strp` is a 48-layer x 512-expert file; English-calibrated pruning costs **1.7 English points against 21.4 Lithuanian at 25 %** (`2611.07654`), so a routing instrument is task-specific and its calibration text is a declaration. | `.strp` sha256 + the text it was learned from |
 | `compiled_locally` | A local build at the release tag, sm_120 only, nvcc 13.2, scored **0/10** on a tool-call probe where the packaged binary scored 10/10 (`#4879`). A tool-call workload's load check is a tool-call-shaped probe. | build record |
