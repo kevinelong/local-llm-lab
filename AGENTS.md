@@ -1,5 +1,127 @@
 # Local AI lab working instructions
 
+- **2026-11-14b, scheduled scan (the 06:30 run, writing beside the hand file): the MoE cache aborts at load on our
+  model family and its fix merged 14 minutes before this run without a tag, and a silent conditioning corruption in
+  ComfyUI is bit-identical in every memory mode.** `NEWS-2026-11-14b.md`, written against **`NEWS-2026-11-14.md`**,
+  which closed at **09:40Z**; window **2026-11-14T09:40Z -> 14:35Z, 4.9 h**. **This is the scheduled run**, not a
+  second one by choice: the log reads `[Sat 11/14/2026 6:30:01.35] daily news scan start` and this process began
+  14:30:11Z; the morning file was hand-written at 09:19Z because that start line did not exist then. Named with the
+  **letter before the extension** per the 2026-10-22 convention so a later same-day run cannot overwrite an earlier
+  one. Reading only - nothing downloaded as a model or installed, **no engine started, no inference, no benchmark**,
+  **`ai_bench` untouched**. WSL was already up; used for `gh`/`curl`/`yt-dlp`, then shut down. Gates at start: 33.09
+  GiB free physical, 17.73 GiB free commit of 67.46, GPU 2,502 of 12,227 MiB (no model resident).
+  - **THE DAY'S ITEM IS AN ABORT, NOT A SLOWDOWN: `#31675` / `#31775`, AND IT IS OUR SHAPE EXACTLY.** `--moe-cache-mib`
+    with **`-nkvo`** on a **hybrid MoE** model (`Qwen3.6-35B-A3B`, `Qwen3.8-Flash-Next`) **aborts during the warmup
+    decode at the end of `common_init_from_params`**, cache size independent (2048/4096/6144), with
+    `src/llama-moe-cache.cpp:560: the experts of layer 0 are selected in the same split as their MoE cache lookup`.
+    The cause is the **scheduler**, in the fix author's own words: `ggml_backend_sched_split_graph` starts a new split
+    at an incompatible weight **only if the current split already has inputs**, and on a hybrid model with `-nkvo`
+    the CPU split writes only the recurrent state (`cache_s_l0`), so router, top-k and slot map land in one CUDA
+    split. **`#31775` merged 2026-11-14T14:14:49Z**, merge commit `c56be864f`, and the commenter verified it **on
+    CUDA** (RTX PRO 6000) on both of our families: *"Without this PR, both models abort at warmup with -nkvo and the
+    MoE cache... With this PR, both load, the cache is active and the output is coherent."* **No published tag carries
+    it**: `c56be864f...b12379/b12380/b12381` all read **behind**, and `b12381...master` reads **ahead 3, behind 0**,
+    so `b12381` (published 14:24:28Z, 38 assets) is not it despite its later date. **No recorded row is invalidated** -
+    our ladder (2026-10-20, 10-31, 11-01) declared `--cpu-moe --load-mode none` and **never `-nkvo`** - but a future
+    arm that adds `-nkvo` to stop KV offload **measures nothing**: the new rule is **VOID before start**, with that
+    log line as the check. The payoff for taking the build is a `-nkvo` prefill that reads **pp512 397 -> 435** on
+    Qwen3.6 and **264 -> 345** on Flash-Next with **tg unchanged**.
+  - **COMFYUI `#17187` IS AN INSTRUMENT GAP, NOT A DEFECT WE HAVE: the corruption is DETERMINISTIC.** After master
+    `8f04fd6e` (0.42.0, Comfy Desktop, 2026-10-18 19:14 EDT) a reference-image edit **silently ignores the positive
+    prompt** - output becomes a near-copy of the reference, **no error, no OOM, no crash** - and reverting to
+    `bab80ef7` (0.41.0) restores it. The second reporter (RTX 4060 Laptop, ComfyUI 0.45.2) adds a **deterministic**
+    speckle and states **"bit-identical outputs across default, `--disable-dynamic-vram`, and
+    `--disable-pinned-memory`"**, which the maintainer accepts as a distinction and which withdraws the earlier
+    pin-race hypothesis (`#16900`/`#16901`). **Our image arms admit on 0.5 GiB free VRAM and score same-seed PNG
+    bytes - both pass on a corruption that survives all three memory modes.** The missing check is a **prompt
+    ablation**: same seed, same graph, one prompt swapped; a correct pipeline moves the image, this failure does not.
+  - **STRATA `#5943` IS THE MIRROR OF OUR OWN LEND-REGION RESULT, AND IT COSTS 26 %.** On a 3x V100-32GB split,
+    0.1.58 plans **no loan** and fills the set (`expert_slots 24576`); **0.1.59.1 keeps 5250 lend slots**, plans 40.8
+    GiB, re-balances to 26.1 GiB with a **39.7 GiB RAM copy** and settles at **18166 of 24576 (74 %)**: **decode -26 %,
+    prefill -46 %**, and `STRATA_PREFILL_LEND_PCT=0` restores. Our 2026-11-01 note measured **0 of 790 lend slots in
+    RAM at every rung 2 -> 16 GiB** on 0.1.47 and concluded coverage was out of commit reach; the opposite error
+    exists. Different regime (one card, 65,536, cache 1500) so it is a prediction, but the declaration gains **"prefill
+    plan: loan planned / slots lent"** on both sides of any 0.1.58 -> 0.1.59 comparison.
+  - **STRATA `#5942` PUTS A PREREQUISITE ON THE GATED `--ple` ROUTE: A STANDALONE TABLE KILLS THE ENGINE, THEN IS
+    DROPPED SILENTLY.** `--ple-gguf PATH` with a side-loaded engram (or what `tools/ple_fp8_pack.py` writes) **killed
+    the engine at start on 0.1.55 and 0.1.58, and still kills an unpatched 0.1.59.1**, because the file is appended
+    to the native dense shard list and the split-metadata validation rejects it (`duplicate split shard number`, or
+    the shard's `split.no=1, split.count=3` from the stock 3-shard file it was carved from). Then: *"Whatever brought
+    the deployment back up (the watchdog, the operator) then restarted without the flag, so a higher-precision
+    side-loaded engram looked silently ignored."* After the fix a **stderr line states which file serves the table** -
+    so the route's rule is **a start with no such line is VOID**, and that rides the 2026-11-13 shortlist item rather
+    than replacing it.
+  - **COLIBRI `#2831` CORRECTED ITSELF AND THE CORRECTION LANDS ON OUR PACK'S TYPE.** The title moved from
+    *"IQ2_S and IQ3_S worst"* to *"IQ2_S and **IQ1_M** scale poorly"*, and a clean-idle re-measurement (EPYC 7532
+    Zen 2, 16 vCPU, `-march=znver2`, single-thread) gives **Q2_K 3.7x, Q3_K 2.8x, Q4_K 2.1x, Q5_K 2.0x, Q6_K 2.3x,
+    Q8_0 1.0x, IQ2_S 1.9x, IQ3_XXS 1.0x, IQ3_S 1.2x, IQ4_XS 1.1x, MXFP4 1.2x**. **Our staged pack is Q4_K_M, whose
+    experts are Q4_K - 2.1x**, where an **IQ4_XS** pack pays 1.1x. The 11-14 arithmetic (0.527 GiB of expert bytes
+    per token) keeps its shape and gains a **quant-type term**, which is an arithmetic edit and not an engine run.
+  - **llama.cpp `#32270`, 14:13Z, 0 comments: FP8 KV (`-ctk/-ctv f8_e4m3`) ABORTS AT LOAD ON METAL** on
+    v1.0.0/`b1b770d90` (Homebrew, Mac Studio M3 Ultra, macOS 27.2):
+    `src/ggml-backend.cpp:1358: pre-allocated tensor (cache_k_l3 (view)) in a buffer (MTL0) that cannot run the
+    operation (SET_ROWS)`, while the same command **without** the flags loads and runs at 58 tok/s. Metal, and the
+    reporter declares he did not test without the drafter - but it is the **second FP8-KV defect on the release's
+    first day** after `#31802`, and the shape to expect on CUDA is an abort at load naming a **view**, not a wrong
+    answer. `#31139` (18 comments, open, being split in two) supplies the arithmetic for a big cache failing to
+    allocate at all: a bank tensor over the device's **per-allocation limit**, `get_max_alloc_size`, `fixes #30697`.
+    `#32258` (iSWA + unified KV "fails to find memory slots", build 12348) is a second reason the held `-kvu` item
+    stays single-sequence. `#30715`-`#30718` add a new **JQ2_K..JQ6_K** quant family (four backend splits), which is
+    a pack-format question: no build we pin can read it.
+  - **THREE NEW llama.cpp TAGS AND AN UNMOVED `v1.0.0`**: `b12379` 13:43:35Z, `b12380` 13:57:38Z, `b12381`
+    14:24:28Z, all `prerelease: true`, 38 assets each; `v1.0.0 = b1b770d90` unchanged. **61 items** on the repo
+    updated in the 4.9 h.
+  - **OLLAMA DID NOT MOVE, AND THAT IS THE FINDING**: two items in-window (`#19700` a README link, `#19535` Intel
+    NPU feature request **closed**), `master` last pushed **00:00:10Z**, `commits?since=09:40Z` **empty**, stable
+    `v0.40.16` unchanged. **`#19632` and `#19680` are unchanged from 11-14/11-13.**
+  - **`[HFR]` ALL FIVE TRACKED PACKS UNCHANGED BY SHA AND `lastModified`** (`52f9f9b805`, `a3e717e662`,
+    `f5d175de2c`, `65d53bc8be`, `0fd62efaf9`); **41 GGUF repos created in-window**, six named as leads and none
+    recommended - `peasantsmith/Inkling-2-Small-GGUF`, `aqualaguna/Qwen3.8-23B-Cut-Heal-RCO-GGUF`,
+    `kabe0515/Qwen3-30B-A3B-Instruct-2507-MTP-GGUF`, `nerun/Triumvirate-...9B-Coder.i1-MTP`,
+    `Bruxcess99/...27B...NEO-CODER-MAX-MTP`, `WonderChord/Drama3-V2-NVFP4-256E`. **Inkling-2-Small arrived in three
+    engines and one pack on the same day** (llama.cpp `#32217`/`#32268`, Colibri `#2832` merged 14:15Z, the HF port) -
+    a new-family signal, not a recommendation.
+  - **`[ARX]` DID NOT ADVANCE**: `cs.CL` datelines **Fri 13 Nov 2026**, newest submission
+    **2026-11-12T18:59:52Z**, so the 11-14 counts (626 / 1,521) stand. **Method note:** `http://export.arxiv.org`
+    returned **0 bytes** while **`https://`** returned the feed, so a scan that only tries the historic `http` URL
+    would report arXiv down when it is up.
+  - **`[HN]` 150 stories in-window AND ZERO ON AXIS**: every story in the window was fetched by Algolia and the
+    titles filtered for `llama|gguf|quant|vram|moe|kv cache|inferen|specul|mixture|ggml|ollama|vulkan|cuda|local
+    model|local ai|offload|token` - **no row matched**; nine keyword queries returned 0 in-window each except the two
+    that matched on loose tokenisation, both off-axis.
+  - **`[RD]` 403 ON BOTH ENDPOINTS, 1,522 B EACH** - sixteenth failure in nineteen days, last success 2026-10-25. A
+    search snippet surfaced `r/LocalLLM` `1xvtsh2` on v1.0.0's MoE CPU share with **no date in the snippet**, so it is
+    recorded as a lead and **not cited, not dated, not shortlisted**.
+  - **`[YT]` ONE IN-WINDOW VIDEO, READ FROM CAPTIONS** - SimplyExplain `u_DYZhTZ2IM`, ~2026-11-13, captions
+    **64,419 B on `en-orig` after `en` returned 429** (fourth time that pattern is recorded). Second-hand, one card,
+    no repeats: Unsloth's **Dynamic 3.1 `IQ2_XS` at 7.6 GB** for Qwen3.8-27B resident on an 11 GB 1080 Ti with 3 GB
+    locked away reads **18 tok/s** empty and **15** at 14,000 tokens against **3** for the 4-bit-mostly-in-RAM
+    recipe; **8-bit cache ~14,000 tokens, 4-bit ~22,000 at ~12 tok/s**, and **every 100 MB of desktop VRAM costs
+    ~3,000 tokens of context**; `-b 256` buys 1.5-2.5k more; **drop the vision and speculative files, together
+    >2 GB** (our MTP drafter's 3.4 GB from the other side); **a context larger than fits still loads and then OOMs
+    mid-answer** (they hit it at 24,000 on a 4-bit cache), which is the VOID-before-start rule in the wild; and
+    **`IQ3_XXS`/`IQ3_S` were deliberately not updated by v3.1**, so a revision move is not uniform across types in
+    one repo. Quality is quoted from Unsloth's own runs, not measured by the video: ~95 % of full on LiveCodeBench,
+    94-97 % on MMLU-Pro and competition math, but **deep SWE <13 % against ~40 %** - a third of the agent score.
+  - **METHOD FAULT, RECORDED: the cross-repo `gh search issues` sweep does not apply `updated:>=`** for these queries
+    (`"moe-cache"` -> total 235; `page-lock OR WDDM OR stornvme` -> total 41,922, all unrelated), the same class as
+    the 2026-11-06 finding that the reader ignores its query string. **Adjacent coverage in the file is therefore by
+    REPO, not by term**, and a memory-shaped report in an unfamiliar repo can be missed. The one adjacent item that
+    did land: **`mw00/project-maya` `#987`**, DeepSeek-V4.1 EXL3 2.68 bpw on 2x 7900 XTX + 8060S at 1M context,
+    **43.6/32.6 tok/s decode, 1,633/1,455 tok/s prefill at 160K** - not our hardware and **EXL3 is not
+    interoperable**, recorded as a reference point.
+  - **Shortlist, cheapest first**: (1) add the **`-nkvo` + `--moe-cache-mib` VOID rule** with `#31775`'s log line;
+    (2) **restate the build gate** (`v1.0.0 = b1b770d90`, `b12381` does **not** carry `#31775`, master 3 ahead);
+    (3) add the **five KV type names** (`int8`, `q4_0`, `q8_0`, `f8_e4m3`, `oct3`); (4) make a **`--ple` start VOID
+    without the engine's served-from line**; (5) **re-price the Colibri route by quant type** (Q4_K 2.1x vs IQ4_XS
+    1.1x); (6) add **"loan planned / slots lent"** to every 0.1.58 -> 0.1.59 comparison; (7) **one prompt-ablation
+    image pair** for `#17187`. Items 1-6 are edits, 7 is one gated pair; **nothing was started**.
+  - **Gated on Kevin**: a llama.cpp download at any tag **after `b12381`** (first that can carry `#31775`, and `-nkvo`
+    prefill reads **397 -> 435** / **264 -> 345** on two of our families); the **Strata 0.2.13 / 0.1.59** bump (now
+    with the lend-region field, the `--ple` served-from line, and `#5892`/`#5953` on the bump target); the ComfyUI
+    image pair (now for `#17187`); the DeepSeek IQ2_XXS download; the Colibri `dev` probe (now with a quant-type
+    term); the candidate tests; the display-to-iGPU cable change.
+
 - **2026-11-14, daily scan: a thin Saturday, one post-release regression on a card we do not have, and three pack
   revisions that predate the window.** `NEWS-2026-11-14.md`, written against **`NEWS-2026-11-13.md`**, which closed at
   **2026-11-13T14:30Z**; window **2026-11-13T14:30Z -> 2026-11-14T09:40Z, 19.2 h**. Written **by hand**: the log ends
