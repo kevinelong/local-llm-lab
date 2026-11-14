@@ -1,5 +1,57 @@
 # Local AI lab working instructions
 
+- **2026-11-14, daily scan: a thin Saturday, one post-release regression on a card we do not have, and three pack
+  revisions that predate the window.** `NEWS-2026-11-14.md`, written against **`NEWS-2026-11-13.md`**, which closed at
+  **2026-11-13T14:30Z**; window **2026-11-13T14:30Z -> 2026-11-14T09:40Z, 19.2 h**. Written **by hand**: the log ends
+  at `[Fri 11/13/2026 6:36:48.19] daily news scan exit 0` with **no 11-14 start line**, so the scheduled job has not
+  run today. Reading only - nothing downloaded, installed or built, **no engine started**, no inference, no benchmark,
+  **`ai_bench` untouched**. **[YT] discovery was web search only and no captions were fetched** (`yt-dlp` runs in WSL,
+  which this reading-only scan did not start) - declared in the file rather than hidden.
+  - **v1.0.0 WAS ALREADY REPORTED BY THE 11-13 FILE, AND THE ONLY NEW THING IS ITS FIRST REGRESSION.** `#32245`
+    "**[Regression] Significant prefill performance drop on V100 (sm_70) in v1.0.0**" was filed within a day of the
+    release; **sm_70, not our sm_120**, but it is a per-build prefill row that now has a name. Tags `b12375`
+    (11-14T04:14:54Z) and `b12376` (11-14T08:42:49Z) are newest; **`v1.0.0` is commit `b1b770d`**, which is the
+    concrete first name for the build gate the 11-13 file restated.
+  - **THE ONE ITEM THAT CHANGES A DECLARATION: `#31802` NOW NAMES `f8_e4m3`.** The fused KV dequant PR is
+    **q8_0 / q4_0 / f8_e4m3**, 15 comments, still open - and v1.0.0 ships **FP8 KV caches**, so a KV row has a third
+    type to declare beside the two it had. Nothing recorded is invalidated; the declaration list grows.
+  - **STRATA `#5939`: a V100 GPU is LOST on Windows with engine 0.1.59** - the current bump target, 0 comments,
+    07:53Z - the sixth Windows GPU-loss shape since October and another reason the bump's declaration carries the
+    event-log check. `#5358` (gfx1030 fatal fault in `native_mmvq_multi_kernel` with the host address printed) and
+    `#5940`/`#5941` (Terminal slow; a lost toggle) are recorded, not applicable.
+  - **COMFYUI `#16225`: a DynamicVRAM / VBAR allocation failure on an RTX 5060 Laptop** - a 50-series card with
+    Dynamic VRAM is exactly our image configuration, and this is the failure #17634 predicted on 11-09. `#17749`
+    (Wan2.2 VAE `ndim==5` **hard-hangs the GPU** on RDNA2) is the class that produces an "OOM" report for a
+    non-memory cause. `#17122`/`#17687` name two fields no image row declares: which encoder is resident, and which
+    CUDA generation the installed build carries.
+  - **OLLAMA `#19632` (the VRAM-accounting and GPU-splitting fix) IS STILL A PULL REQUEST**, 0 comments, 03:20Z;
+    stable is `v0.40.16`. The rule stands: never quote `ollama ps` alone. `#19696` is the Windows `/api/chat` 500
+    (wsarecv reset), the same family as the 15-second reset of 10-27.
+  - **COLIBRI `#2831` PRICES A GAP WE PAY FOR: "CPU K-quant dot products 2-5x behind ggml on the same bytes;
+    IQ2_S and IQ3_S worst."** Our `--cpu-moe` arms are bandwidth-bound at **0.527 GiB of expert bytes per token**,
+    so a 2-5x slower CPU dot is a direct tax on every arm with experts in RAM. `#2797` (candidate blocks as ids,
+    **64 GiB -> 2 GiB at 262144**) is cited, not re-covered.
+  - **THREE PACK REVISIONS, ALL OUTSIDE THE WINDOW AND ALL OLDER THAN OUR STAGED COPY**:
+    `ggml-org/Qwen3.6-35B-A3B-GGUF` -> **`52f9f9b805`** (11-12T11:11:39Z, 14 files), `ggml-org/Qwen3.8-Flash-Next-GGUF`
+    -> **`a3e717e662`** (11-12T11:11:49Z, 17), `unsloth/Qwen3.8-Flash-Next-GGUF` -> **`f5d175de2c`** (11-13T10:49:42Z,
+    77). ISTA (`65d53bc8be`) and Kolibri (`0fd62efa`) unchanged by sha **and** lastModified. 40 GGUF repos were
+    created in-window; two are on our axes and logged as leads only - `ITLL/Qwen3.5-9B-...-Uncensored-Heretic-...-MTP`
+    and `Jaynoel91/Qwen3.8-27B-Uncensored-HauhauCS-Aggressive-MTP-GGUF`.
+  - **[ARX] DID NOT ADVANCE** (cs.CL dateline **13 Nov 2026**, **626** entries; cs.LG **1,521**); nothing re-read to
+    fill the gap. **[HN] 242 stories, 5 on-axis**, top being **"Unsloth Qwen3.8-27B Quantizations - Dynamic v3.1
+    Update"** (140 points, 35 comments) - a vendor update about the quant family our reference pack belongs to, so it
+    is a read-before-trust item, never a fact. **[RD] 403 (0 bytes) on the JSON endpoint and 302 on the RSS** -
+    fifteenth failure in eighteen days, last success 2026-10-25.
+  - **Shortlist, cheapest first**: (1) restate the build gate (`v1.0.0 = b1b770d`, newest `b12376`, `#32245` sm_70-only
+    as a declared known issue); (2) add **FP8 KV (`f8_e4m3`)** to the KV declaration list; (3) record pack provenance
+    by sha **and expert-type histogram**, since our staged pack predates all three revisions; (4) read the Unsloth
+    v3.1 thread before trusting a re-upload; (5) one image pair on ComfyUI `v0.45.0` with the VBAR line read back;
+    (6) the `--moe-cache-cpu-share` sweep on a build >= `b12246`; (7) price `#2831`'s CPU gap on our own pack.
+    Items 1-4 are edits; **nothing was started**.
+  - **Gated on Kevin**: the **Strata 0.2.13 / engine 0.1.59** bump (now with `#5939`); a llama.cpp download at
+    **`v1.0.0`/`b1b770d` or any `b >= b12246`**; the ComfyUI image pair; the DeepSeek IQ2_XXS download; the Colibri
+    `dev` probe; the candidate tests; the display-to-iGPU cable change.
+
 - **2026-11-13, daily scan: llama.cpp ships v1.0.0 carrying four shortlisted levers in one stable tag, a published
   quantisation noise floor of 0-0.92 % reframes our decision metric, and Strata reserves KV before expert placement.**
   `NEWS-2026-11-13.md`, written against **`NEWS-2026-11-12.md`**, which closed at **2026-11-12T14:30Z**; window

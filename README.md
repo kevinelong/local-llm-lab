@@ -619,6 +619,10 @@ the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPO
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
 
+**2026-11-14 &middot; [Daily news scan: a thin Saturday, one post-release regression on a card we do not have, and three pack revisions that predate the window](NEWS-2026-11-14.md)**
+
+A 19.2 h weekend window. llama.cpp's `v1.0.0` was already reported by the 11-13 file, so what is new is its first regression (`#32245`, V100 prefill, sm_70 only) and the fact that the fused KV dequant now names `f8_e4m3`. Strata's `#5939` loses a V100 on Windows with the current engine 0.1.59; ComfyUI's `#16225` fails a VBAR allocation on a 50-series laptop, which is our image configuration; Ollama's VRAM-accounting fix is still a PR. Three pack revisions predate the window and are older than our staged copy. arXiv did not advance; Reddit is blocked for the fifteenth time in eighteen days.
+
 **2026-11-13 &middot; [Daily news scan: llama.cpp ships v1.0.0 with every lever this lab has been shortlisting, and a quantisation-comparison noise floor is published that is larger than the effect we have been chasing](NEWS-2026-11-13.md)**
 &ndash; a **24.0 h** window (2026-11-12T14:30Z &rarr; 2026-11-13T14:30Z). **llama.cpp published `v1.0.0` at
 2026-11-13T10:20:19Z, and `compare/b12359...v1.0.0` is `identical`, so the release's tree *is* nightly `b12359`** (b12318
