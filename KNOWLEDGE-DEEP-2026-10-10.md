@@ -98,3 +98,23 @@ the lab's earlier note that temperature 0 is not seed-stable on that engine.
   JSONs. Argument quality and whether the prose is worth reading are not measured by anything here.
 - One topic (astronomy/Mars) and one sampling setting; the 4.3-point raw gap that the naive parse
   suggested is a good example of how much a scoring convention can move a headline.
+
+## 2026-11-15: the tie acquires a declared variable, worth about as much as the gap
+
+The 88.5 % vs 89.7 % above was read as "the same knowledge, so ask the next question". `2611.11079`, *"When
+Calibration Data Matter in Sub-4-Bit Language Model Quantization"*, prices an input this file never declared:
+**task-informed calibration (FragCal-DC) is worth +1.83 pp mean ten-task accuracy at two bits** over generic-text
+calibration (SignRound V2, over a 2-4 bit sweep, six dense models 1.7B-8B, ten tasks, four-seed comparisons), with
+iterative methods improving at 2 bits while single-pass GPTQ and AWQ show only small mean responses at 3 bits, and
+both improving at 2 bits at 70B. Its two controls are what make it usable here instead of a headline: recovery
+**concentrates on families included in calibration**, and **deliberately incorrect answer designations retain about
+90 %** of the mean gain - so part of the effect is circular - while **changes in reconstruction error do not
+consistently track accuracy gains**, which is why a perplexity, an MSE or a file size cannot stand in for the field
+(template §2 `pack_calibration_text`).
+
+What that does to the null above: the 89.7 % stack is a **2-bit** pack (Qwen3.8-Flash-Next Q2_0), **neither publisher
+declares its calibration text**, and the paired SE on these 1,100 items is **1.33 pt**. An effect of ~1.8 pp is
+therefore larger than the 1.2-point gap *and* larger than the instrument's own error bar. The tie stands **as measured
+on these two packs** - nothing here is retracted - but it can no longer be read as "two bits equals four bits on this
+model": a different calibration set is now measured to move that endpoint by more than the difference between them.
+Both stacks' entries for the field read `UNVERIFIED`.

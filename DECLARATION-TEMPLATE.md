@@ -26,7 +26,7 @@ incident behind it gets dropped. `[INFERENCE]` marks a claim this lab has not me
 | `engine_binary_sha256` | A locally compiled engine is not a qualified build (2026-11-01, `#4879`: a source build scored 0/10 on a tool-call probe where the prebuilt scored 10/10). | `sha256sum strata.exe`; our 0.1.47 staged copy is 203,623,936 B |
 | `engine_arch_list` | The Windows CUDA 13 asset names `sm_75/86/89/120/compute_120`; the CUDA 12 asset stops at `compute_89`. Ours is sm_120, so only the CUDA 13 asset is ours. | feed asset metadata |
 | `toolchain` | 2026-11-01: a build's `--list-devices` must name the backend you think you are measuring; local nvcc minor changes behaviour. | `--list-devices`, `nvcc --version` |
-| `llama_cpp_version` | llama.cpp rows only. **`v1.0.0` = commit `b1b770d`, published 2026-11-13T10:20:19Z** - the first non-0.x release, carrying **FP8 KV caches** and the MoE expert cache in a stable tag; newest rolling tag `b12376` (2026-11-14T08:42:49Z). **`#32245`**, filed within a day of the release: *"significant prefill performance drop on V100 (sm_70) in v1.0.0"* - not our sm_120, and the reason a versioned release is a **name** for a gauntlet, not a qualification for a row. | `--version` -> build + commit (`git rev-parse v1.0.0`); release feed |
+| `llama_cpp_version` | llama.cpp rows only. **The build gate is `>= b12383`, published 2026-11-14T14:43:25Z** (set 2026-11-15) - the first tag containing `#31775`: `compare/c56be864f...b12383` reads **behind 0**, no `b12382` exists, and `b12390`/`b12400`/`b12406`/`b12413` were re-read behind 0. **This supersedes the 2026-11-13 gate `v1.0.0` = `b1b770d`**: that release is still the only versioned one and still carries FP8 KV caches and the MoE expert cache, but its tree *is* nightly **`b12359`** (`compare/b12359...v1.0.0` identical, 11-13), which contains `#31533` and does **not** contain `#31775` - so it sits below the gate. Newest rolling tag `b12413` (2026-11-15T12:38:58Z), 38 assets; `master` is `de32b268c`, **ahead 35** of `b12381`. **Consequence, and the line to quote: an arm that adds `-nkvo` to `--moe-cache-mib` is legal from `b12383` and VOID below it** (§12) - below it the load aborts at `src/llama-moe-cache.cpp:560` and measures nothing. **`#32245`**, filed within a day of the release: *"significant prefill performance drop on V100 (sm_70) in v1.0.0"* - not our sm_120, and the reason a versioned release is a **name** for a gauntlet, not a qualification for a row. | `--version` -> build id, read against §12 (`gh api repos/ggml-org/llama.cpp/compare/c56be864f...<tag>` -> `behind 0`); release feed; `git rev-parse v1.0.0` names the release only |
 
 ## 2. Pack identity
 
@@ -38,6 +38,7 @@ incident behind it gets dropped. `[INFERENCE]` marks a claim this lab has not me
 | `pack_file_digest` | A size check cannot see a re-conversion; only the digest can. Per file: `name`, `bytes`, `sha256`. | `staged.json` -> `items[]`; re-verify with `sha256sum` before any row that claims identity |
 | `pack_tensor_types` | The expert **down projection** type decides whether Strata's native kernels accept the pack (`#3699`: Q4_K downs are refused; our Qwen3.6 Q4_K_M has all 40 at Q4_K). | one GGUF header read |
 | `sidecars` | mmproj / MTP / DFlash each add bytes and can be the failure: `-md` + `--mmproj` aborts every build after `#30257` (2026-11-02). | `staged.json` `items[]` for the sidecars |
+| `pack_calibration_text` | **New 2026-11-15, and the reason is a number we can no longer ignore.** `2611.11079` (task-informed calibration, FragCal-DC, 2-4 bit, six dense models 1.7-8B, ten tasks, four seeds): **at two bits, task-informed calibration is worth +1.83 pp mean ten-task accuracy** over generic-text calibration; single-pass GPTQ and AWQ show only small responses at 3 bits, and at 70B both improve at 2 bits. The two controls are the load-bearing part: recovery concentrates on families included in calibration, and **deliberately incorrect answer designations retain about 90 % of the gain** (so it is real and partly circular), while **changes in reconstruction error do not consistently track accuracy gains**. That last pair is what makes this a *pack* field rather than a footnote: a size or a quant name cannot stand in for it. **Our own null is the case in point** - the 1,100-item comparison read **974/1,100 = 88.5 %** (Qwen3.6 Q4_K_M, llama.cpp) against **987/1,100 = 89.7 %** (Qwen3.8-Flash-Next Q2_0, Strata) at a **1.33 pt paired SE**, and **neither publisher declares its calibration text**, so an effect larger than both the 1.2-pt gap and the error bar sits undeclared under the tie. | the pack's own metadata (`quantize`/`imatrix` dataset field, or the card's sentence naming the calibration set); **`UNVERIFIED`** when the publisher states none - which is the record for both packs above |
 
 **2026-11-14: the reference pack moved again, twice, and the copy on disk is now three conversions old.**
 `ggml-org/Qwen3.6-35B-A3B-GGUF` -> **`52f9f9b805`** (lastModified 2026-11-12T11:11:39Z, 14 files);
@@ -67,9 +68,11 @@ value.
 | `expert_cache_declared` / `cache_granted_slots` | Rule 3 of the gate: a declared `--expert-cache N` is not a cap (`#3693` overshoots to 5,118 slots, `#3692` under-fills). | `strata generate: expert cache %lld slots, %.2f GiB of VRAM; policy is …` and `expert cache auto: %.2f GiB free, %d MiB reserved (+%lld MiB for the draft head) -> %d slots` |
 | `vram_reserve_mib` | A reserve is a ~1:1 tax on the cache (900 MiB bought 3,000 slots against 2,000 MiB's 2,168) and a **contract against WDDM paging** the engine never re-checks (`#4516`). | **not in `--help` on 0.1.47** (see §8); read from the argv echo and `strata serve: VRAM %lld MiB kept free: …` |
 | `file_tier_line` | 0.2.12 stopped counting the engine's own memory as free and stopped switching 12 GB cards onto the file cache (3/3 starts on 0.2.11, 0/3 on 0.2.12). Rows on either side of that are different configurations. | 0.1.47: `strata generate: the file tier reads through the file cache (STRATA_UNBUFFERED_LOAD=%s ignored: …)` |
+| `expert_read_mode` | **New 2026-11-15.** *File mapping* or *unbuffered*, declared, because two Windows measurements now point opposite ways and the variable they disagree over is free RAM against the working set. llama.cpp `#3059` (2026-10-18) **gained +26.3 %** decode by keeping the unbuffered initial load and then **reopening the shards so later expert reads are served by the Windows file cache** - a 64 GB-RAM box with a 16 GB card. Maya `#995` (11-15T12:42:16Z) is the other direction: misses read through the GGUF mapping stayed in the working set, the host thread sat in `GgufExpertSource::assemble`'s memcpy, so it reads misses **unbuffered** (`FILE_FLAG_NO_BUFFERING`, as its Linux `O_DIRECT` path already did), uses that for `copy_blob()` on the prompt path, and **releases the mapped pages after the RAM-tier copy** (`VirtualUnlock`, mirroring `posix_fadvise(DONTNEED)`; `MAYA_EXPERT_DIRECT=0` keeps the mapping). Result on that report's own box - RTX 3090 24 GB, 32 GB RAM, Q5_K_M **112 GB**, 65,536 context - a **27,908-token prompt stalled every time and now answers in 185 s**, follow-up turn 7 s, default answers unchanged; not tested on Linux, AMD or `--bench`. **This box is the boundary case: 63.46 GiB RAM against a ~66 GB pack**, so the two results stop contradicting each other once the mode and the free RAM above the working set are both written down. | the tier line above (`... reads through the file cache` vs unbuffered); the declared env value; free physical at start against the pack's on-disk bytes |
 | `engine_memory_report` | `#5570` decomposes a 16 GB card and finds a **2.03 GB `scratch`** region the layered line omits - 12 % of the budget, invisible to both `nvidia-smi` and the gate. Three engines now disagree with the OS by 4-8x, 100 % and 12 %. | **`unreported` on our line**: the 0.1.47 binary has no user-facing memory report and no `scratch` line (§8). Record `nvidia-smi` in-use, the `Shared Usage` counter delta and the engine's own sizing lines instead |
 | `free_vram_per_request` | 0.1.46 drove a card to 0 MiB free and spiralled verify windows 61/49/28/13/0 MiB (`#3952`); `#4474` shows auto-sizing and grant disagreeing in one process. | `strata serve: VRAM %lld MiB kept free: … %lld MiB free now, prompt chunk %lld` |
 | `wddm_shared_usage` | Under WDDM every page-locked GPU-mapped buffer is charged to a ~half-of-RAM segment that commit cannot see; 17.8 GiB measured on this box (2026-10-22), and registration succeeding is not residency acquired (2026-11-04). | perf counter `GPU Adapter Memory\Shared Usage` before and under load |
+| `cast_buffer_pin` (ComfyUI arms) | **New 2026-11-15 - a covariate *and* a symptom.** `#17122` and its fix `#17123`: since `#14372`, `reset_cast_buffers()` runs only when `aimdo_enabled` is true (its only remaining call site is inside `if comfy.memory_management.aimdo_enabled:` in `execution.py`), so without aimdo **`LARGEST_CASTED_WEIGHT` holds the largest lowvram-cast weight until the end of the prompt** - and because safetensors are mmap'd, that one small weight keeps **the whole file mapping** resident. Measured, not theorised: LTX-2.5 on an RX 9070 XT / ROCm 7.2 / 32 GB RAM with a **15.4 GB int8** Gemma 4 text encoder loaded partially - **one 15 MB `Linear` stayed referenced and pinned ~13 GB of the encoder's mapping** (`/proc/<pid>/smaps`) while `current_loaded_models` was **empty**; the DiT then loaded at **~200 MB free** and stalled in `copy_` -> `memcpy_and_sync` with `page allocation failure` in `svm_range_restore_work [amdgpu]`, at **3 % GPU for 10+ minutes**. The fix runs `reset_cast_buffers()` after each node on the non-aimdo path too, and **its acceptance is pixel-identical output** - "Qwen-Image-2.1 t2i and edit: pixel-identical output" - beside LTX-2.5 going from stalled to **100 s** and LTX-2.3 112 -> 90 s on v0.41.3 / ROCm 7.2 / torch 2.14. **State the precondition: this report's is `aimdo_enabled=False` (ROCm), and our image arms run the aimdo-enabled path**, so it is not our failure mode by name. What transfers is the **symptom pair** - a stall at a few hundred MB free with near-zero GPU utilisation, and a pin whose size is the *file's mapping*, not the tensor's - and the reminder that three ComfyUI memory defects in one month each had a different mechanism and each passed our floor. | `aimdo_enabled` from the server log/argv; at the stall: free VRAM/commit, GPU utilisation, whether `current_loaded_models` is empty; Linux: largest `smaps` mapping against the largest cast weight - on Windows, process private bytes at ready against the file's on-disk size |
 
 ## 4. Prompt path
 
@@ -80,6 +83,7 @@ value.
 | `prefill_borrow` | The loan our 10-27 and 10-31 ladders measured from the outside is a **switch**: `--no-prefill-borrow` is a literal in the 0.1.47 binary (2026-11-09). | argv; `--help` does not list it |
 | `prefill_cpu_share` | **New 2026-11-09.** The 0.1.47 binary states that the CPU share is **ON by default for prompt chunks below 1024 tokens** and that *"answers can differ slightly from 0.1.40.3, mean KL ~0.004"*; `STRATA_PREFILL_CPU_SHARE=0` turns it off. Any arm whose chunk clamps to 512 is a different-text arm. | binary string `prefill: the CPU share is ON by default for prompt chunks below 1024 tokens …`; value from the environment |
 | `lend_region` | Rule 2 of the gate. `0 of 790` in RAM at every rung 2-16 GiB because the ranked set eats the whole budget; 1.02 GiB of lend needs ~31.7 GiB resident (`RESIDENT-ABOVE-8-2026-11-01.md`). | `strata generate: WARNING: a prompt chunk of %lld tokens lends %lld cache slots to the prompt path, but only %lld of their experts fit in RAM … (#669)` |
+| `prefill_ring` / `prefill_ring_auto` | **New 2026-11-15.** Our prefill arms have never recorded the ring size, and Strata `#6020` (11-15T11:15:04Z, *"Optional benchmark-based autotuning for prefill ring size"*) measures what that omission is worth: **`--prefill auto` chose a 96-slot ring, and `STRATA_PREFILL_RING=512` gave +23.1 % at 4K and +24.2 % at 16K** - medians **763.0 -> 939.5** and **974.9 -> 1210.9**, plus one 64K pair **992.0 -> 1219.1 (+22.9 %)**; decode 41.9 -> 43.6 with **no decode claim**. The method is the part to copy: **three interleaved A/B rounds, a fresh engine per arm, one variable**, Windows 11 26H2 build 26300.9974, RX 7800 XT HIP gfx1101, engine 0.1.59 `712fec6b4297`, UD-Q2_K_XL at 262,144 with `--kv int8`. **It is not our backend** (HIP on Windows AMD, not our CUDA card), so the number is a **predict-and-check**, not a result here - and 23 % prefill is larger than most effects this lab has chased, which is why the field costs one line now rather than after the bump. **The arm that sets it rides the gated engine bump** (0.1.59); until then both halves are `unreported` on 0.1.47, and the check before the first arm is `strings -a strata.exe` for a `STRATA_PREFILL_RING` literal - the same check that settled `--prefill-borrow` and `STRATA_KVA` (§8), not yet run for this string. | the log line giving the ring chosen under `--prefill auto` (96 in that report) and the environment's `STRATA_PREFILL_RING`; `unreported` on 0.1.47 until the strings check is run |
 | `ubatch` / `batch` | llama.cpp rows: `#31504` makes a different `-ub` a different answer; the `-b 512 -ub 512` load fix was a ubatch change. | llama.cpp launch echo |
 | `batch_slots` | `--batch N / --slots N` is opt-in and takes VRAM like a second session; our serving is one slot. | `--batch N / --slots N` in argv, `docs/BATCHING.md` |
 | `prompt_cache_reused` / `checkpoints` | `--prompt-cache-every` is a no-op below the chunk size, and the deepest checkpoint carries the previous turn's tail, so reuse can silently be 0 (`#4206`, 2026-10-26). | per-request `reused = N`, `N checkpoints` |
@@ -95,6 +99,26 @@ value.
 | `drafts_accepted` / `offered` | **Every speculative row carries the pair.** Healthy turns sit at 65-85 %; a run stuck at 98.9-99.3 % for minutes preceded a collapse (`#4402`). Warn above ~98 %. | `%-24s %lld windows, drafts accepted %lld of %lld` |
 | `mtp_dir_quant_bytes` | The drafter's own quant moves acceptance; the head is 1.06 GB at Q4_0 against 3.74 GB at BF16 on our reference pack. | `staged.json` sidecar entry |
 | `verify_window_mib` | A 12-token verify window (110.2 MiB of device buffers) faults deterministically where 0.1.54's 5-token window (69.7 MiB) works (`#5449`). | VRAM readback at load |
+| `spec_kernel` | **New 2026-11-15.** The verify step has a name, and it is what prices speculative decoding: `#31533` *"CUDA: few-row MMQ for BS 2-24"*, merged **2026-11-12T13:12:46Z**, commit **`0fb8f1577`**, **in `>= b12359` and not in `b12208`** (`b12208` -> behind 134; `b12359` and `b12383` -> behind 0). Steps of 2-24 tokens read each weight once; a one-token step takes a different kernel this PR did not touch, which is why the effect appears only with a drafter and shows nothing at one request. A speculative row therefore names its build **and** whether that build carries the kernel. | `--version` build id + `gh api repos/ggml-org/llama.cpp/compare/0fb8f1577...<tag>` -> `behind 0` / `behind N` |
+
+**2026-11-15: our 2026-10-08 MTP row is re-priced as a pre-`#31533` row. It is not retracted - it is dated.**
+The row read **+31.2 % per token, -7.3 % wall, +21.7 % tokens, accuracy unchanged** (letters only, which §6 already
+bars from being quoted as determinism) on **b11461**, and b11461 predates the kernel: `#31533` merged
+**2026-11-12T13:12:46Z**, and `b12208` is **behind it by 134 commits**. The published benchmark that prices the
+kernel is properly interleaved - two builds taking turns, GPU cooled to 50 °C before every run, each figure the
+median of five, RTX 3090 24 GB, temperature 0, one slot - and reads **27B with MTP: 45.1 -> 68.5 (+52 %) at the short
+prompt and 46.5 -> 71.9 (+55 %) at the long one on `v1.0.0`, against +11 % / +17 % on pre-v1 (build 12199)**, with
+**draft acceptance unchanged at 32-33 %** (9B: 96.5 -> 122.3, acceptance 27-28 %). Acceptance flat while wall clock
+halves means the gain is the **verify step getting cheaper**, not the drafter guessing better - the opposite of where
+our row looked for its value. So the honest re-pricing is: on a build **>= b12359**, an acceptance of ~33 % is
+predicted to **pay** wall clock instead of costing it. That is a prediction about this box and it is not a result;
+**the test is two starts on one build >= `b12383`** (also the first tag with `#31775`, §12), one model,
+`--spec-type draft-mtp` off and on, the same prompt, reporting **accepted/offered** and wall clock. Two facts from
+the same page bound what any row may claim: **one request at a time is unchanged** (within 2 %, and the runs of one
+build spread wider than that), and the **14-22 % no-MTP gain needs four concurrent requests** - our arms are
+`--parallel 1`, so that gain is out of reach and is a reason *not* to chase the version for a throughput ladder. MTP
+cost **+1,490 MiB** on the 27B, and a **separate 0.8B drafter made that model slower** (30.7 against ~40 tok/s) at
+under half its guesses accepted.
 
 ## 6. Determinism
 
@@ -158,6 +182,12 @@ Two further facts fell out of the strings, both declaration-relevant:
 4. The card is not idle for the ladder's whole duration (`comfy` busy or WSL running): contention cost 4 of 12
    arms on 2026-10-31 and cannot be subtracted afterwards.
 
+**Build boundary (added 2026-11-15, table in §12).** An arm is not started on a build below the boundary of a
+feature its configuration uses, and an arm taken below one is void with the boundary quoted, not with "old build".
+Today that is one line: **`-nkvo` added to `--moe-cache-mib` is legal from `b12383` and VOID below it** (`#31775`;
+below it the load aborts at `src/llama-moe-cache.cpp:560` and measures nothing). The check is the build id from
+`--version` against §12, **not the release name** - `v1.0.0` is still `b12359`'s tree and sits below it.
+
 **After start, from the arm's own log** - the gate `ai_bench/staged-strata-0.1.47/control/chunk_ladder.py` already
 enforces these mechanically:
 
@@ -183,7 +213,10 @@ enforces these mechanically:
 Named so the next scan does not re-derive them: **engine-reported `scratch`** (§8 item 3, needs a newer engine or
 a DSV4 path), **power draw** (`#5490`: decode halved while GPU power fell 400+ -> 300-330 W and cache hits stayed
 99 % - a decay our token and VRAM instruments cannot see), **verify-window MiB from the log** (declared in §5 but
-only measurable if the engine prints it), and **the `.strp` calibration text** for our learned profile.
+only measurable if the engine prints it), and **the `.strp` calibration text** for our learned profile (the *pack's*
+calibration text is now a field, §2 `pack_calibration_text`). Two more were added on 2026-11-15 and are `unreported`
+rather than missing: the **prefill ring** and the auto value it replaced (§4, needs >= 0.1.59 or a `strings` hit on
+0.1.47), and the **expert-read mode** (§3, needs the tier line plus the declared value side by side).
 
 ## 11. Copy-paste block
 
@@ -201,6 +234,7 @@ pack_src_sha: ""            # unreported if the pack ships no .src_sha
 pack_files: []              # name, bytes, sha256
 pack_tensor_types: ""       # expert down projection type, from one header read
 sidecars: []                # mmproj / mtp / dflash: name, bytes, quant
+pack_calibration_text: ""   # UNVERIFIED when the publisher declares none (both our packs)
 # host before the load
 host: {free_physical_gib: 0, free_commit_gib: 0, pagefile_mib: 0, commit_limit_gib: 0,
        free_vram_mib: 0, wsl: stopped, comfy: idle, prior_workload: ""}
@@ -214,6 +248,8 @@ file_tier_line: ""
 engine_memory_report: unreported   # no report on the Qwen path in 0.1.47
 free_vram_per_request_mib: []      # one sample per request
 wddm_shared_usage_mib: 0
+expert_read_mode: ""        # file mapping | unbuffered (§3; this box is the boundary)
+cast_buffer_pin: ""         # ComfyUI arms: aimdo_enabled + the pin's size if it stalls (§3)
 # prompt path
 prompt_tokens: 0
 prefill_declared: ""        # auto | auto:16384 | N
@@ -222,6 +258,7 @@ clamp_line: ""
 prefill_borrow: ""          # present (--no-prefill-borrow) | absent-by-binary
 prefill_cpu_share: ""       # ON below a 1024-token chunk, mean KL ~0.004
 lend_region: ""             # #669 line
+prefill_ring: {declared: "", auto: unreported}   # 0.1.59+: STRATA_PREFILL_RING and the auto value
 ubatch: null                # llama.cpp rows
 batch_slots: 1
 prompt_cache: {reused: 0, checkpoints: 0}
@@ -233,6 +270,7 @@ draft_conf_in_force: ""     # never "auto"
 drafts: {accepted: 0, offered: 0}
 mtp_dir: {quant: "", bytes: 0}
 verify_window_mib: null
+spec_kernel: ""             # #31533 few-row MMQ: in >= b12359, not in b12208 (§12)
 # determinism
 chunk: 0                    # identical to chunk_granted, restated for KL rows
 expert_cache_on: true
@@ -249,7 +287,33 @@ client_sent_samplers: true
 
 ---
 
+## 12. What is VOID below which build
+
+Added **2026-11-15** so that no line elsewhere has to carry a build boundary of its own, and so that a superseded
+boundary reads as superseded. A row is **void** when its build sits below the boundary of a feature it uses; the
+reason written in the row is the boundary's own line, never "old build". The check is always the **build id**, never
+the release name.
+
+| feature the row uses | boundary | why the boundary, and what happens below it | readback |
+|---|---|---|---|
+| **`-nkvo` added to `--moe-cache-mib`** | **`>= b12383`**, published 2026-11-14T14:43:25Z | `#31775` is the scheduler abort on this pairing, and `b12383` is the **first tag containing its merge commit** (`compare/c56be864f...b12383` -> **behind 0**; there is no `b12382`). Below it the load fails at `src/llama-moe-cache.cpp:560: the experts of layer 0 are selected in the same split as their MoE cache lookup` - a start failure that measures nothing, not a slow row. Payoff from the tag up, as the fix's commenter measured it: `-nkvo` prefill **pp512 397 -> 435** on Qwen3.6-35B-A3B and **264 -> 345** on Qwen3.8-Flash-Next, **tg unchanged**. | build id in `--version` >= `b12383`; `gh api repos/ggml-org/llama.cpp/compare/c56be864f...<tag>` -> `behind 0` |
+| deterministic tied Top-K (§6 `top_k_impl`) | **`>= b12208`** | `#31084` *is* that merge commit (`compare/b12208...57d04820df` identical): mean KLD **0.0011 -> 0.000000**, same-top-p **99.48 -> 100.000 %**. Below it a "same flags, same answer" row is not one. Still route-dependent at **CCCL >= 3.4.3**, where single-token decode goes through `DeviceTopK` - so the row names the implementation beside the build. | build id + `cccl_version` |
+| MTP / speculative rows - **a comparability boundary, not a void** | `#31533` is in **`>= b12359`**, not in `b12208` | A speculative row below the kernel is a **different configuration**, not a wrong one: our b11461 row (+31.2 % per token, -7.3 % wall) predates the kernel that makes the verify step cheap, so it may not be compared with a later MTP row in either direction. Declare `spec_kernel` (§5). | `gh api repos/ggml-org/llama.cpp/compare/0fb8f1577...<tag>` |
+| ComfyUI cast-buffer reset on the non-aimdo path (§3) | **in no release we hold** | `#17122` / `#17123`: since `#14372`, `reset_cast_buffers()` runs only when `aimdo_enabled` is true, so `LARGEST_CASTED_WEIGHT` can pin ~13 GB of an encoder's mapping through a 15 MB tensor. `v0.45.0` is still the newest published release and `v0.45.1`/`v0.45.2` are still 404, so there is no version to pin to; whether `#17123` has merged is **UNVERIFIED** in the 2026-11-15 scan. An image arm on the non-aimdo path states the pin rather than calling the stall an OOM. | release feed (`v0.45.0`); PR state of `#17123` |
+| GGUF tensor parsing - **not ours**, recorded so it does not silently become ours | the advisory's own range: vulnerable **< b7437**, patched **b7824**, leaving **b7437-b7823 unclassified** | `#32334` / **GHSA-96jg-mvhq-q7q7** (CVE-2026-33298), heap overflow in GGUF tensor parsing. Every build this lab pins is far above it, so it adds no boundary - it is a scanner problem (a gap in the advisory), not an engine one. | advisory text; build id |
+
+**How this composes with §9.** The four before-start and five after-start rules there are unchanged; this table is the
+*build* half of the same gate. Two consequences worth spelling out because both have been got wrong: a **versioned
+release is a name, not a boundary** (`v1.0.0` is `b12359`'s tree - it contains `#31533` and **not** `#31775`), and a
+**closed issue is not a moved boundary** (`#32170`, the lazy-KV PR, was closed unmerged at 2026-11-15T12:13:36Z, so
+KV is still reserved before experts are placed and nothing in this table moved).
+
+---
+
 Provenance: `NEWS-2026-10-23` .. `NEWS-2026-11-08` (the field-by-field history), `CHUNK-LADDER-AND-RESERVE-2026-10-26.md`
 (the gate's four rules), `RESIDENT-ABOVE-8-2026-11-01.md` (`resident=` and the lend arithmetic),
 `RESIDENT-DECLARATION-2026-10-31.md` (declared vs granted), `WDDM-SHARED-SEGMENT-2026-10-22.md` (the shared segment),
-and the 0.1.47 asset read on 2026-11-09 (`--help`, `--version`, `strings`) recorded in §8.
+and the 0.1.47 asset read on 2026-11-09 (`--help`, `--version`, `strings`) recorded in §8. **2026-11-15** added the
+`b12383` gate (§1, §12), `spec_kernel` and the MTP re-pricing (§5), `STRATA_PREFILL_RING` (§4), the expert-read mode
+and the cast-buffer pin (§3), and `pack_calibration_text` (§2) - all from `NEWS-2026-11-15.md`, with the 1,100-item
+null it re-reads quoted from `README.md` and `KNOWLEDGE-DEEP-2026-10-10.md`.

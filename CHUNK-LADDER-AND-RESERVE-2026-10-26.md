@@ -497,3 +497,41 @@ Newest prebuilt tag today is **b11936** (2026-10-27T20:11Z), and a released tag 
 then ~20-40 min of compile. (3) Either way the lab's rule applies: declare `--version` + sha256 for the new binary. And a
 flag A/B must be **PR-base vs PR-head, both declared**, because our rows name b11480 and a branch build would confound the
 flag with every change between b11480 and the branch head.
+
+## 2026-11-15: the two variables this note's finding was still missing
+
+Both are now fields in `DECLARATION-TEMPLATE.md` (§3 `expert_read_mode`, §4 `prefill_ring`). Recorded here because this
+file is where *"a flag sweep on this pack measures the I/O state"* was established, and both say that state had two
+more inputs than any sweep carried.
+
+**1. The prefill ring was never declared, and it is worth ~23 %.** Strata `#6020` (11-15T11:15:04Z, *"Optional
+benchmark-based autotuning for prefill ring size"*) reports that **`--prefill auto` chose a 96-slot ring, and
+`STRATA_PREFILL_RING=512` gave +23.1 % at 4K and +24.2 % at 16K** - medians **763.0 -> 939.5** and **974.9 ->
+1210.9**, plus one 64K pair **992.0 -> 1219.1 (+22.9 %)**; decode 41.9 -> 43.6 with **no decode claim**. The design is
+exactly what this note demanded under "what a stable measurement needs": **three interleaved A/B rounds, a fresh
+engine per arm, one variable** - Windows 11 26H2 build 26300.9974, RX 7800 XT (HIP gfx1101), engine 0.1.59
+`712fec6b4297`, UD-Q2_K_XL at 262,144 with `--kv int8`. It is **not our backend**, so it is a predict-and-check and
+not a result on this box; what transfers today is the declaration. On 0.1.47 the field is `unreported` until someone
+runs `strings -a strata.exe` for the literal - the same check that settled `--prefill-borrow` and `STRATA_KVA` - and
+the arm that sets it rides the gated 0.1.59 bump.
+
+**2. Expert reads have two modes, and the winner flips with RAM against pack.** The sentence above - "reads the other
+29.6 GiB **unbuffered** from the model files, so throughput follows the file cache and the disk" - is a
+*configuration choice* that this file never recorded as one. Two Windows measurements now bound it:
+
+- llama.cpp `#3059` (2026-10-18) **gained +26.3 %** decode by keeping the unbuffered initial load and then
+  **reopening the shards so later expert reads are served by the Windows file cache**: 64 GB RAM, 16 GB card.
+- Maya `#995` (11-15T12:42:16Z) is the opposite sign: misses were read through the GGUF file mapping, its pages
+  stayed in the working set until the machine paged, and the stall dumps showed the host thread in
+  `GgufExpertSource::assemble`'s memcpy. It now reads misses **unbuffered** (`FILE_FLAG_NO_BUFFERING`, like its
+  existing Linux `O_DIRECT` path), uses that for `copy_blob()` on the prompt path too, and **releases mapped pages
+  after the RAM-tier copy** (`VirtualUnlock`, mirroring `posix_fadvise(DONTNEED)`; `MAYA_EXPERT_DIRECT=0` keeps the
+  mapping). On its own box - RTX 3090 24 GB, 32 GB RAM, Q5_K_M **112 GB**, 65,536 context - a **27,908-token prompt
+  stalled every time and now answers in 185 s**, follow-up verify-window turn 7 s, default answers unchanged; Linux,
+  AMD and `--bench` untested.
+
+The reconciliation is **whether free RAM sits above the working set**, and this note's ladder sat on the Maya side of
+that line (2 GiB resident, 29.6 GiB streamed). This box is the boundary case - **63.46 GiB RAM against a ~66 GB
+pack** - so a ladder from now on declares which mode it is in *and* the free physical above the working set;
+otherwise "the file cache cannot keep them" and "the mapping's pages are the stall" are two names for the same unread
+row.
