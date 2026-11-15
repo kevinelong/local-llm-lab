@@ -1,5 +1,132 @@
 # Local AI lab working instructions
 
+- **2026-11-15, scheduled scan (the 06:30 run): the fix the last file was watching reached a tag eight minutes
+  after it closed, a kernel we never had re-prices our MTP row, and ComfyUI's cast-buffer leak is a pin rather
+  than a size.** `NEWS-2026-11-15.md`, written against **`NEWS-2026-11-14b.md`**, which closed at
+  **2026-11-14T14:35Z**; window **2026-11-14T14:35Z -> 2026-11-15T14:30Z, 23.9 h**. This **is** the scheduled run:
+  `%TEMP%\daily-news-scan.log` reads `[Sun 11/15/2026 6:30:01.34] daily news scan start` and this process began
+  **14:30:41Z**. Reading only - nothing downloaded as a model or installed, **no engine started, no inference, no
+  benchmark**, **`ai_bench` untouched**. WSL started once for `gh`/`curl`/`yt-dlp`, then shut down. Gates at start:
+  **23.97 GiB free physical, 7.82 GiB free commit of 69.94** - that is **under the 8 GiB commit gate**, so an arm
+  would have been refused this morning - GPU **3,389 of 12,227 MiB** used, **Ollama listening on 11434**, no lab
+  engine port open.
+  - **`#31775` REACHED A TAG AT 2026-11-14T14:43:25Z, EIGHT MINUTES AFTER THE LAST FILE SAID "THE NEXT TAG IS THE
+    FIRST THAT CAN", AND THAT TAG IS `b12383`.** `compare/c56be864f...b12383` -> **behind 0**; no `b12382` exists.
+    **29 rolling tags** in the window (`b12383` -> **`b12413`**, 11-15T12:38:58Z), 38 assets each; **32 commits**;
+    `master` = `de32b268c` (11-15T11:36:08Z), **ahead 35** of `b12381`; `v1.0.0` (`b1b770d90`) still the only
+    versioned release. So the build gate is **`>= b12383`**, `-nkvo` + `--moe-cache-mib` is **legal from it and
+    VOID below it**, and the payoff is unchanged: `-nkvo` prefill **pp512 397 -> 435** (Qwen3.6-35B-A3B) and
+    **264 -> 345** (Qwen3.8-Flash-Next), tg flat.
+  - **`#31533` RE-PRICES OUR MTP ROW AND WE DID NOT KNOW THE KERNEL EXISTED.** "CUDA: few-row MMQ for BS 2-24"
+    merged **2026-11-12T13:12:46Z**, commit **`0fb8f1577`**, verified against tags: **`b12208` behind 134**,
+    **`b12359` CONTAINS**, `b12383` contains. A proper interleaved benchmark (two builds taking turns, GPU cooled
+    to 50 C before each run, median of 5, RTX 3090) reads **27B +52 % / +55 % with MTP on v1.0.0** and **+11 % /
+    +17 % on pre-v1**, with **draft acceptance unchanged at 32-33 %** - so the gain is the *verify* step getting
+    cheaper, not the drafter improving. Our 2026-10-08 MTP row (**+31.2 % per token, -7.3 % wall, +21.7 % tokens,
+    accuracy unchanged**) ran on **b11461**, which predates it, so the tax we measured is now a **pre-`#31533`
+    result** and the prediction is that ~33 % acceptance pays wall clock on `>= b12359`. Same page: **one request
+    at a time is unchanged** (within 2 %) and the **14-22 % gain needs 4 concurrent slots**, i.e. it is
+    **unreachable at our `--parallel 1`**; MTP costs **+1,490 MiB** on a 27B and a separate 0.8B drafter made it
+    **slower** (30.7 vs ~40).
+  - **THE LAZY-KV PR IS DEAD ON DOCTRINE, NOT ON MERIT.** **`#32170`** - which the 11-13 file carried as the change
+    that "would end KV-before-experts" (1B at 1,048,576 tokens **8.24 -> 0.86 GiB**) - **closed unmerged
+    2026-11-15T12:13:36Z**. The maintainer's objection is the quotable part: *"the memory usage will be the same
+    once the key-value cache is full. This deviates from the project's core concept - which is to allocate a fixed
+    amount of memory once, without subsequent increases."* **So our 0.77 GiB at 65,536 stays the price of the
+    context, and a smaller `--ctx` remains the only lever.**
+  - **STRATA: A 12 GB cc 12.0 WINDOWS CARD CRASHES ON THE SECOND PREFILL CHUNK, AND THE AUTO CHUNK IS THE CULPRIT
+    AGAIN.** **`#6018`**, engine **0.1.59 windows-x86_64-cuda**, **RTX 5070 Ti Laptop 12 GB**, Coder **IQ1_M** with
+    PLE + MTP: `--prefill auto` resolves to **4864 tokens** and every prompt spanning more than one chunk faults
+    with `prefill (layer-major): an illegal memory access`, a second path faults in `prefill mmq: gather_native`,
+    exit **1** / **0xC0000409**; single-chunk prompts are clean; not VRAM (reproduced with 648 MiB free) and not
+    content; **`STRATA_PF_FUSED=1` runs at the full 128K**. **Second witness in three weeks that an auto chunk is
+    what breaks** (11-12 `#5104`), which is why our fixed `--prefill 2048` is a rule and not a preference.
+    **`#6020`** is the best method in the window: **`STRATA_PREFILL_RING` auto picked 96; 512 gave +23.1 % at 4K
+    and +24.2 % at 16K**, three interleaved rounds, fresh engine per arm, Windows HIP 16 GB - a 23 % prefill term
+    our arms never declare. **`#6006`** (IQ3_S 90 GB eating **100-110 GB** of 128 GB at 520K where UD-Q4_K_XL read
+    ~90) is the mirror of `#5943`: **a smaller quant cost more RAM**. **`#6019`**: rare non-finite logits with
+    **IQ2_XS / IQ3_XXS**, **none with Q2_0** - a reason not to move our pack at the bump. **`#6030`**: sm_75 native
+    Q5_K head returns max **8.56e11**, only **4 of 248,320** non-zero, argmax pinned to token 0. **`#3354`** (the
+    model-card `presence_penalty` that disables MTP, `drafts accepted 0 of 0`) is **still open**. **No release**
+    (v0.2.13, 43 assets); `main` unchanged since 11-12T07:48:43Z; tag `v0.2.13.1` has no release object; **100
+    items** updated (page cap) - the busiest Strata window recorded without a release.
+  - **COMFYUI'S CAST-BUFFER DEFECT IS A PIN, AND ITS FIX WAS PROVED WITH OUR OWN METRIC.** **`#17122`/`#17123`**:
+    since **`#14372`**, `reset_cast_buffers()` runs after a node **only when `aimdo_enabled`**, so
+    `LARGEST_CASTED_WEIGHT` holds the largest lowvram cast weight to the end of the prompt and, because safetensors
+    are mmap'd, **one 15 MB `Linear` pins ~13 GB of a 15.4 GB encoder's mapping** (`/proc/<pid>/smaps`, with
+    `current_loaded_models` empty); the DiT then loads at ~200 MB free and stalls **10+ minutes at 3 % GPU** in
+    `svm_range_restore_work`. The fix's acceptance line is **"Qwen-Image-2.1 t2i and edit: pixel-identical
+    output"**. **Precondition is `aimdo_enabled=False`, so it is not our path by name** - what transfers is the
+    symptom pair and the fact that three ComfyUI memory defects this month had three mechanisms and all passed our
+    floor. **`#15520`** is our silent-fallback rule in the image stack: NVFP4 files without `.comfy_quant` markers
+    load **unquantized** and the scale tensors are dropped as "unexpected keys", surfacing as a shape error far
+    from the cause. **34 items**; v0.45.0 still newest published, v0.45.1/v0.45.2 404 (day 5 and 6).
+  - **OLLAMA: 0 COMMITS, 21 ITEMS, AND THE ONE THAT IS OURS NAMES OUR OWN `.wslconfig`.** **`#19519`**: an iGPU
+    with an 80 GB carve-out, VM given 30 GB, *"because the GPU is integrated, stock Ollama caps it at the VM's free
+    RAM in llama.cpp and the scheduler: 22.7 GiB here"* - 37/66 layers at **0.53 tok/s** against 66/66 at
+    **7.72**. **This lab runs `memory=8GB`** (set 2026-09-29 for the opposite reason), so a WSL-hosted GPU arm
+    inherits an 8 GiB cap unrelated to the card; the rule is **a WSL-hosted arm declares the VM's memory and reads
+    the cap back**. `commits/master` returns **422** - the default branch is `main`, so a scan assuming `master`
+    reports a false negative. **First-hand pins**: `LLAMA_CPP_VERSION` = **`b12177`** at v0.40.16 and **`b12257`**
+    on main, both below `b12359`, so **no Ollama build can show the spec-decoding gain**.
+  - **COLIBRI: THE WINDOWS GPU PATH SILENTLY BECOMES CPU ON A DATA-CENTER CARD, AND THE FIX IS "REFUSE LOUDLY".**
+    **`#2846`** (11-15T10:27:28Z): native Windows 10 + **A100 40 GB**, `vkEnumeratePhysicalDevices:
+    ERROR_INITIALIZATION_FAILED`, and Qwen3.8 has **no Windows CUDA engine** - so a 40 GB CUDA card runs the
+    **185.6 GB** download on CPU with no error, because Vulkan on NVIDIA data-center GPUs needs **vGPU**. His third
+    ask is our rule verbatim: **"treat `--backend vulkan` as a hard error if device enumeration fails"**. Fix PR
+    `#2847`. **Third engine in three weeks whose Windows path degrades instead of refusing** (after `#2793` and
+    `#17380`). **`#2556`**: `COLI_VK_DEV2=auto` on 2x3090 Vulkan drops decode to **2-3 tok/s** with **8,592 expert
+    uploads failing**. **`#2211`**: a 4 GB card is **slower than CPU-only** and **GPU output is not reproducible at
+    temp 0**. **`#2848`** is a 14-PR batch that adds **Q2_K** - the worst cell (**3.7x**) in `#2831`'s table. No
+    release since v2.1.0 (15 days); **0 commits on the default branch** while `pushed_at` reads today, so the work
+    is on `dev` and "0 commits" is not "no activity".
+  - **MAYA `#995` STATES THE WINDOWS EXPERT-READ STALL, AND IT CONTRADICTS THE FILE-CACHE FIX WE TOOK.** Expert
+    misses were read through the GGUF mapping and *"its pages stayed in the working set until the machine paged"*
+    (stalls in `GgufExpertSource::assemble`'s memcpy); the change reads them **unbuffered** (`FILE_FLAG_NO_BUFFERING`,
+    like Linux `O_DIRECT`) and **releases the mapped pages after the RAM-tier copy** (`VirtualUnlock`), with
+    **`MAYA_EXPERT_DIRECT=0`** as the back-out. RTX 3090 24 GB / **32 GB RAM** / Windows 11, Q5_K_M **112 GB**: a
+    **27,908-token prompt stalled every time, now 185 s**, same tokens. **`#3059` (2026-10-18) is the opposite**:
+    letting the Windows file cache serve later reads gained **+26.3 %** on a 64 GB box. The reconciliation is
+    almost certainly **whether the pack fits in RAM** - and **our box is the boundary (63.46 GiB RAM, ~66 GB pack)**
+    - so **"expert reads: file mapping or unbuffered" is a declared field**. Also `#794` (`cudaMalloc 0 MiB`
+    failing) and `#827` (Windows illegal access on the request **after** one that ended with `length`).
+  - **ARXIV DID NOT ADVANCE A THIRD DAY** (dateline **Fri 13 Nov 2026**, **626** cs.CL / **1,521** cs.LG, newest
+    submission **2026-11-12T18:59:52Z**), so two unread papers from the frozen batch were read: **`2611.12634`**
+    - the second-order/Fisher quantisation screen holds on relative predictions and **fails on MoE (nonquadratic,
+    int8 KL scaling as `alpha^0.63`)**, bf16 per-sequence gradients cause **4x** prediction errors (fp32 fixes it),
+    and - the number we were missing - **batch-invariant kernels run at 0.55x throughput while reduction-order
+    changes impose a floor of 0.17-0.22 nats per sequence**: a price and a floor for determinism in one sentence,
+    bracketing `2611.15671`'s 0-0.92 % of decisions. **`2611.11079`** - **task-informed calibration is worth
+    +1.83 pp at two bits**, survives deliberately wrong labels at ~90 % of the gain, and **reconstruction error
+    does not track accuracy**; our 88.5 % vs 89.7 % null used two packs whose calibration text neither publisher
+    declares, and 1.8 pp is larger than that gap and comparable to the **1.33 pt** paired SE.
+  - **[HN] 726 stories and one on-axis item that is a properly-run benchmark, whose headline is a negative.**
+    `homebrewserver.club/llama-cpp-v1.html` (submitted 11-14T16:30:57Z, 2 points): interleaved builds, GPU cooled
+    to 50 C before each run, median of 5 - **one request unchanged**, **4 concurrent +14 %/+22 %**, **MTP +52 %/+55 %**
+    at unchanged acceptance; also states first-hand that **`--defrag-thold` is removed** and that tools/MCP on a
+    non-loopback address **refuse to start without `--api-key`**.
+  - **[YT] one in-window upload, and its honest headline is "nobody has published that test yet".** Code Unpacked
+    `w9OWn5xkJFU`, **2026-11-14**, 694 s, 24,415 views, captions **101,215 B on `en-orig` after `en` returned
+    **429** (fifth time). It re-tells `#30966` correctly (small cache worse than none, sign flips with size, the
+    tuner and its 5 % rule, ClassLRU's 128-token halving) - and contains **one discrepancy**: it attributes
+    **19.5 -> 31.8 tok/s to the share alone at a fixed cache size**, where our 2026-10-31 record has 19.5 from a
+    **5.5 GB cache** and 31-68 from filling the card. **Neither number is quotable until `#30966` is re-read.**
+    [RD] **403 on `new.json` (189,908 B) and 302 on the RSS** - seventeenth failure in twenty days, last success
+    2026-10-25.
+  - **Shortlist, cheapest first**: (1) **move the build gate to `b12383`** and delete every "no tag carries it"
+    sentence; (2) **re-price the MTP row as pre-`#31533`** and put the kernel in the spec declaration; (3) add
+    **`STRATA_PREFILL_RING`** and read the auto value from the log (+23-24 % measured); (4) declare the **expert-read
+    mode** (file mapping vs unbuffered) because `#3059` and Maya `#995` pull opposite ways on a box that is the
+    boundary; (5) add the **ComfyUI cast-buffer pin** as a covariate and symptom, stating the `aimdo_enabled=False`
+    precondition; (6) make a **2-bit pack's calibration text** a declared field; (7) **two starts on `>= b12383`
+    with `--spec-type draft-mtp` off and on**, reporting accepted/offered and wall clock. **Items 1-6 are edits;
+    nothing was started.**
+  - **Gated on Kevin**: a llama.cpp download at **>= `b12383`** (now two reasons in one build - `#31775` and
+    `#31533`); the **Strata 0.2.13 / engine 0.1.59** bump (now with the lend-region field, the `--ple` served-from
+    line, `STRATA_PREFILL_RING`, and `#6019` as a reason not to move the pack at the same time); the **ComfyUI image
+    pair** (now for `#17187` *and* `#17122`); the DeepSeek IQ2_XXS download; the Colibri `dev` probe (now with
+    `#2846`'s Windows/Vulkan limit); the candidate tests; the display-to-iGPU cable change.
+
 - **2026-11-14b, scheduled scan (the 06:30 run, writing beside the hand file): the MoE cache aborts at load on our
   model family and its fix merged 14 minutes before this run without a tag, and a silent conditioning corruption in
   ComfyUI is bit-identical in every memory mode.** `NEWS-2026-11-14b.md`, written against **`NEWS-2026-11-14.md`**,
