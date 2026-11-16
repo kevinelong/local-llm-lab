@@ -263,6 +263,22 @@ with reasons, so they are not re-researched"), three items simply stop:
 
 ---
 
+# 11a. Status, 2026-11-15 evening: question 2 answered, question 1 answered
+
+**Q2 - answered, and the row it asked about inverted.** MTP pays wall clock on `b12383`: **-10.08 % end-to-end wall,
++11.21 % throughput**, acceptance **57.71 %** (161/279), five starts with disjoint ranges. The 2026-10-08
+`+31.2 %/token, -7.3 % wall` row was **a property of b11461**. Costs found with it: drafter raises prefill **+21.9 %**
+and costs **~1,043 MiB VRAM / ~1.1 GiB commit** (`DECLARATION-TEMPLATE.md` sec. 5).
+
+**Q1 - answered as outcome 2: the curve differs and no low rung is below the control.** On `b12383`, 512 MiB is
+**+29.5 % over its own control** at **0.9 tokens worth** with **28.95 % hits**; the elbow is **4096** (+96 %) and 6144
+is admitted and buys nothing. So **"512 MiB is a dead zone" and the 5,376 ceiling are `b11480` facts**, and the cache
+work closes at this rung set (`CACHE-CEILING-2026-11-15.md`). Two caveats stay: no `b11480` arm ran today, and the
+plateau past 4096 is not explained by the hit rate.
+
+**Q3 - still open, still free to start.** Both packs' `pack_calibration_text` read `UNVERIFIED`, so the 88.5/89.7 tie
+may not be quoted as "two bits equals four bits".
+
 # 11. The three questions this lab should answer next
 
 The table order above is not the answer. Value does not sit where the proposals are densest - theme 2 has

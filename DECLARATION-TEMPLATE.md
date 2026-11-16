@@ -162,7 +162,14 @@ A "same flags, same answer" claim is a claim about **plain text at one chunk siz
 | Field | Why it exists | Readback |
 |---|---|---|
 | `near_tie_statement` + `chunk=` on every KL row | Sparse block selection sits on near-ties (gap < 1e-3 on 75-93 % of queries) and any chunk change flips which blocks are picked on 70-90 % of queries: agent prompts get **O(1) KL** where plain text moves ~1e-5. The vendor's own earlier agent KL figures may be inflated by this and were not re-measured (2026-11-05). | analysis note |
-| `expert_cache_on` | The vendor traced five-different-answers to the expert cache: `--no-expert-cache` restores repeats at **8-10 % decode (58 % on one card)** (2026-10-31). Our 2026-10-08 MTP row is **speed-and-letters only** and cannot be quoted as determinism. | `--no-expert-cache`, `DS4_ASYNC_T` |
+| `moe_cache_tokens_worth` | **New 2026-11-15.** A cache rung is declared in **`tokens worth`**, not MiB: on `b12383` the rungs read
+0.9 / 1.9 / 3.8 / 7.6 / 9.9 / 11.4 tokens' worth, and the elbow is **7.6** (+96 % decode) with nothing above it beating
+its own spread. Read it with **`-lv 4`** (`N slots (x %, Y tokens worth)`); at default verbosity this build prints
+nothing about the cache, and the control prints neither line. The hit rate prints **only when the context is freed**, so
+a force-stopped server needs a `llama-cli` companion for it. `LLAMA_MOE_CACHE_TRACE` writes a binary `MCT1` file and is
+not a text channel. **The cache costs prefill: -25.8 %, fully spent by 2048** - a decode-for-prefill trade, not a free
+win. | `-lv 4` slots line; companion `llama-cli` `hit rate = N %`; `CACHE-CEILING-2026-11-15.md` |
+| `expert_cache_on` || `expert_cache_on` | The vendor traced five-different-answers to the expert cache: `--no-expert-cache` restores repeats at **8-10 % decode (58 % on one card)** (2026-10-31). Our 2026-10-08 MTP row is **speed-and-letters only** and cannot be quoted as determinism. | `--no-expert-cache`, `DS4_ASYNC_T` |
 | `prefill_cpu_share` | See §4: ON below a 1024-token chunk, mean KL ~0.004 against 0.1.40.3 - the largest declared text-change knob on our line. | environment + binary string |
 | `adapt_async` | `--adapt-async 1` states **"Not bit-exact run to run"**; 0 is the blocking tier and the default. Declare it, because an asynchronous tier in any A/B voids text identity. | `--adapt-async` argv |
 | `route_prior` | 0.1.52 printed the routing state, 0.1.55 prints nothing when the prior is off (`#5000`). So a row is **"prior absent by construction"** (pre-0.1.52) or **"prior 0"**, never both. Price at 1.5: **+22.9 % perplexity** and AIME **-10.0 pts for +45 %**. | engine log (pre-0.1.52 only); ours: absent by construction on 0.1.47 |
