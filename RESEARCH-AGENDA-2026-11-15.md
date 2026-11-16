@@ -276,6 +276,15 @@ is admitted and buys nothing. So **"512 MiB is a dead zone" and the 5,376 ceilin
 work closes at this rung set (`CACHE-CEILING-2026-11-15.md`). Two caveats stay: no `b11480` arm ran today, and the
 plateau past 4096 is not explained by the hit rate.
 
+**Q2 addendum, 2026-11-16: the sign is set by acceptance, not by prompt length.** The 19,717-token prompt gave
+**-7.05 % wall** (prediction wrong), because acceptance was **97.94 %** on a numbered list against **57.71 %** on prose.
+Crossover fit: **~14,100** tokens at prose acceptance, **~54,000** at 98 %. Every MTP row now declares prompt length *and*
+acceptance.
+
+**Cache theme closed, both halves.** Ceiling: **the build's** (512 MiB is +29.5 %, elbow 4096). Lever: **the CPU share
+costs** - 85.09 -> 63.16 tok/s at 0.95, hit rate unchanged, uploads down 39 % against 4,178 CPU expert sets per 128
+tokens. What remains in this theme is the pack, not the knobs.
+
 **Q3 - the free half is closed (2026-11-16); the positive half needs a download.** Neither publisher declares calibration:
 `ggml-org`'s README is 483 bytes, ISTA's 16,649 bytes document GSQ/RCO but no calibration corpus. So the tie **may
 not be quoted as a property of bit-width**, and answering whether calibration explains it needs a pack chosen **for

@@ -155,6 +155,15 @@ build, prompt, sampler and harness, so nothing is subtractable. Not the publishe
 claim: the two MTP-off starts are text-identical (1,289 chars) and the three `draft-mtp` starts are text-identical
 (1,454 chars), but **off and on diverge within the first sentence**, so this is a §6 speed row and nothing else.
 
+**Follow-up 2026-11-16: the win survives a long prompt, and the sign is set by ACCEPTANCE, not by length.** The 446-token
+row above predicted that a long prompt would flip the sign, because the drafter's prefill tax grows with the prompt. On the
+**19,717-token** prompt it did not: **-7.05 % wall** (21.075 -> 19.591 s), prefill **+6.03 % (+941 ms)**, decode
+**-44.5 % (-2,420 ms)**. The prediction was wrong twice and both errors are the same error: **acceptance was 97.94 %
+(190/194)** on that prompt against **57.71 %** on the prose one, because a numbered list is predictable and prose is not.
+Two-point fit on the tax - **~97 ms + 0.0428 ms/token** - puts the crossover at ~**14,100** prefill tokens at prose
+acceptance and ~**54,000** at 98 %. So: **every MTP row declares prompt length AND acceptance/offered**, because the two
+together decide the sign, and "MTP pays" is meaningless without both.
+
 ## 6. Determinism
 
 A "same flags, same answer" claim is a claim about **plain text at one chunk size** and nothing more.
@@ -162,6 +171,12 @@ A "same flags, same answer" claim is a claim about **plain text at one chunk siz
 | Field | Why it exists | Readback |
 |---|---|---|
 | `near_tie_statement` + `chunk=` on every KL row | Sparse block selection sits on near-ties (gap < 1e-3 on 75-93 % of queries) and any chunk change flips which blocks are picked on 70-90 % of queries: agent prompts get **O(1) KL** where plain text moves ~1e-5. The vendor's own earlier agent KL figures may be inflated by this and were not re-measured (2026-11-05). | analysis note |
+| `moe_cache_cpu_share` | **Measured negative at 4096 MiB, 2026-11-16.** Cache fixed at the elbow, share 0 / 0.5 / 0.95:
+**85.09 -> 68.48 -> 63.16 tok/s** (-19.5 % / -25.8 %), prefill flat (+-2 %). The mechanism, from the companions: hit rate
+**unchanged** (74.08 -> 74.25 %), **`uploaded` down 39 %** (18,339.75 -> 11,162.81 MiB), but **4,178 of 10,793 misses
+computed on the CPU** per 128 tokens on 8 threads - saving a third of the uploads costs a fifth of decode. The sign at
+6144+ is untested; `#30966`'s published numbers are not ours. | `--help` (present, l.137 of `llama-cli`), the engine's
+`N % of the misses on the CPU` in its cache line, and the companion's `hit rate`/`uploaded` |
 | `moe_cache_tokens_worth` | **New 2026-11-15.** A cache rung is declared in **`tokens worth`**, not MiB: on `b12383` the rungs read
 0.9 / 1.9 / 3.8 / 7.6 / 9.9 / 11.4 tokens' worth, and the elbow is **7.6** (+96 % decode) with nothing above it beating
 its own spread. Read it with **`-lv 4`** (`N slots (x %, Y tokens worth)`); at default verbosity this build prints
@@ -213,6 +228,20 @@ Two further facts fell out of the strings, both declaration-relevant:
   clamps to 512.
 - **`--mmap-experts` carries a measured cold/warm pair** the notes had never quoted: *"measured 71.97 vs 34.78
   ms/token cold vs warm"* - the engine's own version of our "a rate inherits the machine's prior workload" rule.
+
+## 8b. A start can fail at warmup when post-load commit headroom is thin (2026-11-16)
+
+`CUDA error: shared object initialization failed` in `ggml_cuda_flash_attn_ext_mma_f16_case` /
+`cudaFuncSetAttribute(MaxDynamicSharedMemorySize)` killed **6 of 17 starts** across two suites today, against **0 of 20**
+in the ladder and **0 of 5** the day before, with an identical scheduler graph and a clean retry each time. Every one of
+those runs sat at **`commit_at_ready` 0.45-0.87 GiB**. The mechanism is the class recorded on 2026-10-30 (Ollama `#17380`:
+a pinned-host-buffer allocation failing under commit pressure degrades silently and the first kernel launch dies) and on
+2026-10-11 (our own `-b 512 -ub 512` workaround). Two consequences for a declaration:
+
+- **`commit_at_ready` below ~1 GiB is a warning, not a fact to discover later**: record it, and prefer a start that leaves
+  more. The admission gate cannot see this - that is why the field exists.
+- **A start that dies in warmup is re-queued once before an arm is called broken**, and the attempt count is declared.
+  Without that rule, a flake reads as a model or engine defect - the 2026-11-01 `#4879` class in a different costume.
 
 ## 9. Void rules
 
