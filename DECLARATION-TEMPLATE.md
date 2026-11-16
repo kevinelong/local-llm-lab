@@ -71,6 +71,12 @@ value.
 | `expert_read_mode` | **New 2026-11-15.** *File mapping* or *unbuffered*, declared, because two Windows measurements now point opposite ways and the variable they disagree over is free RAM against the working set. llama.cpp `#3059` (2026-10-18) **gained +26.3 %** decode by keeping the unbuffered initial load and then **reopening the shards so later expert reads are served by the Windows file cache** - a 64 GB-RAM box with a 16 GB card. Maya `#995` (11-15T12:42:16Z) is the other direction: misses read through the GGUF mapping stayed in the working set, the host thread sat in `GgufExpertSource::assemble`'s memcpy, so it reads misses **unbuffered** (`FILE_FLAG_NO_BUFFERING`, as its Linux `O_DIRECT` path already did), uses that for `copy_blob()` on the prompt path, and **releases the mapped pages after the RAM-tier copy** (`VirtualUnlock`, mirroring `posix_fadvise(DONTNEED)`; `MAYA_EXPERT_DIRECT=0` keeps the mapping). Result on that report's own box - RTX 3090 24 GB, 32 GB RAM, Q5_K_M **112 GB**, 65,536 context - a **27,908-token prompt stalled every time and now answers in 185 s**, follow-up turn 7 s, default answers unchanged; not tested on Linux, AMD or `--bench`. **This box is the boundary case: 63.46 GiB RAM against a ~66 GB pack**, so the two results stop contradicting each other once the mode and the free RAM above the working set are both written down. | the tier line above (`... reads through the file cache` vs unbuffered); the declared env value; free physical at start against the pack's on-disk bytes |
 | `engine_memory_report` | `#5570` decomposes a 16 GB card and finds a **2.03 GB `scratch`** region the layered line omits - 12 % of the budget, invisible to both `nvidia-smi` and the gate. Three engines now disagree with the OS by 4-8x, 100 % and 12 %. | **`unreported` on our line**: the 0.1.47 binary has no user-facing memory report and no `scratch` line (§8). Record `nvidia-smi` in-use, the `Shared Usage` counter delta and the engine's own sizing lines instead |
 | `free_vram_per_request` | 0.1.46 drove a card to 0 MiB free and spiralled verify windows 61/49/28/13/0 MiB (`#3952`); `#4474` shows auto-sizing and grant disagreeing in one process. | `strata serve: VRAM %lld MiB kept free: … %lld MiB free now, prompt chunk %lld` |
+| `commit_at_ready` | **New 2026-11-15: admission is not residency.** A row that passes the 8 GiB commit floor can still
+leave ~5 GiB once the engine is resident: five starts of a 20.4 GB pack with `--cpu-moe` admitted at **25.5-27.2 GiB
+free** and fell to **4.43-5.80 GiB at ready**, with VRAM from 10,368 free to **6,701**. A gate read only before a load
+cannot see this, and a second start straight after would be admitted into the remains of the first. Read commit **at
+ready** and **at ready + 60 s**, and declare both. | `Get-CimInstance Win32_OperatingSystem` -> `FreeVirtualMemory`
+before load, at ready and 60 s later |
 | `wddm_shared_usage` | Under WDDM every page-locked GPU-mapped buffer is charged to a ~half-of-RAM segment that commit cannot see; 17.8 GiB measured on this box (2026-10-22), and registration succeeding is not residency acquired (2026-11-04). | perf counter `GPU Adapter Memory\Shared Usage` before and under load |
 | `cast_buffer_pin` (ComfyUI arms) | **New 2026-11-15 - a covariate *and* a symptom.** `#17122` and its fix `#17123`: since `#14372`, `reset_cast_buffers()` runs only when `aimdo_enabled` is true (its only remaining call site is inside `if comfy.memory_management.aimdo_enabled:` in `execution.py`), so without aimdo **`LARGEST_CASTED_WEIGHT` holds the largest lowvram-cast weight until the end of the prompt** - and because safetensors are mmap'd, that one small weight keeps **the whole file mapping** resident. Measured, not theorised: LTX-2.5 on an RX 9070 XT / ROCm 7.2 / 32 GB RAM with a **15.4 GB int8** Gemma 4 text encoder loaded partially - **one 15 MB `Linear` stayed referenced and pinned ~13 GB of the encoder's mapping** (`/proc/<pid>/smaps`) while `current_loaded_models` was **empty**; the DiT then loaded at **~200 MB free** and stalled in `copy_` -> `memcpy_and_sync` with `page allocation failure` in `svm_range_restore_work [amdgpu]`, at **3 % GPU for 10+ minutes**. The fix runs `reset_cast_buffers()` after each node on the non-aimdo path too, and **its acceptance is pixel-identical output** - "Qwen-Image-2.1 t2i and edit: pixel-identical output" - beside LTX-2.5 going from stalled to **100 s** and LTX-2.3 112 -> 90 s on v0.41.3 / ROCm 7.2 / torch 2.14. **State the precondition: this report's is `aimdo_enabled=False` (ROCm), and our image arms run the aimdo-enabled path**, so it is not our failure mode by name. What transfers is the **symptom pair** - a stall at a few hundred MB free with near-zero GPU utilisation, and a pin whose size is the *file's mapping*, not the tensor's - and the reminder that three ComfyUI memory defects in one month each had a different mechanism and each passed our floor. | `aimdo_enabled` from the server log/argv; at the stall: free VRAM/commit, GPU utilisation, whether `current_loaded_models` is empty; Linux: largest `smaps` mapping against the largest cast weight - on Windows, process private bytes at ready against the file's on-disk size |
 
@@ -119,6 +125,35 @@ build spread wider than that), and the **14-22 % no-MTP gain needs four concurre
 `--parallel 1`, so that gain is out of reach and is a reason *not* to chase the version for a throughput ladder. MTP
 cost **+1,490 MiB** on the 27B, and a **separate 0.8B drafter made that model slower** (30.7 against ~40 tok/s) at
 under half its guesses accepted.
+
+**MEASURED 2026-11-15, and the row inverts.** Five starts on `b12383` (`1.0.0-dev`, build 12383, commit
+`c56be864f`), our own pack, **446-token prompt**, greedy, `n_predict 256`, one slot, `-ngl 99 --cpu-moe
+--load-mode none -t 8 -c 8192 -b 512 -ub 512`:
+
+| arm | wall s | gen tok/s | prefill ms | accepted / offered | graphs reused |
+|---|---|---|---|---|---|
+| MTP **off** (2 starts) | 5.9805 / 5.9955 | 46.78 / 46.66 | 527 | — | 254 |
+| `draft-mtp` (3 starts) | 5.4269 / 5.3732 / **5.3534** | 53.72 / 53.36 / **54.68** | 643 | **161 / 279 = 57.71 %** | 90 |
+
+**-10.08 % end-to-end wall, +11.21 % throughput, -13.35 % generation time, +15.42 % generation tok/s.** Within-arm
+spread **0.25 %** (off) and **1.37 %** (on); the ranges do not overlap - the slowest `draft-mtp` start is still
+**0.554 s** faster than the fastest MTP-off start - and the third start was the fastest of the three, so it is not a
+warm-cache artefact. So the 2026-10-08 row (**+31.2 % per token, -7.3 % wall**, `b11461`) was **a property of that
+build**, and the wall tax we quoted for five weeks is not a property of MTP on this card.
+
+Three things this row also found, none of them in any earlier note:
+- **The drafter costs prefill time: +21.9 %** (527 -> 643 ms on 446 tokens), which is why the end-to-end gain
+  (-10.1 %) is smaller than the generation-phase gain (-13.4 %). A short prompt hides it; a long one would not.
+- **The drafter costs ~1,043 MiB of VRAM** (4,201 -> 5,243 MiB at ready, 5,455 after) and ~1.1 GiB of commit.
+- **Batching is visible**: `graphs reused` 254 -> **90**, i.e. 91 steps for 256 tokens = **2.81 tokens per step** -
+  the first direct instrument we have had for "the verify step got cheaper", which is what `#31533` is.
+
+**What this row may not claim.** Not an attribution to `#31533`: the commit is **contained** (`compare/0fb8f1577...b12383`
+-> `ahead_by 41, behind_by 0`), but **no pre-`#31533` arm ran today with this prompt**, and the `b11461` row differs in
+build, prompt, sampler and harness, so nothing is subtractable. Not the published **+52 % / +55 %** (27B on a 3090 at
+32-33 % acceptance) - here acceptance is **57.71 %** with the family's own MTP head. Not a quality or determinism
+claim: the two MTP-off starts are text-identical (1,289 chars) and the three `draft-mtp` starts are text-identical
+(1,454 chars), but **off and on diverge within the first sentence**, so this is a §6 speed row and nothing else.
 
 ## 6. Determinism
 
