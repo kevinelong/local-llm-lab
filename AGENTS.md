@@ -1,5 +1,144 @@
 # Local AI lab working instructions
 
+- **2026-11-16, scheduled scan (the 06:30 run): Strata replaces llama.cpp's prompt kernels and the result splits
+  by card, and a 12 GB viewer shows the CPU share's sign flips with the load mode.** `NEWS-2026-11-16.md`,
+  written against **`NEWS-2026-11-15.md`**, which closed at **2026-11-15T14:30Z**; window
+  **2026-11-15T14:30Z -> 2026-11-16T14:30Z, 24.0 h**. This **is** the scheduled run: `%TEMP%\daily-news-scan.log`
+  reads `[Mon 11/16/2026  6:30:01.33] daily news scan start` and this process began **14:30:0xZ**. Reading only -
+  nothing downloaded as a model or installed, **no engine started, no inference, no benchmark**, **`ai_bench`
+  untouched**. WSL started once for `gh`/`curl`/`yt-dlp`, shut down at the end. Gates at start: **31.7 GiB free
+  physical** (32,480 MB), **20.5 GiB available commit** of 67.47 (69,102 MB max), GPU **1,029 of 12,227 MiB** -
+  above the 9/8 GiB floors, so an arm would have been admitted. Lab state carried in, not a scan result: the two
+  measurements made after the last file closed are on **`b12383`** - **MTP -10.08 % wall / +11.21 % throughput,
+  acceptance 161/279 = 57.71 %** (`c0d03de`) and the **cache ladder** (512 MiB **+29.5 %** over its own control,
+  elbow **4096 = +96 %**, prefill **-25.8 %**, `CACHE-CEILING-2026-11-15.md`).
+  - **STRATA SHIPPED TWICE AND THE HEADLINE CHANGE IS A PROMPT-KERNEL REPLACEMENT.** **`v0.2.14`**
+    (11-15T18:08:50Z, 39 assets, feed seq 125): app/Terminal 0.2.14, **Control and every engine 0.1.60** - *"the
+    engine reads your prompt with Strata's own code on NVIDIA and AMD cards, on Windows and Linux"*, with
+    `-DSTRATA_MMQ=ON` still building the llama.cpp path; **0.2.14.1** (Control 0.1.60.1, seq 126) rides the same
+    page. **`v0.2.15`** (11-16T09:22:29Z, 22 assets, seq 127): app/Terminal 0.2.15, **Control 0.1.61**, **engines
+    stay 0.1.60**. Bump target is now **app 0.2.15 / engine 0.1.60 / Control 0.1.61**. Asset arithmetic:
+    Windows CUDA 13 engine **577,971,407 B at 0.1.60 against 630,783,433 at 0.1.59** (-52.8 MB, what dropping the
+    MMQ path looks like). 0.2.15 is app fixes only, and one matters: the app **no longer starts llama.cpp's
+    `llama-server`**, so a "Use a local GGUF" model can no longer load through a `llama-server` found on the PC.
+  - **THE NEW PROMPT PATH IS A WIN ON THE CARDS THE VENDOR MEASURED AGAINST 0.2.13 AND A LOSS ON MOST OF THE ONES
+    IT MEASURED AGAINST ITS OWN KERNELS - AND OUR CARD IS IN NEITHER TABLE.** Against 0.2.13: 4090 IQ3_S 20K
+    **5,656/5,651 ms vs 6,110/6,150**, 5090 UD-Q4_K_XL 32K **7,870 vs 6,851 tok/s**, 5070 Ti 16 GB 20K
+    **1,408 vs 953 tok/s (+48 %) but decode chat 17.5 vs 19.4**. Against 0.1.60 built with llama.cpp's kernels:
+    Titan RTX **-3 to -10 %**, P100 **-10 to -11 %**, 2x A4000 **-9 to -18 %**, R9700 **-28 % at 2K**, 3060 Ti flat;
+    quality moves the other way (**KL 0.00744 vs 0.00787** on a 5070 Ti IQ3_S at 8,192 positions; the 4090 rows
+    **bit for bit**). The vendor's own sentence: **"Not measured against 0.2.13: RTX 5070 12 GB"** and five other
+    classes - on those it was measured against the old kernels. Its one Windows row on **our card**: RTX 5070
+    12 GB, IQ3_S, **32,000-token prompt 765 read / 30.1 out**, MTP, first launch 450 s.
+  - **THREE REPORTS, AND THE CLOSEST IS AN sm_120 16 GB CARD AT OUR PROMPT LENGTH: `#6074`.** RTX 5080 16 GB,
+    0.1.59 container vs 0.1.60 bind-mounted into the same launch line, `/metrics` confirming the version,
+    interleaved with a same-binary drift control (+0.2 %/-1.8 %): **16,000 tokens +0.6 %; 20,000 tokens
+    (2,619/2,623) -> 2,281 = -13.0 %; 40,000 +8.3 %**, decode flat; ten clean reps per side at 20K with
+    **non-overlapping ranges** (2,474-2,661 vs 2,226-2,351). The named difference is the **trailing chunk**
+    (2,336/2,080 tokens at 20K, 4,672 at 40K, none at 16K) - *a slow route on a small final chunk*, unproven.
+    **`#6053`+`#6088`** (6x V100 sm_70, two independent reporters): ~**862 -> ~769 tok/s** prompt read, wall
+    **+12 %**, both rolled back. **`#6067`** (RX 7900 gfx1100 Linux): cold prefill **~40 % slower** (17K
+    1,918-1,957 -> 1,128-1,153), decode unaffected, and a post-rollback re-run reproduces the baseline exactly.
+    **`#6091`** is the other direction and the only Windows NVIDIA row that separates variables: 2x 4090 split 22,
+    **read 2,551 -> 3,272 (+28.2 %)**, decode equal, **+221 slots**; one 4090 on Gen3 x8 **+12.5 % read**. The
+    vendor's 5070 Ti +48 % and `#6074`'s 5080 -13 % are the same generation and disagree at 20K; absolute rates
+    differ 1.5x, so they are different workloads and **neither transfers to 12 GB**.
+  - **`#5136` IS A SERVING DEFAULT THAT CHANGES ANSWERS AND KEYS ON RESIDENCY: `STRATA_ROUTE_TAIL_SKIP` is ON at
+    rank 7 by default on CUDA (and HIP gfx1200/1201).** A non-resident expert that every token of a verify window
+    routes at rank 7+ is **neither copied nor computed** - its row zeroed, survivors un-renormalised
+    (`expert_source.cpp:4941-4944, 5163-5166`). Because residency is the adaptive expert cache, **the same prompt
+    and seed can differ inside one server's lifetime and across cards**; the engine already disables it under
+    `--batch` for that reason, and `setup.py:4107-4108` writes `=0` only for Unsloth packs outside the RAM-budget
+    mode. **Our 0.1.47 rows predate it**, so nothing is invalidated - but a 0.1.60 bump inherits it, and `#6091`
+    declares `=0`.
+  - **TWO WINDOWS MEMORY ITEMS, EACH A NUMBER READ ONCE AND TRUSTED.** **`#6089`** (open PR, base `c77572806`):
+    WDDM's `device_free_bytes()` lags right after the expert-cache allocation, so `generate.cpp:9022` **drops
+    1.0-1.4 GiB per iteration, twice (-2.8 GiB)**; on **RTX 5080 16 GB sm_120 + 4060 Ti, Windows 11** that left
+    **3,823 MiB free against a 1,076 MiB reserve (2,747 MiB dead)** and **6,215 slots against 7,976 (+1,761)** with
+    the 256 MiB cap, and in a layer split it **starved the cost model, K 22 -> 17**. **`#6082`**: on a **96 GB
+    Windows PC** the PLE policy locks the **26.8 GiB** n-gram table, the **`#2090` guard then cuts the prompt chunk
+    21,248 -> 8,192**, prompts **9-14 % slower**, conversation cache off - and the mode is decided at **84.9 GiB
+    available against 84.0 free**, i.e. by a browser.
+  - **llama.cpp: 31 COMMITS, NEWEST TAG `b12441` (11-16T14:22:09Z), `v1.0.0` STILL THE ONLY VERSIONED RELEASE**;
+    master `a06044b93` (*"deprecate old batch API"* + `llama_batch_ext`). **`#32344` merged and the fix is
+    `#if defined(GGML_USE_HIP)`** - I read the patch: row-innermost grid order **only for MoE on HIP**, CUDA keeps
+    `#29948`'s column-innermost order, so `#29948`'s GCN **15-50 % MoE prompt loss** (`#31599`, closed) never
+    reached us. **`#32401`** (filed today): `quantize_row_iq3_s_impl` **skips `qs += bs4; signs += bs8;` on an
+    all-zero sub-block**, so every later sub-block decodes against the wrong indices - error **2.019 -> 0.124** with
+    a two-line fix; a reason **not to move to IQ3_S**, beside `#6019`'s "none with `Q2_0`". **`#26348`** merged:
+    **x86 VNNI Q2_0 dot, 3.0-3.6x** on CPU-only Q2_0 GGUFs (EPYC 9645, `-t 8 -ngl 0`), needing **AVX-VNNI or
+    AVX-512 VNNI+VL**, with a **KLD 0.000310 +/- 0.000044** cost from GCC's fused multiply-add on the new path
+    (contraction off restores identity). **`#32375`**: Pascal sm_60 **silent long-context corruption** - **0/6
+    facts on GPU against 6/6 with `-ngl 0`, same binary**, deterministic at temp 0. **`#32406`**: on non-Windows the
+    CPU backend reports **total** memory as free and auto-fit OOMs - not our platform, our class.
+  - **OLLAMA MOVED ONCE, AND IT IS THE WINDOWS iGPU FIX WE WERE WATCHING**: `15af2b261` (11-15T18:46:15Z)
+    *"keep weights out of pinned host memory on Windows iGPUs (#19636)"* - `#19636` is a **PR** (closed), body the
+    old **62.9 GB shared / 47.2 with `--no-host`** table and its **pp512 905 -> 514** pageable price. Stable
+    **v0.40.16** and **v0.40.17-rc0** unchanged; **`#19632` still open**, **`#19680` still open** (its
+    `mergeable_state` now reads null rather than `blocked`).
+  - **COMFYUI: NO RELEASE, AND FOUR TAGS WITH NO RELEASE OBJECT.** `v0.45.0` (11-10T21:42:42Z) is still newest
+    published; **`v0.45.1`-`v0.45.4` all exist and all four `/releases/tags/` answers are 404** (checked), and a
+    *"backport release v0.45.4"* PR (`#17767`) closed 11-15T17:00:58Z with nothing created - so "tagged but not
+    released" is now a standing condition on that repo, not a day count. **`#17775`** is the fix PR for the
+    **6.3 GB `fc1`** buffer the **11-12** file covered (`#17703`), vendor acceptance still bit-identical output.
+  - **COLIBRI: 16 DAYS WITHOUT A RELEASE, AND A NEW WINDOWS HANG ON THE TIER A PROBE WOULD USE.** `main` unchanged
+    since 10-31; `dev` **`c7752bf5f`** (11-16T03:24:37Z). **`#2869`** (filed 11-16): *a client disconnect
+    mid-generation never frees the KV slot, every later request hangs* - **Windows, Vulkan + CUDA tier**. **`#2847`
+    closed**: `qwen38.exe` now ships in the Windows CUDA package and setup **says why an NVIDIA card stays unused**
+    (`#2846`) - the loud refusal our 11-13/11-15 notes asked for. **`#2797` merged** (candidate ids, **64 GiB -> 2
+    GiB at 262144**); **`#2868`** adds **16-row forms for every grid type, Q2_K and MXFP4**.
+  - **HF: all five tracked packs unchanged by sha AND `lastModified`** (`52f9f9b805`, `a3e717e662`, `f5d175de2c`,
+    `65d53bc8be`, `0fd62efaf9`); **~40 `gguf` repos created in-window**, none on our axes except
+    `lynchen/Qwen3.8-Flash-Next-GSQ-RCO-abliterated-GGUF` (created 11-16T14:25:09Z, **no files or sizes read** -
+    a lead, not a recommendation), `MK4-Research/Mizar-3.0-27B-Abliterated-GGUF` (apache-2.0, **Q4_K_M only**, a
+    dense 27B = the 4.28 tok/s class), and `paincupid/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B-GGUF` (13 files incl.
+    **`Q2_0_L/M` + a `DFlash2-BF16` drafter**, audio, not ours).
+  - **ARXIV ADVANCED FOR THE FIRST TIME SINCE 11-13: dateline `Monday, 16 November 2026`, cs.CL `37 of 37` new of
+    117 entries, cs.LG `78 of 78` new of 291.** Method, first-hand: the **export API still returns 2026-11-13T18:59:43Z**
+    as newest, four days behind the listing - **the listing dateline decides "did it advance", the API decides "what
+    is newest"**. Read: **`2611.17605`** - energy per solved task over **542 EvalPlus tasks** on 24 Qwen2.5-Coder
+    GGUFs, fanless M2, indexed by **Ollama's listed file size**: at **3 GB the larger-model rule picks 7B-q2_K "and
+    there it does not pay"**, at 1-2 GB the q4_K_M files win - the falsification candidate for every 2-bit-bigger
+    step, and the energy axis our 88.5 %-vs-89.7 % null never had; **`2611.17472`** (router ensembling,
+    underparameterized toy tasks - not our regime, recorded unread-for-us); **`2611.18459`** Callo (**invalidated KV
+    as speculative drafts**, 1.05-1.19x over vLLM, needs PD disaggregation we do not run, but the agent-context-edit
+    shape is ours).
+  - **[YT] ONE IN-WINDOW UPLOAD ON A 12 GB CARD, AND IT IS THE VARIABLE OUR LADDER NEVER CROSSED.** `msCLKGh3zWY`,
+    NetworkCoder, **2026-11-16**, 933 s, 822 views, captions **127,895 B** on `en-orig` - and this time **`en` and
+    `en-orig` were the same size**, so "`en` is always 429" does not generalise. RTX 4070 Super 12 GB, 125 GB RAM,
+    Swift 1.5 (125B MoE, Qwen3.8-Flash-Next, ~3 bits, 76 GB): no cache **16.3 tok/s write / 107 read**, 16K prompt
+    ~150 s; **cache 5 GB -> 19.4/18.9/16.8**; **share 0.5 barely different, share 0.95 -> 20.7/24.9/24.7 (+52 %)**;
+    then **the "hidden setting" is `--load-mode none`**: with it on and share 0.95, write ~23 / read **199**; with
+    **share back to 0**, **26.7/27.1/25.8 and read 201** - *"writing up 63 %, reading up 88 %, 80 s instead of
+    150"*. **So the share's sign flips with the load mode**, a third axis under the 11-05/11-06 "sign depends on
+    cache size" rule. Also at-version: **`q8_0` KV 6.6 GB vs 16-bit 7.5 GB at 64K**, and **FP8 KV refused to start
+    on this family** (*"not supported for architecture qwen 4 exp"*); uploads **4.4 GB/s unpinned vs 10.5 pinned**;
+    and the tuner's own prediction is **10-20 % off** (26.7 predicted vs **20.8 measured** on the mmap arm).
+  - **[HN] 960 stories, 37 title matches, and the on-axis one is a NAME COLLISION**: *"Show HN: Strata
+    Architecture"* is **not** `Niko1221/Strata`. Also recorded unread: baseten's *"efficient frontier of LLM
+    inference"* (vendor-authored), *"A Straight Line Predicts How Fast My Laptop Generates LLM Tokens"* (the
+    bandwidth-bound model our **0.527 GiB/token** arithmetic rests on - the test that would settle it is the
+    pinned-vs-fresh copy microbenchmark, still the cheapest unrun item), and two unified-memory pieces not ours.
+    **[RD] 403 on `new.json` (189,908 B) and 302 on the RSS - eighteenth failure in twenty-one days.**
+  - **METHOD FAULTS, RECORDED:** the **`updated:>=` qualifier DID apply this run** (`gh search issues` totals 2,484 /
+    145 / 373, every row in-window), so the 11-14b finding that it is ignored **did not reproduce** - what
+    reproduces is the precision, since the same searches return vllm/sglang/tt-metal and unrelated personal repos;
+    and **arXiv's API lag is the second sighting** of "listing ahead of API".
+  - **Shortlist, cheapest first**: (1) **declare `STRATA_ROUTE_TAIL_SKIP=0`** in every Strata row and the bump
+    (`#5136`); (2) **write the bump as an A/B, not a version** - 16K/20K/40K prompt rates on 0.1.59 vs 0.1.60,
+    because the evidence splits by card and **our card is in the vendor's unmeasured list**; (3) **add the trailing
+    chunk's remainder to the prompt declaration** (`#6074`'s one separating variable); (4) **`--moe-cache-cpu-share`
+    0 / 0.5 / 0.95 at cache 4096 on `b12383`**, `--load-mode none` and `-t 8` fixed, `-lv 4` on (**six starts, no
+    download** - the video's +52 % and its sign flip, and the item open since 11-06); (5) **rule out IQ3_S as a
+    pack** (`#32401` + `#6019`); (6) **read `--moe-cache-cpu-share` and the CPU's AVX-VNNI line back from our own
+    binary** in a normal session (`#26348`); (7) **make long-context recall a standing check** with the existing
+    `longctx` battery (`#32375`'s 0/6 vs 6/6). Items 1-5 are edits, 6 a grep, 7 a spec; **nothing was started**.
+  - **Gated on Kevin**: a **llama.cpp download at any tag >= `b12383`** (unchanged - `b12441` is the same tree
+    family, the gate is `#31775`); the **Strata 0.2.15 / engine 0.1.60 / Control 0.1.61** bump (now with four more
+    declaration fields); the **ComfyUI image pair** (now for `#17187`, `#17122`, `#17775`); the DeepSeek IQ2_XXS
+    download; the **Colibri `dev` probe** (now with `#2847`'s Windows fix and `#2869`'s Windows KV-slot hang); the
+    candidate tests; the display-to-iGPU cable change.
+
 - **2026-11-15, scheduled scan (the 06:30 run): the fix the last file was watching reached a tag eight minutes
   after it closed, a kernel we never had re-prices our MTP row, and ComfyUI's cast-buffer leak is a pin rather
   than a size.** `NEWS-2026-11-15.md`, written against **`NEWS-2026-11-14b.md`**, which closed at
