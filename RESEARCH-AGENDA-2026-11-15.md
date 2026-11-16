@@ -276,8 +276,10 @@ is admitted and buys nothing. So **"512 MiB is a dead zone" and the 5,376 ceilin
 work closes at this rung set (`CACHE-CEILING-2026-11-15.md`). Two caveats stay: no `b11480` arm ran today, and the
 plateau past 4096 is not explained by the hit rate.
 
-**Q3 - still open, still free to start.** Both packs' `pack_calibration_text` read `UNVERIFIED`, so the 88.5/89.7 tie
-may not be quoted as "two bits equals four bits".
+**Q3 - the free half is closed (2026-11-16); the positive half needs a download.** Neither publisher declares calibration:
+`ggml-org`'s README is 483 bytes, ISTA's 16,649 bytes document GSQ/RCO but no calibration corpus. So the tie **may
+not be quoted as a property of bit-width**, and answering whether calibration explains it needs a pack chosen **for
+a declared calibration**, not for its bit width (`KNOWLEDGE-DEEP-2026-10-10.md`, 2026-11-16).
 
 # 11. The three questions this lab should answer next
 

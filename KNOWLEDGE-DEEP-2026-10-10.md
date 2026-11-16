@@ -118,3 +118,14 @@ therefore larger than the 1.2-point gap *and* larger than the instrument's own e
 on these two packs** - nothing here is retracted - but it can no longer be read as "two bits equals four bits on this
 model": a different calibration set is now measured to move that endpoint by more than the difference between them.
 Both stacks' entries for the field read `UNVERIFIED`.
+
+
+**2026-11-16: the free half is now closed, by absence.** Both publishers were read today for the field the null needs.
+`ggml-org/Qwen3.6-35B-A3B-GGUF`'s README is **483 bytes** and declares nothing about calibration, imatrix or the corpus a
+quantiser used; `ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF` documents its **GSQ / RCO** method at length
+(16,649 bytes) but not a calibration set. So `pack_calibration_text` cannot be filled for either stack from its publisher,
+and the consequence is not neutral: **the 88.5 % vs 89.7 % tie may not be quoted as a property of bit-width** - it is a
+property of two packs whose calibration is unknown, at an effect size (**+1.83 pp**) larger than both the gap
+(**1.2 pt**) and the instrument's paired SE (**1.33 pt**). The positive half of the question - does calibration explain
+it - needs a pack whose calibration **is** declared, which means a download, and it should be chosen for that property
+rather than for its bit-width.
