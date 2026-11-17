@@ -177,7 +177,19 @@ A "same flags, same answer" claim is a claim about **plain text at one chunk siz
 computed on the CPU** per 128 tokens on 8 threads - saving a third of the uploads costs a fifth of decode. The sign at
 6144+ is untested; `#30966`'s published numbers are not ours. | `--help` (present, l.137 of `llama-cli`), the engine's
 `N % of the misses on the CPU` in its cache line, and the companion's `hit rate`/`uploaded` |
-| `moe_cache_tokens_worth` | **New 2026-11-15.** A cache rung is declared in **`tokens worth`**, not MiB: on `b12383` the rungs read
+| `coverage` / `guard` | **New 2026-11-16, and the first measured decensoring row.** `coverage` = complies on lawful
+**benign-but-sensitive** prompts; `guard` = **a pair** - strict refusals, and refusals-or-partials. On a paired run
+(`Qwen3.6-35B-A3B` base vs `Huihui-...-abliterated`, `b12383`, 8k context) the strict axis read **0/8 for both arms** and
+would have called the experiment null, while the pair read **7/8 -> 0/8**. A row that quotes only strict can report zero
+for a model that refuses seven of eight. Control class = ordinary coding, where refusal is over-refusal. `llm_notes`
+`COVERAGE-2026-11-16.md`; prompt set hashed and frozen. | a 36-prompt frozen set (`prompts_v2.json`), temperature 0, seed,
+`max_tokens`; the classifier normalises emphasis and the typographic apostrophe before matching |
+| `vram_free_at_ready` | **New 2026-11-16.** The 0.5 GiB VRAM floor and the 8 GiB commit floor are **admission** tests. On a
+paired run free VRAM fell **10,646 -> 487 MiB** and commit **13.98 -> 2.86 GiB** at ready; an arm that passes admission can
+sit **under** both floors in steady state, which is a TDR/OOM risk on its next allocation. Read free VRAM and commit at
+ready and at ready + 60 s, beside `commit_at_ready`. | `nvidia-smi --query-gpu=memory.free --format=csv,noheader` and
+`FreeVirtualMemory` at the three points |
+| `moe_cache_tokens_worth` || `moe_cache_tokens_worth` | **New 2026-11-15.** A cache rung is declared in **`tokens worth`**, not MiB: on `b12383` the rungs read
 0.9 / 1.9 / 3.8 / 7.6 / 9.9 / 11.4 tokens' worth, and the elbow is **7.6** (+96 % decode) with nothing above it beating
 its own spread. Read it with **`-lv 4`** (`N slots (x %, Y tokens worth)`); at default verbosity this build prints
 nothing about the cache, and the control prints neither line. The hit rate prints **only when the context is freed**, so
