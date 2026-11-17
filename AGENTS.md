@@ -1,5 +1,141 @@
 # Local AI lab working instructions
 
+- **2026-11-17, scheduled scan (the 06:30 run): engine 0.1.60 re-reads a whole chunk on every appended agent turn,
+  and the disagreement in yesterday's Strata prompt numbers is the cap the engine picks for itself.**
+  `NEWS-2026-11-17.md`, written against **`NEWS-2026-11-16.md`**, which closed at **2026-11-16T14:30Z**; window
+  **2026-11-16T14:30Z -> 2026-11-17T14:30Z (24.0 h)**. This **is** the scheduled run: `%TEMP%\daily-news-scan.log`
+  reads `[Tue 11/17/2026  6:30:01.36] daily news scan start` and this process began **14:30:0xZ**; the task's
+  `Last Result 267009` was the in-flight code, not a failure. Reading only - nothing downloaded as a model or
+  installed, **no engine started, no inference, no benchmark**, **`ai_bench` untouched**. WSL started once for
+  `gh`/`curl`/`yt-dlp`, shut down at the end. Gates at start: **32.9 GiB free physical** (33,685 MB), **15.4 GiB
+  available commit** of 67.47 (15,806 MB of 69,095), GPU **1,137 of 12,227 MiB** - above the 9/8 GiB floors.
+  - **THE ITEM IS `#6136`, AND IT IS ABOUT AGENT TURNS, WHICH IS WHAT THIS LAB RUNS.** Engine **0.1.60** against
+    **0.1.54**, same machine, model, config, fresh engine per arm, 2 runs per arm: 66,968-token prompt then the same
+    prompt plus ~9 tokens - **first read 3,554-3,592 -> 3,852-3,862 tok/s (+7.5 %)**, **identical resend 715-748 ms
+    -> 41-44 ms (17x faster)**, **prefix + 9-token tail 810-853 ms -> 5,276-5,296 ms (6.4x slower)**, decode
+    +7.0 %. Cause read from the v0.2.14 source: `include/strata/prefill/equal_cut_rule.hpp:103-112` computes
+    `per = tokens / n + (tokens % n != 0)`, so **appending nine tokens moves every chunk boundary**, and checkpoints
+    exist only at chunk boundaries (`generate.cpp:13693`, `prefill.cpp:7325`) - their log reads
+    `append : prompt 66977 = 50223 reused + 16754 read in 5237 ms`, and **16,754 = 66,977/4, exactly one chunk**.
+    `--prompt-cache-every/-spread/-tail`, `--prompt-cache 12` and `--prefill 8192/6144` all fail to change it;
+    **`STRATA_PREFILL_EQUAL=0`** drops the re-read to 1,697 tokens and adding **`STRATA_PREFILL_CPU_SHARE=0`** to
+    **161 / 1,490 ms**, still **+79 % over 0.1.54** because of a fixed ~1.5 s small-tail resume (161 tokens at
+    9 ms/token against 0.25 on the first read). The reporter declines to patch: checkpoints cannot exist mid-chunk.
+  - **`#6074`'s THREAD IS THE CONTROL THAT MAKES YESTERDAY'S NUMBERS READABLE, AND THE VARIABLE IS THE CAP.**
+    `@ShaggyDragon` (11-17T05:47:50Z): the same card **auto-caps at 17,664 on 0.1.59 and 17,920 on 0.1.60**, so
+    *"every fixed token count therefore has two different shapes depending on the arm"* - A/B/A2 drift <=0.7 %,
+    `reused` 0 on 75 reps, **15,880 +6.2 %, 17,772 +19.7 %, 19,686 -9.3 %, 19,906 -9.3 %**. `@jesse890423`
+    (11-16T20:08Z) at an 8,192 cap on both engines: **+2.0 % at 8.5K, +2.0 % at 10.2K, +1.7 % at 16.8K, -9.3 %
+    (bimodal) at 18.4K** - a gain at `cap + 2K`, a loss at `2*cap + 2K`. `@mercant1982` with **both caps pinned at
+    16,384**: **+7.5 / +9.2 / +9.0 %** at 16,384/18,432/22,528 and decode 162.5->164.5, 150.7->154.3,
+    149.1->153.9 tok/s, outputs differing and ungraded. So the -13 %/+48 % spread is not a contradiction; **our
+    11-16 A/B design is sound only if each arm's granted cap is read back.**
+  - **`#6128` FLIPS THE SIGN OF OUR OWN RESERVE RESULT.** On 0.1.60 an RTX 4090 at `--vram-reserve-mib 700` ends with
+    the expert cache **above its own auto estimate** (auto 6,222 slots -> final 7,961/8,106, 15.15-15.43 GiB) with
+    **0 MiB free** and **0.2 tok/s** (52 tokens in 423 s), or 379 MiB free at **19.2/41.5/25.9**; at **1,500** the
+    cache stays at 7,447-7,522 slots and decode reads **97-139 tok/s**; a second card at **1,024** is clean
+    (4,695 MiB against a 2,387 auto estimate, 4,325 MiB free, 42.3 tok/s) and reads **+12.7 % / +12.8 %** against
+    0.1.59. Our **2026-11-01** conclusion (*900 beats 2,000 by +9.9 tok/s*) was engine **0.1.47** and its mechanism
+    was a 1:1 cache tax - at 0.1.60 the same lever has a **lower bound**, and the condition is `final cache <= auto
+    estimate`, read back.
+  - **TWO CORRECTNESS ITEMS ON THE NATIVE PATH, BOTH TODAY.** `#6134` (07:01:32Z): a **256-expert** RCO pack
+    (`qwen4exp.expert_count = 256`, `native_experts.txt` `n_expert 256`) fails its first prefill on 0.1.60 with
+    `could not copy experts 256.. of layer 0` in **ten** configurations, while **0.1.47 serves it with 378 MiB free
+    where 0.1.60 had 380** - not memory, and `--help` advertises the router as *"pinned CUDA 512-expert top-10"*; the
+    control comment gives a **512**-expert pack of the same architecture prefilling **517 / 1,780 / 1,879 tok/s** at
+    945 / 4,830 / 95,942 tokens. `#6130` (04:35Z): an RX 7900 XTX reads a picture's text as **"STRATA 412" for
+    "STRATA 42"** on the default HIP build and correctly with **`-DSTRATA_MMQ=ON`** - the new prompt kernels can
+    change **content**, so a text-identity claim across 0.1.59 -> 0.1.60 is void by construction.
+  - **llama.cpp: 34 commits, newest tag `b12475` (13:43:43Z, 38 assets), `v1.0.0` still the only versioned release;
+    build gate unchanged at `>= b12383`.** **`#32407`** (merged 11-17T11:19:29Z, +64/-16) rotates K/V tile reads for
+    L2 reuse in FP16 MMA flash attention: RTX 5090 **depth 131,072 1,290 -> 1,822 t/s (1.41x)**, 65,536 1.25x,
+    32,768 1.07x, **1.00x from 16,384 down**, AI-assisted (declared). **`#32392`** removes one
+    `CUDA_SET_SHARED_MEMORY_LIMIT` from `launch_mul_mat_q` - **not** the `launch_fattn` call our 2026-10-11
+    `shared object initialization failed` was about, and its stated motivation is readability, so it is **not** that
+    fix. **`#32373`** is the mechanism for a rule we hold: `llama_mmap::impl::unmap_fragment()` is **empty on
+    Windows**, so offloaded pages stay in the working set (**22.75 GB against ~0.5 GB** with PR `#31709`, full
+    offload; 22.93 -> 11.41 partial) - and its own limitation, no reduction under heavy expert offload, is our
+    `--cpu-moe` case. **`#30704`** is a silent 8x: `GGML_PREC_F32` on `ffn_moe_down`'s `src1` makes CUDA reject
+    `MUL_MAT_ID`, so every layer's down projection runs on the CPU (**pp512 756 -> 158, tg128 44.7 -> 5.5**, ABA,
+    revert restores it). **`#32475`**: MTP + `--split-mode tensor` freezes (5 in 150 generations on b12441, Windows
+    build **26300**), with layer split + MTP 0/300 as the control.
+  - **`#28111` IS ON OUR CARD AND IS THE STRONGEST DECLARATION ITEM OF THE WEEK.** On **SM120**, IQ-quant
+    `mul_mat` is **not batch-invariant at n = 5 and n = 8** (`iq3_s` and `iq4_xs`, all three geometries, `ERR` 1.0
+    against a tolerance of 0), which is exactly what a drafter's verify window produces - *"speculative decoding,
+    which is lossless under greedy sampling by construction... the verification pass must agree with what one-token
+    decoding would have computed"*. Three independent reproductions (RTX 5080 Laptop 2026-08-31, RTX 5090
+    2026-10-02 on master `207bdab950`, RTX 5060 Ti 8 GB 2026-10-17), the MMVQ/MMQ crossover is **not** the cause, and
+    forcing 2 or 4 warps fixes it at a cost. Our llama.cpp rows are **Q4_K_M**, so nothing recorded is invalidated -
+    the gated ISTA **`IQ2_XXS`** pack is the affected class.
+  - **A SECOND STREAMING ENGINE IS IN ITS 0.43/0.44 LINE AND ITS RELEASE NOTE PRICES A DEFECT FOR THE THIRD TIME.**
+    **`Helldez/BigMoeOnEdge`** - Apache-2.0, C++, **1,000 stars**, *"Run MoE models bigger than your RAM... Lossless,
+    on stock llama.cpp"*, releases **v0.43.0/v0.43.1 on 2026-11-14**, v0.43.2 on 11-16, **v0.44.0 on
+    2026-11-17T08:44:48Z** (22 assets, all `prerelease`). v0.44.0's own notes: *"A request samples as it asks... They
+    were accepted and not read: a client asking for `stop` got text past it"* - the same class as Ollama `#19432`
+    (11-01 file) and Strata `#2940` (10-18/10-20), **three engines in six weeks**, which is what makes the sampler
+    block a standing field. Its 12 GB numbers (40-44 tok/s, 57-65 with MTP) are a **developer's rented-machine tests
+    repeated by a video** - second-hand twice, a lead and not a benchmark.
+  - **COMFYUI: FIVE TAGS, FIVE 404s, AND ONE MERGED FIX THAT IS A SILENT OUTPUT CHANGE AT A FIXED SEED.**
+    `v0.45.1`-`v0.45.5` all 404 as releases (day 7-11), newest published still `v0.45.0`. **`#16491`** (merged
+    11-16T23:25:12Z, +59/-3, `comfy/model_patcher.py`) fixes dynamic VRAM restoring buffers **by dotted path**, so a
+    buffer with the same name in the next model receives the previous model's sampling schedule - the acceptance
+    evidence is *"zimage, no-shift > shift=50 > shift=50... second and third should match"*, and before the fix they
+    did not. Our image track scores same-prompt/same-seed PNG bytes and dynamic VRAM is the default, so an image
+    determinism row must declare **whether another model was loaded earlier in the same ComfyUI process**.
+  - **HUGGING FACE: five tracked packs unchanged by sha AND `lastModified`, 368 GGUF repos created, and the most
+    downloaded pack of our own family is a ternary one this lab has never named.**
+    **`agentionai/Qwen3.8-Flash-Next-Gyro-GGUF`** - created 2026-09-30, `lastModified` **2026-11-05T20:10:17Z**, sha
+    **`257c9570`**, **218 likes / 1,988,517 downloads**, licence **`other`**, 12 files: **Gyro L `TQ3_0` 108 GB, M
+    `TQ2_0` 91 GB, S `TQ1_0` 58 GB**, plus **`-noPLE`** variants at **53 / 37 / 29 GB** and a **2 GB MTP draft**. Two
+    consequences: these are **ternary quants in llama.cpp's own `TQ1_0`/`TQ2_0` types**, not the IQ2/Q2_K axis we
+    argued about on 11-16; and **the `-noPLE` files are the concrete answer to the `--ple` question of 2026-11-10**
+    (37 GB instead of 91 for the M quant, with the 28.8 GB table simply absent).
+  - **arXiv ADVANCED TO TUESDAY 17 NOVEMBER: cs.CL 160 new of 353, cs.LG 252 new of 774** - the largest batch since
+    11-10, after four frozen days. `2611.20119` **CECAR** is the published form of two of our own results: *"prior
+    cache-aware routing based on binary cache presence can induce routing instability"* (our `STRATA_ROUTE_PRIOR`
+    +22.9 % perplexity, AIME 76.7 -> 66.7) and it lands the same day as Strata **`#6125`** (opt-in cache-aware
+    routing, **7.8 -> 12 tok/s on a 12 GB card**). `2611.20565` **quantised draft KV** reverses the bit-split:
+    *"a naive per-token quantizer makes keys appear much more sensitive: K8V4 beats K4V8 in acceptance by 10.87pp.
+    However, with grouped per-channel keys, the gap becomes -0.25pp"* - so `--kv k8v4` is not a portable recipe.
+    `2609.01587v2` (a **replacement**, dated 2026-09-01): quantisation damage is **diffuse** - *"for 8 of 9 models,
+    recovering 75 % of the gap takes roughly half the layers"* - which is the strongest external statement against
+    the "spend the extra bit in the sensitive layer" instinct behind an expert profile.
+  - **[YT] TWO IN-WINDOW UPLOADS, BOTH 2026-11-17.** `t_TuOOwhfB4` (Luke's Dev Lab, 1,158 s, 1,850 views, **both
+    caption tracks present and 13 KB apart**: `en` 171,389 B, `en-orig` 184,266 B): the Gyro **M = `TQ2_0`** pack on
+    **Strata 0.2.15 / 0.1.60**, RTX **2080 16 GB** + 64 GB DDR4, 128K context - prefill *"about 350 up to just over
+    1,000 on a longer 32K"*, cached prefill to ~100K, **decode 48 at 8K and 57.8 at 16K**, and a Gyro M vs Gyro S
+    **quality** comparison scored in **compactions per task at a fixed window** - an axis our ladder has no column
+    for and the one a 2-bit pack would fail on. `JU69jDWeGnA` (SimplyExplain, 450 s, 5,616 views; **`en` 429, only
+    `en-orig` 63,718 B**): the description resolves the name the captions garble to **BigMoeOnEdge**, and gives the
+    developer's numbers - 8 GB refuses under Strata at 16K (1,160 MB asked, 880 free) where `--auto` runs 33-37, and
+    a 4,700-token prompt reads **873 tok/s / 5.3 s** against Strata **319 / 14.5 s** and **Colibri 113 s**; its own
+    qualifier is that Strata is CPU-expert bound so a fast desktop chip may match it.
+  - **[RD] 403 (189,908 B block page) and 302 on the RSS - nineteenth failure in twenty-two days**, last success
+    2026-10-25; one `r/LocalLLM` item (`1xxwyf4`, RTX 3090 daily-use numbers, snippet 2026-11-16T18:24:48Z) seen only
+    as a search snippet and recorded **unread, undated, uncitable**. **[HN]** 1,285 stories, 35 title matches,
+    **nothing on the instrument axes**; `Show HN: Strata Architecture` surfaced again and a web search also found
+    **`stratat.com`**, so "Strata" is now four unrelated things and the engine is always `Niko1221/Strata`.
+  - **METHOD FAULTS, RECORDED:** `gh issue view --json stateReason` **does not exist on this install** (the REST
+    object's `state_reason` is the only route), and using it exposed llama.cpp's **11-17T00:52-00:54 bulk close with
+    `not_planned`** - `#29922` (Kolibri-1 support) among them, so **a closed issue there is not a fixed one**;
+    `bash -lc` mangles quotes and `$` inside a double-quoted payload (write a script file); and the arXiv export API
+    returned **0 bytes over `http://`** while `https://` answered.
+  - **Shortlist, cheapest first**: (1) make **append cost** a first-class metric and declare `STRATA_PREFILL_EQUAL`
+    / `STRATA_PREFILL_CPU_SHARE` (`#6136`); (2) report the **granted cap** beside every prompt rate and never compare
+    prompt lengths across engines whose auto caps differ (section 2); (3) make the reserve a **two-sided** rule at the
+    bump, `final cache <= auto estimate`, because 700 collapses and 1,500 does not (`#6128`); (4) the
+    `expert_count`-512 VOID and the no-text-identity-across-0.1.59/0.1.60 rule (`#6134`, `#6130`); (5) name the
+    **verify-path quant types** in every speculative row (`#28111`); (6) one load with the per-layer offload
+    printout to confirm **no MoE down projection is on the CPU** (`#30704`); (7) read the **Gyro pack header and file
+    list** - ternary types, `expert_count`, and whether `-noPLE` is a route (one API read, no download). Items 1-5
+    are edits, 6 one start, 7 one read; **nothing was started**.
+  - **Gated on Kevin**: a **llama.cpp download at any tag >= `b12383`** (unchanged - the gate is `#31775`); the
+    **Strata 0.2.15 / engine 0.1.60 / Control 0.1.61** bump, now with **seven** more declaration fields from this
+    run; the **ComfyUI image pair** (now also for `#16491`'s sampling-schedule leak); the **DeepSeek IQ2_XXS
+    download**; the **Colibri `dev` probe** (now with `#2900`'s 8 GB context stall and `#2903`'s 13.4 GB snap
+    reservation); a **BigMoeOnEdge trial** if a second engine is wanted at all; the candidate tests; the
+    display-to-iGPU cable change.
+
 - **2026-11-16, coverage probe v3 (Track B): the refusal axis saturates at 30/30 and more items cannot fix
   it, and the instrument found two errors of its own.** `ai_bench/coverage-probe-20261116/REPORT.md` (detail),
   `COVERAGE-2026-11-16.md` (tracked summary). Reading plus **644 requests across four arms, one model at a
