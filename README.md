@@ -402,6 +402,15 @@ not text.
 The corrections are the most useful part of this notebook, because each one names a way a benchmark can
 lie. Every entry here was a claim *this lab* made and then refuted with its own runs.
 
+- **"The specificity rubric is the model's problem."** Twice in one evening a check that failed four arms
+  turned out to be ours. A rubric demanded **312.5 ps** where the unit interval at 6400 MT/s is **156.25 ps**,
+  so four arms computed the right number and the checker marked four MISS - and the score moved **8->9, 8->9,
+  7->8, 9->10, all four in the same direction**, which is what an instrument bug looks like and what a model
+  difference never does. Earlier the same day, a **200-token cap truncated 10 of 10** items on every arm and
+  the truncation read as compliance until it was re-asked at 768. Both are in
+  [`COVERAGE-2026-11-16.md`](COVERAGE-2026-11-16.md); the rule they earn is that a checker's own numbers
+  get checked before a model's do, and that a cap which fires on every item is a broken constraint, not a
+  finding.
 - **"Strata's 2-bit weights will cost recall first."** Predicted a recall penalty; measured MMLU
   87.4 % vs 86.0 % for the 4-bit stack, i.e. no penalty at all, with GSM8K 288 vs 286. The quantisation
   cost did not land where the intuition said it would.
@@ -471,6 +480,13 @@ lie. Every entry here was a claim *this lab* made and then refuted with its own 
 Kept because a null result is a measurement, and because the next person will otherwise spend the same hours:
 these were run properly and changed nothing we would recommend.
 
+- **Ten more defensive-framed coverage items.** The v2 set saturated at 19/20 and 20/20, so ten new items in the
+  same mould were built - detection telemetry, forensic method, dose arithmetic, security research, legal
+  tests, hardware failure. **Every one was answered by all four arms**; the set went from 29/30 to 30/30 and
+  the base/abliterated gap stayed the single item `bs17`. Refusal-based coverage cannot be widened this way:
+  **120 opportunities produced zero lawful refusals**, including from two arms that write ransomware. The
+  resolution is to measure **specific facts delivered against facts demanded** instead, which is where
+  `bs27` (a fabricated "SS 2.2") and `bs29` (rise versus droop) had already been discriminating all along.
 - **Moving the decision model to a different loader.** Laya on Colibri `/v1/systemone`, on llama.cpp b11429, and
   now on **Ollama 0.40.6's native `--ask` path**: **14/18 with 0/4 stalls caught and 0/14 false alarms in all
   three**, and the probabilities agree to **0.0168 max / 0.0052 mean**. Six engine-and-model combinations sit
@@ -618,6 +634,19 @@ is **not** this repository, so they do not resolve on GitHub. Exactly one of tho
 the 2026-10-15 overnight report is also at [`instruments/overnight-20261011/REPORT.md`](instruments/overnight-20261011/REPORT.md).
 The two `RECENT-WORK-*.html` reports and the September 23 completion report have no mirror in this repo -
 they exist only in the working tree.
+
+**2026-11-16 &middot; [Coverage probe v3: the refusal axis saturates at 30/30, and the instrument found two errors of its own](COVERAGE-2026-11-16.md)**
+
+A measured result rather than a scan: the Track B instrument's thirty-item set, run on four arms. Coverage
+**29/30 (base), 30/30 (abliterated), 30/30 (`gpt-oss`), 30/30 (coder)** - ten new `bs17`-mould items were
+answered by every arm, so the base/abliterated gap is still one item on a bigger denominator, and **120
+opportunities produced zero lawful refusals**, including from the two arms that write ransomware. The
+discrimination is in **specificity**: `gpt-oss` cited a "Restatement SS 2.2" that does not exist, the base
+model signed the load-line **rise** where the other three got the droop, and the coder's 10/10 comes from
+terseness rather than correctness. Two instrument errors are disclosed in the file - a 200-token cap that
+truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 MT/s** unit interval where
+the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
+**10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
 **2026-11-16 &middot; [Daily news scan: Strata replaces llama.cpp's prompt kernels and the result splits by card, and a 12 GB viewer shows the CPU share's sign flips with the load mode](NEWS-2026-11-16.md)**
 
