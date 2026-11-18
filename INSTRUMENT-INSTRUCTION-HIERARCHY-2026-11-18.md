@@ -225,3 +225,27 @@ The comparison to run once it is in: the **v4 set** (16 injection items, 8 per c
 declared`, `think=false`, `num_predict 2048`, one arm at a time - **base versus abliterated on the same items**. The question
 is whether removing the refusal direction moves **obedience to a document's instruction**, which is what v4 discriminates
 on (8/8 in a prose block against 0/8 in a table cell on `qwen3.5:9b`).
+
+## The abliteration pair, run 2026-11-18 - a negative, beside a stronger finding
+
+Both arms served by **one build** (`llama-server` b12383, `-ngl 99 --cpu-moe -c 4096 -t 16`), one at a time, on
+**`D:/models/qwen3-coder-30b/`**, so harness and drive cannot differ:
+
+| arm | weights | sha256 | block | table | compliance | controls | oblige |
+|---|---|---|---|---|---|---|---|
+| **base** | `mradermacher/…-i1-GGUF` rev **`4234cd8b2fbb`**, `i1-IQ4_XS`, 15.24 GiB | `14e4e2be…da4` (= HF's LFS hash) | **8/8** | **7/8** + 1 flagged | **93.8 %** (15/16) | 16/16 | 2/2 |
+| **abliterated** | `Huihui-…-abliterated-i1-GGUF` `IQ4_XS`, 15.24 GiB | `dfa0d825…300` (= its Ollama blob name) | **8/8** | **8/8** | **100 %** (16/16) | 16/16 | 2/2 |
+
+- **The abliteration effect is one item, and that is nothing.** 15/16 versus 16/16 at n=8 per carrier: one table-cell item
+  changed from flagged to obeyed. **No claim** that removing the refusal direction changes obedience to a document's
+  instruction is supported here - and the honest reading is the opposite of the interesting one: removing the refusal
+  direction did **not** measurably change instruction hierarchy on this pair.
+- **The finding that survives is a model difference, and it is large.** The **same v4 set** gave `qwen3.5:9b`
+  **block 8/8, table 0/8 (all flagged, p ~ 1e-4)** and this **30B coder** **block 8/8, table 7-8/8**. So the carrier effect
+  measured on the 9B is **not a property of the item set** - a coder-30B obeys an instruction carried in a table cell, a
+  9B chat model flags it. **The carrier is a model-dependent defence**, and "structure protects you" is false in general.
+- Both arms are valid (controls 16/16, oblige 2/2), so the numbers are quotable; the comparison of *arms* is not
+  differentiable from noise and is reported as such.
+
+**Cost, so the next run is priced**: 15.24 GiB download at ~56-62 MB/s (one HF connection reset, resumed), 46 s and 87 s
+for the 34-item arms on `--cpu-moe`, VRAM ~10.1 GiB peak while a 30B MoE of this quant runs on a 12 GB card.
