@@ -34,3 +34,6 @@ DerivedData/
 .cache/
 .DS_Store
 Thumbs.db
+
+# run logs are evidence, not source; they stay local (see ~/.omp/agent/AGENTS.md)
+logs/
