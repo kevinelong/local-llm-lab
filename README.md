@@ -247,6 +247,13 @@ flowchart TD
   not a reason to move it - the one deliberate loosening in this record (a 6 GiB worker-private cap) is
   named in [§6](#6-the-mechanics) with its date, and nothing else has been lowered.
 
+**A prompt rate carries its granted cap.** An engine picks a chunk cap from the card, and the cap **moves between
+engine versions on the same card**: 0.1.59 auto-capped at **17,664** and 0.1.60 at **17,920**, and the step at the cap
+moved one thread's four cells **+6.2 % / +19.7 % / -9.3 % / -9.3 %**. So a prompt rate quoted without the cap it ran
+under is not comparable to one quoted with a different cap, and an A/B whose arms land on different sides of the step
+measures the step. The field is `auto_cap_tokens` in
+[DECLARATION-TEMPLATE.md](DECLARATION-TEMPLATE.md).
+
 ## 3. The numbers
 
 ### The ranked batteries

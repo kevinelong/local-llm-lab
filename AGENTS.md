@@ -1,5 +1,21 @@
 # Local AI lab working instructions
 
+- **2026-11-17 (later), declaration edits: a rate now carries its append cost and its granted cap, and both came from
+  one scan.** Two fields added to `DECLARATION-TEMPLATE.md` section 4, and one paragraph to the README's "how to read
+  any number here". Reading only - no engine, no download, no gate touched, `ai_bench` not read.
+  - **`append_cost_ms` / `append_reread_tokens`.** Our arms are agent turns, i.e. appends, and 0.1.60 re-reads **16,754
+    tokens of a 66,977-token conversation on a 9-token append** because `equal_chunk()` derives the chunk from the token
+    count (`#6136`); `STRATA_PREFILL_EQUAL=0` takes it to **1,697**, plus `STRATA_PREFILL_CPU_SHARE=0` to **161**, and
+    append is still **+79 % over 0.1.54** on a fixed ~1.5 s resume. A bump row that reports first-read speed and not
+    append speed reports the half that improved - the field is what stops that.
+  - **`auto_cap_tokens`.** The same card auto-capped at **17,664 (0.1.59)** and **17,920 (0.1.60)**, and the step moved
+    one thread's cells **+6.2 / +19.7 / -9.3 / -9.3 %**: a prompt rate without its cap is not comparable to one with a
+    different cap, and the 11-16 A/B (16K / 20K / 40K) is conditional on reading it first.
+  - **Not done, on purpose**: the other five shortlist items from today's scan (reserve as a two-sided rule; two VOID
+    rules from the native prompt path; verify-path quant types; the CPU MoE down-projection check; the Gyro header
+    read). They are edits too, but each names a switch or a readback that is worth confirming on the binary rather than
+    writing from the file - and the lab takes one agent at a time, so they wait their turn.
+
 - **2026-11-17, scheduled scan (the 06:30 run): engine 0.1.60 re-reads a whole chunk on every appended agent turn,
   and the disagreement in yesterday's Strata prompt numbers is the cap the engine picks for itself.**
   `NEWS-2026-11-17.md`, written against **`NEWS-2026-11-16.md`**, which closed at **2026-11-16T14:30Z**; window
