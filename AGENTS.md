@@ -23,10 +23,18 @@
     second header read (the same parser on the plain `M-TQ2_0`) before anything is claimed about the difference.
   - **`expert_count 512`** is exactly the value the VOID rule added today needs (`!= 512` fails the first prefill on
     0.1.60, `#6134`) - this pack passes that rule and fails the type rule instead.
-  - **Shortlist after this**: (1) run the same parser on the plain `M-TQ2_0` and on one unsloth shard to settle the 54.4
-    vs 28.8 GB gap (one more range read, no download); (2) keep the parser as a lab tool - it reads a header in **2 s**
-    and would have caught this before the scan wrote the opposite; (3) the pack stays **not recommended**: fork-only type,
-    licence `other`, and a 2.7 GB drafter we have never tested with it. Nothing scheduled, no engine started.
+  - **FOLLOW-UP, the same hour: the 54.4 GB gap IS the table, at Q8_0 inside against IQ4_NL standalone.** The plain
+    `M-TQ2_0` header has **1224 tensors** and its largest is **`per_layer_token_embd.weight`, `[160, 320001536]`, Q8_0 =
+    51.2 G elements ~ 54.4 GB** - exactly the 92.0 - 37.6 difference. The standalone
+    `Qwen3.8-Flash-Next-PLE-IQ4_NL-GyroS.gguf` is the same table at **4.5 bpw** (`51.2e9 x 0.5625 = 28.8 GB`). So
+    **`-noPLE` plus the IQ4_NL table = 66.4 GB against 92.0, a 25.6 GB (28 %) saving** for a table read at 4.5 bpw, and
+    the per-layer PLE tensors (`ple_conv1d`, `ple_key`, the norms) are in **both** files - the `-noPLE` name is about the
+    table only. The vocabulary side is **320,001,536 rows over 16 heads** (`ple.head_vocab_sizes`), which is why one
+    tensor dominates the file.
+  - **Shortlist after this**: (1) keep the parser as a lab tool - it reads a header in **2 s** and would have caught this
+    before the scan wrote the opposite of it; (2) the pack stays **not recommended**: fork-only `type 144`, licence
+    `other`, and a 2.7 GB drafter we have never tested with it - the `--ple` arithmetic above is only usable if we adopt
+    the fork, which is a decision, not a measurement. Nothing scheduled, no engine started.
 
 - **2026-11-17 (security): a malicious PyPI release of the Microsoft Agent Framework was delivered by an executable
   `.pth`, and the daily patch check now looks at that class.** Reading plus one local scan - no install, no download,
