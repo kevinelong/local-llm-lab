@@ -584,6 +584,16 @@ One name collision worth stating plainly, because it has confused this lab's own
 is a *model* measured here; **Colibri** (`JustVugg/colibri`, v2.0.0) is an unrelated *engine*. They share
 no code and no author.
 
+### The security check reads files, not just package names
+
+`patch_check.py` also walks the roots we install into and reports **every `.pth` that runs code** (`import` inside) plus
+the indicators of `MAL-2026-20101` - `agent_framework_meta.pth`, `af_runtime_diag.pth`, `af_runtime_diag.py` and the
+`_AF_TEL` marker. The reason it belongs in a *patch* check: Python executes `import` lines in a `.pth` at **every
+interpreter start**, so a malicious one runs before any import and **survives the package being uninstalled** - which no
+dependency list can catch. Caches are checked by **name** only (a wheel is a `.whl`); install roots are walked
+**completely**, and a root it cannot see is named rather than skipped. Measured 2026-11-17: 61 `.pth` files, 60
+executable, none malicious.
+
 ## 6. The mechanics
 
 - **The box:** 64 GB DDR5 (a 32 GB upgrade part-way through; the suites are platform-invariant across it),

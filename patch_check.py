@@ -18,6 +18,7 @@ so a daily run that prints nothing is a clean run.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -149,6 +150,74 @@ def engine_state():
     return out
 
 
+# ---------------------------------------------------------------- .pth startup hooks
+# A .pth file in site-packages that starts with "import " is code Python runs at EVERY interpreter start, for every
+# virtualenv it sits in, whether or not the package that shipped it is ever imported - and it stays after that package
+# is uninstalled. Added 2026-11-17 after MAL-2026-20101: agent-framework 1.26.1/1.26.2 shipped agent_framework_meta.pth
+# (1.26.2: af_runtime_diag.pth) carrying a credential stealer, published and removed from PyPI the same day. A package
+# list is not a defence against that class; the file is.
+#
+# Two kinds of root, because they need different work and one of them must never be truncated:
+#   * INSTALL roots are walked COMPLETELY - that is where site-packages and its .pth files live, and a capped walk that
+#     exits "0 hits" is a silent fallback dressed as a pass (the first version of this check hit a file cap inside the
+#     pip cache and never reached ai_bench, while printing 0 IOC);
+#   * CACHE roots hold wheels and blobs, never an extracted .pth, so only FILE NAMES are matched there - cheap, and the
+#     only thing that could matter (a cached malicious wheel) is a name.
+IOC_PTH = {'agent_framework_meta.pth', 'af_runtime_diag.pth', 'af_runtime_diag.py'}
+IOC_CACHE = ('agent_framework-1.26.1', 'agent_framework-1.26.2', 'af_runtime_diag', 'agent_framework_meta')
+PTH_INSTALL_ROOTS = [
+    Path('C:/Users/kevin/ai_bench'),
+    Path('C:/Users/kevin/AppData/Local/Programs'),
+    Path('C:/Users/kevin/Projects'),
+    Path('C:/Users/kevin/Documents'),
+]
+PTH_CACHE_ROOTS = [
+    Path(os.environ.get('LOCALAPPDATA', '')) / 'pip' / 'Cache',
+    Path.home() / '.cache' / 'uv',
+]
+
+
+def pth_hooks():
+    """Executable .pth files (install roots, complete walk) and MAL-2026-20101 indicators (both kinds of root)."""
+    scanned, executable, iocs = 0, [], []
+    install_done, install_missing = [], []
+    for root in PTH_INSTALL_ROOTS:
+        if not root.exists():
+            install_missing.append(str(root))
+            continue
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = [d for d in dirnames if d not in ('.git', 'node_modules', '__pycache__')]
+            for name in filenames:
+                if name in IOC_PTH:
+                    iocs.append(str(Path(dirpath) / name))
+                if not name.endswith('.pth'):
+                    continue
+                scanned += 1
+                here = Path(dirpath) / name
+                try:
+                    text = here.read_text(encoding='utf-8', errors='replace')
+                except OSError:
+                    continue
+                if '_AF_TEL' in text:
+                    iocs.append('%s (carries _AF_TEL)' % here)
+                if any(line.strip().startswith('import ') for line in text.splitlines()):
+                    executable.append(str(here))
+        install_done.append(str(root))
+    cache_done, cache_hits = [], []
+    for root in PTH_CACHE_ROOTS:
+        if not root.exists():
+            continue
+        for dirpath, dirnames, filenames in os.walk(root):
+            for name in filenames:
+                low = name.lower()
+                if any(k in low for k in IOC_CACHE):
+                    cache_hits.append(str(Path(dirpath) / name))
+        cache_done.append(str(root))
+    iocs.extend(cache_hits)
+    return {'scanned': scanned, 'executable': executable, 'iocs': iocs, 'cache_hits': cache_hits,
+            'install_roots': install_done, 'install_missing': install_missing, 'cache_roots': cache_done}
+
+
 def main():
     latest, branches = pypi_last_per_branch('django')
     eol = eol_cycles('django')
@@ -180,11 +249,25 @@ def main():
     for k, v in eng.items():
         print('  %-10s %s' % (k, v))
 
+    pth = pth_hooks()
+    print('\n.pth startup hooks: %d scanned across %d install roots, %d executable, %d IOC hit(s)' % (
+        pth['scanned'], len(pth['install_roots']), len(pth['executable']), len(pth['iocs'])))
+    if pth['install_missing']:
+        print('  roots not present (skipped by name): %s' % ', '.join(pth['install_missing']))
+    print('  caches name-checked: %d root(s), %d name hit(s)' % (len(pth['cache_roots']), len(pth['cache_hits'])))
+    for f in pth['executable'][:8]:
+        print('  runs code: %s' % f)
+    for f in pth['iocs']:
+        print('  *** INDICATOR: %s' % f)
     report = {'date': date.today().isoformat(), 'django_latest': latest, 'pins': rows,
-              'nginx': ng, 'engines': eng, 'pins_behind': behind}
+              'nginx': ng, 'engines': eng, 'pins_behind': behind, 'pth_hooks': pth}
     out = Path(__file__).resolve().parent / ('patch-report-%s.json' % date.today().isoformat())
     out.write_text(json.dumps(report, indent=1), encoding='utf-8')
     print('\nwrote %s' % out.name)
+    if pth['iocs']:
+        print('KNOWN MALICIOUS .pth INDICATOR(S) PRESENT - see MAL-2026-20101; remove the file, then rotate every '
+              'credential the environment could see')
+        return 1
     if behind:
         print('%d Django pin(s) behind the newest patch on their own branch' % behind)
         return 1

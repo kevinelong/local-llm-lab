@@ -1,5 +1,37 @@
 # Local AI lab working instructions
 
+- **2026-11-17 (security): a malicious PyPI release of the Microsoft Agent Framework was delivered by an executable
+  `.pth`, and the daily patch check now looks at that class.** Reading plus one local scan - no install, no download,
+  no engine, `ai_bench` read only.
+  - **`MAL-2026-20101`** (OSV, published 22:12Z): `agent-framework` **1.26.1** (2026-11-17T20:35Z, wheel only) and
+    **1.26.2** (21:08Z) add a **credential stealer** absent from **1.26.0** (11-12, the last clean release); both have
+    since been **removed from PyPI**, and the package was doing **~41k downloads a week** (`pypistats`: 41,366 last
+    week). The mechanism is the part worth keeping: each wheel shipped a **`.pth`** (`agent_framework_meta.pth`, and in
+    1.26.2 `af_runtime_diag.pth`) whose `import` line Python executes **at every interpreter start**, whether or not
+    `agent_framework` is ever imported, and the file **survives an uninstall**. It forks a detached process, is gated by
+    the env marker `_AF_TEL`, and collects `TOKEN`/`SECRET`/`PASSWORD`/`KEY`/`AZURE`/`AWS`/`GITHUB`/`HF_`/`OPENAI`/`NPM`/
+    `PIP`/`CI_` variables, other processes' environments, and `~/.azure`, `.npmrc`, `.netrc`, `.git-credentials`,
+    `.docker/config.json`, HF tokens, Azure DevOps `.credentials`.
+  - **NOT PRESENT HERE, and checked rather than assumed**: no file or directory named `agent[_-]framework*` on disk; no
+    `requirements*.txt`, `pyproject.toml`, `Pipfile` or lock file mentions it; nothing in the pip or uv caches; no
+    `site-packages` on Windows or in WSL holds it; and **`gh search code` returns 0** for both spellings across every
+    `kevinelong` repo, **with a positive control** (`iimage` returns hits) proving the query works. The structural
+    reason: nothing here uses an agent framework - the instruments use `requests`, `iimage` is Rust, `zimage-scenes` is
+    Python + Tauri, `rust_lessons` is Rust, `harness-lab` is PowerShell.
+  - **`patch_check.py` now checks the file, not the package list** (`pth_hooks()`): the **install roots** (`ai_bench`,
+    `AppData/Local/Programs`, `Projects`, `Documents`) are walked **completely, with no cap**, and every `.pth` whose
+    text contains an `import` line is listed, with the four IOC filenames and the `_AF_TEL` marker flagged; the **caches**
+    (pip, uv) are **name-checked only**, because a wheel is a `.whl` and has no extracted `.pth` to run. A missing root
+    is **named** in the output, not skipped silently. Measured today: **61 `.pth` files, 60 executable, 0 indicators** -
+    all 60 are `distutils-precedence.pth` / `_virtualenv.pth` from the candidate venvs.
+  - **A defect in the first version of that check, recorded because it is this lab's recurring one**: it capped the walk
+    at 40,000 files, spent the cap inside the **pip cache**, never reached `ai_bench`, and printed
+    `0 IOC hit(s) (file cap hit - coverage incomplete)`. A truncated scan that reports zero is **worse than no scan**,
+    because it reads as a pass. The rewrite has no cap on install roots and says which roots it could not see.
+  - **If it ever hits**: remove the file **first**, then rotate every credential the environment could see - the rotation
+    is the step people skip. `.pth` files are executable code in `site-packages`; a package allowlist cannot defend
+    against one.
+
 - **2026-11-17 (later), declaration edits: a rate now carries its append cost and its granted cap, and both came from
   one scan.** Two fields added to `DECLARATION-TEMPLATE.md` section 4, and one paragraph to the README's "how to read
   any number here". Reading only - no engine, no download, no gate touched, `ai_bench` not read.
