@@ -31,7 +31,13 @@
     the per-layer PLE tensors (`ple_conv1d`, `ple_key`, the norms) are in **both** files - the `-noPLE` name is about the
     table only. The vocabulary side is **320,001,536 rows over 16 heads** (`ple.head_vocab_sizes`), which is why one
     tensor dominates the file.
-  - **Shortlist after this**: (1) keep the parser as a lab tool - it reads a header in **2 s** and would have caught this
+  - **Item 6 of the shortlist closes as N/A here, with the reason rather than a run.** The `#30704` defect is a **GPU-expert
+    arm** whose `ffn_moe_down` `src1` is `GGML_PREC_F32`, so CUDA rejects `MUL_MAT_ID` and every down projection silently
+    falls to the CPU (`pp512 756 -> 158`). Every arm this lab holds is **`--cpu-moe`**: the experts *are* on the CPU by
+    configuration, so a CPU down projection on those rows is the design, not the defect, and a load would only restate it.
+    The check belongs to an arm that puts experts on the card - and the day one exists (the Colibri/iGPU probes, or a
+    GPU-expert run of our own), the per-layer offload printout with no `CPU` on a down projection is the field to read.
+  - - **Shortlist after this**: (1) keep the parser as a lab tool - it reads a header in **2 s** and would have caught this
     before the scan wrote the opposite of it; (2) the pack stays **not recommended**: fork-only `type 144`, licence
     `other`, and a 2.7 GB drafter we have never tested with it - the `--ple` arithmetic above is only usable if we adopt
     the fork, which is a decision, not a measurement. Nothing scheduled, no engine started.
