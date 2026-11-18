@@ -55,6 +55,8 @@ Recorded, both re-verified on disk 2026-11-09 (sizes match `staged.json` byte fo
 | Reference (llama.cpp) | `ggml-org/Qwen3.6-35B-A3B-GGUF` @ `baec3ebee244827cda0f4557eafa8b28f7545fa6` | Q4_K_M 20,419,565,568 B `671e47e0…`; dflash Q8_0 421,060,800 `339030c9…`; mtp Q4_0 1,060,038,432 `606fca33…` |
 | Strata (q2_0) | `ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF` @ `ed59f92082b1e93c0e96d60a8b11aab089b52f09` | Q2_0 shard 1 37,623,740,192 `69820c02…`; shard 2 28,800,138,432 `316b46f3…`; mmproj BF16 907,543,008 `b1a82259…` |
 
+| `pack_header_read` | **New 2026-11-17.** Read the **file list and one GGUF header** (quant types, `expert_count`, whether `n_ple` exists) before anything is downloaded. The most-downloaded pack of our own reference family (**1.99 M**) is a **ternary `TQ2_0`/`TQ1_0`** set, licence `other`, whose **`-noPLE`** variants are **37 GB against 91** - the `--ple` question of 2026-11-10 answered by shipping the table separately (news 11-17, section 11). A size or a download count is not a quant declaration. | the HF file listing plus one header read; **no weight download** |
+
 ## 3. Memory contract
 
 The reserve, the resident budget and the cache are **requests**, not conditions: the engine clamps or grants a
@@ -78,6 +80,7 @@ cannot see this, and a second start straight after would be admitted into the re
 ready** and **at ready + 60 s**, and declare both. | `Get-CimInstance Win32_OperatingSystem` -> `FreeVirtualMemory`
 before load, at ready and 60 s later |
 | `wddm_shared_usage` | Under WDDM every page-locked GPU-mapped buffer is charged to a ~half-of-RAM segment that commit cannot see; 17.8 GiB measured on this box (2026-10-22), and registration succeeding is not residency acquired (2026-11-04). | perf counter `GPU Adapter Memory\Shared Usage` before and under load |
+| `reserve_both_ways` | **New 2026-11-17.** The reserve is a **two-sided** rule, not a floor. On 0.1.60 a reserve of **700** lets the expert cache finish **above its own auto estimate** (8,106 slots where auto said 6,222) with 0-379 MiB free and decode at **0.2-42 tok/s**, while **1,500** keeps it below and reads 97-139; a second card at **1,024** is clean (`#6128`). Our 2026-11-01 "900 beats 2,000" was engine **0.1.47** and a 1:1 cache tax - at 0.1.60 the same lever has a **lower bound**, and the condition to declare is `final cache <= auto estimate`, read back, not the MiB asked for. | the `expert cache auto: … -> N slots` line against the `expert cache %lld slots` grant |
 | `cast_buffer_pin` (ComfyUI arms) | **New 2026-11-15 - a covariate *and* a symptom.** `#17122` and its fix `#17123`: since `#14372`, `reset_cast_buffers()` runs only when `aimdo_enabled` is true (its only remaining call site is inside `if comfy.memory_management.aimdo_enabled:` in `execution.py`), so without aimdo **`LARGEST_CASTED_WEIGHT` holds the largest lowvram-cast weight until the end of the prompt** - and because safetensors are mmap'd, that one small weight keeps **the whole file mapping** resident. Measured, not theorised: LTX-2.5 on an RX 9070 XT / ROCm 7.2 / 32 GB RAM with a **15.4 GB int8** Gemma 4 text encoder loaded partially - **one 15 MB `Linear` stayed referenced and pinned ~13 GB of the encoder's mapping** (`/proc/<pid>/smaps`) while `current_loaded_models` was **empty**; the DiT then loaded at **~200 MB free** and stalled in `copy_` -> `memcpy_and_sync` with `page allocation failure` in `svm_range_restore_work [amdgpu]`, at **3 % GPU for 10+ minutes**. The fix runs `reset_cast_buffers()` after each node on the non-aimdo path too, and **its acceptance is pixel-identical output** - "Qwen-Image-2.1 t2i and edit: pixel-identical output" - beside LTX-2.5 going from stalled to **100 s** and LTX-2.3 112 -> 90 s on v0.41.3 / ROCm 7.2 / torch 2.14. **State the precondition: this report's is `aimdo_enabled=False` (ROCm), and our image arms run the aimdo-enabled path**, so it is not our failure mode by name. What transfers is the **symptom pair** - a stall at a few hundred MB free with near-zero GPU utilisation, and a pin whose size is the *file's mapping*, not the tensor's - and the reminder that three ComfyUI memory defects in one month each had a different mechanism and each passed our floor. | `aimdo_enabled` from the server log/argv; at the stall: free VRAM/commit, GPU utilisation, whether `current_loaded_models` is empty; Linux: largest `smaps` mapping against the largest cast weight - on Windows, process private bytes at ready against the file's on-disk size |
 
 ## 4. Prompt path
@@ -166,6 +169,7 @@ Two-point fit on the tax - **~97 ms + 0.0428 ms/token** - puts the crossover at 
 acceptance and ~**54,000** at 98 %. So: **every MTP row declares prompt length AND acceptance/offered**, because the two
 together decide the sign, and "MTP pays" is meaningless without both.
 
+| `verify_quant_types` | **New 2026-11-17.** Name the drafter's **verify-path quant types** in every speculative row. On **SM120 - our card** - IQ-quant `mul_mat` is **not batch-invariant at n = 5 and n = 8**, which is exactly what a verify window produces, and three independent reporters reproduce it (5080 Laptop, 5090, 5060 Ti, `#28111`); forcing 2 warps fixes it at a cost. Our llama.cpp rows are **Q4_K_M**, so nothing recorded is invalidated - but a gated ISTA `IQ2_XXS` pack is the affected class, and a speculative row on one would carry this field. | app.py |
 ## 6. Determinism
 
 A "same flags, same answer" claim is a claim about **plain text at one chunk size** and nothing more.
@@ -266,6 +270,19 @@ a pinned-host-buffer allocation failing under commit pressure degrades silently 
 3. Free physical < 9 GiB, free commit < 8 GiB, or free VRAM < 0.5 GiB (the env gate, unchanged since 2026-09).
 4. The card is not idle for the ladder's whole duration (`comfy` busy or WSL running): contention cost 4 of 12
    arms on 2026-10-31 and cannot be subtracted afterwards.
+
+5. **The pack's `expert_count` is not 512** on engine **0.1.60** (`#6134`): its first prefill fails with
+   `could not copy experts 256.. of layer 0`, where **0.1.47 served the same pack with less free VRAM**. Declare
+   `expert_count` from the header read (§2) and VOID before start.
+6. **`-DSTRATA_MMQ=ON` is absent from a locally built 0.1.60 engine whose content will be quoted** (`#6130`): an RX
+   7900 read `STRATA 412` for `STRATA 42` until it was rebuilt with the llama.cpp kernels, so **no text-identity claim
+   across 0.1.59 -> 0.1.60** holds without that build flag declared.
+
+**After the load, before the arm (added 2026-11-17).** A 0.1.60-class build can put a **MoE down projection on the
+CPU** without saying so: `GGML_PREC_F32` on `ffn_moe_down`'s `src1` makes CUDA reject `MUL_MAT_ID`, and then every
+layer's down projection runs on the CPU - `pp512 756 -> 158`, `tg128 44.7 -> 5.5`, ABA, silent (`#30704`). The check is
+the **per-layer offload printout with no `CPU` on a down projection**; a load that shows one is void for any rate
+measurement, and it costs one start and no download. It is the class of 8x that no rate instrument attributes.
 
 **Build boundary (added 2026-11-15, table in §12).** An arm is not started on a build below the boundary of a
 feature its configuration uses, and an arm taken below one is void with the boundary quoted, not with "old build".
