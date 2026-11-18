@@ -169,7 +169,7 @@ Two-point fit on the tax - **~97 ms + 0.0428 ms/token** - puts the crossover at 
 acceptance and ~**54,000** at 98 %. So: **every MTP row declares prompt length AND acceptance/offered**, because the two
 together decide the sign, and "MTP pays" is meaningless without both.
 
-| `verify_quant_types` | **New 2026-11-17.** Name the drafter's **verify-path quant types** in every speculative row. On **SM120 - our card** - IQ-quant `mul_mat` is **not batch-invariant at n = 5 and n = 8**, which is exactly what a verify window produces, and three independent reporters reproduce it (5080 Laptop, 5090, 5060 Ti, `#28111`); forcing 2 warps fixes it at a cost. Our llama.cpp rows are **Q4_K_M**, so nothing recorded is invalidated - but a gated ISTA `IQ2_XXS` pack is the affected class, and a speculative row on one would carry this field. | app.py |
+| `verify_quant_types` | **New 2026-11-17.** Name the drafter's **verify-path quant types** in every speculative row. On **SM120 - our card** - IQ-quant `mul_mat` is **not batch-invariant at n = 5 and n = 8**, which is exactly what a verify window produces, and three independent reporters reproduce it (5080 Laptop, 5090, 5060 Ti, `#28111`); forcing 2 warps fixes it at a cost. Our llama.cpp rows are **Q4_K_M**, so nothing recorded is invalidated - but a gated ISTA `IQ2_XXS` pack is the affected class, and a speculative row on one would carry this field. | the launch echo plus the drafter config: verify window length and the quant types of target and drafter |
 ## 6. Determinism
 
 A "same flags, same answer" claim is a claim about **plain text at one chunk size** and nothing more.
