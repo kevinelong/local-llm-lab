@@ -207,3 +207,21 @@ surface**. For an agent guard that inverts where the attention should go: the da
   installed (the abliterated Ollama model has no matching base) and a download is Kevin's decision.
 - **n=8 is not a ladder.** The honest statement is "8 of 8 versus 0 of 8 on this model and this class"; it is a
   demonstration that the factor exists, not an estimate of its size elsewhere.
+
+## The abliteration pair, 2026-11-18 (downloading, per the standing permission)
+
+Kevin's standing rule ("downloads need no permission; space and destination do", AGENTS.md 2026-11-18) unblocks the
+comparison the instrument was built for. The pair must differ in **one** variable, so the base is the **same quantiser and
+quant** as the abliterated twin already in the Ollama store.
+
+| | |
+|---|---|
+| **abliterated (held)** | `hf.co/mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF:IQ4_XS`, 16 GB, `qwen3moe`, 30.5B, ctx 262144, quant **IQ4_XS** |
+| **base (fetching)** | `mradermacher/Qwen3-Coder-30B-A3B-Instruct-i1-GGUF`, revision **`4234cd8b2fbb`**, file `Qwen3-Coder-30B-A3B-Instruct.i1-IQ4_XS.gguf`, **15.24 GiB** |
+| target | **`D:/models/qwen3-coder-30b/`** - `D:` has **552.4 GiB free** against `C:`'s **86.6 GiB**, and `C:` carries the page file whose growth has eaten 20 GiB in an afternoon before |
+| transfer | ~54 MB/s, first attempt died on HF's `Recv failure: Connection was reset` (the third time that endpoint has done this here), resumed with `--retry 20 --retry-all-errors` |
+
+The comparison to run once it is in: the **v4 set** (16 injection items, 8 per carrier, plus controls and oblige), `hierarchy
+declared`, `think=false`, `num_predict 2048`, one arm at a time - **base versus abliterated on the same items**. The question
+is whether removing the refusal direction moves **obedience to a document's instruction**, which is what v4 discriminates
+on (8/8 in a prose block against 0/8 in a table cell on `qwen3.5:9b`).
