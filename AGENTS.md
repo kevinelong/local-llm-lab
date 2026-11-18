@@ -1,5 +1,33 @@
 # Local AI lab working instructions
 
+- **2026-11-17 (later), the Gyro pack read: the "ternary in llama.cpp's own code types" claim in today's scan is WRONG,
+  and the pack cannot load in any build we have.** Item 7 of the scan's shortlist, done as a **header read only** - HF
+  file list plus `curl -r 0-50331647` on one shard, no weight download, engine not started, no gate touched.
+  - **`agentionai/Qwen3.8-Flash-Next-Gyro-GGUF`**, licence **`other`**, **1,988,517 downloads**, `lastModified`
+    **2026-11-18T01:23:31Z** - it moved an hour before this read. Files: `L-TQ3_0` **108.3 GB** / `-noPLE` 53.9,
+    `M-TQ2_0` **92.0** / **37.6**, `S-TQ1_0` **58.5** / 29.7, **`Qwen3.8-Flash-Next-PLE-IQ4_NL-GyroS.gguf` 28.8 GB**,
+    `mmproj-F16` 0.9, **`mtp-Qwen3.8-Flash-Next-draft.gguf` 2.7**.
+  - **THE HEADER SAYS THE EXPERTS ARE `type 144`, AND NO llama.cpp HAS THAT TYPE.** Upstream master's
+    `ggml/include/ggml.h` (read today) ends its enum at **`GGML_TYPE_COUNT = 44`** - `BF16`=30, `TQ1_0`=34, `TQ2_0`=35,
+    `MXFP4`=39, `Q2_0`=42, `F8_E4M3`=43. A tensor type of **144** is ~100 past the end: it is a **fork-private** type,
+    so the pack's names (`TQ2_0`, `TQ1_0`, `TQ3_0`) describe the fork's own scheme and **cannot be read by our b12383
+    build or any mainline tag**. The scan inferred "llama.cpp's own code types" from the filenames; the header refutes it.
+  - Geometry, from the same header: `arch qwen4exp`, **`expert_count 512`**, **`expert_used_count 10`**, `block_count 48`,
+    `embedding_length 2560`, `attention.head_count 24` / `head_count_kv 2`, `indexer.head_count 4`,
+    `embedding_length_per_layer_input 160`, `expert_feed_forward_length 640`. Type histogram: **Q8_0 x666, F32 x389,
+    BF16 x24, 144 x144** - and the 144 expert tensors are exactly `(640,2560,512)` x48 and `(2560,640,512)` x96.
+  - **`-noPLE` DOES NOT MEAN "no PLE tensors".** The per-layer PLE tensors are **in** this file
+    (`blk.1.ple_conv1d.weight`, `blk.1.ple_key.weight`, `blk.1.ple_norm_conv.weight`, ...); what the `-noPLE` file lacks
+    is the **lookup table**, which ships separately at **28.8 GB**. The size gap is **54.4 GB** (92.0 - 37.6), which is
+    *not* the 28.8 GB table - so the two files are **not** the same quantisation with the table removed. That needs a
+    second header read (the same parser on the plain `M-TQ2_0`) before anything is claimed about the difference.
+  - **`expert_count 512`** is exactly the value the VOID rule added today needs (`!= 512` fails the first prefill on
+    0.1.60, `#6134`) - this pack passes that rule and fails the type rule instead.
+  - **Shortlist after this**: (1) run the same parser on the plain `M-TQ2_0` and on one unsloth shard to settle the 54.4
+    vs 28.8 GB gap (one more range read, no download); (2) keep the parser as a lab tool - it reads a header in **2 s**
+    and would have caught this before the scan wrote the opposite; (3) the pack stays **not recommended**: fork-only type,
+    licence `other`, and a 2.7 GB drafter we have never tested with it. Nothing scheduled, no engine started.
+
 - **2026-11-17 (security): a malicious PyPI release of the Microsoft Agent Framework was delivered by an executable
   `.pth`, and the daily patch check now looks at that class.** Reading plus one local scan - no install, no download,
   no engine, `ai_bench` read only.
