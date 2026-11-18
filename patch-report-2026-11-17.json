@@ -1,0 +1,209 @@
+{
+ "date": "2026-11-17",
+ "django_latest": "6.1.3",
+ "pins": [
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\!CLIENTS\\VITA\\bfa\\requirements.txt",
+   "pinned": "4.1.13",
+   "branch_last": "4.1.13",
+   "branch": "4.1",
+   "eol": "2023-12-01",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\!CLIENTS\\VITA\\bfa-1\\requirements.txt",
+   "pinned": "4.1.13",
+   "branch_last": "4.1.13",
+   "branch": "4.1",
+   "eol": "2023-12-01",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\!PROJECTS\\bfa\\requirements.txt",
+   "pinned": "5.1.15",
+   "branch_last": "5.1.15",
+   "branch": "5.1",
+   "eol": "2025-12-03",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\2014_2017\\Documents\\code-guild-grant-holly\\code-guild\\demo\\requirements.txt",
+   "pinned": "1.7.11",
+   "branch_last": "1.7.11",
+   "branch": "1.7",
+   "eol": "2015-12-01",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\2014_2017\\Documents\\django-angular-boilerplate\\requirements.txt",
+   "pinned": "1.8.19",
+   "branch_last": "1.8.19",
+   "branch": "1.8",
+   "eol": "2018-04-01",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\2014_2017\\Documents\\tweeter\\requirements.txt",
+   "pinned": "1.6.11",
+   "branch_last": "1.6.11",
+   "branch": "1.6",
+   "eol": "2015-04-01",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\df\\requirements.txt",
+   "pinned": "3.0.14",
+   "branch_last": "3.0.14",
+   "branch": "3.0",
+   "eol": "2021-04-06",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\GitHub\\bfa\\requirements.txt",
+   "pinned": "4.1.13",
+   "branch_last": "4.1.13",
+   "branch": "4.1",
+   "eol": "2023-12-01",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\GitHub\\mm\\requirements.txt",
+   "pinned": "3.0.14",
+   "branch_last": "3.0.14",
+   "branch": "3.0",
+   "eol": "2021-04-06",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\GitHub\\vitaexplorer.com\\requirements.txt",
+   "pinned": "1.5.12",
+   "branch_last": "1.5.12",
+   "branch": "1.5",
+   "eol": "2014-09-02",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\IdeaProjects\\django-postgres-boilerplate\\requirements.txt",
+   "pinned": "2.2.28",
+   "branch_last": "2.2.28",
+   "branch": "2.2",
+   "eol": "2022-04-11",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\IdeaProjects\\vitaexplorer.com\\requirements.txt",
+   "pinned": "1.5.12",
+   "branch_last": "1.5.12",
+   "branch": "1.5",
+   "eol": "2014-09-02",
+   "supported": false
+  },
+  {
+   "where": "C:\\Users\\kevin\\Dropbox\\production_vita\\vitaexplorer.com\\requirements.txt",
+   "pinned": "1.5.12",
+   "branch_last": "1.5.12",
+   "branch": "1.5",
+   "eol": "2014-09-02",
+   "supported": false
+  },
+  {
+   "where": "wsl:~/bfa/requirements.txt",
+   "pinned": "5.2.18",
+   "branch_last": "5.2.19",
+   "branch": "5.2",
+   "eol": "2028-04-30",
+   "supported": true
+  }
+ ],
+ "nginx": {
+  "installed": [],
+  "upstream": {
+   "stable": "1.30.6",
+   "mainline": "1.31.8"
+  }
+ },
+ "engines": {
+  "llama.cpp": "b12488",
+  "ollama": "v0.40.17-rc1",
+  "comfyui": "v0.45.0",
+  "strata": "v0.2.15"
+ },
+ "pins_behind": 1,
+ "pth_hooks": {
+  "scanned": 61,
+  "executable": [
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v1\\env-gliner\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v1\\env-gliner\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v1\\env-jeff\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v1\\env-jeff\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v1\\env-julia\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v1\\env-julia\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v1\\uv-cache\\archive-v0\\wH5wGfj_JFve2sng\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v2\\env-gliner\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v2\\env-gliner\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v2\\env-jeff\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v2\\env-jeff\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v2\\env-julia\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v2\\env-julia\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v3\\env-gliner\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v3\\env-gliner\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v3\\env-jeff\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v3\\env-jeff\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v3\\env-julia\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v3\\env-julia\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v4\\env-gliner\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v4\\env-gliner\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v4\\env-jeff\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v4\\env-jeff\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v4\\env-julia\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v4\\env-julia\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v5\\env-gliner\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v5\\env-gliner\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v5\\env-jeff\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v5\\env-jeff\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v5\\env-julia\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v5\\env-julia\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v6\\env-gliner\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v6\\env-gliner\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v6\\env-jeff\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v6\\env-jeff\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v6\\env-julia\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v6\\env-julia\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v7\\env-gliner\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v7\\env-gliner\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v7\\env-jeff\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v7\\env-jeff\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v7\\env-julia\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v7\\env-julia\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v8\\env-gliner\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v8\\env-gliner\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v8\\env-jeff\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v8\\env-jeff\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v8\\env-julia\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\candidates-20260929-v8\\env-julia\\Lib\\site-packages\\_virtualenv.pth",
+   "C:\\Users\\kevin\\ai_bench\\image-models-20261020\\.venv\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\local-decisions-20260925-v1\\.venv\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\new-harnesses-20260928-v1\\mini-env\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\staged-bespoke-20261005\\.venv\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\staged-strata-20261005\\engine-src-v0.1.39\\.venv\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\staged-strata-20261007\\engine-src-v0.1.40.3\\.venv\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\staged-strata-20261008\\engine-src-v0.1.41\\.venv\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\ai_bench\\zimage-web\\.venv\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\AppData\\Local\\Programs\\KiCad\\10.0\\bin\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\Documents\\ComfyUI\\.venv\\Lib\\site-packages\\distutils-precedence.pth",
+   "C:\\Users\\kevin\\Documents\\ComfyUI\\.venv\\Lib\\site-packages\\_virtualenv.pth"
+  ],
+  "iocs": [],
+  "cache_hits": [],
+  "install_roots": [
+   "C:\\Users\\kevin\\ai_bench",
+   "C:\\Users\\kevin\\AppData\\Local\\Programs",
+   "C:\\Users\\kevin\\Projects",
+   "C:\\Users\\kevin\\Documents"
+  ],
+  "install_missing": [],
+  "cache_roots": [
+   "C:\\Users\\kevin\\AppData\\Local\\pip\\Cache"
+  ]
+ }
+}
