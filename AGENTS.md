@@ -1,8 +1,140 @@
 # Local AI lab working instructions
 
+- **2026-11-18, scheduled scan: someone with our exact card and OS serves the ternary pack at 43 tok/s on Strata
+  release binaries, the display-move is measured on 12 GB at last, and both candidate fixes for the append
+  re-read are dead.** `NEWS-2026-11-18.md`, written against **`NEWS-2026-11-17.md`**, which closed at
+  **2026-11-17T14:30Z**; window **2026-11-17T14:30Z -> 2026-11-18T14:30Z (24.0 h)**. This **is** the scheduled run:
+  `%TEMP%\daily-news-scan.log` reads `[Wed 11/18/2026  6:30:02.18] daily news scan start` and this process began
+  **14:30:0xZ**; the previous run closed `[Tue 11/17/2026  6:37:21.97] exit 0` + `verify OK`. Reading only -
+  nothing downloaded as a model or installed, **no engine started, no inference, no benchmark**, **`ai_bench`
+  untouched**. WSL started once for `gh`/`curl`/`yt-dlp`, shut down at the end. Gates at start: **24.5 GiB free
+  physical of 63.46**, **commit free 9.42 GiB of a 74.6 GiB limit** (the limit grew from 67.47 as the pagefile
+  expands - 1.4 GiB above the 8 GiB floor, the tightest this scan has recorded), GPU **1,533 of 12,227 MiB**.
+  Holders read, not guessed: `nvcontainer` 8.24 + 3.10 GiB and a **ComfyUI python at 4.47 GiB on 127.0.0.1:8006**
+  (`--cache-none`). Nothing was ended and no gate was lowered.
+  - **THE DAY'S CORRECTION: the ternary pack is not a dead end, it is a STRATA-ONLY route, and it runs on our
+    card.** `#6181` (PR, 2026-11-17T23:09:27Z) plus the community README inside it: **RTX 5070 12 GB, OcuLink
+    PCIe 4.0 x4 (engine measured 7.2 GB/s), Ryzen 7 8845HS, 32 GB DDR5, Windows 11 26200, driver 617.42**,
+    Strata **Terminal 0.2.13 / engine 0.1.59 release binaries**, Gyro-S **TQ1_0** at 64K. **Decode 43.3 / 44.0 /
+    42.5 tok/s** (short/4K/16K) and **prompt 805 / 1,327**; with `--draft dflash2` **52.7 / 58.6 / 51.5**;
+    over 80 requests of 150+ tokens **DFlash2 57.5 against MTP 53.0**. Memory: **`--expert-cache auto` granted
+    4,503 of 24,576 experts, 4.40 GiB**, while **19.6 GiB of experts sat locked in RAM** and free RAM after an arm
+    was 0.2-0.4 GB of 32. Recall **8/8** on 30K and 60K, 3/3 codes at 63,853 tokens, **319-request soak, 0
+    failed**. So `NEWS-2026-11-17`'s "not recommended" holds **for llama.cpp only** - and `#31512`
+    (TQ1_0/TQ2_0 on CUDA) is **still open** on 2026-11-18 after the CUDA maintainer objected to a new GEMV kernel
+    on maintenance grounds, so **as of today the same ternary types are servable in one engine and no llama.cpp
+    tag we can name**. The pack also **moved revision in-window** (`257c9570` -> **`8efdc41d09`**,
+    `lastModified` 2026-11-18T01:23:31Z, 13 files, 412.4 GB) and the bench used **`1ada08422e`**, so a Gyro row
+    pins a revision. `-noPLE` S is **29,686,877,504** and the standalone PLE IQ4_NL table **28,811,085,184**.
+  - **THE SECTION THAT WAS GATED SINCE OCTOBER IS NOW SOMEONE ELSE'S MEASUREMENT, ON THIS CARD CLASS.** `#6181`'s
+    community report section 3 (2026-11-12, Terminal 0.2.6 server, engine 0.1.59, headroom 12, same script at 30K, same
+    day): desktop driven by the **RTX 5070** reads **33-41 short / 42-48 at 30K / ~1,170 prompt**; desktop driven by
+    the **Radeon 780M** (so the RTX reports no display) reads **46-49 / 57 / ~1,370**. That is **+19-36 % decode and
+    +17 % prompt** - and it **reconciles with `#5874`** (11-13): *enabling* the iGPU with the monitors still on the
+    NVIDIA card makes the VRAM probe read 0 GiB and no start possible. Different conditions, both true, so the
+    change has a prerequisite and a documented failure mode. Ranges only, 2-4 runs per arm, per-request data not
+    kept - a recipe, not a benchmark.
+  - **TWO SWITCHES WE WOULD SHIP WITHOUT KNOWING: `STRATA_WINDOW_WARM` AND `STRATA_OWN_CPU_QUANT`, plus
+    `STRATA_ADAPT_FETCH`.** `#6171` (2026-11-17T18:51:14Z): on 0.2.15 with `STRATA_ROUTE_PRIOR` on, the **first
+    request after a start** has median P(`<|im_end|>`) **4.8-7.4 %** against **1.0 % on 0.2.13.1**, and **10 of 137
+    answers came out short against 0 of 48**; `STRATA_WINDOW_WARM=0` gives **1.7 %**, prior-off **1.4 %**.
+    `#6208` (2026-11-18T14:06:33Z, 24 min before the window closed): on **RTX 3060 12 GB Windows**, 0.2.15 decodes
+    **34.0 against 55.6 tok/s** for 0.2.7 and the profile-built **static** resident set hits **25-42 %** of routed
+    experts against **72-81 %**; the only setting that helps is **`STRATA_ADAPT_FETCH=1`** (34.6 -> 41.5, hit
+    79-81 -> 86-87 %), and profile rebuilds, pack re-packs, `--pcie-frac`, `--lookup-max-t 0`, `--adapt-swaps 24`
+    and `--adapt-every 8` were all ruled out with numbers. `#6111`: **`STRATA_OWN_CPU_QUANT` is ON by default on
+    x86_64 in 0.2.15** and the kernel microbench is **0.986 on q4_K but 0.800 on q8_0 and 0.775 on q4_0** while
+    activations win 4.3x; two field reports disagree in sign (+2.6/+4.3 % for OFF at a 10-16 % CPU-miss rate,
+    -2.2/-3.1 % for ON at a 99.7 % hit rate), and **our `--cpu-moe` arms are the first condition** with experts at
+    Q4_K. This bench is **Arrow Lake, 24C/24T, AVX2-class** - the same class as both reporters.
+  - **THE APPEND RE-READ NOW HAS NO SURVIVING FIX, WHICH IS A RESULT.** `#6074`'s two in-window arms:
+    **`--prompt-cache-tail` is live and inert** (`ShaggyDragon`, 2026-11-18T02:43:08Z; 16 GB, engine 0.1.59,
+    `prefill_cap` 17,664, `reused` **123,648** and re-read **11,797** identical across ten reps, flag asserted from
+    the engine's own argv), and **`STRATA_PLE_AUTO_RAM=0`** (`jesse890423`, 2026-11-17T20:58:01Z) buys chunk
+    8192 -> 32768 and pays per-turn speed, KV-reuse depth and CPU, with its own log showing **`pinned 0.00 GiB`**
+    and **`page-locking refused (out of memory)`** then a working-set/VirtualLock fallback. What survives from
+    `#6136` is `STRATA_PREFILL_EQUAL=0` (+`CPU_SHARE=0`) and a real append metric.
+  - **llama.cpp: 36 merged PRs, 24 tags (`b12475` -> `b12503`), `v1.0.0` still the only versioned release, build
+    gate unchanged at `>= b12383`.** `#32065` **few-row MMQ for `MUL_MAT_ID`** merged 2026-11-17T15:31:41Z and the
+    **first tag carrying it is `b12478`** (17:32:37Z, computed as the earliest release published after the merge) -
+    the MoE expert matmul gets what `#31533` gave dense, which is the kernel that re-priced our MTP row on 11-15.
+    `#29539` **`LLAMA_MOE_RANDOM_ROUTING=1`** merged 2026-11-18T11:34:41Z (sha `bba840882`): random distinct expert
+    ids after the router with the graph unchanged - **the control our cache ladder never had** - and it is **in no
+    tag yet**. `#32483` qwen4exp graph reallocation, `#32477` F8_E4M3 decode, `#32137` k-pool prefix on sequence
+    edits, `#32434` slot_sched recurrent. **`#20596`** (`--n-cpu-moe` gated-activation path, still open) measures
+    **+10/+5/+9/+7 % tg32 on qwen35moe 35B-A3B with `-ncmoe 999` at 2/4/8/16 threads** - our configuration.
+    **`#32534`/`#32536`**: a **bisect** names **`#30449`** (the 4 GiB pinned host buffer) as the first bad commit
+    for a **Windows ROCm large-MoE crash**, and the fix restores `SIZE_MAX` **for HIP only, keeping 4 GiB for
+    CUDA** - so the backend is now a declared field of any host-buffer row, and one commit has produced three
+    failures on three surfaces (silent pageable fallback, `#30793`'s TTFT 10 s -> 60 s, this crash).
+  - **ADJACENT, AND ONE OF THEM COSTS A REBOOT.** `jesdga95/basalt#261` (new comment **2026-11-18T10:23:55Z**): a
+    Windows WDDM **host-side lost wake-up** on long cold prompt reads - 144/144 expert jobs done, all workers
+    sleeping, GPU healthy, host stops submitting - and on **v0.4.0, Windows 26200, RTX 5090 32 GB** the watchdog
+    **could not recover it: the engine survived QUIT, terminate and kill and `44.6 GiB` of page-locked RAM plus
+    the VRAM tier became unreclaimable until a power cycle**. `tuan3w/qwen-warp#20`/`#23`: **the prompt-lookup
+    tail halves decode under WDDM** because each cycle waits for a driver flush; **one `cudaStreamQuery` after
+    each cycle launch takes 88 -> 194 tok/s**, fixed in 0.11.1 the same morning. `Helldez/BigMoeOnEdge#645`: the
+    default `--overlap` keeps the prompt on the CPU when layers are on a discrete GPU.
+  - **PACKS AND PLATFORMS.** Five of six tracked HF packs unchanged by sha **and** `lastModified` (Gyro moved, the file list
+    above); the **Coder pack is still `54229d38` and still not a coherent shard set**. New and logged, not
+    recommended: **`Kory-22/Qwen3.8-Flash-Next-GSQ-RCO-abliterated-GGUF`** (2026-11-18T13:39:51Z, our family and
+    uncensored - Kevin's policy shape - no sizes read) and `AtomicChat/Hy4-flash-GGUF` (matches llama.cpp
+    `#32517`). **Ollama: 0 commits in window**, stable unchanged, `#19632` still an open PR, and a new
+    **`#19759`** asking for an opt-in way to **fail a load instead of retrying with CPU projector offload** - the
+    lab's own silent-fallback rule, in a fourth engine. **ComfyUI: no release for eight days**, v0.45.1/5/6/7 all
+    404, **`#17176`/`#17177` closed `merged: false`** so the pinned-memory/dynamic-VRAM fixes are **not in**, and
+    `#17809` (--force-output-rerun on a cache hit) merged 2026-11-18T04:27Z - which matters because our image
+    instrument scores same-seed PNG bytes. **Colibri: no release in 18 days**, 11 `dev` commits, `#2903` closed
+    `completed` in an unreleased tree, `#2901` Windows Polaris returns corrupted text and routes every expert to
+    the host.
+  - **[ARX] advanced one batch day to Wednesday 18 November with a SMALL batch** - cs.CL **60 new of 60** + 42
+    cross + 60 replacements, cs.LG **107 + 104 + 147**, against 160/252 on 11-17; the API's newest is
+    `2611.23229` at 2026-11-17T18:59:37Z, so listing and API agree for the first time in a week. The one paper on
+    our axes is **`2611.23035`**: Gemma 4 31B's global layers store **one 640-value row** instead of 1,024+1,024
+    and read it through two overlapping strided views, **kernel unchanged**, bit-identical in a vLLM prototype
+    (**2 of 432 final answers differ**) - so the Gemma 4 report's **37.5 %** is free in principle and **no engine
+    we run takes it**. Three items carried in by the `/new` page (`2611.22120`, `2611.22186`, `2611.21974`) are
+    **yesterday's batch**, recorded so they are not counted twice.
+  - **[YT] two in-window uploads, and the second contradicts `#6128`.** `qRb2GSkV4PQ` (SimplyExplain,
+    **2026-11-18**, 499 s, 6,853 views, `en` 429 then `en-orig` 69,907 B): the 41 % is **b12477**, no flag,
+    **1,290 -> 1,822 tok/s at 131K** and **25 % at 65K**, and *"only one model was tested and it was a regular
+    dense"* - **MoE untested**; Ollama and LM Studio ship their own llama.cpp, so our `b12177` pin cannot show it.
+    `WeqoL9xeYrw` (Red Stapler, **2026-11-17**, 259 s, 18,032 views, `en` and `en-orig` **both 31,668 B**): the
+    8 GB recipe - UD-IQ2_XS, **80K** context, **4-bit KV**, DFlash2 over MTP, display on the iGPU, and
+    **"since we're already using iGPU for display, we can turn off the VRAM reserve"** - the *opposite* of
+    `#6128`, where **700** lets the cache finish above its auto estimate and decode collapses to 0.2 tok/s. The
+    two agree only if the reserve's floor is a function of display topology, which is a two-arm test.
+    **[RD]** 403 with the 189,908-byte block page and a 302 on the RSS (21st failure in 24 days).
+    **[HN]** 1,316 stories, 26 keyword matches, **nothing on the instrument axes**.
+  - **[METHOD], five faults, all mine.** The arXiv dateline string is `Showing new listings for Wednesday, 18
+    November 2026` (not `Wed, 18 Nov 2026`), which would have reported "did not advance" on an advance; the page
+    uses **single-quoted attributes** and **absolute** `/abs/` links, so two title regexes returned 0; `http://hn.
+    algolia.com` returned an empty body where `https://` gave 849,782 bytes (third scheme-only failure in a week);
+    `gh search issues` precision is still unusable for adjacent sweeps, so section 10's coverage is a lucky
+    subset; and `powershell -NoProfile -Command` inside a double-quoted payload lost every `$` **again**, three
+    days after the same lesson was written down.
+  - **Shortlist, cheapest first**: (1) the **first-request-after-start rule** with `STRATA_WINDOW_WARM` declared -
+    two independent reports put the artifact there and it changes how rows we already hold are read; (2) strike
+    **`--prompt-cache-tail`** and record `STRATA_PLE_AUTO_RAM`'s cost; (3) the **display-to-iGPU change as a
+    two-condition experiment** with `#5874` as its prerequisite; (4) **`page-locking refused` as a declaration
+    field with a VOID**, now seen inside a fix, in a stall report and in our own 11-01 note; (5) the
+    **`STRATA_OWN_CPU_QUANT` build decision** (two source builds); (6) **`LLAMA_MOE_RANDOM_ROUTING=1`** as the
+    cache ladder's control; (7) **Gyro-S on this box** as a measured candidate. Items 1-4 are edits, 5 a build,
+    6-7 the gated download; **nothing was started**.
+  - **Gated on Kevin**: a llama.cpp download at **>= `b12478`** (three reasons in one build now); the **Strata
+    0.2.15 / engine 0.1.60 / Control 0.1.61** bump with **four** more declaration fields; the **display-to-iGPU
+    cable change**; the **Gyro-S Strata route** (58.5 GB, or 58.5 + 28.8 for `-noPLE` + table); the ComfyUI image
+    pair; the DeepSeek IQ2_XXS download; the Colibri `dev` probe; a **`STRATA_OWN_CPU_QUANT` build decision**; the
+    candidate tests.
+
 - **2026-11-17 (later), the Gyro pack read: the "ternary in llama.cpp's own code types" claim in today's scan is WRONG,
   and the pack cannot load in any build we have.** Item 7 of the scan's shortlist, done as a **header read only** - HF
   file list plus `curl -r 0-50331647` on one shard, no weight download, engine not started, no gate touched.
+  **NARROWED 2026-11-18, not withdrawn:** the load claim is true **of llama.cpp** and irrelevant to the route that
+  works - `NEWS-2026-11-18.md` section 2 records a community benchmark on an **RTX 5070 12 GB, Windows 11** serving
+  Gyro-S **TQ1_0** on **Strata 0.1.59 release binaries** at **43 tok/s decode / 1,300 tok/s prompt at 30-60K**,
+  with **8/8 recall** and a 319-request soak. So the pack is **Strata-only**, not unusable, and it moved revision
+  again in-window (`8efdc41d09`).
   - **`agentionai/Qwen3.8-Flash-Next-Gyro-GGUF`**, licence **`other`**, **1,988,517 downloads**, `lastModified`
     **2026-11-18T01:23:31Z** - it moved an hour before this read. Files: `L-TQ3_0` **108.3 GB** / `-noPLE` 53.9,
     `M-TQ2_0` **92.0** / **37.6**, `S-TQ1_0` **58.5** / 29.7, **`Qwen3.8-Flash-Next-PLE-IQ4_NL-GyroS.gguf` 28.8 GB**,
