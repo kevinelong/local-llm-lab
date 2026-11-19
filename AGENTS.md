@@ -1,5 +1,145 @@
 # Local AI lab working instructions
 
+- **2026-11-19, scheduled scan: Strata ships an engine with no ggml and no llama.cpp kernels, it loses 10-20 % of
+  decode on two cards and 4-6x of prefill on one, and ComfyUI hands us both image-determinism fixes in one release.**
+  `NEWS-2026-11-19.md`, written against **`NEWS-2026-11-18.md`**, which closed at **2026-11-18T14:30Z**; window
+  **2026-11-18T14:30Z -> 2026-11-19T14:30Z (24.0 h)**, read interval **14:30Z -> ~15:2xZ**. This **is** the scheduled
+  run: `%TEMP%\daily-news-scan.log` reads `[Thu 11/19/2026  6:30:01.36] daily news scan start`, the start marker was
+  written **Nov 19 06:30**, and the previous run closed `[Wed 11/18/2026  6:41:16.87] exit 0` + `verify OK`. Reading
+  only - nothing downloaded as a model or installed, **no engine started, no inference, no benchmark**, **`ai_bench`
+  untouched**. WSL started once for `yt-dlp` (gh/curl ran on Windows; both are on PATH) and shut down at the end.
+  Gates at start: **29.9 GiB free physical of 63.46**, **commit free 10.15 GiB of a 73.98 GiB limit** (2.15 GiB above
+  the 8 GiB floor, looser than yesterday's 1.4), GPU **1,955 of 12,227 MiB**. Holders read: **`127.0.0.1:8006`
+  pid 1231376** (the image track's ComfyUI server) and **`127.0.0.1:11434` pid 1168156** (Ollama). Nothing was ended
+  and no gate was lowered.
+  - **THE BUMP TARGET MOVED AND THE ENGINE CHANGED CODEBASE.** Strata **`v0.2.16`** published
+    **2026-11-18T21:57:34Z**, 37 assets, **8,083,923,794 B**, feed **`sequence 128` `generated_at
+    2026-11-18T21:25:32Z`** (read from the asset), `app 0.2.16`, `control 0.1.62`, and **every engine 0.1.62** -
+    there is no 0.1.61, because Control and the engines share one number from here. Target is now **app 0.2.16 /
+    engine 0.1.62 / Control 0.1.62**, with the **DeepSeek engine pinned at 0.1.59 on the 0.2.13 release**. The
+    Windows CUDA 13 asset is **487,452,901 B** against **577,971,407** at 0.1.60, i.e. **-90,518,506 B (-15.7 %)**
+    [arithmetic on the two bodies] - what "no ggml and no llama.cpp matrix kernels" looks like in a binary, with the
+    picture reader going **53,864,888 -> 807,976 B**.
+  - **THE VENDOR'S OWN IDENTITY GATE EXCLUDES OUR CARD CLASS, AND NAMES IT.** Ten prompts gave the same tokens on
+    RTX PRO 5000 9/9, P100 10/10, R9700 10/10, A750 9/9, M5 Max 10/10, Strix Halo 9/9 text - and *"the **Windows
+    CUDA 12** engine on an **RTX 5070** (2 of 10 answers differ, because it now has native code for that card)"*. So
+    **no text-identity claim crosses 0.1.60 -> 0.1.62 on a 5070 asset**, and 0.2.15 shipped a real correctness bug on
+    Apple silicon (`#4141`: **160 of 640 columns** computed in some layers with UD-Q4_K_XL, KL 0.303 -> 0.0068) that
+    read fluently and was found only by forcing an M5 Max onto the older kernels.
+  - **TWO INDEPENDENT 0.1.62 DECODE REGRESSIONS, AND THE 12 GB ONE IS NOW 2/2.** **`#6279`** (2026-11-19T11:39:59Z):
+    RTX 4090 Windows `cuda13`, UD-IQ4_XS-v31, `standard-v1` medians **81.6 / 78.0 / 87.8 -> 71.8-72.9 / 72.8-73.1 /
+    68.7-74.7** (short/4k/16k), prompt **flat**, acceptance **75-80 %**, sanity 12/12, and his own caveat that the
+    0.1.60 16k arm was a single run spanning 72-93. **`#6208`** got its first outside reproduction (`notfence`,
+    2026-11-19T14:24:05Z, **RTX 4070**): 0.2.13.1 **50-100 tok/s** with ~**1,500** experts in VRAM against 0.2.16
+    **40-75** with ~**1,400** - the same shape as the 3060 report, on a third card, **surviving into 0.1.62**.
+  - **THE PREFILL REPORT IS OUR CONFIGURATION BUT DOES NOT REPRODUCE, AND THE DIFFERENCE IS NAMED.**
+    **`#6248`** (2026-11-19T03:21:20Z): RTX 3090 Ti, 128 GB, i9-10850K, UD-Q4_K_XL, int8 KV, `--prefill auto:32768`,
+    **`--expert-profile` + the `--adapt-*` battery**, only the engine changing - **8.8k 6.6-6.8 s -> 25.9-26.9 s**,
+    **58.5k ~25.5 s -> 161.9/162.0 s**, *"pinned at ~330 tok/s, linear in prompt size"*, decode **42.7** and
+    conversation reuse (173k continuation TTFT **3.0 s**) untouched. **`Tsury`** (09:08:36Z) on an RTX 5090 Laptop
+    SM120, NVFP4 with RAM-offloaded experts, sees **the opposite**: 61.6k **21.6-22.0 -> 20.0-20.1 s**, 144.5k
+    **49.0-49.4 -> 45.2-45.3 s**. So "RAM-offloaded MoE" is not the separating variable; the profile battery is the
+    declared difference on one side.
+  - **THE APPEND RE-READ GETS ITS FIRST MECHANISM, IN A PR.** **`#6249`** (2026-11-19T03:50:07Z, opt-in
+    `STRATA_PREFILL_EQUAL_TAIL=N`): *"a read a few tokens over the chunk costs about **2.9 s** more than a read that
+    fits"*, because each equal chunk is a full streamed pass; keeping one full chunk plus the short last chunk fixes
+    it. RTX 4080 SUPER 16 GB + 4060 Ti 8 GB as `--expert-cache-device1`, auto chunk **16,128**, **three alternating
+    rounds with rotating target order**, median of 3, both engines from v0.2.14 source `09b6038` with
+    `-DSTRATA_MMQ=OFF`. It is the fourth attempt at `#6136` and the first with a mechanism; it is in no release.
+  - **A PER-FORMAT CONTEXT CEILING, MEASURED.** **`#6273`** (2026-11-19T10:13:28Z): RTX 3080 Ti Laptop 16 GB,
+    engine 0.1.62, IQ3_S, `--kv-grow`, `--vram-reserve-mib 1216`, floor **>= 1,024 MiB** free sampled every 3 s.
+    At 512K: **`int8` = 6.70 GiB and refuses to grow** (`the K/V cannot grow to this prompt: no VRAM is left`),
+    **`k8v4` = 5.30 GiB**, reaches 419k at **102 MiB** free and **36.5 tok/s**, **`q4_0` = 3.66 GiB**, **1,364 MiB**
+    free and **31.7 tok/s**. Our **65,536 int8 = 0.77 GiB** is comfortable; the field is what stops the next
+    context question being discovered instead of measured.
+  - **DEEPSEEK WAS REMOVED IN 0.2.14 AND THE MAINTAINER SAID SO.** ~14 issues closed in a **two-minute band**
+    (10:57:49Z-10:59:28Z), and in `#6048` (14 comments) `Niko1221` at **2026-11-19T10:58:53Z**: *"Strata 0.2.13 is
+    the last version that runs DeepSeek models; 0.2.14 and newer do not. The newer versions did not delete your
+    DeepSeek model files."* The mechanism was found by a reporter, not the vendor: `tcz0g` traced it to
+    **`ac306afb`** and to **the app/Control layer**, which is why an engine rollback to 0.1.59 restored nothing.
+    Rule: a capability can be removed by a pin outside the component you roll back - the `#4994` lesson with a
+    second mechanism.
+  - **llama.cpp: 32 commits, 32 merged PRs, 12 tags (`b12503` -> `b12541`, newest 2026-11-19T13:54:06Z, 38 assets,
+    all `prerelease`), `v1.0.0` still the only versioned release, build gate unchanged at `>= b12383` but better
+    named `>= b12540`.** First tags computed by `compare`, never by time: **`#32514` in <= `b12521`**,
+    **`#30672` in `b12527`**, **`#31913` in `b12529`** (`identical`), **`#32545` in `b12540`**. `#32514` is aimed at
+    our family - *"the n-gram table of Qwen3.8-Flash-Next, which is read on the CPU: 16 rows of 160 values per
+    token"* - and reads **Q4_K 2048x2560 1.23 -> 0.21 ms** with the small-lookup controls flat (1 row 2-3 -> 2 us).
+    `#30672` makes cuBLAS precision **SKU-aware** (GeForce keeps FP16 accumulate; pro/Spark prefer BF16 + FP32
+    accumulate; DGX Spark `pp512 596.10 -> 639.38`). `#31913` fixes **sticky NaN in recurrent state** with
+    `ggml_scale_inplace -> ggml_fill_inplace`, **fixing `#29830`, which had been closed as 'completed' without a
+    fix** - the "closed is not fixed" rule earning its third instance.
+  - **A CRASH IN OUR EXACT FLAG PAIRING, ON A DIFFERENT ARCHITECTURE.** **`#32584`** (2026-11-19T03:46:56Z): on
+    **cohere2moe**, `--moe-cache-mib 2048` + **q8_0** KV exits **`0xC0000409`** at load (b12476, Windows CUDA 12)
+    while **f16 loads**, **no-cache loads**, and **b12383 with f16 loads at 13-14 tok/s**; **Qwen3.6-35B and Gemma 4
+    26B are unaffected** on the same build. Our `--cpu-moe` arms run both flags, so this is a VOID condition to
+    check, not a defect we have - three starts, exit code as the observable.
+  - **COMFYUI v0.46.0 (2026-11-18T22:55:32Z) CARRIES BOTH IMAGE DETERMINISM FIXES WE WERE HOLDING.** `#17741` fixes
+    **APG affecting output at cfg 1.0** (`#17723` from 11-13) and `#16491` fixes **the dynamic-VRAM sampling-schedule
+    leak between models** (the 11-16 item). Also: `#17809` `--force-output-rerun`, `#17633` embedded tokenizers,
+    `#17711` **DirectML removed**, a yellow CUDA-13 warning. The **v0.45.1/.5/.6/.7** 404 chain ended with a release
+    cut straight from **v0.45.0** - "tagged but not released" was seven days and no release object ever appeared.
+  - **OLLAMA: no release, 2 commits, and a four-issue prompt-cache cluster.** `#19774` **closed** (*"Prompt cache
+    only reused on exact match; changing the last message re-reads the whole prompt"*, Vulkan qwen3:8b),
+    `#19767` open (qwen35: two agent sessions on the default single slot re-read from token 0), `#19773` open
+    (cloud near-zero hits on a resumed session), `#19748`/`#18950` **closed** (one runner across `shift` settings).
+    `#19765` **closed** - *"Silent truncation at 65,536 tokens ... context window was 147,456"*, at exactly the
+    number our arms declare. `#19768` open: **duplicate GGUF keys accepted, first-wins vs last-wins**.
+  - **COLIBRI `#2914` IS THE CLEANEST STATEMENT OF A THREAD-TEAM DEFECT.** Container, `cgroup cpu.max 7.65` on a
+    48-core host: the team is sized to **48 threads**, *"the trunk probe keeps the trunk on the CPU in **3 starts of
+    4**"*, **decode 2-4 tok/s** against **134** with `OMP_NUM_THREADS=7`. Fix is `#2915`. Our box is **24/24 no SMT**
+    and our WSL gets **`memory=8GB`**, so a thread team sized from the host rather than the grant is reachable here
+    - the 2026-11-15 Ollama `#19519` class at **33x**.
+  - **[HFR] all seven tracked packs unchanged** (Gyro still `8efdc41d09`, 2026-11-18T01:23:31Z); **>= 100 GGUF repos
+    created** (page cap). Leads only: `Octarine-Club/octarine-coder-30b-a3b-GGUF` (a 30B-A3B coder, our shape),
+    two `daemonix/...-antirez-DS4` abliterated packs (our family, but in **ds4's own container**, not a llama.cpp
+    GGUF), `aloksabade/Bonsai-2-27b-Frankenlooped-PQ2-GGUF` (looped - pairs with `2611.24301` LoopCache),
+    `alesha-pro/Hy4-flash-Q3_K-MTP-GGUF`, `gecBurton/clef-omni-gguf`.
+  - **[ARX] advanced to Thursday 19 November: cs.CL 42 new (+30 cross, 62 replacements), cs.LG 118 new.** The one to
+    keep is **`2611.23835` NarrowSpec**: the draft's **residual stream can run at half or a quarter width while
+    largely preserving acceptance**, DFlash's output adapter folds into the borrowed vocabulary projection giving
+    **logits unchanged up to FP rounding**, tested on DFlash and EAGLE-3 over Qwen3-8B NVFP4 and GPT-OSS-20B MXFP4 -
+    the drafter-VRAM axis we have priced twice (MTP 3.4 GB, Gyro 2.7 GB) on a card with 1.6 GB left. Also
+    **`2611.24071`**: *"cache hits reduce repeated-prefix compute cost by **over two orders of magnitude at 65,536
+    tokens**, while **cold resends constrain sustainable discounts**"* - our context, our append cost, as economics.
+  - **[HN] 1,199 stories, and the on-axis item is a first-party HF post that measures our family on 32 GB.**
+    `huggingface.co/blog/moe-expert-streaming`, **published 2026-11-18** (Tarek Ziadé), submitted
+    2026-11-19T09:53:15Z: Qwen3.8-Flash-Next is **48 layers x 512 experts (10 active), 121 GB in FP8**, plus a
+    **51 GB n-gram table** needing its own disk path; 3-bit experts **49 GB on disk, 12 GiB cached**, dense 8-bit
+    **~5.4 GB (+0.2 % perplexity)**, **~18 GiB after load**, **25.4 GiB peak on a 6K prompt**; versus Strata on the
+    same M5, decode **10.0 vs 14.8**, prefill **68 vs 220**, decode after a 6K doc **7.3 vs 13.7**. Switching to the
+    same GGUF weights moved **dense traffic 5.4 -> 3.9 GB/token** and **prefill 68 -> ~228 tok/s** - and the
+    expert-pool remap alone ran **34.6 tok/s against 38.1 for vanilla**, i.e. it was slower. Their final
+    **~14 tok/s, "close to Strata", "Transformers didn't beat Strata"**, blocked on an MPS sync primitive whose GPU
+    *"took anywhere from a second to never"* to see a CPU-written flag.
+  - **[YT] one in-window upload, Japanese, and it is a re-narration with no measurement of its own.** `BV2FgrMbc3Q`
+    (2026-11-19): the `en` track returned **429** (sixth instance), `ja-orig` served **59,175 B**; it restates the
+    engine-code change, the Blackwell **173 s -> 0.34 s** first answer, and the **2-of-10** RTX 5070 CUDA 12
+    difference. Three discovery queries over **18 candidates** (14 dated) found **no other upload dated 11-18 or
+    11-19**; the newest were **20261112**. **Zero recipes today.**
+  - **[RD] 403, 189,908 B** - twenty-second failure in twenty-five days, last success 2026-10-25.
+  - **[METHOD], five faults, four of them repeats.** The PowerShell `$`-stripping failure recurred **after** the
+    11-18 file wrote the rule down; `python -c "print(...)"` emits **`\r\n`** on Windows, so four `gh search`
+    queries died on `invalid control character in URL` until `end=''`; **`curl -o /tmp/x` writes to `%TEMP%` while an
+    in-process `grep /tmp/x` looks elsewhere**, so two arXiv fetches read as empty (fixed by relative paths in the
+    repo, deleted after); the arXiv title parse needs `Title:</span>\s*(.*?)</div>` because a
+    `<span class='descriptor'>` sits inside `list-title`, and the id join **still returns 1 entry over 134 titles**,
+    so the three quoted ids come from a **proximity read** and are labelled as such; and `yt-dlp --flat-playlist`
+    returns **`NA`** for `upload_date` on this install, so dates need non-flat extraction (one fetch per video) -
+    two earlier files implied a date-aware search that does not exist.
+  - **Shortlist, cheapest first**: (1) the **0.2.16 / 0.1.62 bump as a risk A/B** with the identity caveat written
+    first and `--expert-profile` as an arm; (2) the **per-KV-format context ceiling** in the declaration; (3) the
+    **llama.cpp gate at `>= b12540`** with the four verified first-tags; (4) **`--moe-cache-mib` + q8_0 KV as a
+    checked pair** (`#32584`); (5) the **image re-baseline for v0.46.0** (two same-seed fixes); (6) **declare the
+    thread team, not the count** (`#2914`, 33x); (7) **`STRATA_PREFILL_EQUAL_TAIL` as the append candidate**
+    (`#6249`). Items 1-3 and 6 are edits, 4 an edit plus three starts, 5 one gated pair, 7 gated on a build.
+    **Nothing was started, no engine was run, and no gate was touched.**
+  - **Gated on Kevin**: the **Strata 0.2.16 / engine 0.1.62 / Control 0.1.62** bump (target moved today; DeepSeek
+    stays at **0.1.59** on the 0.2.13 release; three more declaration items); a **llama.cpp download at
+    `>= b12540`**; the **display-to-iGPU cable change**; the **Gyro-S Strata route**; the **ComfyUI image pair**
+    (now a real release); the **DeepSeek IQ2_XXS download** (its platform route is now 0.2.13 or a fork); a
+    **Colibri `dev` probe** (day 19); a **`STRATA_OWN_CPU_QUANT` build decision**; and the candidate tests.
+
 - **2026-11-18, scheduled scan: someone with our exact card and OS serves the ternary pack at 43 tok/s on Strata
   release binaries, the display-move is measured on 12 GB at last, and both candidate fixes for the append
   re-read are dead.** `NEWS-2026-11-18.md`, written against **`NEWS-2026-11-17.md`**, which closed at
