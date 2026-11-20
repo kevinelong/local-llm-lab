@@ -665,6 +665,36 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-20 &middot; [Daily news scan: Strata ships 0.2.17 and turns off three of its own defaults, llama.cpp closes the crash we voided yesterday, and Microsoft puts RDMA over USB4 in front of local models on Windows](NEWS-2026-11-20.md)**
+
+A **24.0 h** window (2026-11-19T14:30Z &rarr; 11-20T14:30Z), the scheduled 06:30 run, on the loosest gates in a
+week (**39.34 GiB free physical**, **43.59 GiB of commit**, and the image track's ComfyUI server gone from
+`8006`). **Strata `v0.2.17`** (2026-11-20T08:24:35Z, 34 assets, feed **sequence 129**) moves the bump target a
+**third time in four scans** to **app 0.2.17 / engine 0.1.63 / Control 0.1.63** - Windows CUDA 13 asset
+**487,577,860 B**, **+124,959 B** on 0.1.62, build **`01d81206d420+cuda13.0`**, `sm_120` still present - and the
+substance is that **three defaults our arms depended on turned off**. `STRATA_ROUTE_TAIL_SKIP` is now **Off**
+(the 11-16 declaration becomes a readback; it costs a 12 GB-class card **39.2 &rarr; 35.5 tok/s**),
+**`--short-read` moved 64 &rarr; 16 on cc 12.0 and the vendor's identity gate names our card as its exception**
+(RTX 5070 **8 of 10** prompts identical at the default against **10 of 10** with **`--short-read 64`**), and
+**`STRATA_ADAPT_FETCH=2`** is on for cc 12.x cards of 16 GB or less **but only in arena mode, not in the
+`--resident-budget-gib` mode our arms run**. The RAM-17 rule names UD-Q4_K_XL/UD-IQ4_XS only, so **`q2_0` is
+exempt**. Two of our own rules retire at 0.1.63 and not before: **the `--expert-cache` two-chunk abort is fixed**
+(`#6134`, `#5104`, `#5354`, `#6018`, `#5966`) and **Q4_K down experts now load** (`#5595`). The day's sharpest
+item is one we cannot test: **`#6406`** unlocks the wide DFlash2 window for **+89 % decode**, and its limits
+clause **names our card as excluded** ("cards under 15 GB, such as **RTX 5070 12 GB**"). **`#6403`** prices the
+chunk lever on exactly 12 GB (auto picks **7,936** where 8,192 fits; 16K prompt read **2,991 &rarr; 3,474**), and
+**`#6380`** bisects the append re-read into the **host layer** - **0 reused on a single GPU since 0.2.11**,
+two-GPU layer split unaffected - which means a row reporting near-zero `reused` may be measuring a cache that is
+never consulted. **llama.cpp**: 34 commits and **`b12569`** is the first tag carrying **`#32636`** (the fix for
+the MoE-cache crash we voided on 11-19 - **a graph-node budget, 3,777 tensors against 3,544**), **`#31345`**
+(IQ1_M `MUL_MAT_ID` precision, **inf &rarr; finite**) and **`#32505`**. Adjacent: **vLLM `#68964`** hangs a
+**GDN hybrid** on Windows/WDDM with the main thread inside a CUDA driver call at **100 % util / 1-2 % memory
+bandwidth** - the `basalt #261` class in a second engine. And **[HN] Microsoft's RDMA over USB4** developer
+preview runs **one model across PCs** over NetworkDirect at **28-50 µs** round trip, with partner rows
+(**Qwen3-235B-A22B, 21.98 tok/s** on three Ryzen AI Max boxes; **GPT-OSS-120B 49.4-54.2 tok/s** on three to four
+Core Ultras) - **not testable here**: one PC, no Insider build, and it needs **test signing with Secure Boot
+off**.
+
 **2026-11-19 &middot; [Daily news scan: Strata ships an engine with no ggml and no llama.cpp kernels, it loses 10-20 % of decode on two cards and 4-6x of prefill on one, and ComfyUI hands us both image-determinism fixes in one release](NEWS-2026-11-19.md)**
 
 A **24.0 h** window (2026-11-18T14:30Z &rarr; 11-19T14:30Z), the scheduled 06:30 run. **Strata `v0.2.16`** (2026-11-18T21:57:34Z, 37 assets, feed **sequence 128**) moves the bump target to **app 0.2.16 / engine 0.1.62 / Control 0.1.62** and says what it is in one sentence: *"The engines for NVIDIA, AMD, Intel Arc and the Mac run on Strata's own code, with no ggml and no llama.cpp matrix kernels."* The Windows CUDA 13 asset is **487,452,901 B against 577,971,407 at 0.1.60 (-15.7 %)**. The vendor's own identity gate then **names our card and excludes it**: the Windows CUDA 12 engine on an **RTX 5070** differs on **2 of 10** prompts *"because it now has native code for that card"*. Two independent regressions arrive with it - **`#6279`**: RTX 4090 Windows, `standard-v1` decode **81.6 / 78.0 / 87.8 &rarr; 72 / 73 / 69-75** with prompt flat; **`#6208`** gains its **first outside reproduction on an RTX 4070**, 0.2.13.1 **50-100 tok/s** and ~**1,500** experts in VRAM against 0.2.16 **40-75** and ~**1,400**. **`#6248`** reports **4-6x slower prefill** on RAM-offloaded MoE (58.5k: **~25.5 s &rarr; 162 s**) and a second box with the same shape **does not reproduce it** (144.5k: **49.0-49.4 s &rarr; 45.2-45.3 s**), with the `--expert-profile` battery the declared difference. **`#6249`** is the first real mechanism for the append cost (**~2.9 s per over-chunk read**, fixed by keeping a short last chunk); **`#6273`** measures the per-KV-format context ceiling on 16 GB (`int8` refuses to grow at 512K, `q4_0` holds it for **-13 %** decode). **DeepSeek is removed from 0.2.14 onward** and the maintainer said so today - with the removal living in the **app/Control** layer, not the engine, so an engine rollback restores nothing. **ComfyUI v0.46.0** carries **both** determinism fixes this lab was holding (`#17741` APG at cfg 1.0, `#16491` the dynamic-VRAM schedule leak). **llama.cpp** merges 32 PRs and one is aimed at our model's CPU-side n-gram table (`#32514`, **1.23 &rarr; 0.21 ms**), with first tags computed by `compare`: **`#32514` &le; `b12521`, `#30672` `b12527`, `#31913` `b12529`, `#32545` `b12540`** - and `#31913` finally fixes a bug whose issue had been **closed as 'completed' without a fix**. A first-party HF post independently reproduces our bandwidth constants on 32 GB (dense traffic **5.4 &rarr; 3.9 GB/token**, prefill **68 &rarr; ~228 tok/s**) and concludes *"Transformers didn't beat Strata"*.
