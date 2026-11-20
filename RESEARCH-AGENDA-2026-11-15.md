@@ -82,7 +82,7 @@ Three facts fall out of that table, and the rest of this file is downstream of t
   shortlist items are edits. From 2026-10-29 on, 80 of 140 are. The template grew to 0.2 with twelve
   sections and a nine-rule start gate in the same period.
 - **Fourteen of 44 open questions cannot be started at all** without a download, a bump, or a system
-  change. That is the honest answer to "are there areas for further research": yes, and a quarter of
+  change. That is the answer to "are there areas for further research": yes, and a quarter of
   them are blocked on one signature.
 
 ---

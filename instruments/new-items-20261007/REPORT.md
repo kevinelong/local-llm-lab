@@ -197,7 +197,7 @@ pays per token or per second of decoding gains ~30 %; the coding screen as a who
 | Nemotron-3.5-Lightning-30B | 76, 76, 76 | 67, 68, 68 | 75, 75, 75 | 3 |
 | Strata Q2_0 (v0.1.40.3) | 76, 76, 76 | **70, 70**, 7, **70** | 75, 75, 75 | 4 |
 
-`events` and `paths` are saturated at every configuration: the honest statement is that these tasks no
+`events` and `paths` are saturated at every configuration: the finding is that these tasks no
 longer discriminate and their 76/76 and 75/75 should not be read as capability. `ledger` is the only
 discriminating task, and the checks behind it (section above) show it discriminates on five edge cases
 plus the truncation/harness effects of item 3. Qwen3.6 remains the best choice overall - it is the only
@@ -1208,7 +1208,7 @@ the same declaration as the reference rows - provisioned at 131,072, Swift at it
    earlier draft of this very section had it backwards. See the starter-baseline rule below.
 4. **Nemotron's `longctx2` is unscored, not 0/40** - the evaluation carries
    `abnormal_evaluator_exit: 1` and no checks, which an earlier draft of this section read as "all nine
-   planted sites missed". gpt-oss's is a real 16/40. So on this battery the honest statement is: one
+   planted sites missed". gpt-oss's is a real 16/40. So on this battery the finding is: one
    model unscored, one at 16/40, the rest 40/40.
 5. **The position hypothesis gets its cleanest test and dies.** `newtasks-pos2-20261009-n1` ran
    `ledger2` **alone** (position 1 of 1) for Nemotron: **218/226**, which sits in the middle of the same

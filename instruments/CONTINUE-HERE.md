@@ -97,7 +97,7 @@ three more transcripts - and it records that the generate-then-run class is the 
   does **not** cost anything measurable: four targeted repeats (`newtasks-rep-20261009-q1/q2`,
   `-k1/k2`) refuted the earlier "Kolibri 226 -> 212 is a context cost" reading, since Kolibri scores
   226/226 at the *same* 131,072 context when `ledger2` runs first, so the variable is loop position or
-  variance; the open question for Kevin is now only about reporting configuration honestly, not about
+  variance; the open question for Kevin is now only about which reporting configuration to use, not about
   a measured penalty; (b) **Swift Bonsai 2
   (Prism fork) cannot take the raise** - at 131k its KV drove `gpu_free` to 0.49 GiB against the 0.5
   floor, and a 65,536 attempt tripped even earlier (24.8 s, 0.31 GiB, before the model finished
