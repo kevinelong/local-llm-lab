@@ -1,5 +1,192 @@
 # Local AI lab working instructions
 
+- **2026-11-21, scheduled scan: the expert-cache hit rate is the quantity that moved, Ollama's stable release was a
+  rename, and the 0.2.17 RAM rule gets numbers.** `NEWS-2026-11-21.md`, written against **`NEWS-2026-11-20.md`**,
+  which closed at **2026-11-20T14:30Z**; window **2026-11-20T14:30Z -> 2026-11-21T14:30Z (24.0 h)**, read interval
+  **14:30Z -> ~15:0xZ**. This **is** the scheduled run: `%TEMP%\daily-news-scan.log` reads
+  `[Sat 11/21/2026  6:30:02.06] daily news scan start`, the previous run closed `verify OK` on the 11-20 file.
+  Reading only - nothing downloaded as a model or installed, **no engine started, no inference, no benchmark**,
+  **`ai_bench` untouched**. WSL started once for `yt-dlp` and shut down at the end; `gh` and `curl` on Windows.
+  Gates at start: **34.64 GiB free physical of 63.46**, **commit free 35.68 GiB of a 71.96 limit** (27.7 GiB of
+  margin above the 8 GiB floor), GPU **2,538 of 12,227 MiB**. Listeners: **`127.0.0.1:11434`** (Ollama, pid 57832)
+  and **`127.0.0.1:8006`** (the image track's ComfyUI, pid 25420) - **back after being absent on 11-20**. Nothing
+  was ended and no gate was lowered.
+  - **THE DAY'S ITEM IS A REGRESSION IN THE ONE QUANTITY THIS LAB ALREADY MEASURES, AND IT IS INSIDE THE BUMP
+    TARGET. `#6478`** (2026-11-21T07:06:19Z, open): **two 11 GB Turing cards**, source builds of each engine,
+    same config/pack/prompts, **only `exe` swapped**, ABBA order, 4 prompts x 2 rounds: decode **62.9 -> 40.3 ->
+    35.3 tok/s** and **expert-cache hit 96.8 % -> 70.2 % -> 64.6 %** for **0.1.52 / 0.1.62 / 0.1.63**. Bisect: 0.1.52
+    65.8/96.5 %, **0.1.53 59.5-65.9/95.8-97.4 % clean**, 0.1.62 40.3/70.2 %, 0.1.63 33.5/64.5 % - window
+    **0.1.54-0.1.61**. Single-variable arms inside 0.1.63: `STRATA_POOL_DEP=0`, `STRATA_EXPDEC=0`,
+    `STRATA_PIN_BY_NEED=0` and dropping the speed projection **all do nothing** (30.7-33.0 tok/s, 62-63 %), while
+    **`STRATA_ROUTE_TAIL_SKIP=7` recovers 41.5 tok/s and 72.0 %** - i.e. the route-tail default explains **~8 of
+    ~22 tok/s and 7.5 of 32 points**. **A slot count is not a cache**: 11-01's resident ladder and the 11-16 cache
+    ladder both varied slots and read the hit rate as a pack property, and every Strata row we hold is 0.1.47.
+  - **`#6488`'s SECOND COMMENT PRICES THE FLIP AND EXPLAINS THE 0.2.17 DEFAULT.** RTX 5090 Laptop 24 GiB, UD-Q4_K_XL,
+    0.1.63, only `STRATA_ROUTE_TAIL_SKIP` 0 vs 7: **31.6/31.8 cold, 37.2/36.9 warm-256, 34.0 -> 53.0 warm-354** -
+    mean **+22 %**, gain **concentrated on warm prefixes (+56 %)**, cold request flat. The engine's own lines give
+    the mechanism: **hit 87.8 -> 95.4 %** and **PCIe expert reads 13.2 -> 7.7 %**, with `route tail skip: 60277
+    missed experts skipped (65446 entries)`. His caveat is why the default flip is defensible: **`#5225` reports
+    `TAIL_SKIP=0` is what stops tool-call argument corruption there**. **So sections 1, 2 and 7 are one variable -
+    expert-cache hit rate - moved by the tail skip, by the RAM complement, and by something else in 0.1.63.**
+  - **THE 0.2.17 RAM RULE (RECORDED 11-20) NOW HAS NUMBERS, AN INDEPENDENT REPRODUCTION AND AN EXCEPTION.** Release
+    body, first-hand: setup keeps **`RAM - 17 - streamed KV`** GiB of experts (was `RAM - 24`) **for UD-Q4_K_XL and
+    UD-IQ4_XS only** - **IQ2_XS / IQ3_XXS / IQ3_S / Q2_0 get no budget in either version**, so our `q2_0` pack is
+    exempt by name. Per size: **32 GB 8 -> 15, 48 GB 24 -> 31, 64 GB 40 -> 47**, all experts in RAM from 96 GB,
+    Strix Halo and the two-card split stay at 24. On a real 64 GiB limit with UD-Q4_K_XL: budget 40 gives SSD read
+    **97.7 GB** for a 65K prompt and **57.7 tok/s** with **16.6 GiB free**; budget **47** gives **37.0 GB**,
+    **84.2 tok/s** and **9.3 GiB free**, and a later 8 GiB program still ran. **The 9.3 GiB is a gate number: our
+    admission floor is 9 GiB free physical, so the new default sits 0.3 GiB above it.** Windows = **free RAM at
+    start - 4.25 GiB**, and the release says **not measured on Windows**. `--ram-keep-gib` /
+    `STRATA_RAM_KEEP_GIB` win in every mode; "leave 20 %" keeps the old number. **`#6435`** (RX 9070 16 GB, 32 GB
+    RAM, Windows, measured after every update) is the reproduction: **0.2.17 defaults 1057 tok/s prompt / 62.2
+    decode against 0.2.16's 1524 / 70.7**, and `ROUTE_TAIL_SKIP=1` + `RESIDENT_HEADROOM_GIB=1` gives **1422 /
+    84.2**. **The exception, from a second reporter and confirmed by the first: an explicit
+    `--resident-budget-gib` avoids the cut entirely** (15.4-17.0 GiB auto becomes 18.3 with an explicit budget) -
+    and **every ladder arm of ours declares one**, so the rule should not reach our past rows. Also from that
+    thread: **`--prefill 8192` beat `auto` (6,144) by 1,288 -> 1,559 tok/s prompt over 7 starts each**, lendable
+    slots **2,200 -> 2,721**.
+  - **A -21 % LONG-PROMPT STEP AND ITS OPPOSITE SIGN IN THE SAME FILE.** **`#6489`** (open): one RTX 4090 D sm_89,
+    `tools/strata_bench.py`, 3 runs per test, cold 16K (`reused_tokens: 0`): **0.1.45 4,728 / 0.1.55 4,603 /
+    0.1.60 3,669 / 0.1.63 3,688** tok/s prompt, **4K flat (2,023-2,089)**, decode **best on 0.1.63 (175.7)**,
+    TTFT 3.43-3.54 -> 4.34-4.42 s. Inside 0.1.63 it is **pinned at 3,684-3,692 across `--prefill auto:16384` vs
+    `auto:32768`, `--expert-cache auto` vs 6800, and `STRATA_ROUTE_TAIL_SKIP` off/3/7** - so unlike section 1 no
+    switch moves it. A second reporter (`udqe`) has **the opposite sign on a two-card 4090 layer split with
+    UD-IQ4_XS: 0.1.60 is 21 % faster than 0.1.57**. Not testable on 12 GB.
+  - **`sm_120` GETS FOUR NEW ON-BY-DEFAULT SWITCHES AT 0.1.63, AND ONE PACK RETURNS GARBLED TOKENS UNDER THEM.**
+    **`#6503`** (2026-11-21T14:10:25Z, 24 min before the window closed): the engine prints `strata: sm_120
+    (Blackwell): 4 exact speed switches on by default (STRATA_SM120_PERF=0 ... as does STRATA_DEFAULTS=026): HC_UPMIX
+    L2_PF Q80_ROWS1 EXP_MODE`, and **0.1.62 printed no such line**. On `Swift-...-IQ3_S_G8` every completion is
+    mixed-script token soup from the first character while **the same prompt on `UD-Q4_K_XL` is clean**, pack
+    integrity verified, and `STRATA_GDN_CHUNKED=1`, `Q80_ROWS1=0`, `OLD_Q80_SCALED=1`, `HC_UPMIX=0` (log-confirmed)
+    and `EXP_MODE=0` **all fail to fix it**. This is the **second** reason for the `STRATA_SM120_PERF=0` /
+    `STRATA_DEFAULTS=026` pair (11-20's `--short-read` text-identity note was the first).
+  - **THE FIRST STANDARD-PROTOCOL `Q2_0` ROW ON 12 GB AT THE TARGET ENGINE. `#6498`** (2026-11-21T11:30:33Z): RTX
+    3060 12 GB over OCuLink, ~60 GiB RAM, Ubuntu 26.04, driver 595.99.02, engine **0.1.63**, `Q2_0`, thinking
+    `xhigh`, **drafting OFF**, GPU Unlock ON: **32K 1,422/49.3, 64K 1,386.9/49.6, 128K 1,308.1/47.8, 262K (260,050
+    real tokens) 1,160.3/42.8 tok/s with 224.25 s TTFT and 2/2 recall**. Claimed **8/8 runs, 84/84 requests, 48/48
+    sanity, 20/20 long-context, 8/8 recall**; telemetry **72 C, 168.92 W, 10.7 GiB min free RAM**. Our own q2_0
+    prefill at 16 GiB resident is **815.6 tok/s** (11-01), so this is **1.8x** - an external comparison row, one
+    machine, one run per cell, **not** a benchmark of ours.
+  - **TWO PREFIX MECHANISMS, BOTH WITH THE FIX ALREADY IN THE TREE.** **`#6480`** (same report as `#5758`, closed for
+    a missing title prefix and **not fixed**): with thinking off the **qwen36 baked chat template** writes an empty
+    think block on the first answer then drops it from history, so the next prompt is not the same prefix and
+    **reuse is 0** - short turns go **0 -> 36 of 52** after one condition is rewritten, and a ~70k follow-up
+    **waited 200-213 s** where a hand-fed prefix reused 14 of 15. **`#6327`** (status update): compaction re-reads
+    331K-342K tokens **five times at 19.5-20.1 min each** because the auto conversation budget is **3,840 MiB**
+    against a **5,742-6,926 MiB** snapshot at ~340K; with PR `#4338`'s sizing a real `/compact` **reused 282,077 of
+    282,474 (99.86 %) in 3.8 s**, and the documented opt-in measures **84,895/84,997 vs 41/80,683** without it.
+    **No row of ours declares `--conversation-cache-mib`.**
+  - **OLLAMA'S STABLE RELEASE IS A RENAME, SIXTH DATING TRAP.** **`v0.40.17`** is now `prerelease: false` with
+    **`created_at 2026-11-21T03:03:47Z`** and **`published_at 2026-11-10T22:25:00Z`** - the timestamp the 11-20 file
+    recorded for **`v0.40.17-rc2`**, whose object now **404s**; the body's changelog link is `compare/v0.40.16...
+    v0.40.17-rc3`. It ships the **iGPU fixes this lab was carrying**: *"Vulkan now uses mmap for integrated GPUs,
+    fixing `Failed to allocate pinned memory`"*, *"On Windows iGPUs, partially offloaded models no longer fail to
+    allocate the KV cache"* - and **`#18531` (Intel Iris Xe KV-cache OOM) closed** in the same window. Also: context
+    shift no longer reloads the model, disabling thinking maps to the lowest supported level, tool definitions keep
+    JSON-schema keywords Ollama does not model. **Inkling 2 Mini** (26B/5.4B, 79.2 % SWE-bench Verified) is
+    **Apple-silicon only**, and **`#19817`** reports the Windows GGUF failing with *"unknown architecture
+    (inkling2_loop/inkling2)"* the day llama.cpp merged its own support. **7 commits**, four MLX. `#19632` open
+    **day 13**.
+  - **llama.cpp: 38 commits, 38 merged PRs, 16 tags (`b12577` -> `b12606`)**, `v1.0.0` still the only versioned
+    release. **`#30846`** (merged 2026-11-21T14:16:40Z) changes the **memory access pattern of
+    `ggml_compute_forward_mul_mat_one_chunk`** - the **CPU dense matmul every `--cpu-moe` arm of ours runs through**
+    - spreading the weight loads so the prefetcher sees two streams: **+23 % at 2 threads, +14.3 % at 16, +2.6 % at
+    64 on a Grace CPU**, with the vendor's own qualifier *"provided that memory bandwidth is not a bottleneck"*
+    (this lab measures 60-70 % of achievable bandwidth, so expect the small end). Also **`#32698`** (CUDA `fastdiv`
+    UB -> host-side abort), **`#32519`** (QSA per-ubatch scoring - the 11-01 batch-invariance axis), **`#32466`**
+    (Vulkan FA coopmat1 unroll for an **AMD Windows driver bug**), **`#32694`/`#32704`** (Inkling 2 Mini, and the
+    looped variant sharing slots). **`b12569...b12606` is ahead 37 / behind 0**, so the 11-20 gate is contained.
+  - **COMFYUI: STILL NO RELEASE, TWO BACKPORT PRS AND BOTH TAGS 404, AND THE CAST-BUFFER DEFECT NOW HAS A SIZE.**
+    `v0.46.0` (11-18) still newest; **`v0.46.2` and `v0.46.3` both 404 as release objects** while **`#17886`** is a
+    closed backport PR and **`#17890`** an open one. **`#17902`** (fix PR `#17901`): with Dynamic VRAM and async
+    offload **each offload stream grows its own cast buffer**, and `cast_modules_with_vbar`'s guard compares against
+    a local `cast_buffer` that **is always `None` when the guard runs**, so it takes the next stream on every cast
+    of the largest weight. Measured on Windows 11, 16 GB, aimdo 0.6, Gemma 4 12B: the **1,920 MiB** tied embedding
+    is cast for every token's logits and **both streams held a 1,920 MiB buffer** taken out of the resident
+    weights. Third cast-buffer/VBAR item this month; first with a **per-stream size**.
+  - **ADJACENT, AND THE FIRST IS THE SAME CLASS AS OUR OWN WSL MEMORY CAP.** **`FlashML-org/FreeToken #938`**
+    (2026-11-20T19:10Z): with `--moe-cpu-threads` unset the CPU MoE pool takes one spinning thread per **visible**
+    core, so a **cgroup `cpu.max` of 15.36 on 128 visible CPUs** started **63 pinned spinning threads** and decode
+    ran **31.2/34.5 tok/s**; sized to the quota (11 workers) the same server read **158.2/180.9** - **5x**, on
+    `Qwen3.6-35B-A3B-NVFP4`, i.e. our model shape. **Second engine in one day with the cgroup-accounting class**
+    (Strata 0.2.17 also fixes two cgroup bugs: a v1+v2 double line losing the whole RAM budget - *"0 of 10 starts
+    after the fix"* - and a v1 file cache counted as used, *"only 0.1 GiB of RAM is free"*: **512-token prompt
+    1,323 -> 842 ms, 1,000 tokens 1,202 -> 713 ms, BASE-05 27/27 identical**). Our WSL runs `memory=8GB`, which is
+    exactly this shape. **`turboderp-org/exllamav3 #602`**: `cpu_moe_split_experts` **also splits the embedded MTP
+    head** (`mtp.layers.0.mlp`) to CPU, which runs on every draft step - the same "the cache/draft must not inherit
+    the target's MoE setting" defect as llama.cpp's `#31497` (11-01), fifth engine. **`flashinfer-ai/flashinfer
+    #8831`**: the trtllm-gen MoE finalize **splits the topK reduction across thread groups for any batch under 74
+    tokens** with `4 < topK <= 64`, so **the output depends on batch size** - batch-invariance in the MoE path, the
+    class `#31504` fixed in llama.cpp on 11-01. **`mw00/project-maya #924`** (9 comments): Windows + AMD GLM start
+    fails when the auto RAM tier lands near the pin.
+  - **[HFR] THE GYRO PACK MOVED 11 MINUTES AFTER THE LAST SCAN CLOSED, WITH EVERY SIZE IDENTICAL.** `8efdc41d09` ->
+    **`abef06b8e0`** (2026-11-20T14:41:25Z), commit **`Update README.md`**, 13 files, **412.37 GB**, and every file
+    matches the 11-17/18 record (L 108.32, L-noPLE 53.92, M 91.97, M-noPLE 37.57, S 58.49, S-noPLE 29.69, PLE
+    28.81, mmproj 0.90, mtp 2.70 GB). **A size check cannot see this move** - the case the sha + `lastModified` rule
+    exists for. The other eight tracked packs unchanged. **100 repos created in 13 hours** (page cap). Sized and on
+    our axes: **`nokkela-ai/Qwen3.8-Flash-Next-GSQ-RCO-GGUF`** (2026-11-21T11:20:15Z, apache-2.0) is a **mirror of
+    our pack family** - Q2_0 **35.04 + 26.82 GiB** (61.86 GiB = the 66.4 GB we staged), IQ2_XS/IQ3_XXS/IQ3_S the
+    same shape - shipping **per-quant plots of aime25 / gpqa / lcb / task-average and prefill throughput VS bit
+    width**, the first published quality curves for this quant family; and
+    **`MuXodious/Instella-MoE-16B-A3B-Think-SOMPOA-heresy-GGUF`** (12:21Z, `other`) with **Q4_K_M at 9.75 GiB**,
+    which **fits entirely in 12 GB** - the only admissible new candidate today. Rejected on the memory rule:
+    `zephel01/Hy4-flash-32G96G` at **87.28 GiB**. **`robcowart/Inkling-2-Mini-GGUF` is an empty repo** (and
+    `askthesultans/` has a second one) - recorded so an empty repo cannot become a fact.
+  - **[ARX] DID NOT ADVANCE - weekend.** Both listings still dateline **Friday 20 November 2026**: cs.CL **64 new /
+    32 cross / 65 replacements** (161 titles), cs.LG **119 / 94 / 146** (359) - identical to the 11-20 counts, third
+    consecutive read of the same batch - and the **API watermark is unchanged at 2026-11-19T18:57:25Z**. 23 of 161
+    cs.CL and 53 of 359 cs.LG titles matched our axes. Read: **`2611.25813`** (MTP drafting with **target-activation
+    injection** and **zero-copy KV-cache cross-attention to bypass prefill**, i.e. the architectural answer to the
+    +31.2 %/-7.3 % tax we measured on 10-08); **`2611.17108` LazyWeights** (**Huffman-codes GGUF K-/I-quant codes
+    losslessly in interleaved lanes**, decodes between DRAM and L2 so **kernels run unchanged**, **5.7-31.4 %
+    smaller than the best GGUF format** at 1 % / 3.5 % perplexity - our **0.527 GiB per token** attacked at the
+    encoding layer); and **`2611.23035` is now v2** with the numbers the 11-18 file already recorded - **cite 11-18,
+    nothing new**.
+  - **[YT] FIVE UPLOADS IN WINDOW, ONE READABLE, AND IT CROSS-CHECKS THE RELEASE TABLE.** Discovery: 5 searches, 38
+    candidates, 10 dated. `-42Rg6hYz4U` (カピバラAIニュース速報, **2026-11-20**, 397 s, 2,289 views, `ja-orig.vtt`
+    **58,957 B** after **`en` 429'd**) narrates 0.2.17: route tail skip off with **73.4 vs 94.5 tok/s (1.29x)** on an
+    RTX 5090; the RAM rule as *"24 GB aside, now 17 GB"* with the **64 GB** table **40 -> 47**, **97.7 -> 37 GB**,
+    **57.7 -> 84.2 tok/s**; Windows **free minus 4.25 GB, "not measured"**; and RTX 50 **64-token input 403 ms ->
+    175 ms** with the setting on by default for cards **16 GB or less**, **1.02-1.23x** on a 5060 Ti and the warning
+    **"the answer will not be exactly the same"**. **Labels: second-hand, a re-narration of the release notes** - so
+    it confirms section 2's table rather than adding a measurement. The **403 -> 175 ms first-token** figure is the
+    one axis not in the 11-20 file. Not read, named: `zH9RI_VQrUQ` (11-21, 734 s, JP), `9--EAfyqlrY` (11-21, 507 s,
+    "Loculus Core vs llama.cpp vs Strata" - a third engine name, unverified), `_mh2mRpd4H0` (11-20, 1,369 s, ZH),
+    and **`1a1FA8aTpis`** (11-21, 605 s, SimplyExplain, "Inkling 2 Mini thinks 3x per word - so why is it slower" -
+    the most on-axis and the one whose **every** caption track 429'd).
+  - **[HN] 910 stories, 20 title matches, nothing measured.** The on-axis one is a **second GPU tuner**:
+    **"Show HN: Find and serve fast LLM config for your GPU"** (2026-11-21T01:40:35Z, 2 points,
+    `github.com/Aagam-Bothara/rigtune`, **0 comments, unread**) - a comparator to read, never a source of numbers.
+    Also recorded: Intel's Linux 7.5 multi-GPU VRAM management change, a **"0 % KV cache"** audit of a production
+    service (section 1's quantity elsewhere, unread), and **TensorLean** (PTX-level kernel verification).
+  - **[RD] 403 with the 189,908-byte block page** on `new.json` and **1,522 B** on both the RSS and
+    `api.reddit.com` - **twenty-fifth failure in twenty-eight days**, last success **2026-10-25**. No Reddit item.
+  - **[METHOD], seven faults, five repeats.** `gh search issues --json comments` **fails** - the field is
+    `commentsCount`. **The arXiv id join failed again and this time it lied**: the `href="/abs/..."` regex returned
+    **0 ids** and `zip(ids, titles)` therefore iterated zero times, printing *"keyword-matched titles: 0"* on a page
+    carrying **23** - fourth instance of that fault and the first producing a false negative. The `Title:` descriptor
+    sits **inside** `list-title`, so it must be stripped before trimming. `gh search issues` needs the qualifier in
+    the query string, not `--qualifier`. `yt-dlp` needs the language declared (`en` 429s on Japanese channels;
+    `ja-orig` served), and **all four tracks 429'd** on the second video. `--flat-playlist` gives `NA` for
+    `upload_date`; `--skip-download --print` resolves per video. And the HN `numericFilters` epoch was wrong
+    (`1732033000`) before it was converted properly (**1795185000 -> 1795271400**).
+  - **Shortlist, cheapest first**: (1) make the **expert-cache hit rate** a mandatory readback beside the slot
+    count and treat a hit-rate step as a version effect (`#6478` + `#6488`); (2) add the **RAM-headroom pair** and
+    record the vendor's **9.3 GiB free of 64** against our 9 GiB floor, noting that an explicit
+    `--resident-budget-gib` neutralises the change; (3) **price `STRATA_ROUTE_TAIL_SKIP`** (+22 % mean, +56 % warm,
+    cold flat) against `#5225`'s tool-call corruption; (4) make the **four `sm_120` switches** a VOID trigger and
+    quote the start-up line; (5) the **append/compaction budget** with `#6327`'s **3,840 vs 5,742-6,926 MiB**
+    arithmetic; (6) **`--prefill 8192` vs `auto`** on our own pack (2 starts, ~20 min); (7) **llama.cpp at
+    `>= b12606`** for `#30846`'s CPU matmul (gated download). Items 1-5 are edits; nothing was started, no engine
+    was run, and no gate was touched.
+  - **Gated on Kevin**: the **Strata bump, still 0.2.17 / 0.1.63 / 0.1.63** and now a **risk** rather than a
+    formality (`#6478`'s hit-rate fall, `#6489`'s -21 % 16K step, `#6503`'s four Blackwell switches - the bump row
+    needs a **0.1.47 control arm**); a **llama.cpp download at `>= b12606`**; the **display-to-iGPU cable change**
+    (now with `#6435`'s measured **~7 % prompt / ~11 % decode** cost for rendering on the same card); the **Gyro-S
+    route** (pin **`abef06b8e0`**); the **ComfyUI image pair** (now `#17902`, 1,920 MiB x 2 streams); the **DeepSeek
+    IQ2_XXS download** (route 0.2.13 or a fork, since 0.2.14 removed DeepSeek); a **Colibri `dev` probe** (day 21,
+    `#2948`'s release PR open); the **`STRATA_OWN_CPU_QUANT` build decision**; and the candidate tests.
+
 - **2026-11-20, scheduled scan: Strata ships 0.2.17 and turns off three of its own defaults, llama.cpp closes the
   crash we voided yesterday, and Microsoft puts RDMA over USB4 in front of local models on Windows.**
   `NEWS-2026-11-20.md`, written against **`NEWS-2026-11-19.md`**, which closed at **2026-11-19T14:30Z**; window

@@ -665,6 +665,43 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-21 &middot; [Daily news scan: the expert-cache hit rate is the quantity that moved, Ollama's stable release was a rename, and the 0.2.17 RAM rule gets numbers](NEWS-2026-11-21.md)**
+
+A **24.0 h** window (2026-11-20T14:30Z &rarr; 11-21T14:30Z), the scheduled 06:30 run, with **34.64 GiB free
+physical**, **35.68 GiB of commit** and the image track's ComfyUI server back on `8006`. One item dominates because
+it lands **inside the bump target**: **`#6478`** reports that on **two 11 GB Turing cards**, with the same config,
+pack and prompts and only the `exe` swapped, **expert-cache hit rate falls 96.8 % &rarr; 70.2 % &rarr; 64.6 %** and
+decode **62.9 &rarr; 40.3 &rarr; 35.3 tok/s** across engines **0.1.52 / 0.1.62 / 0.1.63**, with **0.1.53 clean**
+(95.8-97.4 %) - a **0.1.54-0.1.61** regression window - and **every** single-variable arm inside 0.1.63 inert except
+**`STRATA_ROUTE_TAIL_SKIP=7`**, which recovers **41.5 tok/s and 72.0 %**, i.e. **~8 of ~22 tok/s**. The thread's
+companion (**`#6488`**) prices the same switch from the other side: **+22 % mean, +56 % on a warm prefix, cold
+request flat**, with the engine's own log showing **hit 87.8 &rarr; 95.4 %** and PCIe expert reads **13.2 &rarr;
+7.7 %** - and names `#5225`'s tool-call corruption as what the flip buys. **So sections 1, 2 and 7 are one
+variable, and a slot count is not a cache**: the 11-01 resident ladder and the 11-16 cache ladder both varied slots
+as if the hit rate were a pack property, and every Strata row we hold is 0.1.47. The 11-20 file's **RAM-17** rule
+now has numbers - **64 GB: 40 &rarr; 47 GiB of experts, 97.7 &rarr; 37.0 GB of SSD read, 57.7 &rarr; 84.2 tok/s**,
+at **9.3 GiB free** against this lab's **9 GiB floor**, and an explicit **`--resident-budget-gib` neutralises it**
+(`#6435`, reproduced twice, plus the engine log line naming 15.40 vs 18.3 GiB). **`#6489`** puts a **-21 % 16K cold
+prefill** step between 0.1.55 and 0.1.60 that **no switch moves**, with a second reporter whose sign is the
+**opposite** on a layer split. **`#6503`** shows 0.1.63 turning on **four `sm_120` switches by default** (`HC_UPMIX
+L2_PF Q80_ROWS1 EXP_MODE` - 0.1.62 printed no such line) under which one pack returns **garbled token soup** while
+`UD-Q4_K_XL` is clean. **`#6498`** is the first standard-protocol **`Q2_0` on 12 GB at 0.1.63**: **1,160 tok/s
+prefill / 42.8 decode at 260,050 real tokens**, 2/2 recall, drafting off - **1.8x** our own 815.6. Elsewhere:
+**Ollama `v0.40.17` went stable by rewriting the release object** (`created_at` 11-21, `published_at` 11-10, `-rc2`
+gone - the **sixth dating trap**) and it ships the **iGPU pinned-memory and Windows iGPU KV fixes** plus the
+closure of **`#18531`**. **llama.cpp** ran **38 commits / 38 merged PRs / 16 tags** to **`b12606`**, and the one on
+our path is **`#30846`**, which changes the **memory access pattern of the CPU dense matmul every `--cpu-moe` arm
+runs through** (**+14.3 % at 16 threads**, "provided memory bandwidth is not a bottleneck"). **ComfyUI** still has
+no release, **`v0.46.2` and `v0.46.3` both 404** while their backport PRs exist, and **`#17902`** prices the
+cast-buffer defect at **1,920 MiB x 2 offload streams** out of resident weights. Adjacent: **FreeToken `#938`**
+sizes a CPU MoE pool to **visible** cores instead of a **cgroup quota** and loses **5x** (**31.2/34.5 &rarr;
+158.2/180.9 tok/s** on our model shape), the same cgroup class Strata fixed twice in 0.2.17; **exllamav3 `#602`**
+splits the **embedded MTP head** to CPU with the target's experts; **flashinfer `#8831`** makes MoE output depend on
+**batch size below 74 tokens**. **[HFR] the Gyro pack moved 11 minutes after the last scan closed with every size
+identical** (`8efdc41d09` &rarr; `abef06b8e0`, commit "Update README.md", 412.37 GB, 13 files) - and a mirror,
+**`nokkela-ai/Qwen3.8-Flash-Next-GSQ-RCO-GGUF`**, publishes **per-quant quality plots for our exact pack family**.
+**[ARX] did not advance** (weekend; both listings still Friday 20 November). **[RD] 403**, 25th failure in 28 days.
+
 **2026-11-20 &middot; [Daily news scan: Strata ships 0.2.17 and turns off three of its own defaults, llama.cpp closes the crash we voided yesterday, and Microsoft puts RDMA over USB4 in front of local models on Windows](NEWS-2026-11-20.md)**
 
 A **24.0 h** window (2026-11-19T14:30Z &rarr; 11-20T14:30Z), the scheduled 06:30 run, on the loosest gates in a
