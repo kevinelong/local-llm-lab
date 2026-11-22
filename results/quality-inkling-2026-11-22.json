@@ -1,0 +1,367 @@
+{
+ "label": "inkling",
+ "model": "inkling-2-mini-iq2_xxs",
+ "base_url": "http://127.0.0.1:8080",
+ "runs": 3,
+ "max_tokens": 2048,
+ "temperature": 0.0,
+ "seed": 0,
+ "per_task": {
+  "bat_ball": [
+   1,
+   1,
+   1
+  ],
+  "planets": [
+   1,
+   1,
+   1
+  ],
+  "extract_count": [
+   1,
+   1,
+   1
+  ],
+  "json_shape": [
+   1,
+   1,
+   1
+  ],
+  "exactly_five_words": [
+   1,
+   1,
+   1
+  ],
+  "code_is_prime": [
+   1,
+   1,
+   1
+  ],
+  "needle": [
+   1,
+   1,
+   1
+  ],
+  "count_letters": [
+   1,
+   1,
+   1
+  ],
+  "no_invention": [
+   1,
+   1,
+   1
+  ],
+  "summary_20": [
+   1,
+   1,
+   1
+  ]
+ },
+ "passed": 30,
+ "possible": 30,
+ "rate": 1.0,
+ "rows": [
+  {
+   "task": "bat_ball",
+   "run": 1,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 2.2,
+   "content": "$0.05",
+   "reasoning_chars": 291
+  },
+  {
+   "task": "bat_ball",
+   "run": 2,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 1.8,
+   "content": "$0.05",
+   "reasoning_chars": 291
+  },
+  {
+   "task": "bat_ball",
+   "run": 3,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 1.78,
+   "content": "$0.05",
+   "reasoning_chars": 291
+  },
+  {
+   "task": "planets",
+   "run": 1,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 1.48,
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning_chars": 262
+  },
+  {
+   "task": "planets",
+   "run": 2,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 1.37,
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning_chars": 262
+  },
+  {
+   "task": "planets",
+   "run": 3,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 1.37,
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning_chars": 262
+  },
+  {
+   "task": "extract_count",
+   "run": 1,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 2.67,
+   "content": "12",
+   "reasoning_chars": 593
+  },
+  {
+   "task": "extract_count",
+   "run": 2,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 2.52,
+   "content": "12",
+   "reasoning_chars": 593
+  },
+  {
+   "task": "extract_count",
+   "run": 3,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 2.51,
+   "content": "12",
+   "reasoning_chars": 593
+  },
+  {
+   "task": "json_shape",
+   "run": 1,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 1.91,
+   "content": "{\"n\":3,\"items\":[\"apple\",\"river\",\"cloud\"]}",
+   "reasoning_chars": 305
+  },
+  {
+   "task": "json_shape",
+   "run": 2,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 1.8,
+   "content": "{\"n\":3,\"items\":[\"apple\",\"river\",\"cloud\"]}",
+   "reasoning_chars": 305
+  },
+  {
+   "task": "json_shape",
+   "run": 3,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 1.77,
+   "content": "{\"n\":3,\"items\":[\"apple\",\"river\",\"cloud\"]}",
+   "reasoning_chars": 305
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 1,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 2.79,
+   "content": "soft silver drops fall gently",
+   "reasoning_chars": 664
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 2,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 2.71,
+   "content": "soft silver drops fall gently",
+   "reasoning_chars": 664
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 3,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 2.72,
+   "content": "soft silver drops fall gently",
+   "reasoning_chars": 664
+  },
+  {
+   "task": "code_is_prime",
+   "run": 1,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 9.4,
+   "content": "```python\nimport math\n\ndef is_prime(n):\n    if not isinstance(n, int) or isinstance(n, bool):\n        return False\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, math.isqrt(n) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 1704
+  },
+  {
+   "task": "code_is_prime",
+   "run": 2,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 9.33,
+   "content": "```python\nimport math\n\ndef is_prime(n):\n    if not isinstance(n, int) or isinstance(n, bool):\n        return False\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, math.isqrt(n) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 1704
+  },
+  {
+   "task": "code_is_prime",
+   "run": 3,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 9.32,
+   "content": "```python\nimport math\n\ndef is_prime(n):\n    if not isinstance(n, int) or isinstance(n, bool):\n        return False\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, math.isqrt(n) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 1704
+  },
+  {
+   "task": "needle",
+   "run": 1,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 3.89,
+   "content": "Azure-4471",
+   "reasoning_chars": 953
+  },
+  {
+   "task": "needle",
+   "run": 2,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 3.65,
+   "content": "Azure-4471",
+   "reasoning_chars": 953
+  },
+  {
+   "task": "needle",
+   "run": 3,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 3.63,
+   "content": "Azure-4471",
+   "reasoning_chars": 953
+  },
+  {
+   "task": "count_letters",
+   "run": 1,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 3.65,
+   "content": "3",
+   "reasoning_chars": 442
+  },
+  {
+   "task": "count_letters",
+   "run": 2,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 3.53,
+   "content": "3",
+   "reasoning_chars": 442
+  },
+  {
+   "task": "count_letters",
+   "run": 3,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 3.51,
+   "content": "3",
+   "reasoning_chars": 442
+  },
+  {
+   "task": "no_invention",
+   "run": 1,
+   "ok": true,
+   "why": "declined",
+   "finish": "stop",
+   "seconds": 4.02,
+   "content": "No such crewed landing has taken place.",
+   "reasoning_chars": 986
+  },
+  {
+   "task": "no_invention",
+   "run": 2,
+   "ok": true,
+   "why": "declined",
+   "finish": "stop",
+   "seconds": 3.91,
+   "content": "No such crewed landing has taken place.",
+   "reasoning_chars": 986
+  },
+  {
+   "task": "no_invention",
+   "run": 3,
+   "ok": true,
+   "why": "declined",
+   "finish": "stop",
+   "seconds": 3.93,
+   "content": "No such crewed landing has taken place.",
+   "reasoning_chars": 986
+  },
+  {
+   "task": "summary_20",
+   "run": 1,
+   "ok": true,
+   "why": "20 words",
+   "finish": "stop",
+   "seconds": 8.24,
+   "content": "Council reverses ruling for stone pier; supporters cite longevity, opponents warn of fishermen\u2019s burden; works await survey after herring season.",
+   "reasoning_chars": 1894
+  },
+  {
+   "task": "summary_20",
+   "run": 2,
+   "ok": true,
+   "why": "20 words",
+   "finish": "stop",
+   "seconds": 8.08,
+   "content": "Council reverses ruling for stone pier; supporters cite longevity, opponents warn of fishermen\u2019s burden; works await survey after herring season.",
+   "reasoning_chars": 1894
+  },
+  {
+   "task": "summary_20",
+   "run": 3,
+   "ok": true,
+   "why": "20 words",
+   "finish": "stop",
+   "seconds": 8.05,
+   "content": "Council reverses ruling for stone pier; supporters cite longevity, opponents warn of fishermen\u2019s burden; works await survey after herring season.",
+   "reasoning_chars": 1894
+  }
+ ],
+ "scorer": "quality-pass-2026-11-22.py, re-scored after the bat_ball/no_invention fixes"
+}

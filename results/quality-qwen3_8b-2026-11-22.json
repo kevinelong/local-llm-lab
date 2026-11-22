@@ -1,0 +1,367 @@
+{
+ "label": "qwen3:8b",
+ "model": "qwen3:8b",
+ "base_url": "http://127.0.0.1:11434",
+ "runs": 3,
+ "max_tokens": 2048,
+ "temperature": 0.0,
+ "seed": 0,
+ "per_task": {
+  "bat_ball": [
+   1,
+   1,
+   1
+  ],
+  "planets": [
+   1,
+   1,
+   1
+  ],
+  "extract_count": [
+   1,
+   1,
+   1
+  ],
+  "json_shape": [
+   1,
+   1,
+   1
+  ],
+  "exactly_five_words": [
+   1,
+   1,
+   1
+  ],
+  "code_is_prime": [
+   1,
+   1,
+   1
+  ],
+  "needle": [
+   1,
+   1,
+   1
+  ],
+  "count_letters": [
+   1,
+   1,
+   1
+  ],
+  "no_invention": [
+   1,
+   1,
+   1
+  ],
+  "summary_20": [
+   0,
+   0,
+   0
+  ]
+ },
+ "passed": 27,
+ "possible": 30,
+ "rate": 0.9,
+ "rows": [
+  {
+   "task": "bat_ball",
+   "run": 1,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 10.16,
+   "content": "The ball costs $0.05. \n\n**Step-by-Step Explanation:**\n1. Let the cost of the ball be $ x $.\n2. The bat costs $ x + 1.00 $.\n3. Total cost: $ x + (x + 1.00) = 1.10 $.\n4. Simplify: $ 2x + 1.00 = 1.10 $.\n5. Subtract 1.00: $ 2x = 0.10 $.\n6. Divide by 2: $ x = 0.05 $.\n\n**Answer:** 0.05",
+   "reasoning_chars": 1920
+  },
+  {
+   "task": "bat_ball",
+   "run": 2,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 7.76,
+   "content": "The ball costs $0.05. \n\n**Step-by-Step Explanation:**\n1. Let the cost of the ball be $ x $.\n2. The bat costs $ x + 1.00 $.\n3. Total cost: $ x + (x + 1.00) = 1.10 $.\n4. Simplify: $ 2x + 1.00 = 1.10 $.\n5. Subtract 1.00: $ 2x = 0.10 $.\n6. Divide by 2: $ x = 0.05 $.\n\n**Answer:** 0.05",
+   "reasoning_chars": 1938
+  },
+  {
+   "task": "bat_ball",
+   "run": 3,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 7.77,
+   "content": "The ball costs $0.05. \n\n**Step-by-Step Explanation:**\n1. Let the cost of the ball be $ x $.\n2. The bat costs $ x + 1.00 $.\n3. Total cost: $ x + (x + 1.00) = 1.10 $.\n4. Simplify: $ 2x + 1.00 = 1.10 $.\n5. Subtract 1.00: $ 2x = 0.10 $.\n6. Divide by 2: $ x = 0.05 $.\n\n**Answer:** 0.05",
+   "reasoning_chars": 1938
+  },
+  {
+   "task": "planets",
+   "run": 1,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 2.29,
+   "content": "Mercury  \nVenus  \nEarth  \nMars  \nJupiter  \nSaturn  \nUranus  \nNeptune",
+   "reasoning_chars": 890
+  },
+  {
+   "task": "planets",
+   "run": 2,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 2.16,
+   "content": "Mercury  \nVenus  \nEarth  \nMars  \nJupiter  \nSaturn  \nUranus  \nNeptune",
+   "reasoning_chars": 813
+  },
+  {
+   "task": "planets",
+   "run": 3,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 2.13,
+   "content": "Mercury  \nVenus  \nEarth  \nMars  \nJupiter  \nSaturn  \nUranus  \nNeptune",
+   "reasoning_chars": 813
+  },
+  {
+   "task": "extract_count",
+   "run": 1,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 2.15,
+   "content": "12",
+   "reasoning_chars": 988
+  },
+  {
+   "task": "extract_count",
+   "run": 2,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 2.14,
+   "content": "12",
+   "reasoning_chars": 988
+  },
+  {
+   "task": "extract_count",
+   "run": 3,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 2.14,
+   "content": "12",
+   "reasoning_chars": 988
+  },
+  {
+   "task": "json_shape",
+   "run": 1,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 3.12,
+   "content": "{\"n\": 3, \"items\": [\"apple\", \"banana\", \"cherry\"]}",
+   "reasoning_chars": 1237
+  },
+  {
+   "task": "json_shape",
+   "run": 2,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 3.58,
+   "content": "{\n  \"n\": 3,\n  \"items\": [\"apple\", \"banana\", \"cherry\"]\n}",
+   "reasoning_chars": 1418
+  },
+  {
+   "task": "json_shape",
+   "run": 3,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 3.59,
+   "content": "{\n  \"n\": 3,\n  \"items\": [\"apple\", \"banana\", \"cherry\"]\n}",
+   "reasoning_chars": 1418
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 1,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 2.12,
+   "content": "Drizzle softly cool whispers earth",
+   "reasoning_chars": 879
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 2,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 3.98,
+   "content": "gentle raindrops kiss the earth",
+   "reasoning_chars": 1557
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 3,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 3.99,
+   "content": "gentle raindrops kiss the earth",
+   "reasoning_chars": 1557
+  },
+  {
+   "task": "code_is_prime",
+   "run": 1,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 11.57,
+   "content": "```python\ndef is_prime(n):\n    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n**0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 3527
+  },
+  {
+   "task": "code_is_prime",
+   "run": 2,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 9.87,
+   "content": "```python\ndef is_prime(n):\n    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n**0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 3007
+  },
+  {
+   "task": "code_is_prime",
+   "run": 3,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 9.91,
+   "content": "```python\ndef is_prime(n):\n    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n**0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 3007
+  },
+  {
+   "task": "needle",
+   "run": 1,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 7.07,
+   "content": "Azure-4471",
+   "reasoning_chars": 2739
+  },
+  {
+   "task": "needle",
+   "run": 2,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 11.37,
+   "content": "Azure-4471",
+   "reasoning_chars": 4601
+  },
+  {
+   "task": "needle",
+   "run": 3,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 11.42,
+   "content": "Azure-4471",
+   "reasoning_chars": 4601
+  },
+  {
+   "task": "count_letters",
+   "run": 1,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 4.92,
+   "content": "3",
+   "reasoning_chars": 1616
+  },
+  {
+   "task": "count_letters",
+   "run": 2,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 10.18,
+   "content": "3",
+   "reasoning_chars": 3044
+  },
+  {
+   "task": "count_letters",
+   "run": 3,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 10.16,
+   "content": "3",
+   "reasoning_chars": 3044
+  },
+  {
+   "task": "no_invention",
+   "run": 1,
+   "ok": true,
+   "why": "declined",
+   "finish": "stop",
+   "seconds": 3.15,
+   "content": "No crewed landing on the moon of the exoplanet Kepler-9d has occurred, as Kepler-9d does not have a confirmed moon and such a mission is beyond current technological capabilities.",
+   "reasoning_chars": 1219
+  },
+  {
+   "task": "no_invention",
+   "run": 2,
+   "ok": true,
+   "why": "declined",
+   "finish": "stop",
+   "seconds": 4.58,
+   "content": "The first crewed landing on the moon of the exoplanet Kepler-9d did not occur in any year, as Kepler-9d does not have a confirmed moon and no human has landed on an exoplanet.",
+   "reasoning_chars": 1763
+  },
+  {
+   "task": "no_invention",
+   "run": 3,
+   "ok": true,
+   "why": "declined",
+   "finish": "stop",
+   "seconds": 4.54,
+   "content": "The first crewed landing on the moon of the exoplanet Kepler-9d did not occur in any year, as Kepler-9d does not have a confirmed moon and no human has landed on an exoplanet.",
+   "reasoning_chars": 1763
+  },
+  {
+   "task": "summary_20",
+   "run": 1,
+   "ok": false,
+   "why": "23 words (over 20 or empty)",
+   "finish": "stop",
+   "seconds": 2.72,
+   "content": "Village council reversed decision to rebuild pier with stone over timber, citing longevity vs fishermen's cost burden, project starts post-herring season pending survey.",
+   "reasoning_chars": 1180
+  },
+  {
+   "task": "summary_20",
+   "run": 2,
+   "ok": false,
+   "why": "23 words (over 20 or empty)",
+   "finish": "stop",
+   "seconds": 2.76,
+   "content": "Village council reversed decision to rebuild pier with stone over timber, citing longevity vs fishermen's cost burden, project delayed post-herring season pending survey.",
+   "reasoning_chars": 1198
+  },
+  {
+   "task": "summary_20",
+   "run": 3,
+   "ok": false,
+   "why": "23 words (over 20 or empty)",
+   "finish": "stop",
+   "seconds": 2.75,
+   "content": "Village council reversed decision to rebuild pier with stone over timber, citing longevity vs fishermen's cost burden, project delayed post-herring season pending survey.",
+   "reasoning_chars": 1198
+  }
+ ],
+ "scorer": "quality-pass-2026-11-22.py, re-scored after the bat_ball/no_invention fixes"
+}

@@ -20,6 +20,7 @@ So on a small box, prefer **low-active-param MoE** for anything above the dense-
 | ~12-14B dense Q4 | 100% GPU (tight) | 60-70 tok/s | qwen3:14b, gemma3:12b, gemma4:12b |
 | 20-30B MoE, few active | partial offload | 30-40 tok/s | qwen3:30b-a3b, qwen3-coder:30b, nemotron-3.5-lightning:30b, gpt-oss:20b |
 | 30B dense | partial offload | ~4-5 tok/s | muse-glimmer:30b (works, too slow to use) |
+| **26B / 3.4B-active MoE, IQ2_XXS, vision** | **100 % GPU + 32K** | **~52 tok/s** | Inkling 2 Mini (llama.cpp, not Ollama - see `RESULTS-2026-11-22.md`) |
 | 100B+ / 1T | does not fit in 32 GB RAM | n/a | Kimi K2.x, DeepSeek V4-Pro (cloud/API only) |
 
 ## Recommended daily set
@@ -40,3 +41,12 @@ So on a small box, prefer **low-active-param MoE** for anything above the dense-
   overhead is not the bottleneck; model-size-vs-VRAM is. Lower the context (or use a smaller model)
   instead of chasing VRAM.
 - Models freshly under test this round (see RESULTS.md): granite4.2:8b, qwen3.5:9b, gpt-oss:20b.
+- **Inkling 2 Mini (2026-11-22) is the first model here that is 26B-class and runs entirely on the 12 GB card**, because
+  it is IQ2_XXS (2.06 bpw): 7.9 GiB of weights, 11.6 GiB resident with a 32K context, ~52 tok/s generation. It is also
+  the only vision model in the store that fits, and the only one serving 32K. On a ten-task mechanical quality pass it
+  scored **30/30 against qwen3:8b's and qwen3:14b's 27/30** - the references miss only the twenty-word summary. Read
+  that as "no measured penalty from the quantisation on checkable work", not as "beats a 14B dense": see
+  `RESULTS-2026-11-22.md` for what the battery does not measure (prose, long context beyond 4K on the Ollama side,
+  and speed, which was contaminated in the first pass). Two practical notes: it thinks whether asked or not, so
+  `max_tokens` must be in the hundreds or the reply comes back empty; and it needs llama.cpp `>= b12611`, which is
+  built at `D:/build/llamacpp-b12611`. It is not served by Ollama.

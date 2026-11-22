@@ -9,6 +9,14 @@
   `llama-mtmd-cli`'s `0xC0000409` was **an uncaught 'this custom template is not supported, try using --jinja'**,
   fixed in 29 lines of `tools/mtmd/mtmd-cli.cpp` (unbuffered output + retry with the model's own template), patch
   in `patches/`. Four elevated taskbar pins were created the same day (Terminal, PowerShell, pwsh, WSL).
+- **2026-11-22, Inkling 2 Mini's quality pass: 30/30 against qwen3:8b and qwen3:14b at 27/30 each.** Ten mechanical
+  tasks, three runs, one scorer, temperature 0, `max_tokens 2048` (`RESULTS-2026-11-22.md`, harness and every raw
+  reply in `benchmarks/` and `results/`). The only separating task is the twenty-word summary: Inkling 19-20 words,
+  qwen3:8b 23, qwen3:14b 26, every run. So the 2.06 bpw quantisation costs nothing measurable on checkable work,
+  which removes the reason to keep it out of the general slot - but it is a **tie with one point**, not a win, and the
+  battery deliberately does not measure prose, judgement or context beyond 4K. The pass nearly published 13/30 for
+  qwen3:8b: a 640-token budget cut its reasoning, and two scorers were wrong; both are documented, and the published
+  rows come from re-scoring the stored replies with the fixed rules.
 - **2026-11-22, CUDA 13.5.0 adopted on measurement, not on a version number.** Prompt processing went **35.9 -> 43.6
   t/s at 4K and 34.2 -> 44.5 t/s at 32K** (three passes each, medians, same flags), generation moved inside the noise,
   VRAM 11,567 -> 11,648 MiB, and vision through `llama-cli --mmproj` went 415.5 -> 489.4 t/s prompt. The server runs
