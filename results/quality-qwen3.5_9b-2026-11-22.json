@@ -1,0 +1,367 @@
+{
+ "label": "qwen3.5:9b",
+ "model": "qwen3.5:9b",
+ "base_url": "http://127.0.0.1:11434",
+ "runs": 3,
+ "max_tokens": 2048,
+ "temperature": 0.0,
+ "seed": 0,
+ "per_task": {
+  "bat_ball": [
+   1,
+   1,
+   1
+  ],
+  "planets": [
+   1,
+   1,
+   1
+  ],
+  "extract_count": [
+   1,
+   1,
+   1
+  ],
+  "json_shape": [
+   1,
+   1,
+   1
+  ],
+  "exactly_five_words": [
+   1,
+   1,
+   1
+  ],
+  "code_is_prime": [
+   1,
+   1,
+   1
+  ],
+  "needle": [
+   1,
+   1,
+   1
+  ],
+  "count_letters": [
+   1,
+   1,
+   1
+  ],
+  "no_invention": [
+   0,
+   0,
+   0
+  ],
+  "summary_20": [
+   1,
+   1,
+   1
+  ]
+ },
+ "passed": 27,
+ "possible": 30,
+ "rate": 0.9,
+ "rows": [
+  {
+   "task": "bat_ball",
+   "run": 1,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 19.98,
+   "content": "$0.05",
+   "reasoning_chars": 2370
+  },
+  {
+   "task": "bat_ball",
+   "run": 2,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 8.76,
+   "content": "$0.05",
+   "reasoning_chars": 2370
+  },
+  {
+   "task": "bat_ball",
+   "run": 3,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 8.74,
+   "content": "$0.05",
+   "reasoning_chars": 2370
+  },
+  {
+   "task": "planets",
+   "run": 1,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 3.79,
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning_chars": 1122
+  },
+  {
+   "task": "planets",
+   "run": 2,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 3.81,
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning_chars": 1122
+  },
+  {
+   "task": "planets",
+   "run": 3,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 3.8,
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning_chars": 1122
+  },
+  {
+   "task": "extract_count",
+   "run": 1,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 4.42,
+   "content": "12",
+   "reasoning_chars": 1393
+  },
+  {
+   "task": "extract_count",
+   "run": 2,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 4.06,
+   "content": "12",
+   "reasoning_chars": 1393
+  },
+  {
+   "task": "extract_count",
+   "run": 3,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 4.03,
+   "content": "12",
+   "reasoning_chars": 1393
+  },
+  {
+   "task": "json_shape",
+   "run": 1,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 6.39,
+   "content": "{\"n\": 3, \"items\": [\"apple\", \"banana\", \"cherry\"]}",
+   "reasoning_chars": 1936
+  },
+  {
+   "task": "json_shape",
+   "run": 2,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 6.43,
+   "content": "{\"n\": 3, \"items\": [\"apple\", \"banana\", \"cherry\"]}",
+   "reasoning_chars": 1936
+  },
+  {
+   "task": "json_shape",
+   "run": 3,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 6.36,
+   "content": "{\"n\": 3, \"items\": [\"apple\", \"banana\", \"cherry\"]}",
+   "reasoning_chars": 1936
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 1,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 11.06,
+   "content": "Drops fall gently from sky",
+   "reasoning_chars": 3217
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 2,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 11.08,
+   "content": "Drops fall gently from sky",
+   "reasoning_chars": 3217
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 3,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 11.06,
+   "content": "Drops fall gently from sky",
+   "reasoning_chars": 3217
+  },
+  {
+   "task": "code_is_prime",
+   "run": 1,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 10.91,
+   "content": "```python\ndef is_prime(n):\n    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n**0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 3100
+  },
+  {
+   "task": "code_is_prime",
+   "run": 2,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 10.99,
+   "content": "```python\ndef is_prime(n):\n    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n**0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 3100
+  },
+  {
+   "task": "code_is_prime",
+   "run": 3,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 10.9,
+   "content": "```python\ndef is_prime(n):\n    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n**0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning_chars": 3100
+  },
+  {
+   "task": "needle",
+   "run": 1,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 3.57,
+   "content": "Azure-4471",
+   "reasoning_chars": 1078
+  },
+  {
+   "task": "needle",
+   "run": 2,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 3.57,
+   "content": "Azure-4471",
+   "reasoning_chars": 1078
+  },
+  {
+   "task": "needle",
+   "run": 3,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 3.56,
+   "content": "Azure-4471",
+   "reasoning_chars": 1078
+  },
+  {
+   "task": "count_letters",
+   "run": 1,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 2.93,
+   "content": "3",
+   "reasoning_chars": 732
+  },
+  {
+   "task": "count_letters",
+   "run": 2,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 2.93,
+   "content": "3",
+   "reasoning_chars": 732
+  },
+  {
+   "task": "count_letters",
+   "run": 3,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 2.91,
+   "content": "3",
+   "reasoning_chars": 732
+  },
+  {
+   "task": "no_invention",
+   "run": 1,
+   "ok": false,
+   "why": "neither declined nor dated: ",
+   "finish": "length",
+   "seconds": 22.68,
+   "content": "",
+   "reasoning_chars": 7980
+  },
+  {
+   "task": "no_invention",
+   "run": 2,
+   "ok": false,
+   "why": "neither declined nor dated: ",
+   "finish": "length",
+   "seconds": 22.74,
+   "content": "",
+   "reasoning_chars": 7980
+  },
+  {
+   "task": "no_invention",
+   "run": 3,
+   "ok": false,
+   "why": "neither declined nor dated: ",
+   "finish": "length",
+   "seconds": 22.68,
+   "content": "",
+   "reasoning_chars": 7980
+  },
+  {
+   "task": "summary_20",
+   "run": 1,
+   "ok": true,
+   "why": "16 words",
+   "finish": "stop",
+   "seconds": 16.96,
+   "content": "Village council voted to rebuild pier with stone, reversing earlier ruling despite cost concerns for fishermen.",
+   "reasoning_chars": 5963
+  },
+  {
+   "task": "summary_20",
+   "run": 2,
+   "ok": true,
+   "why": "16 words",
+   "finish": "stop",
+   "seconds": 16.99,
+   "content": "Village council voted to rebuild pier with stone, reversing earlier ruling despite cost concerns for fishermen.",
+   "reasoning_chars": 5963
+  },
+  {
+   "task": "summary_20",
+   "run": 3,
+   "ok": true,
+   "why": "16 words",
+   "finish": "stop",
+   "seconds": 16.94,
+   "content": "Village council voted to rebuild pier with stone, reversing earlier ruling despite cost concerns for fishermen.",
+   "reasoning_chars": 5963
+  }
+ ],
+ "scorer": "quality-pass-2026-11-22.py, re-scored after the bat_ball/no_invention fixes"
+}

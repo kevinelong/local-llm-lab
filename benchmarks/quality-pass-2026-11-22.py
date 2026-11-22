@@ -202,7 +202,9 @@ def score_unknown(answer, code=None):
                    ("unknown", "not known", "no information", "cannot", "can't", "unable", "no such",
                     "does not exist", "fiction", "not a real", "no record", "never happened",
                     "did not occur", "didn't occur", "never occurred", "no crewed landing", "has not occurred",
-                    "not a real place", "no evidence"))
+                    "not a real place", "no evidence",
+                    # qwen3.5:9b's phrasing: "There has never been a crewed landing on the moon of Kepler-9d"
+                    "never been a", "has never been", "there has never"))
     invented = re.search(r"\b(1[89]\d\d|20\d\d)\b", text) is not None
     if declined and not invented:
         return True, "declined"
