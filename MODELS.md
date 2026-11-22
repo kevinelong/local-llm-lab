@@ -17,7 +17,7 @@ So on a small box, prefer **low-active-param MoE** for anything above the dense-
 | Tier | Fits how | Speed | Examples |
 |---|---|---|---|
 | 7-9B dense/Q4-Q8 | 100% GPU | 90-120+ tok/s | qwen3:8b, qwen2.5-coder:7b, ornith-1.5:9b, qwen3.5:9b, granite4.2:8b |
-| ~12-14B dense Q4 | **not** 100 % GPU at 32K (qwen3:14b measured 38 % CPU) | 19 tok/s at 32K, 60-70 only at a small context | qwen3:14b, gemma3:12b, gemma4:12b |
+| ~12-14B dense Q4 | **not** 100 % GPU at 32K; 100 % at 8K or below | 62 tok/s at 8K, **19 tok/s at 32K** (measured, qwen3:14b) | qwen3:14b, gemma3:12b, gemma4:12b |
 | 20-30B MoE, few active | partial offload | 30-40 tok/s | qwen3:30b-a3b, qwen3-coder:30b, nemotron-3.5-lightning:30b, gpt-oss:20b |
 | 30B dense | partial offload | ~4-5 tok/s | muse-glimmer:30b (works, too slow to use) |
 | **26B / 3.4B-active MoE, IQ2_XXS, vision** | **100 % GPU + 32K** | **~52 tok/s** | Inkling 2 Mini (llama.cpp, not Ollama - see `RESULTS-2026-11-22.md`) |
