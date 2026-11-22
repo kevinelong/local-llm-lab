@@ -348,3 +348,45 @@ crash is in that tool's own init, not in the projector, the picture, the GPU or 
 `#32755` (`--n-cpu-moe` with long prompts produces garbage), `#32777` (fit should prioritise looped MoE layers) and
 `#32773` (DSpark drafter on 16 GB). The architecture is days old; the notes above are one box's measurements, not a
 verdict on the model.
+
+### `llama-mtmd-cli` fixed: it was an uncaught exception, not the projector
+
+The tool died with `0xC0000409` and no message. With stdout made unbuffered (a CLI that can die must not lose
+the lines that lead to the fault) the log ended at `Using specialized template: Inkling`, and a trace inside
+`common_chat_params_init_inkling` never ran - so the crash was not in the vision path at all. Wrapping the
+context construction in `try/catch` printed the whole story on the first try:
+
+    E main: the chat template could not be built: this custom template is not supported, try using --jinja
+
+The built-in C++ Inkling template **throws**, nothing catches it in `mtmd-cli`, and MSVC turns that into
+`abort()` -> `__fastfail` -> `0xC0000409`. `--jinja` (the template inside the GGUF, 6,868 chars) works, which is
+why `llama-cli --mmproj --image` had been fine while `mtmd-cli` never was.
+
+**The fix, 29 lines in `tools/mtmd/mtmd-cli.cpp`:**
+1. `setvbuf(stdout|stderr, _IONBF)` in `main`, so a crash cannot swallow its own log.
+2. The context is built inside `try/catch`; on an exception it logs the reason and **retries once with
+   `params.use_jinja = true`**, announcing the retry. A model whose built-in template is unsupported now loads
+   instead of killing the process.
+
+Verified: `rc=0`, and `llama-mtmd-cli` answered *"a fantasy dragon figurine, green with tan belly, large wings,
+horns, standing on rocky base"* - the same picture `llama-cli` described correctly. Patch kept at
+`patches/llama-mtmd-cli-jinja-fallback-2026-11-22.patch` (applies on top of `b12611`); not sent upstream, and the
+root cause - the built-in Inkling template claiming a template it cannot render - is theirs to fix.
+
+### Workstation, same day: four elevated taskbar pins
+
+There were **no** Terminal, PowerShell or WSL shortcuts on the taskbar at all, so there was nothing to flag; the
+four were created in `%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar` and given
+`SLDF_RUNAS_USER` (bit 13 of the LinkFlags DWORD at 0x14 in the `.lnk`):
+
+| shortcut | target | flags |
+|---|---|---|
+| `Windows Terminal (Admin).lnk` | `%LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe` | `0x60DF`, runas=True |
+| `Windows PowerShell (Admin).lnk` | `%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe` | `0x60DF`, runas=True |
+| `PowerShell 7 (Admin).lnk` | `%LOCALAPPDATA%\Microsoft\WindowsApps\pwsh.exe` | `0x60DF`, runas=True |
+| `WSL (Admin).lnk` | `%SystemRoot%\System32\wsl.exe` | `0x60DF`, runas=True |
+
+The flag is written as a byte patch because `IShellLinkDataList` does not survive PowerShell's COM casts
+(`-as` returns null); Explorer was restarted so the pins render. Each one now raises UAC on launch - that is what
+the flag means, and it is why the earlier CUDA *installer* would not have needed it either: the redist route
+never needed elevation.

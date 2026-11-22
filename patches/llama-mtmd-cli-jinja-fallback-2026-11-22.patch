@@ -1,0 +1,48 @@
+diff --git a/tools/mtmd/mtmd-cli.cpp b/tools/mtmd/mtmd-cli.cpp
+index 4534527fc..d4e433ee1 100644
+--- a/tools/mtmd/mtmd-cli.cpp
++++ b/tools/mtmd/mtmd-cli.cpp
+@@ -518,6 +518,12 @@ static int eval_message(mtmd_cli_context & ctx, common_chat_msg & msg) {
+ }
+ 
+ int main(int argc, char ** argv) {
++    // Unbuffered, because this CLI can abort: with block-buffered stdout the lines that lead to a crash
++    // are still in the buffer when it dies, and the log then stops a screen earlier than the fault
++    // (measured 2026-11-22 on Inkling 2 Mini: every non-verbose run ended at "threadpool init" while the
++    // -v run showed four more lines).
++    setvbuf(stdout, nullptr, _IONBF, 0);
++    setvbuf(stderr, nullptr, _IONBF, 0);
+     std::setlocale(LC_NUMERIC, "C");
+ 
+     ggml_time_init();
+@@ -540,7 +546,29 @@ int main(int argc, char ** argv) {
+ 
+     ggml_backend_load_all();
+ 
+-    mtmd_cli_context ctx(params);
++    // The context builds the chat templates, and a template that cannot be built used to take the
++    // process down with no message at all (Inkling 2 Mini, 2026-11-22: 0xC0000409 right after the
++    // built-in "Inkling" template was picked). Say what happened instead, and fall back to the model's
++    // own template, which is what the vocab actually carries.
++    std::unique_ptr<mtmd_cli_context> ctx_holder;
++    try {
++        ctx_holder = std::make_unique<mtmd_cli_context>(params);
++    } catch (const std::exception & e) {
++        LOG_ERR("%s: the chat template could not be built: %s\n", __func__, e.what());
++        if (!params.use_jinja) {
++            LOG_WRN("%s: retrying with the model's own template (--jinja)\n", __func__);
++            params.use_jinja = true;
++            try {
++                ctx_holder = std::make_unique<mtmd_cli_context>(params);
++            } catch (const std::exception & e2) {
++                LOG_ERR("%s: still failing with --jinja: %s\n", __func__, e2.what());
++                return 1;
++            }
++        } else {
++            return 1;
++        }
++    }
++    mtmd_cli_context & ctx = *ctx_holder;
+     LOG_INF("%s: loading model: %s\n", __func__, params.model.path.c_str());
+ 
+     bool is_single_turn = !params.prompt.empty() && !params.image.empty();
