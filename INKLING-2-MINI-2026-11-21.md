@@ -297,3 +297,29 @@ benchmark was run - this is one 4-token greeting and one 8-token one.
 `llama-server` under the lab's usual gates.
 
 Gates at the load: **37.41 GiB free physical, 33.27 GiB commit free**, GPU 11.0 GiB free of 12.2.
+
+### The 1.2 t/s was the default ubatch, and it costs 45x
+
+Same model, same card, same build, only the flags changed (`-ngl 99`, 4K, `-n 32`, one prompt):
+
+| flags | prompt t/s | generation t/s |
+|---|---|---|
+| defaults (ub **2048**) | 3.1 | **1.2** |
+| `-ub 128` | 32.8 | 54.2 |
+| `-ub 128 -fa on` | 39.5 | 53.7 |
+| `-ub 512 -fa on` | 39.9 | 54.5 |
+
+`llama-cli`'s `-ub` defaults to the batch size (2048), and on `inkling2_loop` that default is catastrophic - it is
+the whole 45x, not the card and not the architecture. **512 is as fast as 128**, so the note's earlier `-ub 128` is a
+VRAM habit rather than a speed rule.
+
+**Context cost, `-ub 512 -fa on`, measured, not derived:**
+
+| ctx | CUDA0 compute buffer | prompt t/s | generation t/s |
+|---|---|---|---|
+| 4096 | 584.22 MiB | 34.6 | 32.1 |
+| 32768 | **3356.22 MiB** | 32.9 | **27.6** |
+
+With the model buffer at 7847 MiB, 32K is ~11.2 GiB of buffers plus overhead: it loaded and generated on the 12 GB
+card, which is tighter than this note's own earlier arithmetic (10.7 GiB) suggested. GPU idle after the runs: 1,362
+of 12,227 MiB, so nothing was left resident.
