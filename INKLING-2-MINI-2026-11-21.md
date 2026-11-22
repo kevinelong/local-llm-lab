@@ -323,3 +323,28 @@ VRAM habit rather than a speed rule.
 With the model buffer at 7847 MiB, 32K is ~11.2 GiB of buffers plus overhead: it loaded and generated on the 12 GB
 card, which is tighter than this note's own earlier arithmetic (10.7 GiB) suggested. GPU idle after the runs: 1,362
 of 12,227 MiB, so nothing was left resident.
+
+### Vision, 2026-11-22: the projector works in `llama-cli`, and `llama-mtmd-cli` is the broken tool
+
+`llama-cli.exe -m <IQ2_XXS> --mmproj mmproj-F16.gguf --image <png> -p "Describe this image in one short sentence."
+-n 160 -c 2048 -ub 512 -fa on --no-warmup -ngl 99 -st`
+
+- `Loaded media from '...20261022-154057_1024x1024_seed1235.png'`, **prompt 415.5 t/s, generation 60.4 t/s**
+  (the image is inside that prompt rate).
+- Answer, complete: *"a green dragon figurine/statue with wings, fangs, standing on a rocky base against a neutral
+  gray background"* - checked against the picture itself: green dragon figurine, wings, fangs, rocky base, grey
+  backdrop. Every element right, nothing invented.
+- Projector load: `422 tensors`, `609.71 MiB`, `vision hparams: image_size 640, patch 20, n_merge 2,
+  projection_dim 2304, image_min_pixels 1600, image_max_pixels 6553600`, `mtmd_backends: using CUDA0 backend`.
+
+**`llama-mtmd-cli` is the one that fails, and not on the model.** It fast-fails (`0xC0000409`) right after
+`get_dummy_batch: warmup with image size = 1280 x 1280` and `Using specialized template: Inkling`, and it does the
+same with **no image at all**, with `-dev none` (CPU only), with `--no-op-offload`, at 2048 ctx and at ub 256. So the
+crash is in that tool's own init, not in the projector, the picture, the GPU or memory. Use `llama-cli` (or
+`llama-server`) for vision on this build until upstream fixes it.
+
+**Context worth knowing before blaming our setup:** the Inkling 2 Mini bugs open upstream on 2026-11-22 include
+`#32778` (prompts over ~96 tokens give all-`?` output), `#32785` (KV cache locality does not match layer placement),
+`#32755` (`--n-cpu-moe` with long prompts produces garbage), `#32777` (fit should prioritise looped MoE layers) and
+`#32773` (DSpark drafter on 16 GB). The architecture is days old; the notes above are one box's measurements, not a
+verdict on the model.
