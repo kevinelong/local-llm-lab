@@ -1,5 +1,14 @@
 # Local AI lab working instructions
 
+- **2026-11-22, Inkling 2 Mini runs on this box, and its vision works from both CLIs.** `INKLING-2-MINI-2026-11-21.md`
+  now carries the whole day: llama.cpp built at `b12611` (`690b87d88`, the `#32704` fix) with the CUDA redist
+  archives instead of a 3.56 GB installer that needs elevation; `unsloth` `UD-IQ2_XXS` + `mmproj-F16` pulled at
+  `45fd0876` with both sha256s checked (8.50 GiB on D:); **the 1.2 t/s was `llama-cli`'s default ubatch 2048** -
+  `-ub 512` gives 54.5 t/s generation at 4K and 27.6 t/s at 32K, where the compute buffer is 3356 MiB on top of a
+  7847 MiB model; the projector works and describes the test picture correctly through `llama-cli`; and
+  `llama-mtmd-cli`'s `0xC0000409` was **an uncaught 'this custom template is not supported, try using --jinja'**,
+  fixed in 29 lines of `tools/mtmd/mtmd-cli.cpp` (unbuffered output + retry with the model's own template), patch
+  in `patches/`. Four elevated taskbar pins were created the same day (Terminal, PowerShell, pwsh, WSL).
 - **2026-11-21, scheduled scan: the expert-cache hit rate is the quantity that moved, Ollama's stable release was a
   rename, and the 0.2.17 RAM rule gets numbers.** `NEWS-2026-11-21.md`, written against **`NEWS-2026-11-20.md`**,
   which closed at **2026-11-20T14:30Z**; window **2026-11-20T14:30Z -> 2026-11-21T14:30Z (24.0 h)**, read interval
