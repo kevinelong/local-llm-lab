@@ -41,16 +41,26 @@ The filler is ten harbour paragraphs shuffled with a fixed seed, so two models s
 | `aggregation` (count "falcon", 7 planted) | **no answer** - `finish=length` at 1,024, 4,096 *and* 8,192 tokens (159 s, then cut) | pass |
 | `variable_tracking` (twelve chained assignments) | pass | pass |
 
-Both models retrieve at 25k and both track variables through a dozen reassignments; **the aggregations diverge**.
-Inkling does not answer the counting probe at any budget tried - it deliberates past 8,192 tokens and returns empty
-content. That is RULER's own finding in miniature: single-needle is saturated, aggregation is not.
+Both models retrieve at 25k and both track variables through a dozen reassignments; **both fail aggregation**, and
+both fail it the same way: `finish=length`, empty content, after 100-160 s of deliberation. Inkling did the same at
+1,024, 4,096 and 8,192 tokens. This probe has since been rebuilt - the marker word appeared in its own question,
+which is an ambiguity a careful model can legitimately argue with rather than count - and the fixed version is what
+the two `3/4` rows above were produced with; the counting failure persists under it.
 
 ### Reasoning (BBH 15+15, GSM8K 15)
 
-| model | total | date understanding | logical deduction (7 objects) | GSM8K |
-|---|---|---|---|---|
-| **Inkling 2 Mini** | **42/45** | 13/15 | **15/15** | 14/15 |
-| qwen3.5:9b | (running) | | | |
+| model | budget | total | date understanding | logical deduction (7 objects) | GSM8K |
+|---|---|---|---|---|---|
+| **Inkling 2 Mini** | 4096 | **42/45** | 13/15 | **15/15** | 14/15 |
+| Inkling 2 Mini (same items as below) | 4096 | **28/30** | 8/10 | 10/10 | 10/10 |
+| qwen3.5:9b | 4096 | **17/45 - invalid**, all 28 misses `finish=length` | - | - | - |
+| qwen3.5:9b | 16384 | (running) | | | |
+
+**qwen3.5:9b's first run is not a score.** Every one of its 28 misses ended `finish=length` - empty `content` after
+the model spent all 4,096 tokens reasoning. Capability was never exercised. Inkling answered inside the same 4,096
+budget, which is itself a real difference - one model deliberates four times longer to reach the same place - but the
+score comparison needs a budget that lets qwen3.5 finish, so it is being re-run at 16,384 on 10 items per task, and
+Inkling's subset score above is the same 30 items at the same prompt order.
 
 The three Inkling misses are real but narrow: two date-arithmetic items and one GSM8K item where its final number was
 wrong. Everything else - the full seven-object deduction set, thirteen of fifteen date items - it gets.
