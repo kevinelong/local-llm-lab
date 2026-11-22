@@ -390,3 +390,29 @@ The flag is written as a byte patch because `IShellLinkDataList` does not surviv
 (`-as` returns null); Explorer was restarted so the pins render. Each one now raises UAC on launch - that is what
 the flag means, and it is why the earlier CUDA *installer* would not have needed it either: the redist route
 never needed elevation.
+
+### llama-server at 32K, 2026-11-22: up, resident, and both text and vision answer over HTTP
+
+Gates at start: **35.88 GiB free physical** (floor 9), **32.88 GiB commit free** of 71.96 (floor 8), GPU **1,608 of
+12,227 MiB**, WSL **Stopped**, no engine running, port 8080 free. Ollama on 11434 was the only listener and holds no
+model.
+
+    llama-server.exe -m Inkling-2-Mini-UD-IQ2_XXS.gguf --mmproj mmproj-F16.gguf \
+      --host 127.0.0.1 --port 8080 -c 32768 -ub 512 -fa on -ngl 99 -np 1 --jinja
+
+- `loaded multimodal model`, `n_slots = 1, n_ctx_slot = 32768`, `listening on http://127.0.0.1:8080`.
+  `/props` confirms `n_ctx=32768`, `slots=1`, `chat_template_chars=6867` (the GGUF's own template, so `--jinja` is
+  what is in force).
+- **VRAM resident: 11,567 of 12,227 MiB.** That is the 7847 MiB model + 3356 MiB compute + the projector, and it
+  leaves about 660 MiB - it fits and nothing else should be loaded beside it.
+- `common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort` is
+  the fitter declining to second-guess an explicit `-ngl 99`, not an error.
+- Text, `/v1/chat/completions`: *"A lighthouse stands tall on the rocky coast, sweeping its steady beam across the
+  dark sea to guide ships safely home."* (`finish=stop`).
+- Vision over the same endpoint, image as base64 `image_url`: **`Dragon`** (`finish=stop`) - the projector answers
+  through the server, not only through `llama-cli`.
+
+**One behaviour to know: the thinking block eats a short budget.** With thinking on (the default) a 64-token request
+returns `finish_reason: length` with `content` **empty** and the whole budget in `reasoning_content`. `"reasoning_effort":
+"none"` in the request produces the answer directly - the same lever as the closed upstream `#32763`. Any harness
+that asks this model for short answers must send that field or budget for the thinking tokens.
