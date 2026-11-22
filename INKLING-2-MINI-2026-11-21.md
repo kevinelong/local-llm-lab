@@ -416,3 +416,41 @@ model.
 returns `finish_reason: length` with `content` **empty** and the whole budget in `reasoning_content`. `"reasoning_effort":
 "none"` in the request produces the answer directly - the same lever as the closed upstream `#32763`. Any harness
 that asks this model for short answers must send that field or budget for the thinking tokens.
+
+### CUDA 13.5.0 adopted, 2026-11-22: the prompt-processing gain is real, generation is noise
+
+The plan in `PLAN-CUDA-13-2026-11-22.md` was run after the restart. Eight redist archives
+(`redistrib_13.5.0.json`: nvcc 13.5.37, cudart 13.5.37, cccl 13.3.5, cuda_crt, nvml dev, cublas 13.10.0.20,
+nvjitlink 13.5.37, nvvm 13.5.37, **794 MiB**) verified sha256-against-manifest and assembled into
+`D:/tools/cuda-13.5` (2.0 GiB). Second build dir `build-cuda135`, same source (`b12611`), Ninja + `cl` + nvcc 13.5,
+`CMAKE_CUDA_ARCHITECTURES=120`. The 12.9 tree and its binaries were left untouched as the baseline.
+
+**A/B, same prompt, same flags (`-ub 512 -fa on -ngl 99`, `-n 32`), three passes each, medians:**
+
+| toolchain | ctx | prompt t/s | generation t/s |
+|---|---|---|---|
+| 12.9.86 | 4K | 35.9 | 49.6 |
+| 12.9.86 | 32K | 34.2 | 51.8 |
+| **13.5.0** | 4K | **43.6** | 52.3 |
+| **13.5.0** | 32K | **44.5** | 52.2 |
+
+- **Prompt processing: +21 % at 4K, +30 % at 32K**, and every one of the three passes ordered the same way
+  (12.9: 31.0/36.7/35.9 and 34.2/36.4/33.7; 13.5: 39.9/43.6/44.5 and 43.9/46.8/44.5). That is the newer cuBLAS
+  heuristics on the GEMM path, which is exactly where the earlier reasoning put the only plausible gain.
+- **Generation: inside the noise** (+5 % at 4K, +0.8 % at 32K) - not a claim.
+- **VRAM unchanged in kind:** buffers are byte-identical (`7847.07` model, `3356.22` compute at 32K), the resident
+  server moved 11,567 -> **11,648 MiB** of 12,227.
+- **Vision is faster too:** the same picture through `llama-cli --mmproj` went 415.5 -> **489.4 t/s** prompt
+  (60.4 -> 63.8 generation), and `mtmd-cli`'s jinja fallback still answers.
+
+**Server now runs 13.5.0**: `/props` `n_ctx=32768`, 1 slot, template 6867 chars; text answers
+(*"The sea stretches endlessly, its restless blue breathing in and out like a living, ancient rhythm."*) and the
+image answers **Dragon**, both `finish=stop` with `"reasoning_effort": "none"`.
+
+**The trap that cost a cycle: CUDA 13 keeps its runtime DLLs in `bin\x64`, not `bin`.** A 13.5 build run with only
+`D:/tools/cuda-13.5/bin` on `PATH` dies with *no output at all* (`llama-cli --version` returns 0xC0000135-ish silence),
+which reads like a broken build rather than a missing `cudart64_13.dll`. Both directories go on `PATH`;
+`serve-inkling-32k.bat` now does.
+
+**Decision rule applied:** adopt only beyond ~3 % at equal or lower VRAM - prompt processing cleared it at both
+contexts, VRAM moved 81 MiB, so 13.5.0 is the default and 12.9 stays on disk as the measured baseline.
