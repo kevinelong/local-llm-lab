@@ -26,6 +26,12 @@ So on a small box, prefer **low-active-param MoE** for anything above the dense-
 ## Recommended daily set
 - **General:** qwen3:8b (fast) or qwen3:14b (stronger). Newer 9B options: qwen3.5:9b, ornith-1.5:9b.
 - **Coding:** qwen2.5-coder:7b (fast) or qwen3-coder:30b (MoE, stronger, ~37 tok/s).
+- **The 2026-11-22 quality pass changed the shortlist** (`RESULTS-2026-11-22.md`): on ten mechanical tasks,
+  `qwen3.5:9b` and Inkling 2 Mini both score **30/30**, `qwen3:8b` and `qwen3:14b` **27/30** each (both miss only the
+  twenty-word ceiling), and **`gemma4:12b` scores 24/30 with six non-answers** - asked for five words or twenty it
+  reasons for 25,000-50,000 characters and never answers, at any budget tried up to 16,384 tokens. `qwen3.5:9b` is
+  the strongest daily option of the five if speed matters (89.6 tok/s on 6.1 GiB); Inkling is what you take when you
+  need 32K or an image read on the card.
 - **Reasoning:** deepseek-r1:8b, or any of the above with thinking enabled.
 - **Agent workhorse (30B MoE):** nemotron-3.5-lightning:30b or qwen3:30b-a3b.
 
