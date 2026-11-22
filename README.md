@@ -665,6 +665,38 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-22 &middot; [Daily news scan: Strata ships twice in 22 hours and puts our model family on a 12 GB card, and the 12 GB decode drop since 0.2.8 is now a bisected quality default](NEWS-2026-11-22.md)**
+
+A **24.0 h** window (2026-11-21T14:30Z &rarr; 11-22T14:30Z), the scheduled run, on **39.44 GiB free physical**,
+**33.44 GiB of commit** and **992 MiB of 12,227 MiB VRAM**. **Strata shipped twice inside one window**: `v0.2.18`
+(2026-11-21T17:09:04Z, Hy4-Flash and a `strata-hy4` engine, packs too large for this box) and **`v0.2.19`**
+(2026-11-22T11:38:49Z, **50 assets, 9,999,878,199 B**, feed **sequence 131** generated **21 min before** publication),
+which moves the bump target to **app 0.2.19 / engine 0.1.65 / Control 0.1.65** and adds **Inkling 2 Mini** -
+**the model this lab is running** - as a native shape engine with three packs sized for a 12 GB card: **SQ-10
+10,471,526,400 B (9.75 GiB), the vendor's claim "fits 100 % in VRAM on 12 GiB cards"**, SQ-15 13.36 GiB (96.68 %
+top-1), SQ-20 18.02 GiB (bit-exact). **The counter-evidence arrived the same day**: **SQ-15 never starts on an RTX
+3060 12 GB** (`#6587`, 6/6 attempts, `CUDA error 2` after auto-sizing to ~72,100), **decode falls 97 &rarr; 33 tps
+by 16K** (`#6591`), **`--kv k8v4`/`k8v8` segfault** (`#6590`), and **0.2.19's sm_120 defaults now number 13** and
+garble a pack from the first token (`#6584`, fixed by `STRATA_EXP_MODE=-1`) or collapse MTP acceptance **76.9 &rarr;
+0.4 %** (`#6575`). The day's correction is however **`#6208`'s bisect**: the **28-36 % decode drop on a 12 GB card**
+since 0.2.8 is **the deliberate revert of `STRATA_ROUTE_PRIOR=1.5`** (first bad commit `20a63cf0f`, #4402) - "the
+last fast release is 0.2.7.1, the first slow one is 0.2.8" - i.e. the speed this lab measured at **+22.9 %
+perplexity and AIME -10.0 pts**. With 11-21's `#6478` that is **two named quality locks**, and no pre-0.2.8 row
+compares with a new one without both. **llama.cpp explains yesterday's own anomaly**: **`#32763`** (first tag
+**`b12624`**) forwards `reasoning_effort: none` instead of erasing it, where **`#32753`** measured `none &rarr;
+effort 0.9` and the workaround `chat_template_kwargs` gives **0** - our Inkling run was **`b12611`**. **`#32778`**
+is a content failure that voids a class of rows: **b12619, RTX 4070 SUPER 12 GB, `--n-cpu-moe 12`, prompts >= 97
+tokens give all-`?` content**, the server stays poisoned, **prefix reuse propagates it**, and **`--no-op-offload`
+fixes any length**. Adjacent, and it resolves our own ubatch puzzle: **`Avalon#70`** gets **garbage at 35 tokens**
+from a `-b/-ub 32768` default because the loan plan prints **`NO ROOM`** and Windows lets the fallback
+over-allocate - the same lever that is **1.2 tok/s at `-ub 2048` and 54.5 at `-ub 512`** on our Inkling row.
+**[HFR] the Gyro pack moved a third day with every weight byte identical** (`abef06b8e0` &rarr; `dc9e8a5702`,
+412.37 GB, card-only commits), the unsloth Inkling tree carries a **402 MB `dspark` drafter** we never staged, and
+an HN headline (**503 points**) publishes the **quantisation-quality curve on our model**: **8.87 GB at 2.72 bpp =
+99.2 % of teacher, 5.38 GB at 1.65 bpp = 89.0 %** - MLX-only, but exactly the instrument our 30/30 battery lacks.
+**[ARX] did not advance** (third read of the 20 November batch). **[RD] 403** on both JSON hosts with the
+189,908-B page, so two 3060 12 GB posts are title-only.
+
 **2026-11-21 &middot; [Daily news scan: the expert-cache hit rate is the quantity that moved, Ollama's stable release was a rename, and the 0.2.17 RAM rule gets numbers](NEWS-2026-11-21.md)**
 
 A **24.0 h** window (2026-11-20T14:30Z &rarr; 11-21T14:30Z), the scheduled 06:30 run, with **34.64 GiB free
