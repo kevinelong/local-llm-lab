@@ -244,3 +244,56 @@ unsloth `45fd08764f2b`, ggml-org `e8a2cecf0e78`, bartowski `76d57028717e` and lm
 10.1-10.7 GiB); everything from `UD-IQ3_XXS` 10.86 up needs 13.7-28.7 GiB and expert/CPU offload. The gate is
 the loader, not disk: llama.cpp must be **`>= b12611`** (else perplexity ~130), mainline needs Unsloth's
 `Mainline_Support` files, DSpark is still `#32218`.
+
+## Acquired 2026-11-22: the loader source and the pack
+
+**Downloaded (permission stands: models on D:, space stated, revision and hash recorded).**
+
+| what | from | revision | bytes | sha256 |
+|---|---|---|---|---|
+| `Inkling-2-Mini-UD-IQ2_XXS.gguf` (was `Mainline_Support/...gguf_file`) | `unsloth/Inkling-2-Mini-GGUF` | `45fd08764f2b0bf16b03a5483a80e5c7aaec8772` | 8,486,237,632 | `2f953a44281cf861b19ccfdb2ce65f7648e1e92bda4af3729893604fd907c544` |
+| `mmproj-F16.gguf` | same repo, same revision | as above | 639,348,160 | `3bff75ffeb2d6e0371ba7bd42e30d26a7d98aea681fa44b03b5a20891cfa2c5f` |
+
+Both hashes were checked with `sha256sum` against the LFS oids the HF API reports for that revision - equal.
+Total **8.50 GiB** in `D:/models/inkling-2-mini` (**8.5 GB** on disk); D: was **474 GiB free** before, **465 GiB** after.
+The `Mainline_Support/` copy was renamed to `.gguf` (same bytes, mainline tensor naming); the root `UD-*` file of that
+repo was **not** taken, because it needs Unsloth's fork rather than mainline llama.cpp.
+
+**The header, read from the file itself** (first 4 MB, GGUF v3): `general.architecture = inkling2_loop`,
+`general.name = Inkling-2-Mini`, `general.size_label = 128x1.8B`, 744 tensors, 63 key/value pairs. So the pack is the
+mainline-layout conversion and its architecture name is the one `#32694` added.
+
+**The loader.** `ggml-org/llama.cpp` cloned to `D:/build/llamacpp-b12611`, `git checkout b12611` -> HEAD
+`690b87d88 model : inkling2_loop share the loop slots after the scale pass (#32704)`, which is the fix itself.
+
+**The toolchain, without an installer.** The CUDA toolkit is **not** installed on this box and the shell is not
+elevated, so the 3.56 GB `.exe` was rejected in favour of NVIDIA's **redist archives** (`redistrib_12.9.1.json`),
+unpacked into `D:/tools/cuda-12.9` (1.1 GiB on disk): `cuda_nvcc` 12.9.86, `cuda_cudart` 12.9.79, `cuda_cccl`
+12.9.27, `libcublas` 12.9.1.4 - all four sha256s verified against the manifest. `ninja` 1.13.2 in `D:/tools/ninja`.
+**Configure lesson:** the Visual Studio generator fails with *"No CUDA toolset found"* because it wants the VS CUDA
+integration, which a hand-assembled toolkit does not have; `-G Ninja` with `-DCMAKE_CUDA_COMPILER=<nvcc.exe>` and
+`cl` from `vcvars64.bat` configures cleanly (OpenSSL absent, so the server has no HTTPS - irrelevant locally).
+
+## Measured 2026-11-22: the loader works, the pack loads, and it is slow
+
+Built `D:/build/llamacpp-b12611/build-cuda` (`llama-cli`, `llama-server`, `llama-mtmd-cli`), `-DGGML_CUDA=ON`,
+`CMAKE_CUDA_ARCHITECTURES=120`, MSVC 19.44 + nvcc 12.9.86 + Ninja 1.13.2. `llama-cli --version`:
+`1.0.0-dev (build 12611, commit 690b87d88)`; `--list-devices`: `CUDA0: NVIDIA GeForce RTX 5070 (12199 MiB,
+11035 MiB free)`.
+
+**Load, 4K context, `-ngl 99`, IQ2_XXS + no projector:**
+`arch = inkling2_loop`, `n_embd 2304`, `n_layer 48` (48 applications: 24 stored, core looped 3x), `n_expert 128`.
+`offloaded 49/49 layers to GPU`, `CUDA0 model buffer = 7847.07 MiB`, `CUDA0 compute buffer = 584.22 MiB`,
+`CPU_Mapped model buffer = 234.65 MiB`. Second load in the same run is the one that offloads - the first pass
+logged `CUDA0 model buffer size = 0.00 MiB`, so read the **second** block when judging offload.
+
+**Speed at 4K, 12 GB card, defaults:** prompt **3.1 t/s**, generation **1.2 t/s** for a 3.4B-active MoE. That is
+not explainable by the card (7.85 GiB resident) and is the next thing to chase: `-ub 128`, `-fa on`, and whether
+the looped layers fall back to CPU in the CUDA path are the three suspects. Nothing faster was claimed and no
+benchmark was run - this is one 4-token greeting and one 8-token one.
+
+**Not tried yet:** the projector (`mmproj-F16.gguf`, 0.60 GiB) needs `llama-mtmd-cli` and an image; 32K context
+(the note's estimate is 10.7 GiB peak, which the measured 7.85 + 0.58 model/compute buffers leave room for);
+`llama-server` under the lab's usual gates.
+
+Gates at the load: **37.41 GiB free physical, 33.27 GiB commit free**, GPU 11.0 GiB free of 12.2.
