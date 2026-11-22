@@ -1,0 +1,70 @@
+{
+ "label": "inkling",
+ "model": "inkling",
+ "suite": "longctx",
+ "ctx": 32768,
+ "per_task": {
+  "niah_single": [
+   1
+  ],
+  "niah_multi": [
+   1
+  ],
+  "aggregation": [
+   0
+  ],
+  "variable_tracking": [
+   1
+  ]
+ },
+ "passed": 3,
+ "possible": 4,
+ "rate": 0.75,
+ "rows": [
+  {
+   "task": "niah_single",
+   "ok": true,
+   "why": "match",
+   "want": "4417",
+   "content": "4417",
+   "finish": "stop",
+   "seconds": 2.7,
+   "prompt_chars": 99913,
+   "want_text": ""
+  },
+  {
+   "task": "niah_multi",
+   "ok": true,
+   "why": "match",
+   "want": "four record notes",
+   "content": "Record note: the blue bell rings at 06:15.\nRecord note: the west gate is repainted 1987.\nRecord note: the ferry timetable is signed Okafor.\nRecord note: the tide table is revised Kwon.",
+   "finish": "stop",
+   "seconds": 18.1,
+   "prompt_chars": 100030,
+   "want_text": ""
+  },
+  {
+   "task": "aggregation",
+   "ok": false,
+   "why": "no match",
+   "want": "7",
+   "content": "",
+   "finish": "length",
+   "seconds": 78.5,
+   "prompt_chars": 99443,
+   "want_text": ""
+  },
+  {
+   "task": "variable_tracking",
+   "ok": true,
+   "why": "match",
+   "want": "2",
+   "content": "2",
+   "finish": "stop",
+   "seconds": 17.0,
+   "prompt_chars": 100383,
+   "want_text": ""
+  }
+ ],
+ "scorer": "hard-probe-2026-11-22.py, re-scored: BBH accepts the letter or the value"
+}

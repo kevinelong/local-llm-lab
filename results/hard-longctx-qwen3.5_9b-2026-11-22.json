@@ -1,0 +1,69 @@
+{
+ "label": "qwen3.5:9b",
+ "model": "qwen3.5:9b",
+ "suite": "longctx",
+ "ctx": 32768,
+ "per_task": {
+  "niah_single": [
+   1
+  ],
+  "niah_multi": [
+   1
+  ],
+  "aggregation": [
+   0
+  ],
+  "variable_tracking": [
+   1
+  ]
+ },
+ "passed": 3,
+ "possible": 4,
+ "rate": 0.75,
+ "rows": [
+  {
+   "task": "niah_single",
+   "ok": true,
+   "why": "match",
+   "want": "4417",
+   "want_text": "",
+   "content": "4417",
+   "finish": "stop",
+   "seconds": 14.3,
+   "prompt_chars": 99913
+  },
+  {
+   "task": "niah_multi",
+   "ok": true,
+   "why": "match",
+   "want": "four record notes",
+   "want_text": "",
+   "content": "Record note: the blue bell rings at 06:15.\nRecord note: the west gate is repainted 1987.\nRecord note: the ferry timetable is signed Okafor.\nRecord note: the tide table is revised Kwon.",
+   "finish": "stop",
+   "seconds": 28.9,
+   "prompt_chars": 100030
+  },
+  {
+   "task": "aggregation",
+   "ok": false,
+   "why": "no match",
+   "want": "7",
+   "want_text": "",
+   "content": "",
+   "finish": "length",
+   "seconds": 108.5,
+   "prompt_chars": 99443
+  },
+  {
+   "task": "variable_tracking",
+   "ok": true,
+   "why": "match",
+   "want": "2",
+   "want_text": "",
+   "content": "2",
+   "finish": "stop",
+   "seconds": 68.8,
+   "prompt_chars": 100383
+  }
+ ]
+}
