@@ -9,6 +9,11 @@
   `llama-mtmd-cli`'s `0xC0000409` was **an uncaught 'this custom template is not supported, try using --jinja'**,
   fixed in 29 lines of `tools/mtmd/mtmd-cli.cpp` (unbuffered output + retry with the model's own template), patch
   in `patches/`. Four elevated taskbar pins were created the same day (Terminal, PowerShell, pwsh, WSL).
+- **QUEUED after the next session restart: swap CUDA 12.9 for 13.5.0 and decide by measurement.**
+  `PLAN-CUDA-13-2026-11-22.md` has the steps, the baseline to beat (32K: 32.9 prompt / 27.6 generation t/s at
+  `-ub 512 -fa on`, 11,567 MiB resident) and the traps already paid for (do not mix DLL sets, do not trust a
+  version number as a result). Nothing here is blocked by the old toolchain; the only plausible gain is newer
+  cuBLAS for prefill and newer ptxas for `sm_120`.
 - **2026-11-21, scheduled scan: the expert-cache hit rate is the quantity that moved, Ollama's stable release was a
   rename, and the 0.2.17 RAM rule gets numbers.** `NEWS-2026-11-21.md`, written against **`NEWS-2026-11-20.md`**,
   which closed at **2026-11-20T14:30Z**; window **2026-11-20T14:30Z -> 2026-11-21T14:30Z (24.0 h)**, read interval
