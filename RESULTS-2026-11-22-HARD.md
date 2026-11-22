@@ -54,13 +54,16 @@ the two `3/4` rows above were produced with; the counting failure persists under
 | **Inkling 2 Mini** | 4096 | **42/45** | 13/15 | **15/15** | 14/15 |
 | Inkling 2 Mini (same items as below) | 4096 | **28/30** | 8/10 | 10/10 | 10/10 |
 | qwen3.5:9b | 4096 | **17/45 - invalid**, all 28 misses `finish=length` | - | - | - |
-| qwen3.5:9b | 16384 | (running) | | | |
+| qwen3.5:9b | 16384 | **27/30** | 8/10 | 10/10 | **8/10** |
 
 **qwen3.5:9b's first run is not a score.** Every one of its 28 misses ended `finish=length` - empty `content` after
-the model spent all 4,096 tokens reasoning. Capability was never exercised. Inkling answered inside the same 4,096
-budget, which is itself a real difference - one model deliberates four times longer to reach the same place - but the
-score comparison needs a budget that lets qwen3.5 finish, so it is being re-run at 16,384 on 10 items per task, and
-Inkling's subset score above is the same 30 items at the same prompt order.
+the model spent all 4,096 tokens reasoning. Capability was never exercised. Inkling answered the same items inside
+that 4,096 budget; qwen3.5 needed **16,384** to finish them.
+
+**On the comparable 30 items, the two are level:** Inkling 28/30, qwen3.5:9b 27/30, the single item of difference
+being two GSM8K questions. At n=30 that is a tie, not a ranking. Where they do differ is cost: **Inkling reached the
+same answers in a quarter of the reasoning budget.** For an agent loop that pays by token, that is the more useful
+number of the two.
 
 The three Inkling misses are real but narrow: two date-arithmetic items and one GSM8K item where its final number was
 wrong. Everything else - the full seven-object deduction set, thirteen of fifteen date items - it gets.
