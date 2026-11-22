@@ -454,3 +454,20 @@ which reads like a broken build rather than a missing `cudart64_13.dll`. Both di
 
 **Decision rule applied:** adopt only beyond ~3 % at equal or lower VRAM - prompt processing cleared it at both
 contexts, VRAM moved 81 MiB, so 13.5.0 is the default and 12.9 stays on disk as the measured baseline.
+
+### Thinking eats the budget even with `reasoning_effort: none`, 2026-11-22
+
+Three requests against the running server, same endpoint:
+
+| prompt | max_tokens | result |
+|---|---|---|
+| ~443 tokens (long passage) | 128 | **empty content**, `finish=length` - then the *identical* request returned an 81-char answer, so it is flaky, not a threshold |
+| ~64 tokens (short summary task) | 64 | **empty content**, `finish=length`, `reasoning_length=444` |
+| the same | **512** | `finish=stop`, **"The keeper kept the lamp lit for thirty years."**, `reasoning_length=593` |
+
+So `reasoning_effort: none` does **not** switch thinking off on this model in `llama-server`; the thinking block runs
+anyway and a small budget is spent entirely on it. Anything driving this model needs **`max_tokens` in the hundreds**
+(or `--reasoning-budget 0`), otherwise it returns nothing and looks broken. Upstream `#32778` claims prompts over
+~96 tokens produce all-`?` output; that did **not** reproduce here - the long prompt answered correctly once and
+returned empty once, which is a budget/thinking effect rather than the reported one, and worth re-testing when the
+architecture settles.
