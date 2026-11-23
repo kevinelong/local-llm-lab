@@ -9,7 +9,7 @@ advice he asked for. This supersedes `TILE-LAB-PLAN-2026-11-23.md` (kept as the 
 |---|---|---|
 | 1 | Does the LLM track belong in tile-lab? | **No.** tile-lab stays about tiled GPU kernels. The benchmarking work stays in **`local-llm-lab`**, which is already the model-lab repository - no new sibling repo is needed, and nothing is ported to tile-lab. |
 | 2 | Which licence? | **MIT** for this work. `local-llm-lab` is private today; if it is ever published it carries MIT, not the FSL-1.1-MIT that the source material assumed. Recorded here so the choice is not re-litigated per file. |
-| 3 | Commit the raw replies, or summaries only? | **Commit them, for now.** Monitor the growth and **report when the committed evidence passes 10 MB**. Today `results/` is 522 KB and `data/` is 987 KB, so the whole evidence set is about 1.5 MB. |
+| 3 | Commit the raw replies, or summaries only? | **Commit everything, uncut - prompts as well as replies** (revised same day: "keep everything in, ignore the cap for now"). The 10 MB line is no longer a limit; it is a marker reported alongside results. Nothing in these suites is personal: the passages are generated filler and the reasoning items are public BBH/GSM8K. The rule that remains is the obvious one - **if a suite ever puts a personal file (a photo, a document) into a prompt, that prompt is redacted before it is committed**. |
 | 4 | Retire the ten-task battery? | Advice below. |
 | 5 | Which backends? | **Both**, and open to more. `--backend` is explicit; OpenAI-compatible and Ollama-native, plus whatever else can be measured. See the Strata note below - we do **not** currently measure with Strata. |
 | 6 | Is the `vt` suite in scope? | Advice below. |
@@ -60,7 +60,16 @@ at a pinned version, an interface the harness can drive (HTTP or CLI), and a loa
 under test. Until then, a Strata row in any table would be a number copied from someone else's page - which is
 exactly what this lab's evidence rules forbid.
 
-## Evidence budget
+## Evidence: full fidelity, and what it costs
 
-`tools/evidence-size.py` reports the size of what would be committed as evidence; the threshold is 10 MB and the next
-step above it is to ask, not to stop measuring.
+Both harnesses now store **the prompt and the complete reply**, not a 2,000-character slice (13 rows in the runs of
+2026-11-22 are cut at 2,000 characters and cannot be recovered - the prompts were not stored then; every run from now
+on is whole).
+
+Cost, measured: a long-context prompt is ~64 KB (a ~16k-token passage), so one model battery goes from **~30 KB to
+roughly 500 KB** - long-context and `vt` dominate, the reasoning and quality items are a few KB each. At that rate
+10 MB arrives after about **20 batteries**, which is why the cap was worth asking about; the answer was "keep
+everything, disk is cheap, we may want a comprehensive reanalysis".
+
+`tools/evidence-size.py` still reports the number and will say when 10 MB is passed - as a marker in the report, not
+as a gate.

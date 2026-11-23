@@ -276,7 +276,10 @@ def main():
             rows.append({
                 "task": name, "run": run + 1, "ok": ok, "why": why,
                 "finish": payload["finish"], "seconds": payload["seconds"],
-                "content": payload["content"], "reasoning_chars": len(payload["reasoning"]),
+                # the prompt as well as the reply, uncut: a future reanalysis should not need the generator and
+                # the seeds to reconstruct what the model saw
+                "prompt": prompt, "content": payload["content"],
+                "reasoning": payload["reasoning"],
             })
             print("%-20s run %d  %s  %-40s (%ss, finish=%s)" %
                   (name, run + 1, "pass" if ok else "FAIL", why[:40], payload["seconds"], payload["finish"]),

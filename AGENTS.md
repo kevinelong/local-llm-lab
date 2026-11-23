@@ -295,9 +295,10 @@
     readbacks, the SQ-10 download, and a llama.cpp download at **`>= b12624`**.
 
 - **2026-11-23, decisions on the benchmarking work** (`DECISIONS-2026-11-23.md`). It stays in this repo, not in
-  tile-lab; licence is **MIT** if published. Raw model replies are **committed as evidence** and the budget is
-  **10 MB** - `python tools/evidence-size.py` reports the number, and research evidence under that travels with a
-  discussion or report without asking. The ten-task battery is retired as a ranking suite and kept as the fast smoke
+  tile-lab; licence is **MIT** if published. Raw model replies **and their prompts** are **committed as evidence, uncut** (2026-11-23: disk is cheaper than a
+  re-run, and a future reanalysis should not need the generator and its seeds). `python tools/evidence-size.py` reports
+  the size; 10 MB is a marker to report, not a cap. The one standing rule: a prompt that contains a personal file is
+  redacted before it is committed. The ten-task battery is retired as a ranking suite and kept as the fast smoke
   gate; BBH/GSM8K/the long-context probes are what rank. Backends are OpenAI-compatible and Ollama-native, open to
   more - but **we do not measure with Strata**: no engine is installed here, and what we have is its release notes and
   a separate engine's public page.

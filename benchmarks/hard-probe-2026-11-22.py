@@ -334,7 +334,7 @@ def main():
             payload, seconds = ask(args.base_url, args.model, prompt, args.max_tokens, args.num_ctx)
         except Exception as error:  # noqa: BLE001 - a transport failure is recorded, not hidden
             rows.append({"task": name, "ok": False, "why": "transport: " + str(error)[:80],
-                         "want": str(want), "want_text": want_text,
+                         "want": str(want), "want_text": want_text, "prompt": prompt,
                          "content": "", "finish": "transport-error",
                          "seconds": 0, "prompt_chars": len(prompt)})
             print("%-28s FAIL transport %s" % (name, error), file=sys.stderr)
@@ -343,9 +343,12 @@ def main():
         message = choice.get("message") or {}
         content = message.get("content") or ""
         ok = bool(scorer(content))
+        # Everything, uncut: the reply and the prompt. Kevin's rule of 2026-11-23 - disk is cheaper than a
+        # re-run, and a future reanalysis needs to see exactly what the model was asked, not a 2,000-char slice.
         rows.append({"task": name, "ok": ok, "why": "match" if ok else "no match",
                      "want": str(want), "want_text": want_text,
-                     "content": content[:2000], "finish": choice.get("finish_reason"),
+                     "prompt": prompt, "content": content,
+                     "finish": choice.get("finish_reason"),
                      "seconds": round(seconds, 1), "prompt_chars": len(prompt)})
         print("%-28s %s  want=%-18s got=%r" % (name, "pass" if ok else "FAIL", str(want)[:18], content[-60:]),
               file=sys.stderr)
