@@ -665,6 +665,26 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-23 &middot; [Daily news scan: Strata ships 0.2.20 for our model, and within fourteen hours the engine is broken on every card class but ours; two independent 12 GB recipes put Inkling 2 Mini at 30 tok/s with no patch](NEWS-2026-11-23.md)**
+
+A **~23.9 h** window (2026-11-22T14:38Z &rarr; 11-23T14:30Z), the scheduled run, on **37.01 GiB free physical**,
+**41.4 GiB of commit** and **1,278 MiB of 12,227 MiB VRAM**. **Strata shipped `v0.2.20`**
+(2026-11-22T23:20:39Z, 64 assets, all three engine families plus Control at **0.1.66**, Windows CUDA13 build
+**494,695,625 B**, build id **`2e87c08db18a+cuda13.0`**) with a 4-tier planner across our model family and a
+**"9.5x" lossless DSpark path for Inkling GGUFs** &mdash; whose named quantisations **do not include the
+`UD-IQ2_XXS` this lab stages**. Within fourteen hours **`#6704`** had it aborting **every request on non-sm_120
+cards** with `verify: layer 0 never rang (operation not supported on global/shared address space)` after **eight
+failed escape hatches**, and two more reports separated the decode regression into a **post-cache reservation**
+(256 &rarr; 602 MiB, **-18.3 %** decode on an 8 GB Blackwell, **2.2x the slots and half the hit rate on 2x 12 GB**)
+and a **host-layer** change (`#4870`, 89-90 &rarr; 72-74 tok/s **on the same engine binary**). Four 12 GB Inkling
+reports followed, including **setup's own fit plan OOMing 0.75-1 GB too high**, and yesterday's 402 MB DSpark
+drafter turned out to **start in neither engine**. On the other side, **llama.cpp `#32807` fixed the corruption
+this lab voided yesterday** (first tag **`b12642`**), Colibri **v2.2.0** shipped an engine that runs **our exact
+file**, and two independent **12 GB recipes** &mdash; Zenn's `-ot` loop-layer placement (21.44 &rarr; 29.78 tok/s,
+prompt 115.6 &rarr; 154.8) and SOTAAZ's 48-visit KV arithmetic with a ubatch-controlled compute buffer &mdash; made
+the whole battery we ran yesterday re-readable. **[ARX] advanced** (58+33+51 cs.CL, 96+75+133 cs.LG) with a paper
+on gated per-lookup precision for the 28.8 GB table in our own pack; **[RD] 403** again; **[HN] 946** stories.
+
 **2026-11-22 &middot; [Daily news scan: Strata ships twice in 22 hours and puts our model family on a 12 GB card, and the 12 GB decode drop since 0.2.8 is now a bisected quality default](NEWS-2026-11-22.md)**
 
 A **24.0 h** window (2026-11-21T14:30Z &rarr; 11-22T14:30Z), the scheduled run, on **39.44 GiB free physical**,

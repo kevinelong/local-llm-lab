@@ -1,5 +1,172 @@
 # Local AI lab working instructions
 
+- **2026-11-23, scheduled scan: Strata ships 0.2.20 for our model and within fourteen hours the engine is broken
+  on every card class but ours, while two independent 12 GB recipes put Inkling 2 Mini at 30 tok/s with no patch
+  at all.** `NEWS-2026-11-23.md`, written against **`NEWS-2026-11-22.md`**, which closed at **2026-11-22T14:38Z**;
+  window **2026-11-22T14:38Z -> 2026-11-23T14:30Z (~23.9 h)**, read interval **14:30Z -> ~15:1xZ**. This **is** the
+  scheduled run (`[Mon 11/23/2026  6:30:02.10] daily news scan start`, previous run `exit 0` + `verify OK`).
+  Reading only - nothing downloaded as a model or installed, **no engine started, no inference, no benchmark**,
+  **`ai_bench` untouched**. WSL started once for `yt-dlp` (two caption sets) and shut down at the end; `gh`/`curl`
+  on Windows, plus one 37,347-B release **asset** (`strata-feed.json`), never a model. Gates at start: **37.01 GiB
+  free physical of 63.46**, **commit free 41.4 GiB of a 71.96 GiB limit** (33.4 GiB of margin above the 8 GiB
+  floor), GPU **1,278 of 12,227 MiB**, driver **617.24**. Listeners: **`127.0.0.1:11434` pid 57832** (Ollama),
+  **`127.0.0.1:8006` pid 25420** (this track's ComfyUI). Nothing ended, no gate lowered.
+  - **THE BUMP TARGET MOVED AGAIN AND THIS TIME THE ENGINE IS THE RISK. `v0.2.20` (2026-11-22T23:20:39Z, 64
+    assets, 13,375,755,296 B, feed seq 132 generated 22:51:08Z - 29 min early) puts all three engine families and
+    Control at 0.1.66.** Windows CUDA13 engine **494,695,625 B, `installed_bytes` 712,196,851**, build id
+    **`2e87c08db18a+cuda13.0`** - which for the first time **is** the release commit, unlike 0.2.19's
+    per-platform split - archs sm_75/86/89/120/compute_120, min driver 580.65, Control zip 67,853,572. Release
+    content that reaches us: one **4-tier GPU+RAM+CPU+SSD planner** across Qwen3.8-Flash-Next / HY-4 / Inkling 2
+    Mini (down to **0 VRAM experts on 4-6 GiB cards**, `--ssd-experts --ram-experts-gb 0`, `--layer-split auto`
+    2-4 cards); **lossless `GGUF_RAW` Inkling execution with a fixed DSpark drafter, "9.5x, 6.5 -> 61.9 tok/s on
+    12 GB GPUs"** - and **`UD-IQ2_XXS`, our quantisation, is not in the named list** (`UD-Q4_K_XL`, `Q8_0`,
+    `UD-IQ4_XS`, `UD-IQ3_XXS`, `UD-Q6_K_XL`, `UD-Q5_K_XL`, `UD-Q3_K_XL`, `UD-Q2_K_XL` are); `--kv-offload auto`
+    on `strata-inkling` at 32K+; and the sm_120 garbling of 11-22 (`#6575`/`#6576`/`#6577`/`#6584`/`#6616`/
+    `#6634`) answered by `L.had_block == 0` guards and restored per-expert `L.s_down` tail scaling. **55 commits,
+    192 issues created** in the window.
+  - **0.1.66 ABORTS EVERY REQUEST ON NON-sm_120 CARDS, WITH A NEW ERROR STRING, AND EIGHT ESCAPE HATCHES FAIL.
+    `#6704`** (2026-11-23T00:03:49Z, **11 comments**): 2x RTX 4090, **Windows 11 build 26300, driver 610.88,
+    WDDM**, layer-split 22, UD-IQ4_XS-v31 - loads, prints `ready:`, then every request returns **`verify: layer 0
+    never rang (operation not supported on global/shared address space)`**; **0.1.65 on the same machine runs
+    perfectly**, and the startup diff is exact (0.1.65 captures 8/4/1-token verify windows, 0.1.66 captures 1 and
+    fails the warm-up). Not multi-GPU: one **RTX 4070 sm_89** crash-loops too, and `nuts23` reports the **0.1.66
+    update test from 0.1.62 failing on Ubuntu 26.04 + R9700 "after 1 token"**. Failed arms: `SM89_PERF=0`,
+    `--pipeline-windows 1`, `WDDM_VRAM_FLOOR=0`, `DENSE_I8_TC=0`, and `--adapt-async 0` is a documented **no-op**
+    on a layer split. Reporter-confirmed workarounds, not in the notes: **`STRATA_HC_Q8_TC=0
+    STRATA_HC_Q8_BF16TC=0`** (`real4root`), matching **`#6713`** (Q8_0 tensor-core kernels reach staged weights
+    through `__ldg`: **2,752 invalid global reads**). Other confirmed: sm_86 Linux `#6745`, 2x A6000 `#6814`,
+    native IQ `#6712`, MTP `#6706`, sm_75 `#6710`. **Every confirmed abort is sm_86/89/75/RDNA; the sm_120 reports
+    are slowness, not this** - we do not know whether our card is spared.
+  - **THE DECODE REGRESSION HAS TWO CAUSES AND ONE OF THEM IS THE HOST LAYER. `#6836`** (12:45:14Z, 8 GB Blackwell,
+    engine swapped, 3 controls + a 120K retrieval): **0.1.62 886 slots / 72.6 t/s against 0.1.66 562 slots /
+    59.3 (-18.3 %)**, because the post-cache reservation went **256 -> 602 MiB**, and forcing `--expert-cache 886`
+    gives 918 slots at 250 MiB free and **42.7 t/s, below its own auto**. Its comment is our model family and OS:
+    **2x 12 GB (4070 + 3080 Ti), WDDM, driver 617.42, UD-Q4_K_XL, MTP, kv int8** - 0.1.52 **1662 slots / 93-95 %
+    hit / 79.7-70.1-73.5 t/s**, 0.1.66 **~3620 slots / 56-64 % / 38.7-39.9-40.5** with the best prefill (1093 vs
+    923): **2.2x the slots, half the hit rate, -43 to -51 % decode**, and *"the hot set is not refilled after a
+    prompt loan"* (the prompt path borrows 1348 of 1513 slots on card 2; dampening 96 -> 32 swaps). **`#6846`** is
+    the one we can act on with no download: **0.2.20's Terminal code on engine 0.1.56 costs 89-90 -> 72-74 t/s**
+    and prints a line that did not exist before - **`#4870 mid-coverage expert cache (6229 of 24576 slots,
+    25.3%): adaptive defaults every 4 -> 2, swaps 96 -> 192, decay 0.70 -> 0.92`**. The host layer moved a number
+    for the second time this month (11-20's `#6380`).
+  - **FOUR 12 GB INKLING REPORTS AND NONE OF THEM IS THE VENDOR'S ROW. `#6792`** (08:19:05Z) is ours: 3060 12 GB
+    sm_86 over OCuLink, 53 GB RAM - **setup's own plan (`--vram-experts-gb 7.75 / --ram-experts-gb 0.85`) OOMs at
+    `ink_cuda.cuh:59`**, 5.20/3.40 loads at 10.2 GB, 6.00/2.60 + `--kv-offload on --vram-reserve-mib 1500` loads
+    at 10.7 GB, **7.00/1.60 OOMs without the flags and loads with them at 11.7 GB**, and the plan OOMs both ways -
+    *"the plan is about 0.75 to 1 GB too high"*, and `--vram-reserve-mib 1500` *"did not appear to be honored"*.
+    SQ-15 fails identically. **`#6853`**: RX 7900 XTX, `inkling_fit` fixes the 100K 503 by planning **fp16 KV with
+    `kv_offload: off`** (only CUDA offloads KV) and pays **71-73 -> 9.5 t/s at 128K, 3.2 at 256K**.
+    **`#6757`**: 6800 XT SQ-10 **61 -> 8.9 t/s at 64k**. **`#6569`**: **SQ-10 segfaults in CPU expert computation**
+    on a 4070 SUPER - the path the 12 GB plan needs.
+  - **YESTERDAY'S 402 MB DRAFTER IS STRUCK, NOT POSTPONED. `#6852`** (14:14:11Z): `strata-inkling` 0.1.66 dies
+    with **`missing tensor 'dspark.layers.0.self_attn.o_proj.weight'`** (exit 2) both with `--dspark` and with no
+    flag, while the same 54 tensors as safetensors load; `#6834` says the auto-provisioner downloads that exact
+    file. And the pack's own `dspark/README.md` says **mainline llama.cpp has no DSpark support** (open PR
+    **#32218**, a *newer* drafter format), so it needs `unslothai/llama.cpp` - a different engine, a second
+    variable. The two Unsloth-format drafters are `general.architecture = dflash`, 54 tensors, Q8_0 RMSE 0.62 %,
+    `--spec-draft-n-max` clamped to **7**.
+  - **llama.cpp: 23 commits, `b12651`, and `#32807` IS THE FIX FOR WHAT WE VOIDED YESTERDAY** - merged
+    2026-11-22T19:04:22Z, **+6/-0 in one file**, "copy all experts of a host weight shared by several nodes", whose
+    own reproducer is **`inkling2_loop --n-cpu-moe 13 -fa on --spec-type ngram-simple`** emitting **`!` (token 0)
+    forever after a 32+ token batch**, `--no-op-offload` as the workaround. **First tag `b12642`** (compare
+    `5bacb7c86...b12642` -> `identical`), so the gate is now **`>= b12642`**, not `>= b12624`. The same build
+    carries **`#29307`** (token-aware chat parsing, +1,988/-502, 30 files: a *written* `</think>` no longer ends
+    reasoning - **our 30/30 text is not comparable across it**), **`#32799`** (`ignore_merges` for Inkling 2;
+    **337 vocab entries** were unreachable, `kwargs` 12 -> 10 tokens, so rendered token counts move including
+    11-22's 97-token VOID threshold) and **`#32833`** (inkling parser; fixes `#32800`/`#32802`/`#32818`). Also
+    **`#32566`** (+2/-2): an all-zero block in the few-row MMQ quantiser gives `amax=0 -> Inf -> NaN -> undefined
+    behaviour` - **Strata shipped the same zero-amax NaN guard in the same window**.
+  - **TWO 12 GB RECIPES FOR OUR MODEL, PUBLISHED YESTERDAY, LABELLED `[WEB]` (outside the seven classes).
+    Zenn/相田総介 (2026-11-22, upd 11-23, RTX 4070 Ti 12 GB, 96 GB RAM, 17.6 GB IQ4_NL, build 12603, 1150-token
+    prompt, 512 gen, medians of 3): `-ncmoe 13` 21.44 t/s; `-ot "blk\.([0-5]|1[89]|2[0-3])\.ffn_.*_exps.*=CPU"`
+    29.78; expert cache + a 42-line slot-sharing patch 36.28.** `--no-op-offload` took prompt **115.6 -> 154.8**
+    with decode unchanged; **`-ub 512` reserves ~9.9 GB of compute buffers** on a host-expert 12 GB card (700 MiB
+    at `-ub 32`, 105 at 16), which is why the tuner said `no room ... larger than 1472 MiB`; the cache counts the
+    **12 looped layers three times** (`28188.00 MiB of host experts` for a **15,066 MiB** file) and sharing slots
+    gives hit **81.5 -> 94.8 %**, **27.52 -> 39.35 t/s**, prompt **57.5 -> 148.3**, bytes shipped **1088 -> 313
+    GiB**; with sharing **the CPU share turns negative** (0 -> 39.35, 0.5 -> 34.84, 0.95 -> 34.27); text at temp 0
+    is **character-identical** with share 0; and **the cache 4096 + `-ub 64` arm reported 48 t/s / 99 % hit while
+    emitting 512 tokens of `?`** - `--no-op-offload` fixed all six broken arms. **SOTAAZ (2026-11-22T13:40:37Z,
+    A100, `Mainline_Support`, `b12611`): KV must be counted over 48 loop visits, not 24 layers - 32K = 1,264 MiB,
+    matched to 0 MiB, exactly double; the hog is the CUDA compute buffer (32K `-ub 512` = 3,356.2 MiB, 256 =
+    1,677.8, 128 = 837.3, costing 4-7 % / 12-16 % prompt on A100); 12 GB max context Q2 = 18K/30K/43K by ubatch
+    and `UD-Q2_K_XL` scored 0.975 on 4 coding tasks with 174 MiB spare; vision is +710 MiB including +98.8 of
+    compute buffer; and the same file reads wikitext-2 PPL 117.34 on `b12603` against 6.27 on `b12611`.** So
+    **`b12611` is a hard floor for any Inkling row** - ours is exactly it - and root-layout files are refused by
+    upstream (`blk.24.attn_q.weight not found`).
+  - **ADJACENT, MEMORY-SHAPED: a vision projector costs 72 % of text prefill on our card class.**
+    **`L0xRE-BeeLLama-Low #32`** (2026-11-23T14:21:41Z): RTX 4070 Ti 12 GB, WDDM, driver 621.14, Windows 26200 -
+    loading the projector cut **text-only 10K prefill from ~1,713 to ~483 t/s** with no image input (an earlier
+    launch read 1,669 *with* vision). Every vision arm here loads `mmproj-F16` (639,348,160 B) and none declares
+    it. **`maya #1173`** (11:22:15Z) gives the all-experts-resident bound on a 16 GB card: 3,072 experts =
+    11.4 GiB + 0.9 dense + 0.7 KV, resident path **off** (*"a dense matrix is not kept as blocks"*), with
+    **Q3 34.2 / Q4 46.0 t/s** in #1170. Also in-window: `comfy-aimdo #138`, `stable-diffusion.cpp #2401`,
+    `Avalon #74`.
+  - **PACKS: GYRO MOVED A FOURTH DAY WITH EVERY WEIGHT BYTE IDENTICAL.** `dc9e8a5702` -> **`f3034aabaf`**
+    (2026-11-23T13:51:10Z, **13 -> 20 files**) and all nine weight files unchanged to the byte - the seven new
+    files are SVG/PNG **presentation**. **`unsloth/Inkling-2-Mini-GGUF`** moved `45fd0876` -> **`13bbdd720e`**
+    (13:23:40Z, 31 -> 34) with root quantisations unchanged (**UD-IQ2_XXS 8,486,236,352 B = our staged file**)
+    and added **`Mainline_Support/`** (ten `*.gguf_file`, IQ2_XXS +1,280 B), a **`dspark/`** directory, a
+    `dspark-...-Q8_0_Old.gguf` of the same 402,278,560 B, and `mmproj-F32` (1,273,048,512). **New, not
+    recommended: `dealignai/Inkling-2-Mini-UNCENSORED-GGUF`** (11-23T10:36:59Z, licence `other`, 0 downloads) -
+    **IQ2_XXS 9,014,789,792 B (8.40 GiB)**, `-small` 8,409,630,368, Q4_K_M 17,478,094,496, DSpark 404,128,640 -
+    the first uncensored artefact on our family that fits the card. Also `Lucebox/...-Fast-GGUF`,
+    `1bit-MONSTER/...-NVFP4-attention`. **`nari-labs/Qwen3.8-27B-NariQ-GGUF`** (apache-2.0, 2,243 downloads,
+    mod 11-23T01:53Z): **3.0 bpw 10,123,626,592 B (9.43 GiB)** claiming BF16-level on DeepSWE (41.0 vs 39.8) /
+    Terminal-Bench (63.8 vs 62.6) / AIME (98.3 vs 97.7), 2.5 bpw 8.44 GB, 2.0 bpw dropping to 28.6 - **requires
+    `nari-labs/nari-llama.cpp`**; tech report **arXiv 2611.26157**. Five tracked packs unchanged.
+  - **[ARX] ADVANCED to Monday 23 November: cs.CL 58 new + 33 cross + 51 replacements (142 titles), cs.LG 96 + 75
+    + 133 (304)** - and the title parse **matched the listing counters exactly for the first time**. Best read:
+    **`Let the Gate Decide: Per-Lookup Precision for Quantized Conditional Memory`** - Engram tables are worth
+    **36.8 PopQA** points, low-bit loses long-tail facts first, and **"refining lookups by access frequency is
+    worse than refining them at random"**; the fix is per-lookup precision weighted by the row's gate. That is
+    the 28.8 GB PLE table in our pack, and both routes we priced (`-noPLE` + standalone IQ4_NL; `--ple`) are the
+    uniform-precision choices it argues against. Also: `Probing the Prompt KV Cache` (redundancy is *form*, not
+    content), `Cannot Wait to Verify`, `DPMA` (per-layer prune/merge/absorb), `SaturQ`, `PLoQ`, `Right On Q`,
+    `The Vulnerability Window` (decision instability under quantisation).
+  - **[YT] TWO CAPTIONED VIDEOS, NEITHER IN-WINDOW.** *No place like localhost*, **2026-11-19**, 43,136 views,
+    `WSJL4SOIZDg`: a closed **fork of Strata called HotRod** on a **4070 12 GB + 128 GB DDR4-2133** - stock
+    Qwen-Flash-Next IQ3_S at 128K reads **"final reported speed is 18 tokens per second"**, the fork answers the
+    same question in **1 min 23 s at "consistently mid thirties"**, and its GitHub claims **50-70 t/s on one 3060
+    12 GB with 30 GB RAM + NVMe**; setup is identical except you must build the fork's engine (5-10 min).
+    *Kai*, **2026-11-15**, 135,081 views, `j-VqPVjztJE`, the uncensored ladder: **every 8/12/16 GB card got
+    "roughly a quarter of the budget that tests needed"**; an uncensored variant follows **89.8 %** of harmful
+    requests but **loses 14.5 truthfulness points**; **Qwen3.8-27B at 8.88 GB 2-bit is "an experiment rather
+    than a pick"**; **Ollama context length >= 16,000 on every card**. **[RD]** **403 on both endpoints**
+    (189,908-B page; 1,522-B `Blocked`) - twenty-sixth failure in twenty-nine days, last read 2026-10-25.
+    **[HN]** **946 stories**: `Show HN: Gall` (Inkling 2 Mini on a 24 GB M2 - a fourth engine), the NariQ pack,
+    `aci-cpp vs llama.cpp v1.0.0`, and the day's dominant **"Jensen Huang Reinstated as Nvidia CEO"** (588
+    points) which explains a window with nothing else on our axes.
+  - **[REL] COLIBRI SHIPPED ITS FIRST RELEASE SINCE 2026-10-31 AND IT RUNS OUR EXACT FILE.** `v2.2.0`
+    (2026-11-22T17:02:05Z, 6 assets): **Inkling-2-Mini on CUDA, Vulkan and CPU**, from unsloth GGUFs
+    *"UD-IQ2_XXS 8.5 GB to UD-Q4_K_XL 17.6 GB"*, accepting both root and `Mainline_Support` layouts;
+    UD-Q4_K_XL **40.9-41.1 t/s CUDA** on an RTX PRO 4000 24 GB; Qwen3.6-35B-A3B 104.4-106.2; Qwen3.8 IQ2_XS CUDA
+    **7.7 -> 55.8-56.6 with prompt 29 -> 329-421**; and `coli setup` now measures RAM/card/disk bandwidth and
+    picks the model. **This is the second engine that can run the file we already own**, with no conversion and
+    no source build. Ollama v0.40.17 and ComfyUI v0.46.0 unchanged.
+  - **[METHOD], four repeats.** PowerShell `$`-stripping **seventh** instance; the arXiv title regex needed
+    **single-quoted** attributes (`descriptor'>Title:</span>`), and the corrected parse self-validated against
+    the listing counters; the HN epoch `1795365600` was **2 h late** (correct `1795358280`); `curl -o` to an
+    absolute POSIX path failed **exit 23** while a relative path wrote 37,347 B; `yt-dlp` needed `en-orig` (429
+    on `en`) and a 20 s pause; and `gh compare/<merge-sha>...<tag>` -> `identical` is cheaper and safer than
+    release-date arithmetic for a build gate.
+  - **Shortlist, cheapest first**: (1) put the two 12 GB recipes into the Inkling declaration
+    (`-ot` loop-layer placement + `--no-op-offload` + declared ubatch: **21.44 -> 29.78 t/s**, prompt
+    **115.6 -> 154.8**); (2) **read the header of our staged file** (`general.architecture`, `block_count`
+    24 vs 48 - seconds, and it decides whether our 30/30 row ran the layout upstream reads); (3) **declare the
+    projector** on every row (`-72 %` text prefill with vision loaded); (4) **rebuild the 0.2.20/0.1.66 bump as
+    VOID-unless**: `HC_Q8_TC=0`/`HC_Q8_BF16TC=0`, the 17-switch line, post-cache headroom, the `#4870` line and
+    the hit rate as readbacks; (5) **`>= b12642`** for the expert-copy fix, `#29307` and `#32799`; (6) **strike
+    the DSpark drafter**; (7) the **8.40 GB uncensored IQ2_XXS** on the 30/30 battery. Items 1-4 and 6 are
+    edits; 5 one download; 7 is permitted but gated on licence `other`.
+  - **Gated on Kevin**: the **0.2.20 / 0.1.66 bump** (sixth target in seven scans, now a **risk** rather than a
+    formality); the **SQ-10/SQ-15 packs** (the 12 GB plan is 0.75-1 GB too high, so any start declares
+    `--vram-experts-gb`/`--ram-experts-gb`); a **llama.cpp download at `>= b12642`**; the **dealignai uncensored
+    pack (8.40 GB)** and **NariQ 3.0 bpw (9.43 GiB, fork build required)**; the **Colibri v2.2.0 probe** on our
+    own file; plus the unchanged display-to-iGPU cable change, the Gyro-S route (**`f3034aabaf`**, 412.37 GB of
+    weights), the ComfyUI image pair, the DeepSeek IQ2_XXS download, the `STRATA_OWN_CPU_QUANT` build decision
+    and the September 29 candidate tests.
+
 - **2026-11-22, scheduled scan: Strata ships twice in 22 hours and puts Inkling 2 Mini on a 12 GB card, and the
   12 GB decode drop since 0.2.8 is now a bisected quality default.** `NEWS-2026-11-22.md`, written against
   **`NEWS-2026-11-21.md`**, which closed at **2026-11-21T14:30Z**; window **2026-11-21T14:30Z ->
