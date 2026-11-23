@@ -119,3 +119,35 @@ qwen3.5:9b, same item, `num_ctx` set explicitly:
 
 The general lesson is RULER's: a retrieval probe saturates long before a model's window, and the probe that
 actually separates is the one that has to *sweep* the passage rather than find one line in it.
+
+## The size ladder: all five models on both suites
+
+Long context at ~15,800 tokens inside a 32,768 window, one run per probe; reasoning on the first 10 items of each
+BBH/GSM8K task (30 items), budget 8,192, `num_ctx` 8,192 for the Ollama models so a 14B is not paying its 32K spill.
+
+| model | parameters | longctx | single | multi | aggregation | tracking | reasoning (30) | date | deduction | GSM8K |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Inkling 2 Mini** | 26.4B/3.4B MoE | **3/4** | pass | pass | **fail** | pass | **28/30** | 8/10 | 10/10 | 10/10 |
+| **qwen3:14b** | 14.8B dense | **3/4** | pass | pass | **fail** | **pass** | **28/30** | 8/10 | **10/10** | **10/10** |
+| qwen3.5:9b | 9B dense | 3/4 | pass | pass | fail | pass | 27/30 | 8/10 | 10/10 | 8/10 |
+| qwen3:8b | 8.2B dense | **2/4** | pass | pass | fail | **fail** | 24/30 | 8/10 | 6/10 | 10/10 |
+| gemma4:12b | 12B dense | **1/4** | pass | **fail** | fail | **fail** | (running) | | | |
+
+**What actually separates them, in order of sharpness:**
+
+1. **Variable tracking at 32K separates the 8B from everything else.** qwen3:8b is the only model that loses the
+   twelve-assignment chain; its 14B sibling, a 9B, a 12B and a 26B all hold it. That is the cleanest scale effect in
+   the whole matrix, and the ten-task battery could not see it.
+2. **Reasoning separates by size, but not monotonically**: 14B 28/30, 26B/3.4B-active 28/30, 9B 27/30, 8B 24/30. The
+   MoE matches the 14B dense at a fifth of its speed cost; the 8B is two items behind the 9B and four behind the 14B,
+   and its failures are concentrated in the seven-object deduction task (6/10).
+3. **Aggregation separates nobody at 25k** - every model fails it, which is RULER's point: this probe does not
+   reward size, it rewards being able to sweep a long passage at all.
+4. **gemma4:12b fails by not answering.** Its 1/4 and its six unanswered quality items are the same defect: it
+   deliberates without terminating, so on every probe that needs more than a few hundred output tokens it returns
+   nothing. Size does not fix that, and no budget tried does either.
+
+**A caveat that keeps this honest:** all five rows are n=1 per long-context probe and n=1 per reasoning item. BBH and
+GSM8K items are fixed and machine-scored, so the reasoning numbers are not noisy in the way a generated task would be,
+but the aggregate over 30 items still carries about ±2 items of sampling error. The 8B's missing variable-tracking
+item is a single observation; it is reported as one, and would be worth repeating before anyone builds a rule on it.

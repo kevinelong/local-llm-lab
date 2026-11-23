@@ -1,0 +1,69 @@
+{
+ "label": "gemma4:12b",
+ "model": "gemma4:12b",
+ "suite": "longctx",
+ "ctx": 32768,
+ "per_task": {
+  "niah_single": [
+   1
+  ],
+  "niah_multi": [
+   0
+  ],
+  "aggregation": [
+   0
+  ],
+  "variable_tracking": [
+   0
+  ]
+ },
+ "passed": 1,
+ "possible": 4,
+ "rate": 0.25,
+ "rows": [
+  {
+   "task": "niah_single",
+   "ok": true,
+   "why": "match",
+   "want": "4417",
+   "want_text": "",
+   "content": "4417",
+   "finish": "stop",
+   "seconds": 18.2,
+   "prompt_chars": 63837
+  },
+  {
+   "task": "niah_multi",
+   "ok": false,
+   "why": "no match",
+   "want": "four record notes",
+   "want_text": "",
+   "content": "",
+   "finish": "length",
+   "seconds": 72.6,
+   "prompt_chars": 63957
+  },
+  {
+   "task": "aggregation",
+   "ok": false,
+   "why": "no match",
+   "want": "7",
+   "want_text": "",
+   "content": "",
+   "finish": "length",
+   "seconds": 72.6,
+   "prompt_chars": 63344
+  },
+  {
+   "task": "variable_tracking",
+   "ok": false,
+   "why": "no match",
+   "want": "2",
+   "want_text": "",
+   "content": "",
+   "finish": "length",
+   "seconds": 72.7,
+   "prompt_chars": 64265
+  }
+ ]
+}
