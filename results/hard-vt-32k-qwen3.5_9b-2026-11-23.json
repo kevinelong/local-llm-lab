@@ -1,0 +1,55 @@
+{
+ "label": "qwen3.5:9b",
+ "model": "qwen3.5:9b",
+ "suite": "vt",
+ "ctx": 32768,
+ "per_task": {
+  "variable_tracking#1": [
+   1
+  ],
+  "variable_tracking#2": [
+   0
+  ],
+  "variable_tracking#3": [
+   0
+  ]
+ },
+ "passed": 1,
+ "possible": 3,
+ "rate": 0.333,
+ "rows": [
+  {
+   "task": "variable_tracking#1",
+   "ok": true,
+   "why": "match",
+   "want": "6",
+   "want_text": "",
+   "content": "6",
+   "finish": "stop",
+   "seconds": 30.7,
+   "prompt_chars": 64263
+  },
+  {
+   "task": "variable_tracking#2",
+   "ok": false,
+   "why": "no match",
+   "want": "6",
+   "want_text": "",
+   "content": "",
+   "finish": "length",
+   "seconds": 28.0,
+   "prompt_chars": 64321
+  },
+  {
+   "task": "variable_tracking#3",
+   "ok": false,
+   "why": "no match",
+   "want": "6",
+   "want_text": "",
+   "content": "",
+   "finish": "length",
+   "seconds": 28.0,
+   "prompt_chars": 64262
+  }
+ ]
+}

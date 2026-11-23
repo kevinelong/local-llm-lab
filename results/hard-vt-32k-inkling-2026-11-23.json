@@ -1,0 +1,55 @@
+{
+ "label": "inkling",
+ "model": "inkling",
+ "suite": "vt",
+ "ctx": 32768,
+ "per_task": {
+  "variable_tracking#1": [
+   1
+  ],
+  "variable_tracking#2": [
+   1
+  ],
+  "variable_tracking#3": [
+   1
+  ]
+ },
+ "passed": 3,
+ "possible": 3,
+ "rate": 1.0,
+ "rows": [
+  {
+   "task": "variable_tracking#1",
+   "ok": true,
+   "why": "match",
+   "want": "6",
+   "want_text": "",
+   "content": "6",
+   "finish": "stop",
+   "seconds": 40.7,
+   "prompt_chars": 64263
+  },
+  {
+   "task": "variable_tracking#2",
+   "ok": true,
+   "why": "match",
+   "want": "6",
+   "want_text": "",
+   "content": "6",
+   "finish": "stop",
+   "seconds": 43.1,
+   "prompt_chars": 64321
+  },
+  {
+   "task": "variable_tracking#3",
+   "ok": true,
+   "why": "match",
+   "want": "6",
+   "want_text": "",
+   "content": "6",
+   "finish": "stop",
+   "seconds": 39.4,
+   "prompt_chars": 64262
+  }
+ ]
+}

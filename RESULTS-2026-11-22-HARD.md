@@ -135,9 +135,9 @@ BBH/GSM8K task (30 items), budget 8,192, `num_ctx` 8,192 for the Ollama models s
 
 **What actually separates them, in order of sharpness:**
 
-1. **Variable tracking at 32K separates the 8B from everything else.** qwen3:8b is the only model that loses the
-   twelve-assignment chain; its 14B sibling, a 9B, a 12B and a 26B all hold it. That is the cleanest scale effect in
-   the whole matrix, and the ten-task battery could not see it.
+1. ~~Variable tracking at 32K separates the 8B from everything else.~~ **RETRACTED 2026-11-23 - see the repeats
+   below. The 8B holds the chain 3/3; its single miss in this table ended `finish=length`, which was my budget, not
+   its ability. There is no scale effect on this probe.**
 2. **Reasoning separates by size, but not monotonically**: 14B 28/30, 26B/3.4B-active 28/30, 9B 27/30, 8B 24/30. The
    MoE matches the 14B dense at a fifth of its speed cost; the 8B is two items behind the 9B and four behind the 14B,
    and its failures are concentrated in the seven-object deduction task (6/10).
@@ -154,3 +154,26 @@ BBH/GSM8K task (30 items), budget 8,192, `num_ctx` 8,192 for the Ollama models s
 GSM8K items are fixed and machine-scored, so the reasoning numbers are not noisy in the way a generated task would be,
 but the aggregate over 30 items still carries about ±2 items of sampling error. The 8B's missing variable-tracking
 item is a single observation; it is reported as one, and would be worth repeating before anyone builds a rule on it.
+
+## The variable-tracking repeat, and the retraction it forced
+
+The matrix above reports **one** tracking probe per model, and I read the 8B's single miss as scale. That was wrong,
+and repeating it with three **distinct chains** (same haystack across reps, so the repeat measures the chain and not
+the engine's prefill: at 32K this model processes a 16k prompt at 15-29 tok/s, against 110 tok/s at 4k) says so:
+
+| model | tracking at 32K, 3 chains | finishes |
+|---|---|---|
+| Inkling 2 Mini | **3/3** | stop, stop, stop |
+| qwen3:14b | **3/3** | stop, stop, stop |
+| qwen3:8b | **3/3** | stop, stop, stop |
+| qwen3.5:9b | 1/3 | **stop, length, length** |
+| gemma4:12b | 1/3 | **length, length, stop** |
+
+**Every miss in that table is `finish=length` with empty content - not one model ever produced a wrong value.** So
+this probe does not rank models by capability at all; it separates the models that *finish* from the ones that
+deliberate past 2,048 tokens. The 8B - the model the retracted claim was about - is 3/3, and the two 1/3 rows are a
+budget effect, exactly like the one that produced the original miss.
+
+Lesson, in the lab's own terms: **n=1 on a probe whose failure mode is "did not answer" is not a measurement of
+ability**, and `finish_reason` decides which of the two happened. The original miss had `finish=length` written next
+to it in the stored row, and I read past it.

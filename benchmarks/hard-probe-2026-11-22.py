@@ -50,6 +50,43 @@ FILLER = [
 ]
 
 
+def vt_tasks(ctx_tokens, reps, base_seed=500):
+    """`reps` **distinct** variable-tracking chains, each with its own seed for both the chain and the filler.
+
+    Repeating the same prompt at temperature 0 would mostly re-measure determinism; what needs measuring is whether a
+    model can hold a twelve-assignment chain at this window at all. Each rep is therefore a different chain.
+    """
+    tasks = []
+    for rep in range(reps):
+        seed = base_seed + rep * 7
+        rng = random.Random(seed)
+        names = ["alpha", "beta", "gamma", "delta"]
+        steps, state, last = [], {n: None for n in names}, None
+        for _ in range(12):
+            name = rng.choice(names)
+            if rng.random() < 0.55:
+                value = rng.choice([2, 4, 5, 6, 8, 9])
+                state[name] = value
+                steps.append("The variable %s is set to %d." % (name, value))
+            else:
+                source = rng.choice(names)
+                state[name] = state[source]
+                steps.append("The variable %s is assigned the value of %s." % (name, source))
+            last = name
+        want = state[last]
+        # ONE haystack for every rep, so the repeats differ in the chain and not in a cold prefill: at 32K this
+        # model processes a 16k prompt at 15-29 tok/s, so a fresh haystack per rep would cost ~20 minutes each and
+        # measure the engine's prefill curve rather than the chain.
+        sentences, _ = haystack(int(ctx_tokens * 0.60 * 3.4 / 5.8), seed=base_seed + 1)
+        at = int(len(sentences) * 0.45)
+        body = sentences[:at] + steps + sentences[at:]
+        tasks.append(("variable_tracking#%d" % (rep + 1),
+                      "\n".join(body) + "\n\nQuestion: At the end of the text, what is the value of the variable %s? "
+                      "Answer with the number only." % last,
+                      (lambda a, w=want: re.search(r"\b%d\b" % w, a) is not None), str(want)))
+    return tasks
+
+
 def haystack(target_words, seed=7):
     """Deterministic filler of roughly `target_words` words, made of distinct sentences in shuffled order."""
     rng = random.Random(seed)
@@ -260,7 +297,7 @@ REASONING_PREFIX = ("Work the problem out, then put the final answer alone on th
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=["longctx", "reasoning"], required=True)
+    parser.add_argument("--suite", choices=["longctx", "reasoning", "vt"], required=True)
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--model", required=True)
     parser.add_argument("--label", required=True)
@@ -270,10 +307,13 @@ def main():
     parser.add_argument("--max-tokens", type=int, default=1024)
     parser.add_argument("--only", default="", help="comma-separated task names")
     parser.add_argument("--num-ctx", type=int, default=0, help="Ollama window; 0 = server default")
+    parser.add_argument("--reps", type=int, default=5, help="vt: how many distinct chains")
     args = parser.parse_args()
 
     if args.suite == "longctx":
         plan = [(name, prompt, scorer, want, "") for name, prompt, scorer, want in longctx_tasks(args.ctx)]
+    elif args.suite == "vt":
+        plan = [(name, prompt, scorer, want, "") for name, prompt, scorer, want in vt_tasks(args.ctx, args.reps)]
     else:
         plan = [(name, REASONING_PREFIX + prompt,
                  (lambda a, w=want, o=option: bbh_ok(a, w, o)), want, option)
