@@ -71,9 +71,10 @@ def words_of(sentences):
 
 def longctx_tasks(ctx_tokens):
     """Four RULER-style probes sized to `ctx_tokens` words (approximating tokens/word ~ 1.33 in English)."""
-    # ~3.4 chars per token of filler, and the prompt must leave room for the question and the reply:
-    # 136k chars at the first attempt was already over a 32,768-token window.
-    target_words = int(ctx_tokens * 3.2 / 5.8)
+    # The haystack must leave room for the question *and* the reply budget inside the same window: a request
+    # carries prompt + max_tokens, so an 8,192-token prompt with an 8,192 budget is rejected by the server
+    # (measured: transport-error at ctx 8192). 60 % of the window for the text leaves the rest for both.
+    target_words = int(ctx_tokens * 0.60 * 3.4 / 5.8)
     tasks = []
 
     # 1. single needle, buried at 40-60 % depth
@@ -224,10 +225,27 @@ def numeric_answer(text):
 # ------------------------------------------------------------------ transport
 
 
-def ask(base_url, model, prompt, max_tokens, timeout=1800):
+def ask(base_url, model, prompt, max_tokens, num_ctx=0, timeout=1800):
+    """Ollama's OpenAI endpoint cannot set the window, and a 14B served at 32,768 pays a 38 % CPU spill even for a
+    two-hundred-token reasoning item (measured: 19 tok/s at 32K, 62 at 8K). So when a window is asked for and the
+    server is Ollama, go through `/api/chat`, which takes `num_ctx`; otherwise use the OpenAI shape."""
+    base = base_url.rstrip("/")
+    if num_ctx and ":11434" in base:
+        body = {"model": model, "messages": [{"role": "user", "content": prompt}], "stream": False,
+                "options": {"temperature": 0, "num_predict": max_tokens, "num_ctx": num_ctx}}
+        request = urllib.request.Request(base + "/api/chat",
+                                         data=json.dumps(body).encode("utf-8"),
+                                         headers={"Content-Type": "application/json"})
+        started = time.time()
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            reply = json.loads(response.read().decode("utf-8"))
+        payload = {"choices": [{"message": {"content": reply.get("message", {}).get("content") or ""},
+                                 "finish_reason": {"stop": "stop"}.get(reply.get("done_reason"), reply.get("done_reason"))}]}
+        return payload, time.time() - started
+
     body = {"model": model, "messages": [{"role": "user", "content": prompt}],
             "temperature": 0, "max_tokens": max_tokens, "stream": False}
-    request = urllib.request.Request(base_url.rstrip("/") + "/v1/chat/completions",
+    request = urllib.request.Request(base + "/v1/chat/completions",
                                      data=json.dumps(body).encode("utf-8"),
                                      headers={"Content-Type": "application/json"})
     started = time.time()
@@ -251,6 +269,7 @@ def main():
     parser.add_argument("--limit", type=int, default=15)
     parser.add_argument("--max-tokens", type=int, default=1024)
     parser.add_argument("--only", default="", help="comma-separated task names")
+    parser.add_argument("--num-ctx", type=int, default=0, help="Ollama window; 0 = server default")
     args = parser.parse_args()
 
     if args.suite == "longctx":
@@ -272,7 +291,7 @@ def main():
     rows = []
     for name, prompt, scorer, want, want_text in plan:
         try:
-            payload, seconds = ask(args.base_url, args.model, prompt, args.max_tokens)
+            payload, seconds = ask(args.base_url, args.model, prompt, args.max_tokens, args.num_ctx)
         except Exception as error:  # noqa: BLE001 - a transport failure is recorded, not hidden
             rows.append({"task": name, "ok": False, "why": "transport: " + str(error)[:80],
                          "want": str(want), "want_text": want_text,

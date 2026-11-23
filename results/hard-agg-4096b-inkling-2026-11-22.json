@@ -1,0 +1,27 @@
+{
+ "label": "inkling-agg4096-b8192",
+ "model": "inkling",
+ "suite": "longctx",
+ "ctx": 4096,
+ "per_task": {
+  "aggregation": [
+   1
+  ]
+ },
+ "passed": 1,
+ "possible": 1,
+ "rate": 1.0,
+ "rows": [
+  {
+   "task": "aggregation",
+   "ok": true,
+   "why": "match",
+   "want": "7",
+   "want_text": "",
+   "content": "7",
+   "finish": "stop",
+   "seconds": 83.2,
+   "prompt_chars": 7656
+  }
+ ]
+}

@@ -78,3 +78,44 @@ option text the letter names, and the stored replies were re-scored without re-r
 
 That is the third scorer defect of the day, all three in the same direction - a correct model answer marked wrong by a
 narrow comparison. It is also the reason each of these files keeps the raw `content` of every reply.
+
+## Where aggregation breaks: a budget-by-context ladder
+
+The `0/1` in the 32K table is not a single fact - it hides two variables, the passage length and the deliberation
+budget, and the request carries both inside the window (prompt + `max_tokens` cannot exceed it). Measuring them
+apart is what turns "fails long context" into a number.
+
+Inkling 2 Mini, one item (seven planted occurrences of a marker word), every run a fresh `llama-server` at that
+window:
+
+| passage | budget | result | wall |
+|---|---|---|---|
+| 1,024 | 512 | empty (`finish=length`) | 8 s |
+| 2,048 | 512 | empty | 9 s |
+| **1,024** | **4,096** | **"7"** (`stop`) | **10 s** |
+| **4,096** | **8,192** | **"7"** | **83 s** |
+| 8,192 | 2,048 | empty | 36 s |
+| **8,192** | **8,192** | **"7"** | **103 s** |
+| 16,384 | 4,096 | empty | - |
+| 16,384 | 16,384 | empty | 309 s |
+| 32,768 | 8,192 | empty | - |
+
+**It can count** - a three-line prompt asking the same thing gets `3`, `stop`, after 272 characters of reasoning -
+so the failures above are deliberation, not arithmetic. The pattern is consistent: with enough budget it answers up
+to **8,192** tokens of passage, and at **16,384** a 16,384-token budget is still not enough (309 s, then cut). The
+break is therefore between 8K and 16K, at about a quarter to a half of the 32,768 window, and the cost of getting
+there grows with the passage (10 s at 1K, 83 s at 4K, 103 s at 8K).
+
+qwen3.5:9b, same item, `num_ctx` set explicitly:
+
+| passage | budget | result | wall |
+|---|---|---|---|
+| 8,192 | 8,192 | empty (`finish=length`) | 102 s |
+| 16,384 | 16,384 | empty | 197 s |
+| 32,768 | 8,192 | empty | - |
+
+**qwen3.5:9b does not answer the aggregation probe at any window tried**, including 8,192 where Inkling answers in
+103 s. This is the one probe where the two models separate on ability rather than on cost.
+
+The general lesson is RULER's: a retrieval probe saturates long before a model's window, and the probe that
+actually separates is the one that has to *sweep* the passage rather than find one line in it.

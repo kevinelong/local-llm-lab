@@ -1,0 +1,27 @@
+{
+ "label": "qwen3.5-agg16384",
+ "model": "qwen3.5:9b",
+ "suite": "longctx",
+ "ctx": 16384,
+ "per_task": {
+  "aggregation": [
+   0
+  ]
+ },
+ "passed": 0,
+ "possible": 1,
+ "rate": 0.0,
+ "rows": [
+  {
+   "task": "aggregation",
+   "ok": false,
+   "why": "no match",
+   "want": "7",
+   "want_text": "",
+   "content": "",
+   "finish": "length",
+   "seconds": 196.8,
+   "prompt_chars": 31527
+  }
+ ]
+}
