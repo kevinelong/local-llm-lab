@@ -1,3 +1,11 @@
+# SUPERSEDED 2026-11-23: this track does NOT go into tile-lab
+
+Kevin's answer to question 1 was **no** - tile-lab stays about tiled GPU kernels, and the benchmarking work stays in
+`local-llm-lab` (see `DECISIONS-2026-11-23.md`). Kept as the survey it is, not as a plan; nothing below should be
+ported.
+
+---
+
 # Applying the local-LLM benchmarking work inside tile-lab
 
 Written 2026-11-23. Read-only survey: tile-lab was cloned to a temp directory

@@ -294,6 +294,14 @@
     IQ2_XXS row. **Gated on Kevin**: the 0.2.19/0.1.65 bump (fifth target in six scans) with the two locks as
     readbacks, the SQ-10 download, and a llama.cpp download at **`>= b12624`**.
 
+- **2026-11-23, decisions on the benchmarking work** (`DECISIONS-2026-11-23.md`). It stays in this repo, not in
+  tile-lab; licence is **MIT** if published. Raw model replies are **committed as evidence** and the budget is
+  **10 MB** - `python tools/evidence-size.py` reports the number, and research evidence under that travels with a
+  discussion or report without asking. The ten-task battery is retired as a ranking suite and kept as the fast smoke
+  gate; BBH/GSM8K/the long-context probes are what rank. Backends are OpenAI-compatible and Ollama-native, open to
+  more - but **we do not measure with Strata**: no engine is installed here, and what we have is its release notes and
+  a separate engine's public page.
+
 - **2026-11-22, Inkling 2 Mini runs on this box, and its vision works from both CLIs.** `INKLING-2-MINI-2026-11-21.md`
   now carries the whole day: llama.cpp built at `b12611` (`690b87d88`, the `#32704` fix) with the CUDA redist
   archives instead of a 3.56 GB installer that needs elevation; `unsloth` `UD-IQ2_XXS` + `mmproj-F16` pulled at
