@@ -131,7 +131,7 @@ BBH/GSM8K task (30 items), budget 8,192, `num_ctx` 8,192 for the Ollama models s
 | **qwen3:14b** | 14.8B dense | **3/4** | pass | pass | **fail** | **pass** | **28/30** | 8/10 | **10/10** | **10/10** |
 | qwen3.5:9b | 9B dense | 3/4 | pass | pass | fail | pass | 27/30 | 8/10 | 10/10 | 8/10 |
 | qwen3:8b | 8.2B dense | **2/4** | pass | pass | fail | **fail** | 24/30 | 8/10 | 6/10 | 10/10 |
-| gemma4:12b | 12B dense | **1/4** | pass | **fail** | fail | **fail** | (running) | | | |
+| gemma4:12b | 12B dense | **1/4** | pass | **fail** | fail | **fail** | **4/30 (26 unanswered)** | 1/10 (9 unanswered) | 0/10 (10 unanswered) | 3/10 (7 unanswered) |
 
 **What actually separates them, in order of sharpness:**
 
@@ -143,9 +143,12 @@ BBH/GSM8K task (30 items), budget 8,192, `num_ctx` 8,192 for the Ollama models s
    and its failures are concentrated in the seven-object deduction task (6/10).
 3. **Aggregation separates nobody at 25k** - every model fails it, which is RULER's point: this probe does not
    reward size, it rewards being able to sweep a long passage at all.
-4. **gemma4:12b fails by not answering.** Its 1/4 and its six unanswered quality items are the same defect: it
-   deliberates without terminating, so on every probe that needs more than a few hundred output tokens it returns
-   nothing. Size does not fix that, and no budget tried does either.
+4. **gemma4:12b fails by not answering, and the numbers say so rather than flattering it.** Its reasoning row is
+   **4/30, but 26 of those 30 rows ended `finish=length` with empty `content`** - only four answers were produced, and
+   **all four were correct**. Same shape as its `1/4` long-context row and its six unanswered items in the quality
+   pass: it deliberates and does not terminate, so it returns nothing on anything needing more than a few hundred
+   output tokens. Every probe that could score it, it passed; it reached the probes too rarely to be scored. No budget
+   tried - up to 16,384 tokens, on a five-word prompt - gets an answer out of it.
 
 **A caveat that keeps this honest:** all five rows are n=1 per long-context probe and n=1 per reasoning item. BBH and
 GSM8K items are fixed and machine-scored, so the reasoning numbers are not noisy in the way a generated task would be,
