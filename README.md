@@ -1,16 +1,23 @@
 # local-llm-lab
 
-Field notes from running large language models on one ordinary desktop - 64 GB DDR5, an RTX 5070 with
-12 GB, two NVMe drives, Windows, no Docker - and measuring, rather than guessing, what fits, what is fast
-and what each model actually scores. Every number here came from a run on this one machine, and every
-claim carries the instrument that produced it.
+One ordinary desktop - 64 GB DDR5, an RTX 5070 with 12 GB, two NVMe drives, Windows, no Docker - and one rule:
+nothing is called fast, good or usable until it has been run here and scored. The lab measures what fits, what is
+fast, and what each model actually does on tasks whose answers can be checked by a machine, then keeps the
+corrections in the open - including the ones that invalidate its own published numbers. A prediction is recorded
+before each run and scored afterwards, including when it is wrong, and a run that cannot be scored is reported
+**unscored, never as a zero**.
 
-Two habits are worth knowing before you read a number. A **prediction is recorded before each run and
-scored afterwards, including when it is wrong** (that is what [section 4](#4-what-we-got-wrong) is), and a
-run that cannot be scored is reported as **unscored, never as a zero**. Both habits exist because both
-have been violated here, and every correction is kept in the open.
+**Research repositories.** This one, [**local-llm-lab**](https://github.com/kevinelong/local-llm-lab) (public -
+models, engines, benchmarks, measurements, corrections); [**harness-lab**](https://github.com/kevinelong/harness-lab)
+(private - the layer above the model: agent skill packs, plugin systems, evaluation harnesses, unattended loops,
+and a daily reading-only scan of what moved); [**strata**](https://github.com/kevinelong/strata) (private - a Go
+9x9 strength lab, unrelated to the inference engine that happens to share the name); and
+[**iimage**](https://github.com/kevinelong/iimage) (private - a native Win32 gallery over a real image folder).
+`ai_bench` and `image-models-20261020` are local working areas rather than repositories.
 
-**Start here:** [1. What we would run today](#1-what-we-would-run-today) |
+**Start here:** [0. Recent results (2026-11-20 -> 11-24)](#0-recent-results-2026-11-20---11-24) |
+[0b. Earlier standing note (2026-10-27)](#0b-earlier-standing-note-2026-10-27) |
+[1. What we would run today](#1-what-we-would-run-today) |
 [2. How to read any number here](#2-how-to-read-any-number-here) |
 [3. The numbers](#3-the-numbers) | [4. What we got wrong](#4-what-we-got-wrong) |
 [5. Where the numbers come from](#5-where-the-numbers-come-from) |
@@ -24,7 +31,94 @@ This is a working lab notebook, not a product. Numbers are from one machine - "D
 is called - so treat them as directional. Licence:
 [FSL-1.1-MIT](#license) - source-available, **not** OSI open source.
 
-## 0. Where this stands on 2026-10-27
+## 0. Recent results (2026-11-20 -> 11-24)
+
+Four things happened this week: a coding benchmark was built and then repaired twice because its own scoring was
+wrong; a standing claim about the Strata engine was disproved by installing it; one 7.9 GB model was run on four
+engine/quantisation combinations on the same file; and the local coder's limit was measured rather than assumed.
+
+### 0.1 The coding limit, measured at n = 30 per tier
+
+The question was not "can a local model write code" - it can - but **where exactly it stops**. APPS was chosen
+because its problems carry an official label (introductory / interview / competition) and stdin/stdout test cases,
+so the verdict is produced by running the program, not by reading it:
+[`benchmarks/coding-ladder-2026-11-24.py`](benchmarks/coding-ladder-2026-11-24.py). A problem counts only when
+**every** test case passes.
+
+| APPS tier, 30 problems each | `qwen3.5-27B` IQ4_XS, ~7 tok/s | 95% CI | wall |
+|---|---|---|---|
+| introductory | **18/30 = 60%** | 42-75% | 28 min |
+| interview | **21/30 = 70%** | 52-83% | 30 min |
+| competition | **6/30 = 20%** | 10-37% | 68 min |
+
+Competition is bounded upward by its own failures - four of the thirty answers ran into the token budget and were
+cut mid-block - so the honest figure there is **20-33%**, not 20%. The 9B (`qwen3.5:9b`, fully on the GPU) reaches
+**16/30 = 53%** on introductory; its interview and competition rungs were still running when this was written.
+
+**The finding is the shape, not the percentages.** At interview level the failures are near misses: six of nine
+still passed some test cases, off-by-one and one wrong branch, median 41 s per problem. At competition level they
+**collapse** - six of the first fifteen answered `1` where 3 or 2 was wanted, one returned `infinity` for 11,
+another `0.0000000000` for 28. The program parses the input and then emits a plausible constant. That is the
+failure mode that ships silently, and it gives the routing rule a measured boundary rather than an opinion:
+**local only where the approach is already known and the tests are cheap to run.**
+
+### 0.2 Scoring faults found on the way - three, all mine
+
+No number above was accepted before the harness had been shown to reject a wrong solution and accept a right one,
+and even then three published readings had to be withdrawn:
+
+| fault | effect | evidence |
+|---|---|---|
+| thinking budget counted as failure | interview 2/8 -> **4/8** | five of eight answers were `finish=length` at exactly 3000 tokens with no code emitted |
+| whole-string output comparison | introductory 2/8 -> **3/8** | APPS pads expected lines with trailing spaces (`'3\n3 2 0 7 10 14 \n'`); three of six failures were whitespace-only |
+| eight problems treated as a level | interview 4/8 -> **21/30 = 70%** | n=8 says 50%, n=30 says 70%; the small sample was 20 points wrong |
+
+The third one is the general lesson: **eight problems cannot locate a level; thirty can.** Two of the three faults
+inflated difficulty exactly where it was expected, which is why the check that matters is not "does the score look
+plausible" but "can the grader be shown to fail a wrong answer and pass a right one".
+
+### 0.3 One file, four engines - and the model-specific engine that fits it
+
+`Inkling-2-Mini` (unsloth `UD-IQ2_XXS`, 7.9 GB, `inkling2_loop`) on this 12 GB card:
+
+| engine / file | generation | ten-task battery |
+|---|---|---|
+| **llama.cpp `b12611`, CUDA 13.5** | **67.4 tok/s** | **30/30** |
+| Strata 0.1.66, our GGUF | 28.3 tok/s | 27/30 |
+| Colibri v2.2.0 (Vulkan) | 23.5 tok/s | 24/30 |
+| Colibri v2.2.0 (CUDA) | 17.4 tok/s | - |
+| Strata 0.1.66, their own SQ-10 pack | 17.1 tok/s | 24/30 **and a fabricated year** |
+
+Same file, same card, same battery, ~4x spread in speed. The full notes, including the vision path and 32K
+context, are in [INKLING-2-MINI-2026-11-21.md](INKLING-2-MINI-2026-11-21.md).
+
+### 0.4 Strata: our own claim was wrong, and their native pack invents
+
+The lab carried *"no evidence `inkling2_loop` support in any version we track"* since 2026-11-21. Installing 0.1.66
+disproved it: `strata models import --plan` reads our exact GGUF as `inkling2_loop`, **744 tensors scanned**,
+tokenizer present, and the launch fetches a model-specific engine (417 MB) and serves it at 11.0 of 11.9 GiB. The
+claim was written from release notes, not from an install - the correction is now the record.
+
+The same install produced the week's sharpest quality result. Strata's own SQ-10 pack (9.75 GiB) leaves ~0.4 GiB
+for KV and expert slots on this card, and is the slowest of the three (17.1 tok/s). Asked for the date of the first
+crewed landing on the exoplanet Kepler-9d's moon, it answered:
+
+> *"The first crewed landing on the moon of the exoplanet Kepler-9d took place in 2021."*
+
+Our two-bit IQ2_XXS on the same engine refuses correctly. Ten bits per weight bought a confident fabrication where
+two bits produced an honest refusal.
+
+### 0.5 Built and verified, not yet scored
+
+[`benchmarks/lcb-ladder-2026-11-24.py`](benchmarks/lcb-ladder-2026-11-24.py) runs LiveCodeBench v6 (175 problems,
+**easy 43 / medium 52 / hard 80**, contests dated into 2025, so half of it is post-cutoff). LCB publishes no
+Codeforces rating in the released data, so its bands are the only honest difficulty axis available; it grades the
+public **and** private cases (the private suite is a zlib+base64 blob) with pass@1 semantics - every case must pass
+on the first program. The harness was proven before any model touched it: a hand-written solution passes 3/3 on an
+atcoder stdin problem and 3/3 on a leetcode functional one, while a wrong answer, a missing function and a raising
+solution each score 0/3. Its ladder runs once the 9B's APPS rungs finish.
+
+## 0b. Earlier standing note (2026-10-27)
 
 - **The re-run landed, and it retires three days of "withdrawn" - with one of its own claims withdrawn.** 21 arms on the
   staged 0.1.47 with the q2_0 pack (13 design + 3 repeats + 5 r1536 re-runs at the probed cache + repeats), **0 void**,
@@ -409,6 +503,12 @@ not text.
 The corrections are the most useful part of this notebook, because each one names a way a benchmark can
 lie. Every entry here was a claim *this lab* made and then refuted with its own runs.
 
+- **2026-11-24, three in one week: the thinking budget, the trailing spaces, and n=8.** A coding run scored
+  2/8 because five answers hit the 3000-token cap with no code emitted; the same eight problems scored 4/8 once
+  thinking was switched off. Then a whole-string output comparison failed correct programs on APPS's padded
+  expected lines, moving the easier tier 2/8 -> 3/8. And finally the same tier read 4/8 = 50% at eight problems
+  and **21/30 = 70%** at thirty - the small sample was 20 points wrong. All three are in
+  [section 0.2](#02-scoring-faults-found-on-the-way---three-all-mine).
 - **"The specificity rubric is the model's problem."** Twice in one evening a check that failed four arms
   turned out to be ours. A rubric demanded **312.5 ps** where the unit interval at 6400 MT/s is **156.25 ps**,
   so four arms computed the right number and the checker marked four MISS - and the score moved **8->9, 8->9,
