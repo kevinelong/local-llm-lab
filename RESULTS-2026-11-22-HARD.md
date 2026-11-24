@@ -190,23 +190,29 @@ prefill per rep; at 32K this model processes 15-29 tok/s past 10k of prompt).
 
 | model | score | single | multi | aggregation | tracking |
 |---|---|---|---|---|---|
-| **qwen3:8b** | **9/12** | 3/3 | 3/3 | 0/3 | 3/3 |
-| **Inkling 2 Mini** | **8/12** | 3/3 | 2/3 | 0/3 | 3/3 |
-| qwen3.5:9b | 6/12 | 3/3 | 3/3 | 0/3 | 0/3 |
-| gemma4:12b | 3/12 | 3/3 | 0/3 | 0/3 | 0/3 |
-| qwen3:14b | (running) | | | | |
+| **qwen3:14b** | **9/12** | 3/3 | 3/3 | **0/3, answered wrong** | 3/3 |
+| **qwen3:8b** | **9/12** | 3/3 | 3/3 | **0/3, answered wrong** | 3/3 |
+| **Inkling 2 Mini** (b12611 and b12651) | **8/12** | 3/3 | 2/3 | 0/3, **no answer** | 3/3 |
+| qwen3.5:9b | 6/12 | 3/3 | 3/3 | 0/3, no answer | **0/3, no answer** |
+| gemma4:12b | 3/12 | 2/3 | 0/3 | 0/3, no answer | 1/3 |
 
 **Two findings the n=1 table could not give:**
 
 1. **The 8B is the best of the Ollama models on this suite (9/12) and the 9B is worse (6/12)** - once repeats replace
    single observations, the ordering by parameter count disappears. qwen3.5:9b loses all three tracking chains here
    (its earlier 1/3 was not a fluke) and keeps both retrieval probes.
-2. **Every single miss in these 48 items is `finish=length` with empty content.** Not one wrong value, not one wrong
-   note. What the suite actually ranks is *whether a model finishes a 16k-token prompt at all*: single-needle retrieval
-   is saturated for all five, aggregation is saturated against all five, and the spread comes from deliberation budget.
+2. **Aggregation is failed by all five, and the failure splits in two.** This table is the correction to what I first
+   wrote here: it is **not** true that every miss is a non-answer.
+   - `qwen3:8b` and `qwen3:14b` **answer and undercount**: 2/1/1 and 3/2/2 against planted 7/5/9, every run,
+     `finish=stop`. They look at a 16k-token passage, answer confidently, and miss two-thirds of the planted word.
+   - Inkling, `qwen3.5:9b` and `gemma4:12b` **never answer**: `finish=length`, empty content.
+   Those are different failures with different costs: a wrong count is a capability failure that a downstream tool
+   cannot detect, while an empty answer is detectable. For anything that has to sweep a long passage, neither is
+   usable - but only one of them lies.
 
-So the honest label for the "long context" column is **"answers within budget"**, not "long-context ability". A model
-that needs 8,000 tokens of thinking to count seven words has a cost problem, and this suite prices it.
+So the "long context" column is really two measurements in one: **whether the model finishes a 16k-token prompt at
+all**, and **whether its sweep is honest when it does**. Retrieval of a single planted fact is saturated for all five
+(13/15 on `niah_single` across the suite); nothing here is about finding one line.
 
 ## llama.cpp `b12651` against the `b12611` baseline: a null result, twice
 
