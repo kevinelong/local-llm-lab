@@ -21,6 +21,8 @@ So on a small box, prefer **low-active-param MoE** for anything above the dense-
 | 20-30B MoE, few active | partial offload | 30-40 tok/s | qwen3:30b-a3b, qwen3-coder:30b, nemotron-3.5-lightning:30b, gpt-oss:20b |
 | 30B dense | partial offload | ~4-5 tok/s | muse-glimmer:30b (works, too slow to use) |
 | **26B / 3.4B-active MoE, IQ2_XXS, vision** | **100 % GPU + 32K** | **~52 tok/s** | Inkling 2 Mini (llama.cpp, not Ollama - see `RESULTS-2026-11-22.md`) |
+| **27B dense, 3.0 bpw (NariQ)** | **100 % GPU, 11.8 of 12.2 GiB** | **41.1 tok/s** | `nari-labs/Qwen3.8-27B-NariQ-GGUF` on its prebuilt Windows build; 30/30 battery, 26/30 reasoning |
+| 26B/3.4B uncensored, IQ2_XXS | 100 % GPU | ~similar | `dealignai/Inkling-2-Mini-UNCENSORED-GGUF`; 27/30 twice, the miss a deterministic non-answer |
 | 100B+ / 1T | does not fit in 32 GB RAM | n/a | Kimi K2.x, DeepSeek V4-Pro (cloud/API only) |
 
 ## Recommended daily set

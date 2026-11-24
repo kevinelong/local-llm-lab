@@ -505,3 +505,60 @@ Same prompt, same 400-token budget, same model file, one engine loaded at a time
 Practical notes: Colibri requires the `model` field on every request (without it: `The model None does not exist`), it
 picked up the vision tower from `mmproj-F16.gguf` automatically, and `coli stop` did not free port 8090 - a `python.exe`
 still held it, so the port had to be cleared by hand before restarting.
+
+### The two shortlist packs, 2026-11-23
+
+Both downloaded under the 2026-11-18 rule, space stated first (**D: 458 GiB free** against 19 GiB of packs), every
+file verified against the publisher's own digest before use.
+
+**`dealignai/Inkling-2-Mini-UNCENSORED-GGUF`** - revision `58307cab0fc2`, licence **`other`**.
+`Inkling-2-Mini-UNCENSORED-IQ2_XXS.gguf` 9,014,789,792 B + `mmproj-Inkling-2-Mini-Q8_0.gguf` 345,911,072 B, both
+sha256 equal to the HF LFS oids. **It loads on the `b12611` build we already had** - no new engine, no conversion - with
+its own projector.
+
+| pass | score | what it lost |
+|---|---|---|
+| 1 | **27/30** | `no_invention` 0/3 |
+| 2 | **27/30** | `no_invention` 0/3 |
+
+The miss is **deterministic**: all six rows, and the same question asked with a 4,096 (59.7 s) and then an 8,192
+(120.2 s) budget still returns `finish=length` with empty content. It does not fabricate an answer - it never produces
+one, on a question the clean pack answers inside 2,048 tokens. So the uncensored variant costs one refusal-flavoured
+behaviour and nothing else measurable here: the arithmetic trap, JSON shape, executed `is_prime`, needle, and both
+length constraints are 3/3, i.e. **one item worse than the clean IQ2_XXS and better than Colibri managed.**
+
+**`nari-labs/Qwen3.8-27B-NariQ-GGUF`** - apache-2.0. `Qwen3.8-27B-NariQ-3.0bpw.gguf` 10,123,626,592 B +
+`Qwen3.8-27B-NariQ-mmproj-BF16.gguf` 931,145,760 B, both verified against the repo's own `SHA256SUMS`.
+
+**Correction to the shortlist's cost line: this needs no source build.** The fork publishes **prebuilt Windows
+binaries** - `nari-llama.cpp-b12431-nariv0-bin-win-cuda-12.8-x64.zip` (224.6 MB) and its matching
+`cudart-…-win-cuda-12.8-x64.zip` (563.5 MB), sha256-verified, `build-info.json` recording source revision
+`30f794c62545460f61b768d3a9955704da77eaf0` - so it is extract-and-run, not a third compile.
+
+| | measured here |
+|---|---|
+| generation | **41.1 tok/s** (41.1, 41.8, 40.8) |
+| resident | **11,805 of 12,227 MiB** - the whole 27B on the card |
+| ten-task battery | **30/30** |
+| reasoning (BBH 10 + 10, GSM8K 10) | **26/30** - date 7/10, deduction 9/10, GSM8K **10/10** |
+
+**That is the headline the lab has been missing**: a **dense 27B at 41 tok/s on a 12 GB card**, against the 4.3 tok/s
+this lab measured when a dense 27B had half its weights in RAM, and against 19.4 tok/s for `qwen3:14b` at a 32K
+window. 3.0 bits per weight is what buys it - the file is 9.43 GiB, which fits, and the whole model is resident
+(11,805 MiB).
+
+**But speed and correctness do not agree on this pack.** 30/30 on the ten-task battery, yet **26/30 on the reasoning
+suite where `qwen3:14b` and Inkling both score 28/30** - GSM8K is perfect (10/10) and the losses are three date-
+arithmetic items and one deduction item. So the 27B's advantage here is throughput and footprint, not measured
+reasoning. The pack's own claim (BF16-level on long-horizon agent tasks, DeepSWE 41.0 % against BF16's 39.8 %) is a
+publisher claim about *agent* tasks and is not what this suite tests; it should not be read as confirmed.
+
+### Two faults this run added to the method list
+
+1. **`hf download --local-dir /d/models/...` put 20 GB on the system drive.** A leading-slash MSYS path was taken
+   literally as `\d\models\...`, which Windows resolved against the *current* drive - C: - and it filled `C:\d\models`
+   with both packs before anyone looked. Moved to `D:\models` immediately and `C:` back to 66 GB free; the lesson is
+   the one already written for PowerShell: **give Windows tools Windows paths**, `D:/models/...`, and read `df` on the
+   target drive afterwards, not before.
+2. **Multi-file `hf download` silently ignores `--include`** and then dies with *"Cannot send a request, as the client
+   has been closed"* - one file per invocation works. Both symptoms are the same bug in a different disguise.
