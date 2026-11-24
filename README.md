@@ -665,6 +665,33 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-24 &middot; [Daily news scan: Strata ships 0.2.21 with a 5.4x row for our exact card and pack, the 0.1.66 abort turns out to reach sm_120 after all, and llama.cpp reveals Inkling 2 was never running fused Flash Attention on any card](NEWS-2026-11-24.md)**
+
+A **24.0 h** window (2026-11-23T14:30Z &rarr; 11-24T14:30Z), the scheduled run, on **37.05 GiB free physical**,
+**33.95 GiB of commit** and **694 MiB of 12,227 MiB VRAM**. **Strata shipped `v0.2.21`** (2026-11-24T10:10:03Z,
+64 assets, **13,380,684,413 B**, all three engine families plus Control at **0.1.67**, Windows CUDA13 engine
+**494,708,745 B**, build id **`4da72cca05cc+cuda13.0`**) whose headline row is **our card and our pack family:
+"RTX 5070 12 GB, SQ-10: 68 instead of 12.5 tok/s"** &mdash; corroborated one hour earlier by **`#6998`**, an RTX
+5070 12 GB owner measuring **10 t/s SQ-10 / 4 t/s SQ-20** with the planner pushing experts onto **SSD**
+(`74 SSD-only`). The abort risk **inverted**: `v0.2.21` names the fix (**`f5da789`** from **`#6714`**) for
+**`#6713`**, and **`#6987`** documents the root cause &mdash; four Q8_0 tensor-core HC kernels reading
+**`__shared__`** weights through **`__ldg`**, worth **0.0 / 4,096 invalid global reads** and **166.7 vs 151.3
+tok/s** after the patch. But this window also **refutes a claim in our own last file**: `#6713` carried an
+**sm_120 arm at 06:32Z, eight hours before that file closed**, from an RTX 5070 &mdash; so our card was **never**
+spared, and **`#6956`**/**`#6994`** add sm_120 and sm_89 confirmations. On llama.cpp's side, **`#32740`** (merged
+11-23T17:17Z) shows **Inkling 2 "effectively ran a non-FA route, materializing all the intermediate activation
+tensors"**, **`#32752`** cuts the prompt buffer **3.28 &rarr; 1.28 GiB at 32k** (19.13 &rarr; 6.88 at 200k), and
+**`#32910`** reports **7.1-7.8 GB** requested regardless of `-ngl`/`--fit`/`-ub`. Tag arithmetic by `compare`:
+**`b12676`** carries the FA fix and the new **auto-bpw quantiser**, while today's two Inkling model commits are in
+**no tag at all**. The staged pack **was re-laid out mid-window** &mdash; root is now the **+1,280 B** mainline
+layout (**8,486,237,632 B**) and **our exact bytes are `Old_Support/`**, with the root DSpark drafter replaced by a
+**503,889,952 B** file that **`#7034` reports Strata cannot load** (`missing 'fuse_weight'`). Adjacent: **`#7010`**,
+a 12 GB single-card **TDR cascade** ending in a **frozen desktop and a force power-off**, and **`#6999`**,
+**consumer BAR1 P2P** measured at **+98 %** GPU&harr;GPU. **[YT]** one in-window video whose owner survey puts
+**ordinary cards at 9-60 tok/s** and prices the vision projector at **34 &rarr; 13 tok/s**; **[ARX] neither listing
+advanced** (0 new papers, cs.CL's dateline is *earlier* than last file's); **[RD] 403** for the **27th time in 30
+days**; **[HN] 1,190** stories.
+
 **2026-11-23 &middot; [Daily news scan: Strata ships 0.2.20 for our model, and within fourteen hours the engine is broken on every card class but ours; two independent 12 GB recipes put Inkling 2 Mini at 30 tok/s with no patch](NEWS-2026-11-23.md)**
 
 A **~23.9 h** window (2026-11-22T14:38Z &rarr; 11-23T14:30Z), the scheduled run, on **37.01 GiB free physical**,
