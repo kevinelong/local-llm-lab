@@ -1,0 +1,283 @@
+{
+ "model": "qwen3.5:9b",
+ "benchmark": "livecodebench-v6",
+ "band": "medium",
+ "offset": 0,
+ "passed": 3,
+ "possible": 18,
+ "rate": 0.167,
+ "seconds": 694.5,
+ "rows": [
+  {
+   "id": "abc387_c",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='221852052834757' got='217104491324814\\n'",
+   "finish": "stop",
+   "seconds": 48.6,
+   "usage": {
+    "completion_tokens": 4373,
+    "prompt_tokens": 351
+   },
+   "code_chars": 15620,
+   "raw": "```python\nimport sys\n\ndef count_snake(n: int) -> int:\n    \"\"\"Count Snake numbers in [1, n].\"\"\"\n    if n < 10:\n        return 0\n    \n    s = str(n)\n    length = len(s)\n    \n    # We will iterate over all possible lengths from 2 to length-1 and count fully.\n    # Then handle the exact length 'length' "
+  },
+  {
+   "id": "abc389_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 49.3,
+   "usage": {
+    "completion_tokens": 4459,
+    "prompt_tokens": 318
+   },
+   "code_chars": 11737,
+   "raw": "```python\nimport sys\nimport math\n\ndef solve():\n    try:\n        line = sys.stdin.read().strip()\n        if not line:\n            return\n        R = int(line)\n    except ValueError:\n        return\n\n    # We need to count integer pairs (i, j) such that the square with corners\n    # at (i+/-0.5, j+/-0."
+  },
+  {
+   "id": "abc391_d",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "atcoder",
+   "why": "stdin: want='Yes\\nYes\\nNo\\nYes\\nNo\\nYes' got='exit 1: SyntaxError: invalid syntax'; stdin: want='No\\nNo\\nYes\\nYes' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 67.0,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 755
+   },
+   "code_chars": 19023,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    iterator = iter(data)\n    \n    N = int(next(iterator))\n    W = int(next(iterator))\n    \n    blocks = []\n    for i in range(N):\n        X = int(next(iterator))\n        Y = "
+  },
+  {
+   "id": "abc394_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 55.6,
+   "usage": {
+    "completion_tokens": 4973,
+    "prompt_tokens": 565
+   },
+   "code_chars": 15295,
+   "raw": "```python\nimport sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    \n    # We need to repeatedly find the leftmost \"WA\" and replace it with \"AC\".\n    # Since replacing \"WA\" (length 2) with \"AC\" (length 2) does not change the length,\n    # but creates new potential \"WA\"s or removes existing ones."
+  },
+  {
+   "id": "abc396_c",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='15' got='13\\n'",
+   "finish": "stop",
+   "seconds": 25.9,
+   "usage": {
+    "completion_tokens": 2321,
+    "prompt_tokens": 476
+   },
+   "code_chars": 8110,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    N = int(data[0])\n    M = int(data[1])\n    \n    B = list(map(int, data[2:2+N]))\n    W = list(map(int, data[2+N:2+N+M]))\n    \n    # Sort both lists in descending order to pick largest values first\n    B.s"
+  },
+  {
+   "id": "abc397_b",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='1' got='2\\n'",
+   "finish": "stop",
+   "seconds": 25.6,
+   "usage": {
+    "completion_tokens": 2297,
+    "prompt_tokens": 379
+   },
+   "code_chars": 7513,
+   "raw": "```python\nimport sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    \n    # We want to insert characters so that:\n    # - Length is even.\n    # - Odd positions (1-indexed) are 'i'.\n    # - Even positions (1-indexed) are 'o'.\n    # This means the target string must be of the form \"ioioio...\"\n    \n"
+  },
+  {
+   "id": "abc399_d",
+   "ok": true,
+   "cases": "1/1",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 60.9,
+   "usage": {
+    "completion_tokens": 5469,
+    "prompt_tokens": 743
+   },
+   "code_chars": 16803,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    iterator = iter(data)\n    \n    try:\n        T_str = next(iterator)\n        if not T_str:\n            return\n        T = int(T_str)\n    except StopIteration:\n        return\n\n    out_lines = []\n    \n    for _ "
+  },
+  {
+   "id": "abc400_d",
+   "ok": false,
+   "cases": "2/4",
+   "platform": "atcoder",
+   "why": "stdin: want='1' got='0\\n'; stdin: want='3' got='0\\n'",
+   "finish": "stop",
+   "seconds": 66.6,
+   "usage": {
+    "completion_tokens": 5913,
+    "prompt_tokens": 1279
+   },
+   "code_chars": 20654,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef solve():\n    # Read H and W\n    try:\n        input_data = sys.stdin.read().split()\n    except Exception:\n        return\n\n    if not input_data:\n        return\n\n    iterator = iter(input_data)\n    \n    try:\n        H = int(next(iterator))\n      "
+  },
+  {
+   "id": "arc194_a",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='8' got='exit 1: SyntaxError: invalid syntax'; stdin: want='-1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 66.9,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 617
+   },
+   "code_chars": 18059,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    N = int(data[0])\n    A = list(map(int, data[1:]))\n    \n    # We need to find the maximum sum of a subsequence that can be formed by \n    # appending and deleting fro"
+  },
+  {
+   "id": "3720",
+   "ok": false,
+   "cases": "0/4",
+   "platform": "leetcode",
+   "why": "functional: want='1' got='TypeError: Solution.minMaxWeight() missi'; functional: want='-1' got='TypeError: Solution.minMaxWeight() missi'",
+   "finish": "stop",
+   "seconds": 6.4,
+   "usage": {
+    "completion_tokens": 551,
+    "prompt_tokens": 674
+   },
+   "code_chars": 2431,
+   "raw": "```python\nfrom typing import List\nimport collections\n\nclass Solution:\n    def minMaxWeight(self, n: int, edges: List[List[int]], threshold: int) -> int:\n        # Sort edges by weight to enable binary search on the maximum allowed weight\n        sorted_edges = sorted(edges, key=lambda x: x[2])\n     "
+  },
+  {
+   "id": "3721",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='[2, 2]' got='TypeError: Solution.countMentions() miss'; functional: want='[2, 2]' got='TypeError: Solution.countMentions() miss'",
+   "finish": "stop",
+   "seconds": 7.1,
+   "usage": {
+    "completion_tokens": 613,
+    "prompt_tokens": 854
+   },
+   "code_chars": 3131,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def countMentions(self, numberOfUsers: int, events: List[List[str]]) -> List[int]:\n        # Initialize user status: 0 for online, 1 for offline\n        # We'll use a dictionary to track when each user comes back online\n        status = {i: 0 fo"
+  },
+  {
+   "id": "3748",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='[[8, 2, 3], [9, 6, 7], [4, 5, ' got='IndexError: list index out of range'; functional: want='[[2, 1], [1, 0]]' got='got=[[0, 1], [1, 2]]'",
+   "finish": "stop",
+   "seconds": 5.2,
+   "usage": {
+    "completion_tokens": 453,
+    "prompt_tokens": 464
+   },
+   "code_chars": 1739,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def sortMatrix(self, grid: List[List[int]]) -> List[List[int]]:\n        n = len(grid)\n        \n        # Extract diagonals for bottom-left triangle (including middle diagonal)\n        # These are sorted in non-increasing order\n        diag_bl = "
+  },
+  {
+   "id": "3771",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='true' got='exit 1: SyntaxError: invalid syntax'; functional: want='false' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 67.2,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 398
+   },
+   "code_chars": 19364,
+   "raw": "```python\nfrom collections import Counter\n\nclass Solution:\n    def maxSubstringLength(self, s: str, k: int) -> bool:\n        if k == 0:\n            return True\n        \n        n = len(s)\n        \n        # Count frequency of each character in the entire string\n        total_count = Counter(s)\n     "
+  },
+  {
+   "id": "3722",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='13' got='TypeError: Solution.maxSum() missing 2 r'; functional: want='-10' got='TypeError: Solution.maxSum() missing 2 r'",
+   "finish": "stop",
+   "seconds": 5.9,
+   "usage": {
+    "completion_tokens": 512,
+    "prompt_tokens": 386
+   },
+   "code_chars": 1767,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def maxSum(self, nums: List[int], k: int, m: int) -> int:\n        n = len(nums)\n        # dp[i][j] = maximum sum of j non-overlapping subarrays using elements from index i to n-1\n        # We'll compute this bottom-up or top-down. Given constrai"
+  },
+  {
+   "id": "3750",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='[2, -1, 3]' got='TypeError: Solution.solveQueries() missi'; functional: want='[-1, -1, -1, -1]' got='TypeError: Solution.solveQueries() missi'",
+   "finish": "stop",
+   "seconds": 5.5,
+   "usage": {
+    "completion_tokens": 483,
+    "prompt_tokens": 497
+   },
+   "code_chars": 2178,
+   "raw": "```python\nfrom collections import defaultdict\nfrom typing import List\n\nclass Solution:\n    def solveQueries(self, nums: List[int], queries: List[int]) -> List[int]:\n        n = len(nums)\n        \n        # Group indices by value\n        positions = defaultdict(list)\n        for idx, val in enumerate"
+  },
+  {
+   "id": "3794",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='110' got='TypeError: Solution.minTime() missing 1 '; functional: want='5' got='TypeError: Solution.minTime() missing 1 '",
+   "finish": "stop",
+   "seconds": 11.7,
+   "usage": {
+    "completion_tokens": 1041,
+    "prompt_tokens": 666
+   },
+   "code_chars": 3334,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def minTime(self, skill: List[int], mana: List[int]) -> int:\n        n = len(skill)\n        m = len(mana)\n        \n        # Precompute prefix sums of skills to quickly calculate completion times\n        # prefix_skill[i] = sum(skill[0]...skill["
+  },
+  {
+   "id": "3763",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='1.0' got='got=1.0'; functional: want='1.16667' got='got=1.75'",
+   "finish": "stop",
+   "seconds": 49.9,
+   "usage": {
+    "completion_tokens": 4462,
+    "prompt_tokens": 510
+   },
+   "code_chars": 16062,
+   "raw": "```python\nfrom typing import List\nimport bisect\n\nclass Solution:\n    def separateSquares(self, squares: List[List[int]]) -> float:\n        # Precompute total area of all squares (counting overlaps multiple times)\n        total_area = sum(l * l for _, _, l in squares)\n        target_area = total_area"
+  },
+  {
+   "id": "3805",
+   "ok": false,
+   "cases": "0/4",
+   "platform": "leetcode",
+   "why": "functional: want='1' got='exit 1: SyntaxError: invalid syntax'; functional: want='4' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 67.2,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 678
+   },
+   "code_chars": 20978,
+   "raw": "```python\nclass Solution:\n    def maxActiveSectionsAfterTrade(self, s: str) -> int:\n        n = len(s)\n        \n        # Precompute prefix sums of active sections (1s)\n        # prefix[i] = number of 1s in s[0:i]\n        prefix = [0] * (n + 1)\n        for i in range(n):\n            prefix[i + 1] = "
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry."
+}

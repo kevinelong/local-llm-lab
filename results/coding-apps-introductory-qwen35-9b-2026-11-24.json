@@ -1,0 +1,140 @@
+{
+ "model": "qwen3.5:9b",
+ "tier": "introductory",
+ "offset": 0,
+ "passed": 0,
+ "possible": 8,
+ "rate": 0.0,
+ "seconds": 193.8,
+ "rows": [
+  {
+   "id": 1,
+   "ok": false,
+   "cases": "2/5",
+   "how": "fenced",
+   "why": "want='0' got='-12'; want='0' got='-9'",
+   "finish": "stop",
+   "seconds": 26.4,
+   "usage": {
+    "completion_tokens": 1601,
+    "prompt_tokens": 549
+   },
+   "code_chars": 5228,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n        \n    n = int(data[0])\n    a = list(map(int, data[1:]))\n    \n    # Count odds and evens\n    odd_count = 0\n    even_count = 0\n    odd_sum = 0\n    even_sum = 0\n    \n    "
+  },
+  {
+   "id": 2,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='5' got='exit 1: SyntaxError: invalid syntax'; want='1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 27.9,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 640
+   },
+   "code_chars": 8838,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom math import ceil\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    n = int(data[0])\n    a = int(data[1])\n    b = int(data[2])\n    k = int(data[3])\n    \n    h = []\n    for i in range(n):\n        h.append(int(data[4 + i]))\n        \n    total_points "
+  },
+  {
+   "id": 3,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='3\\n3 2 0 7 10 14' got='exit 1: SyntaxError: invalid syntax'; want='0\\n0 1 2 3' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 27.9,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 546
+   },
+   "code_chars": 8541,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import Counter\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    n = int(data[0])\n    m = int(data[1])\n    \n    a = []\n    for i in range(n):\n        a.append(int(data[2 + i]))\n    \n    # Count current remainders\n    counts = Counter()"
+  },
+  {
+   "id": 4,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='8' got='exit 1: SyntaxError: invalid syntax'; want='20' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 27.9,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 729
+   },
+   "code_chars": 8639,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    iterator = iter(data)\n    \n    try:\n        n = int(next(iterator))\n        m = int(next(iterator))\n        \n        k = []\n        for _ in range(n):\n            k.a"
+  },
+  {
+   "id": 5,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='YES\\nYES\\nNO\\nYES\\nYES' got='exit 1: SyntaxError: invalid syntax'; want='NO' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 27.9,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 540
+   },
+   "code_chars": 8379,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import Counter\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        q = int(next(iterator))\n    except StopIteration:\n        return\n        \n    for _ in range(q):\n  "
+  },
+  {
+   "id": 6,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='3' got='exit 1: SyntaxError: invalid syntax'; want='9' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 27.9,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 747
+   },
+   "code_chars": 7731,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nimport heapq\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    iterator = iter(data)\n    \n    n = int(next(iterator))\n    m = int(next(iterator))\n    k = int(next(iterator))\n    \n    adj = [[] for _ in range(n + 1)]\n    \n    for _ in range(m):\n        u = i"
+  },
+  {
+   "id": 7,
+   "ok": false,
+   "cases": "3/5",
+   "how": "fenced",
+   "why": "want='7 2\\n2 2 1 1 2 1' got='7 2\\n1 1 1 1 1 1'; want='7486 3\\n3 3 3 2 2 2 2 1 1 1' got='7486 3\\n1 1 1 1 1 1 1 1 1 1'",
+   "finish": "stop",
+   "seconds": 23.3,
+   "usage": {
+    "completion_tokens": 2079,
+    "prompt_tokens": 884
+   },
+   "code_chars": 7047,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    n = int(data[0])\n    a = [int(x) for x in data[1:]]\n    \n    # Sort the skills to group similar values together\n    sorted_skills = sorted(a)\n    \n    # We need to p"
+  },
+  {
+   "id": 8,
+   "ok": false,
+   "cases": "1/5",
+   "how": "fenced",
+   "why": "want='2\\n9 5000 \\n1\\n7 \\n4\\n6 70 800 9000 \\n1\\n10000 ' got='2\\n5000 9\\n1\\n7\\n4\\n9000 800 70 6\\n1\\n10000\\n1\\n1'; want='4\\n9 90 900 9000 \\n2\\n2 50' got='4\\n9000 900 90 9\\n2\\n50 2'",
+   "finish": "stop",
+   "seconds": 3.2,
+   "usage": {
+    "completion_tokens": 269,
+    "prompt_tokens": 507
+   },
+   "code_chars": 1040,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        t = int(next(iterator))\n    except StopIteration:\n        return\n        \n    results = []\n    \n    for _ in range(t):\n        n_st"
+  }
+ ],
+ "note": "APPS test split; a problem counts only when every test case passes; graded by executing the model's program, not by reading it."
+}

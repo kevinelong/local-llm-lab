@@ -68,7 +68,9 @@ def cases_of(row: dict) -> list[dict]:
     return out
 
 
-def load_items(band: str, limit: int, offset: int, max_cases: int) -> list[dict]:
+def load_items(band: str, limit: int, offset: int, max_cases: int,
+               stride: int = 1) -> list[dict]:
+    """Take every `stride`-th usable problem, so a sample spans contests rather than one ABC round."""
     items, seen = [], 0
     with LCB.open(encoding="utf-8") as fh:
         for line in fh:
@@ -80,6 +82,9 @@ def load_items(band: str, limit: int, offset: int, max_cases: int) -> list[dict]
                 continue  # bounded so one run stays inside the job deadline
             content = row.get("question_content") or ""
             if len(content) > 6000:
+                continue
+            if stride > 1 and (seen % stride) != 0:
+                seen += 1
                 continue
             seen += 1
             if seen <= offset:
@@ -190,7 +195,9 @@ def run_functional(code: str, func: str, arg_json: list, want: str,
         expected = json.loads(want)
     except Exception:
         expected = want
-    return got.get("ok") == expected, f"got={str(got.get('ok'))[:40]}"
+    value = got.get("ok")
+    ok = (value == expected) or (str(value) == str(expected))
+    return ok, f"got={str(value)[:40]}"
 
 
 def main() -> int:
@@ -201,13 +208,14 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=10)
     ap.add_argument("--offset", type=int, default=0)
     ap.add_argument("--max-cases", type=int, default=8)
+    ap.add_argument("--stride", type=int, default=1)
     ap.add_argument("--max-tokens", type=int, default=6000)
     ap.add_argument("--num-ctx", type=int, default=8192)
     ap.add_argument("--case-timeout", type=float, default=6.0)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
-    items = load_items(args.band, args.limit, args.offset, args.max_cases)
+    items = load_items(args.band, args.limit, args.offset, args.max_cases, args.stride)
     if not items:
         print("no usable problems"); return 2
 
@@ -246,9 +254,8 @@ def main() -> int:
                         argv = json.loads(c["input"])
                     except Exception:
                         argv = [c["input"]]
-                    ok, got = run_functional(code, it["func"], argv, c["output"],
-                                             args.case_timeout, wd)
-                    matched = ok and got and not got.startswith("got=")
+                    matched, got = run_functional(code, it["func"], argv, c["output"],
+                                                  args.case_timeout, wd)
                 else:
                     ok, got = run_stdin(code, c["input"], args.case_timeout, wd)
                     matched = ok and norm(got) == norm(c["output"])

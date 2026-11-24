@@ -659,6 +659,38 @@ The 9B's `SyntaxError`s are truncations, not bad syntax: it writes helper functi
 past any budget we give it, while the 27B stops. Counting truncations as "cannot code" would push the numbers in
 the direction one expects, which is exactly how the two earlier harness faults stayed invisible.
 
+### LiveCodeBench, 2026-11-24: the same cliff on a post-cutoff benchmark
+
+APPS is old data - a 27B has seen most of it in training. LCB v6 (175 problems, contests dated into 2025) is the
+contamination-resistant check, and it grades with pass@1 on the public **and** private cases (the private suite is
+a zlib+base64 blob), so nothing is scored by eye.
+
+| LCB band | qwen3.5:9b | split | truncations |
+|---|---|---|---|
+| easy | **11/15 = 73%** | atcoder 8/9, leetcode 3/6 | 1 |
+| medium | **3/18 = 17%** | atcoder 3/9, leetcode 0/9 | 4 |
+| hard | **1/20 = 5%** | atcoder 1/20 | **16 of 20** |
+
+The cliff is in the same place on a different, newer benchmark, which is what makes it a property of the model
+rather than of APPS's labelling. The hard band is **not a capability measurement**: 16 of its 20 answers ran into
+the 6000-token budget and were cut mid-block, so it measures the budget. Medium's 17% does stand - 11 of its 15
+failures were wrong answers with the program completing.
+
+**Six harness faults in one week, five of them mine, every one of which read as a model result:**
+
+| fault | where it bit | how it was caught |
+|---|---|---|
+| thinking budget counted as failure | APPS 2/8 instead of 4/8 | five failures were `finish=length` at exactly 3000 tokens, no code |
+| whole-string output comparison | APPS introductory 2/8 instead of 3/8 | APPS pads expected lines with trailing spaces |
+| n=8 quoted as a level | APPS interview 50% instead of 70% | re-run at n=30 |
+| `$tier30` in a shell loop | 9B introductory rows overwritten | the file did not exist under its own name |
+| inverted functional verdict | every leetcode row failed, even `want='11' got='got=11'` | the mismatch display showed matching values |
+| functional call conventions | leetcode problems scored 0 | offline check with four hand-written solutions |
+
+Four of the six pushed every number in the direction of "the model is worse than it is". The rule they earn is
+the one this lab keeps relearning: **a grader is evidence only after it has been shown to fail a wrong answer and
+pass a right one**, and a mismatch message that shows two identical values is a bug report about the harness.
+
 **A note on what the problems actually demand.** The "introductory" problems in this slice are
 *multi-test-case* statements - `T` cases per stdin with T outputs chained - so their failures are input-format
 and case-count handling as much as algorithms, while several "interview" problems are single-case. With n=8 that

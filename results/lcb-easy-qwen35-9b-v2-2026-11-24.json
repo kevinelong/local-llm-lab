@@ -1,0 +1,238 @@
+{
+ "model": "qwen3.5:9b",
+ "benchmark": "livecodebench-v6",
+ "band": "easy",
+ "offset": 0,
+ "passed": 11,
+ "possible": 15,
+ "rate": 0.733,
+ "seconds": 109.3,
+ "rows": [
+  {
+   "id": "abc387_b",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 1.8,
+   "usage": {
+    "completion_tokens": 152,
+    "prompt_tokens": 367
+   },
+   "code_chars": 490,
+   "raw": "```python\nimport sys\n\ndef solve():\n    try:\n        input_data = sys.stdin.read().strip()\n        if not input_data:\n            return\n        X = int(input_data)\n    except ValueError:\n        return\n\n    total_sum = 0\n    count_X = 0\n\n    for i in range(1, 10):\n        for j in range(1, 10):\n    "
+  },
+  {
+   "id": "abc388_a",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 0.3,
+   "usage": {
+    "completion_tokens": 21,
+    "prompt_tokens": 248
+   },
+   "code_chars": 31,
+   "raw": "```python\nS = input()\nprint(S[0] + \"UPC\")\n```"
+  },
+  {
+   "id": "abc390_a",
+   "ok": true,
+   "cases": "4/4",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 2.3,
+   "usage": {
+    "completion_tokens": 208,
+    "prompt_tokens": 356
+   },
+   "code_chars": 788,
+   "raw": "```python\nimport sys\n\ndef solve():\n    try:\n        line = sys.stdin.read().strip()\n        if not line:\n            return\n        parts = list(map(int, line.split()))\n        A = parts\n        \n        # Target sorted sequence\n        target = [1, 2, 3, 4, 5]\n        \n        # Try swapping every "
+  },
+  {
+   "id": "abc391_b",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 2.3,
+   "usage": {
+    "completion_tokens": 202,
+    "prompt_tokens": 582
+   },
+   "code_chars": 664,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    if not input:\n        return\n    \n    N = int(input[0])\n    M = int(input[1])\n    \n    S = input[2:2+N]\n    T = input[2+N:2+N+M]\n    \n    for a in range(1, N - M + 2):\n        for b in range(1, N - M + 2):\n            match "
+  },
+  {
+   "id": "abc393_a",
+   "ok": false,
+   "cases": "1/2",
+   "platform": "atcoder",
+   "why": "stdin: want='2' got='4\\n'",
+   "finish": "stop",
+   "seconds": 4.9,
+   "usage": {
+    "completion_tokens": 443,
+    "prompt_tokens": 405
+   },
+   "code_chars": 1207,
+   "raw": "```python\nimport sys\n\ndef solve():\n    s1 = sys.stdin.readline().strip()\n    s2 = sys.stdin.readline().strip()\n\n    # Takahashi ate 1 and 2, Aoki ate 1 and 3\n    # If S1 is \"sick\", the culprit is either 1 or 2.\n    # If S2 is \"sick\", the culprit is either 1 or 3.\n    \n    if s1 == \"sick\" and s2 == \""
+  },
+  {
+   "id": "abc394_a",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 0.3,
+   "usage": {
+    "completion_tokens": 26,
+    "prompt_tokens": 275
+   },
+   "code_chars": 52,
+   "raw": "```python\nS = input()\nprint(''.join(c for c in S if c == '2'))\n```"
+  },
+  {
+   "id": "abc396_b",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 2.1,
+   "usage": {
+    "completion_tokens": 188,
+    "prompt_tokens": 660
+   },
+   "code_chars": 644,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    Q = int(data[0])\n    queries = []\n    idx = 1\n    \n    # Initial stack of 100 cards labeled with 0\n    stack = [0] * 100\n    \n    output_lines = []\n    \n    for _ in"
+  },
+  {
+   "id": "abc398_a",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 15.4,
+   "usage": {
+    "completion_tokens": 1382,
+    "prompt_tokens": 194
+   },
+   "code_chars": 4134,
+   "raw": "```python\nimport sys\n\ndef solve():\n    try:\n        line = sys.stdin.read().strip()\n        if not line:\n            return\n        n = int(line)\n    except ValueError:\n        return\n\n    # We need a palindrome of length N with exactly one or two '='.\n    # If two '=', they must be adjacent.\n    # "
+  },
+  {
+   "id": "abc400_a",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 1.9,
+   "usage": {
+    "completion_tokens": 168,
+    "prompt_tokens": 249
+   },
+   "code_chars": 572,
+   "raw": "```python\nimport sys\n\ndef solve():\n    try:\n        line = sys.stdin.read().strip()\n        if not line:\n            return\n        A = int(line)\n        total_people = 400\n        \n        # We need to find a positive integer B such that A * B = 400.\n        # This means B must be a divisor of 400."
+  },
+  {
+   "id": "3731",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 1.1,
+   "usage": {
+    "completion_tokens": 94,
+    "prompt_tokens": 426
+   },
+   "code_chars": 351,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def subarraySum(self, nums: List[int]) -> int:\n        total_sum = 0\n        n = len(nums)\n        \n        for i in range(n):\n            start = max(0, i - nums[i])\n            current_subarray_sum = sum(nums[start:i+1])\n            total_sum "
+  },
+  {
+   "id": "3709",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='true' got='TypeError: Solution.hasSpecialSubstring('; functional: want='false' got='TypeError: Solution.hasSpecialSubstring('",
+   "finish": "stop",
+   "seconds": 2.4,
+   "usage": {
+    "completion_tokens": 213,
+    "prompt_tokens": 362
+   },
+   "code_chars": 939,
+   "raw": "```python\nclass Solution:\n    def hasSpecialSubstring(self, s: str, k: int) -> bool:\n        n = len(s)\n        if k > n:\n            return False\n        \n        # Check every substring of length k\n        for i in range(n - k + 1):\n            substring = s[i:i+k]\n            \n            # Condi"
+  },
+  {
+   "id": "3788",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='15' got='exit 1: SyntaxError: invalid syntax'; functional: want='1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 67.1,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 405
+   },
+   "code_chars": 23567,
+   "raw": "```python\nfrom typing import List\nfrom collections import defaultdict\n\nclass Solution:\n    def maxSum(self, nums: List[int]) -> int:\n        n = len(nums)\n        if n == 0:\n            return 0\n        \n        # We need to find the maximum sum of a subarray with all unique elements.\n        # Sinc"
+  },
+  {
+   "id": "3773",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 3.0,
+   "usage": {
+    "completion_tokens": 263,
+    "prompt_tokens": 342
+   },
+   "code_chars": 1106,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def minimumPairRemoval(self, nums: List[int]) -> int:\n        # We simulate the process as described:\n        # 1. Find the adjacent pair with the minimum sum (leftmost if ties).\n        # 2. Replace that pair with their sum.\n        # 3. Repeat"
+  },
+  {
+   "id": "3723",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='12' got='TypeError: Solution.sumOfGoodNumbers() m'; functional: want='2' got='TypeError: Solution.sumOfGoodNumbers() m'",
+   "finish": "stop",
+   "seconds": 1.7,
+   "usage": {
+    "completion_tokens": 148,
+    "prompt_tokens": 341
+   },
+   "code_chars": 642,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def sumOfGoodNumbers(self, nums: List[int], k: int) -> int:\n        total = 0\n        n = len(nums)\n        \n        for i in range(n):\n            left_index = i - k\n            right_index = i + k\n            \n            is_good = True\n      "
+  },
+  {
+   "id": "3811",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 1.3,
+   "usage": {
+    "completion_tokens": 116,
+    "prompt_tokens": 398
+   },
+   "code_chars": 392,
+   "raw": "```python\nclass Solution:\n    def reverseDegree(self, s: str) -> int:\n        total = 0\n        for index, char in enumerate(s):\n            # Calculate position in reversed alphabet: 'a' -> 26, 'b' -> 25, ..., 'z' -> 1\n            value = ord('z') - ord(char) + 1\n            # Position in string is"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry."
+}
