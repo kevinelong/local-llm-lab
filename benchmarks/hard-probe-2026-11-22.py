@@ -73,6 +73,11 @@ def vt_tasks(ctx_tokens, reps, base_seed=500):
                 state[name] = state[source]
                 steps.append("The variable %s is assigned the value of %s." % (name, source))
             last = name
+        # A chain can end on a variable that was only ever assigned *from* an unset one; asking its value would be
+        # an unanswerable question, and the probe would be measuring the generator. Close the chain with a set.
+        if state[last] is None:
+            state[last] = rng.choice([2, 4, 5, 6, 8, 9])
+            steps.append("The variable %s is set to %d." % (last, state[last]))
         want = state[last]
         # ONE haystack for every rep, so the repeats differ in the chain and not in a cold prefill: at 32K this
         # model processes a 16k prompt at 15-29 tok/s, so a fresh haystack per rep would cost ~20 minutes each and
@@ -106,92 +111,62 @@ def words_of(sentences):
     return sum(len(s.split()) for s in sentences)
 
 
-def longctx_tasks(ctx_tokens):
-    """Four RULER-style probes sized to `ctx_tokens` words (approximating tokens/word ~ 1.33 in English)."""
-    # The haystack must leave room for the question *and* the reply budget inside the same window: a request
-    # carries prompt + max_tokens, so an 8,192-token prompt with an 8,192 budget is rejected by the server
-    # (measured: transport-error at ctx 8192). 60 % of the window for the text leaves the rest for both.
+def longctx_tasks(ctx_tokens, reps=1):
+    """RULER-style probes, `reps` **distinct instances each** over one shared haystack.
+
+    The repeats have to differ in what is asked, not in how long the preamble is: a fresh haystack at a 32K window
+    costs a full prefill per repeat (15-29 tok/s past 10k on this model), which would measure the engine's prefill
+    curve instead of the capability. So the filler is generated once and the needles - their text, value and depth -
+    are what changes between reps, with the expected answers computed here.
+    """
     target_words = int(ctx_tokens * 0.60 * 3.4 / 5.8)
     tasks = []
 
-    # 1. single needle, buried at 40-60 % depth
-    sentences, _ = haystack(target_words)
-    at = int(len(sentences) * 0.5)
-    needles = {"single": "The spare gasket for the north pier is kept in locker 4417."}
-    body = sentences[:at] + [needles["single"]] + sentences[at:]
-    tasks.append(("niah_single", "\n".join(body) +
-                  "\n\nQuestion: In which locker is the spare gasket for the north pier kept? "
-                  "Answer with the locker number only.", lambda a: re.search(r"\b4417\b", a) is not None,
-                  "4417"))
+    for rep in range(1, reps + 1):
+        rng = random.Random(1000 + rep)
 
-    # 2. four needles, ask for all four
-    sentences, _ = haystack(target_words, seed=11)
-    found = ["the blue bell rings at 06:15", "the west gate is repainted 1987",
-             "the ferry timetable is signed Okafor", "the tide table is revised Kwon"]
-    marks = []
-    for i, text in enumerate(found):
-        marks.append(int(len(sentences) * (0.15 + 0.2 * i)))
-    body = []
-    for i, sentence in enumerate(sentences):
-        if i in marks:
-            body.append("Record note: " + found[marks.index(i)] + ".")
-        body.append(sentence)
-    tasks.append(("niah_multi", "\n".join(body) +
-                  "\n\nQuestion: List the four record notes exactly as written, one per line, nothing else.",
-                  lambda a, f=found: all(all(w in a.lower() for w in phrase.split()[:4]) for phrase in f),
-                  "four record notes"))
+        # 1. single needle at a per-rep depth
+        sentences, _ = haystack(target_words, seed=7)
+        code = 4000 + rng.randrange(900, 999)
+        at = int(len(sentences) * (0.38 + 0.08 * rep))
+        body = sentences[:at] + ["The spare gasket for the north pier is kept in locker %d." % code] + sentences[at:]
+        tasks.append(("niah_single#%d" % rep, "\n".join(body) +
+                      "\n\nQuestion: In which locker is the spare gasket for the north pier kept? "
+                      "Answer with the locker number only.",
+                      (lambda a, w=code: re.search(r"\b%d\b" % w, a) is not None), str(code)))
 
-    # 3. aggregation (RULER's common-word count). The marker is a word that does **not** occur in the
-    # question - the first version asked how many times "falcon" appeared in a text where the question
-    # itself said "falcon", and both models spent their whole budget on that ambiguity rather than counting.
-    sentences, _ = haystack(target_words, seed=13)
-    marker = "narwhal"
-    count = 7
-    spots = random.Random(17).sample(range(len(sentences)), count)
-    filled = []
-    for i, sentence in enumerate(sentences):
-        filled.append("A %s was recorded in the log." % marker if i in spots else sentence)
-    tasks.append(("aggregation", "\n".join(filled) +
-                  "\n\nQuestion: in the passage above, and not counting this question, how many times does the "
-                  "word \"%s\" appear? Answer with the number only." % marker,
-                  lambda a: re.search(r"\b7\b", a) is not None, "7"))
+        # 2. four needles, values and depths per rep
+        sentences, _ = haystack(target_words, seed=11)
+        notes = ["the blue bell rings at 06:%02d" % rng.randrange(10, 59),
+                 "the west gate is repainted %d" % (1900 + rng.randrange(10, 99)),
+                 "the ferry timetable is signed %s" % rng.choice(["Okafor", "Kwon", "Adeyemi", "Lindqvist"]),
+                 "the tide table is revised %s" % rng.choice(["Kwon", "Okafor", "Bergman", "Sato"])]
+        marks = [int(len(sentences) * (0.15 + 0.2 * i)) for i in range(4)]
+        body = []
+        for i, sentence in enumerate(sentences):
+            if i in marks:
+                body.append("Record note: " + notes[marks.index(i)] + ".")
+            body.append(sentence)
+        tasks.append(("niah_multi#%d" % rep, "\n".join(body) +
+                      "\n\nQuestion: List the four record notes exactly as written, one per line, nothing else.",
+                      (lambda a, f=notes: all(all(w in a.lower() for w in phrase.split()[:4]) for phrase in f)),
+                      "four record notes"))
 
-    # 4. variable tracking (RULER VT): chained assignments, ask for the final value
-    rng = random.Random(23)
-    names = ["alpha", "beta", "gamma", "delta"]
-    value = 3
-    chain = []
-    for _ in range(12):
-        name = rng.choice(names)
-        if rng.random() < 0.55:
-            value = rng.choice([2, 4, 5, 6, 8, 9])
-            chain.append("The variable %s is set to %d." % (name, value))
-        else:
-            source = rng.choice(names)
-            chain.append("The variable %s is assigned the value of %s." % (name, source))
-            if source != name:
-                value = None
-    # track properly so the answer is known: replay with a dict
-    state = {n: None for n in names}
-    last = None
-    replay = []
-    for step in chain:
-        m_set = re.match(r"The variable (\w+) is set to (\d+)\.", step)
-        if m_set:
-            state[m_set.group(1)] = int(m_set.group(2))
-            last = m_set.group(1)
-        else:
-            m_as = re.match(r"The variable (\w+) is assigned the value of (\w+)\.", step)
-            state[m_as.group(1)] = state[m_as.group(2)]
-            last = m_as.group(1)
-    answer = state[last]
-    sentences, _ = haystack(target_words, seed=29)
-    at = int(len(sentences) * 0.45)
-    body = sentences[:at] + chain + sentences[at:]
-    tasks.append(("variable_tracking", "\n".join(body) +
-                  "\n\nQuestion: At the end of the text, what is the value of the variable %s? "
-                  "Answer with the number only." % last,
-                  (lambda a, want=answer: re.search(r"\b%d\b" % want, a) is not None), str(answer)))
+        # 3. aggregation: count is per rep, and the marker never appears in the question
+        sentences, _ = haystack(target_words, seed=13)
+        count = [7, 5, 9][(rep - 1) % 3]
+        marker = "narwhal"
+        spots = random.Random(17 + rep).sample(range(len(sentences)), count)
+        filled = ["A %s was recorded in the log." % marker if i in spots else s for i, s in enumerate(sentences)]
+        tasks.append(("aggregation#%d" % rep, "\n".join(filled) +
+                      "\n\nQuestion: in the passage above, and not counting this question, how many times does the "
+                      "word \"%s\" appear? Answer with the number only." % marker,
+                      (lambda a, w=count: re.search(r"\b%d\b" % w, a) is not None), str(count)))
+
+        # 4. variable tracking, one chain per rep (the suite that survived repetition this morning)
+        for name, prompt, scorer, want in vt_tasks(ctx_tokens, 1, base_seed=500 + rep * 3):
+            tasks.append(("variable_tracking#%d" % rep, prompt, scorer, want))
+
     return tasks
 
 
@@ -311,7 +286,7 @@ def main():
     args = parser.parse_args()
 
     if args.suite == "longctx":
-        plan = [(name, prompt, scorer, want, "") for name, prompt, scorer, want in longctx_tasks(args.ctx)]
+        plan = [(name, prompt, scorer, want, "") for name, prompt, scorer, want in longctx_tasks(args.ctx, args.reps)]
     elif args.suite == "vt":
         plan = [(name, prompt, scorer, want, "") for name, prompt, scorer, want in vt_tasks(args.ctx, args.reps)]
     else:

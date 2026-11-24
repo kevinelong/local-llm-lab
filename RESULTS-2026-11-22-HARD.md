@@ -177,3 +177,49 @@ budget effect, exactly like the one that produced the original miss.
 Lesson, in the lab's own terms: **n=1 on a probe whose failure mode is "did not answer" is not a measurement of
 ability**, and `finish_reason` decides which of the two happened. The original miss had `finish=length` written next
 to it in the stored row, and I read past it.
+
+## The long-context probes, repeated: three instances each
+
+The `1/4`, `2/4` and `3/4` in the matrix above are **n=1 per probe**, and this morning's variable-tracking retraction
+showed what that is worth. Each probe now runs **three distinct instances** - needle value and depth per rep, a
+different four-note set, a different planted count (7, 5, 9), a different assignment chain - over **one shared
+haystack**, so a repeat measures the capability and not the engine's prefill (a fresh 16k-token haystack costs a full
+prefill per rep; at 32K this model processes 15-29 tok/s past 10k of prompt).
+
+12 items per model (3 × single-needle, 3 × multi-needle, 3 × aggregation, 3 × tracking), 32,768 window, budget 4,096:
+
+| model | score | single | multi | aggregation | tracking |
+|---|---|---|---|---|---|
+| **qwen3:8b** | **9/12** | 3/3 | 3/3 | 0/3 | 3/3 |
+| **Inkling 2 Mini** | **8/12** | 3/3 | 2/3 | 0/3 | 3/3 |
+| qwen3.5:9b | 6/12 | 3/3 | 3/3 | 0/3 | 0/3 |
+| gemma4:12b | 3/12 | 3/3 | 0/3 | 0/3 | 0/3 |
+| qwen3:14b | (running) | | | | |
+
+**Two findings the n=1 table could not give:**
+
+1. **The 8B is the best of the Ollama models on this suite (9/12) and the 9B is worse (6/12)** - once repeats replace
+   single observations, the ordering by parameter count disappears. qwen3.5:9b loses all three tracking chains here
+   (its earlier 1/3 was not a fluke) and keeps both retrieval probes.
+2. **Every single miss in these 48 items is `finish=length` with empty content.** Not one wrong value, not one wrong
+   note. What the suite actually ranks is *whether a model finishes a 16k-token prompt at all*: single-needle retrieval
+   is saturated for all five, aggregation is saturated against all five, and the spread comes from deliberation budget.
+
+So the honest label for the "long context" column is **"answers within budget"**, not "long-context ability". A model
+that needs 8,000 tokens of thinking to count seven words has a cost problem, and this suite prices it.
+
+## llama.cpp `b12651` against the `b12611` baseline: a null result, twice
+
+The 11-23 scan's shortlist item 5 asked for `>= b12642` because three of the window's 23 commits touch this model,
+including the fix for corruption voided on 11-19. Built `b12651` (`f5e6915c2`) in a worktree beside the baseline, same
+CUDA 13.5.0, same flags, same model.
+
+| | 4K prompt | 4K gen | 32K prompt | 32K gen |
+|---|---|---|---|---|
+| `b12611` | 51.3 | 58.1 | 52.2 | 58.0 |
+| `b12651` | 51.8 | 57.9 | 51.7 | 57.7 |
+
+**Speed: no difference.** And on the 12-item long-context suite the two revisions are **item-for-item identical, 8/12
+each**, with the same four `finish=length` misses. So the corruption fix does not touch the behaviour this suite
+exercises - it was never a corruption failure, it is deliberation. Keep `b12651` (newer, no regression, the fix may
+matter on paths we have not driven), but do not claim it as a win.
