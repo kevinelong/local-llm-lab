@@ -1,0 +1,492 @@
+{
+ "model": "coder-27b-8k",
+ "tier": "interview",
+ "offset": 0,
+ "passed": 21,
+ "possible": 30,
+ "rate": 0.7,
+ "seconds": 1799.5,
+ "rows": [
+  {
+   "id": 1,
+   "ok": false,
+   "cases": "2/5",
+   "how": "fenced",
+   "why": "want='NO\\nYES\\nNO\\nYES\\nYES' got='NO\\nYES\\nYES\\nYES\\nNO'; want='NO\\nYES\\nNO\\nYES' got='YES\\nNO\\nYES\\nYES'",
+   "finish": "stop",
+   "seconds": 59.0,
+   "usage": {
+    "completion_tokens": 389,
+    "prompt_tokens": 1040
+   },
+   "code_chars": 1286,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom heapq import heappush, heappop\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    k = int(next(it))\n    q = int(next(it))\n    t = [0] * (n + 1)\n    for i in range(1, n + 1):\n        t[i] = int(next("
+  },
+  {
+   "id": 2,
+   "ok": false,
+   "cases": "0/5",
+   "how": "fenced",
+   "why": "want='2 1' got='1 2'; want='2 1 3' got='-1'",
+   "finish": "stop",
+   "seconds": 35.3,
+   "usage": {
+    "completion_tokens": 268,
+    "prompt_tokens": 644
+   },
+   "code_chars": 792,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    m = int(next(it))\n\n    adj = [[] for _ in range(n + 1)]\n    in_deg = [0] * (n + 1)\n    for _ in range(m):\n        a = int("
+  },
+  {
+   "id": 3,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='Bob\\nAlice\\nBob\\nAlice' got='exit 1: SyntaxError: invalid syntax'; want='Alice' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 324.9,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 415
+   },
+   "code_chars": 5334,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    T = int(input[idx]); idx += 1\n    out = []\n    for _ in range(T):\n        n = int(input[idx]); idx += 1\n        k = int(input[idx]); idx += 1\n        # Grundy: positions 0..n, moves -1, -2, -k\n        # Pattern: "
+  },
+  {
+   "id": 4,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 68.8,
+   "usage": {
+    "completion_tokens": 527,
+    "prompt_tokens": 663
+   },
+   "code_chars": 1678,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nsys.setrecursionlimit(200000)\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    adj = [[] for _ in range(n + 1)]\n    idx = 1\n    for _ in range(n - 1):\n        u = int(data[idx]); v = int(data[idx + 1]); idx += 2\n        ad"
+  },
+  {
+   "id": 5,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 18.5,
+   "usage": {
+    "completion_tokens": 138,
+    "prompt_tokens": 515
+   },
+   "code_chars": 423,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    t = int(next(it))\n    out = []\n    for _ in range(t):\n        s = int(next(it))\n        a = int(next(it))\n        b = int(next(it))\n        c = int(next(it))\n        bought "
+  },
+  {
+   "id": 6,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 36.7,
+   "usage": {
+    "completion_tokens": 282,
+    "prompt_tokens": 436
+   },
+   "code_chars": 897,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    m = int(next(it))\n    adj = [[] for _ in range(n + 1)]\n    for _ in range(m):\n        a = int(next(it))\n        b = int(ne"
+  },
+  {
+   "id": 7,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 48.8,
+   "usage": {
+    "completion_tokens": 367,
+    "prompt_tokens": 918
+   },
+   "code_chars": 1316,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = list(map(int, data[1:n+1]))\n\n    # First robot stops at first occurrence of p from left\n    # Second robot stops at first occurrence of q from right\n    # They don't mee"
+  },
+  {
+   "id": 8,
+   "ok": false,
+   "cases": "0/5",
+   "how": "fenced",
+   "why": "want='0\\n1\\n1\\n3\\n2' got='4\\n4\\n5\\n7\\n2'; want='6' got='16'",
+   "finish": "stop",
+   "seconds": 42.9,
+   "usage": {
+    "completion_tokens": 318,
+    "prompt_tokens": 954
+   },
+   "code_chars": 1106,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    t = int(input[idx]); idx += 1\n    out = []\n    for _ in range(t):\n        n = int(input[idx]); idx += 1\n        s = input[idx]; idx += 1\n        # Find maximal runs of identical characters\n        # For each run "
+  },
+  {
+   "id": 9,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 58.8,
+   "usage": {
+    "completion_tokens": 441,
+    "prompt_tokens": 679
+   },
+   "code_chars": 1362,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef find(parent, x):\n    if parent[x] != x:\n        parent[x] = find(parent, parent[x])\n    return parent[x]\n\ndef union(parent, rank, x, y):\n    rx = find(parent, x)\n    ry = find(parent, y)\n    if rx == ry:\n        return\n    if rank[rx] < r"
+  },
+  {
+   "id": 10,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 45.5,
+   "usage": {
+    "completion_tokens": 336,
+    "prompt_tokens": 757
+   },
+   "code_chars": 1055,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    m = int(next(it))\n    p = [int(next(it)) for _ in range(n)]\n    out = []\n    for _ in range(m):\n        l = int(next(it))\n        r = int(next(it))\n    "
+  },
+  {
+   "id": 11,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 19.5,
+   "usage": {
+    "completion_tokens": 136,
+    "prompt_tokens": 608
+   },
+   "code_chars": 486,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input_data = sys.stdin.read().splitlines()\n    t = int(input_data[0])\n    results = []\n    for i in range(1, t + 1):\n        sentence = input_data[i].strip()\n        if sentence.endswith(\"po\"):\n            results.append(\"FILIPINO\")\n        elif sentence.endswi"
+  },
+  {
+   "id": 12,
+   "ok": false,
+   "cases": "2/5",
+   "how": "fenced",
+   "why": "want='2' got='3'; want='0' got='1'",
+   "finish": "stop",
+   "seconds": 49.9,
+   "usage": {
+    "completion_tokens": 368,
+    "prompt_tokens": 734
+   },
+   "code_chars": 1250,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n    \n    # For each number, compute the count of 1-bits\n    # A sequence is \"good\" if we can make XOR = 0 by swapping bits within eac"
+  },
+  {
+   "id": 13,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 40.2,
+   "usage": {
+    "completion_tokens": 292,
+    "prompt_tokens": 793
+   },
+   "code_chars": 940,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\nimport heapq\n\ndef main():\n    input = sys.stdin.read().split()\n    idx = 0\n    n = int(input[idx]); idx += 1\n    m = int(input[idx]); idx += 1\n\n    adj = defaultdict(list)\n    for _ in range(m):\n        u = int(input[idx]); idx += 1\n        v "
+  },
+  {
+   "id": 14,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 35.6,
+   "usage": {
+    "completion_tokens": 255,
+    "prompt_tokens": 494
+   },
+   "code_chars": 780,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    t = int(next(it))\n    out = []\n    for _ in range(t):\n        n = int(next(it))\n        x = int(next(it))\n        a = int(next(it))\n        b = int(next(it))\n        if a > "
+  },
+  {
+   "id": 15,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 135.4,
+   "usage": {
+    "completion_tokens": 1011,
+    "prompt_tokens": 575
+   },
+   "code_chars": 3045,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nimport math\n\ndef dist_sq(x1, y1, x2, y2):\n    return (x1 - x2) ** 2 + (y1 - y2) ** 2\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    x1 = int(next(it))\n    y1 = int(next(it))\n    x2 = int(next(it))\n  "
+  },
+  {
+   "id": 16,
+   "ok": false,
+   "cases": "2/5",
+   "how": "fenced",
+   "why": "want='2\\n1 3\\n1 2' got='-1'; want='2\\n2 4\\n2 3' got='-1'",
+   "finish": "stop",
+   "seconds": 31.2,
+   "usage": {
+    "completion_tokens": 222,
+    "prompt_tokens": 673
+   },
+   "code_chars": 650,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = list(map(int, data[1:n+1]))\n\n    # Collect all inversions\n    inversions = []\n    for i in range(n):\n        for j in range(i + 1, n):\n            if a[i] > a[j]:\n      "
+  },
+  {
+   "id": 17,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 93.0,
+   "usage": {
+    "completion_tokens": 713,
+    "prompt_tokens": 567
+   },
+   "code_chars": 2511,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = list(map(int, data[1:1 + n]))\n\n    # Build graph: edge between a[i] and a[i+1] if a[i] > a[i+1]\n    # This is equivalent to: for each inversion pair that are adjacent at"
+  },
+  {
+   "id": 18,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 6.1,
+   "usage": {
+    "completion_tokens": 39,
+    "prompt_tokens": 261
+   },
+   "code_chars": 85,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\nn = int(sys.stdin.readline())\nif n == 1:\n    print(5)\nelse:\n    print(25)\n```"
+  },
+  {
+   "id": 19,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 50.4,
+   "usage": {
+    "completion_tokens": 392,
+    "prompt_tokens": 792
+   },
+   "code_chars": 1235,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    k = int(sys.stdin.readline().strip())\n    n = 1 << k\n    \n    # Build Hadamard matrix using Sylvester's construction\n    # H_1 = [[1]]\n    # H_{2n} = [[H_n, H_n], [H_n, -H_n]]\n    \n    # Start with H_1\n    H = [[1]]\n    \n    for _ in range(k):\n        n_old = l"
+  },
+  {
+   "id": 20,
+   "ok": false,
+   "cases": "3/5",
+   "how": "fenced",
+   "why": "want='1' got='3'; want='6' got='9'",
+   "finish": "stop",
+   "seconds": 17.3,
+   "usage": {
+    "completion_tokens": 129,
+    "prompt_tokens": 444
+   },
+   "code_chars": 417,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    words = data[1:]\n    roots = set()\n    for w in words:\n        seen = set()\n        root = []\n        for ch in w:\n            if ch not in seen:\n                seen.add(ch"
+  },
+  {
+   "id": 21,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 163.2,
+   "usage": {
+    "completion_tokens": 1257,
+    "prompt_tokens": 1215
+   },
+   "code_chars": 3834,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    idx = 0\n    n = int(data[idx]); idx += 1\n    \n    adj = defaultdict(list)\n    edges = []\n    for i in range(n - 1):\n        a = int(data[idx]); b = int(data[idx+1]); l = i"
+  },
+  {
+   "id": 22,
+   "ok": false,
+   "cases": "1/5",
+   "how": "fenced",
+   "why": "want='2\\n4\\n0\\n0' got='0\\n0\\n9\\n0'; want='0' got='75060079'",
+   "finish": "stop",
+   "seconds": 22.5,
+   "usage": {
+    "completion_tokens": 173,
+    "prompt_tokens": 708
+   },
+   "code_chars": 554,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    it = iter(data)\n    t = int(next(it))\n    out = []\n    for _ in range(t):\n        n = int(next(it))\n        max_l = -1\n        min_r = 10**18\n        for i in range(n):\n            l = int(next(it))\n            r = int(next(i"
+  },
+  {
+   "id": 23,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 33.8,
+   "usage": {
+    "completion_tokens": 245,
+    "prompt_tokens": 665
+   },
+   "code_chars": 715,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    a = sys.stdin.readline().strip()\n    b = sys.stdin.readline().strip()\n    n = len(a)\n    m = len(b)\n    if m > n:\n        print(0)\n        return\n    # Compute initial mismatch count for first window\n    mismatches = 0\n    for i in range(m):\n        if a[i] != b"
+  },
+  {
+   "id": 24,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 78.9,
+   "usage": {
+    "completion_tokens": 583,
+    "prompt_tokens": 768
+   },
+   "code_chars": 1833,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef main():\n    input = sys.stdin.read().split()\n    idx = 0\n    n = int(input[idx]); idx += 1\n    k = int(input[idx]); idx += 1\n    d = int(input[idx]); idx += 1\n\n    police = [False] * (n + 1)\n    for _ in range(k):\n        p = int(input[idx]); i"
+  },
+  {
+   "id": 25,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 17.2,
+   "usage": {
+    "completion_tokens": 131,
+    "prompt_tokens": 304
+   },
+   "code_chars": 381,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom functools import cmp_to_key\n\ndef compare(a, b):\n    if a + b < b + a:\n        return -1\n    elif a + b > b + a:\n        return 1\n    else:\n        return 0\n\ndef main():\n    data = sys.stdin.read().splitlines()\n    n = int(data[0])\n    strings = data[1:n+1]\n    strings.sort("
+  },
+  {
+   "id": 26,
+   "ok": false,
+   "cases": "4/5",
+   "how": "fenced",
+   "why": "want='cdcbcdcfcdc' got='fcfafcfbfcf'",
+   "finish": "stop",
+   "seconds": 29.2,
+   "usage": {
+    "completion_tokens": 228,
+    "prompt_tokens": 620
+   },
+   "code_chars": 752,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    m = int(data[1])\n    s = list(data[2])\n    \n    # Map each character to its current representation\n    # Initially, each char maps to itself\n    mapping = {}\n    for i in ra"
+  },
+  {
+   "id": 27,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 31.5,
+   "usage": {
+    "completion_tokens": 249,
+    "prompt_tokens": 545
+   },
+   "code_chars": 793,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    t = int(data[0])\n    out = []\n    idx = 1\n    for _ in range(t):\n        s = data[idx]\n        idx += 1\n        n = len(s)\n        best = n + 1\n        # sliding window\n        left = 0\n        counts = {1: 0, 2: 0, 3: 0}\n   "
+  },
+  {
+   "id": 28,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 133.0,
+   "usage": {
+    "completion_tokens": 1038,
+    "prompt_tokens": 793
+   },
+   "code_chars": 3594,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import Counter\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    \n    idx = 0\n    n = int(data[idx]); idx += 1\n    \n    counts = Counter()\n    for i in range(n):\n        x = int(data[idx]); idx += 1\n        counts[x] += 1\n    "
+  },
+  {
+   "id": 29,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 24.2,
+   "usage": {
+    "completion_tokens": 183,
+    "prompt_tokens": 434
+   },
+   "code_chars": 537,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    if n < 3:\n        print(0)\n        return\n    adj = defaultdict(int)\n    idx = 1\n    for _ in range(n - 1):\n        a = int(data[idx])\n  "
+  },
+  {
+   "id": 30,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 41.4,
+   "usage": {
+    "completion_tokens": 312,
+    "prompt_tokens": 431
+   },
+   "code_chars": 1212,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    intervals = []\n    out = []\n    for _ in range(n):\n        t = int(next(it))\n        if t == 1:\n            x = int(next(it))\n            y = int(next(i"
+  }
+ ],
+ "note": "APPS test split; a problem counts only when every test case passes; graded by executing the model's program, not by reading it."
+}

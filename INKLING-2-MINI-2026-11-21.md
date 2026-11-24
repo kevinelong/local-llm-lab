@@ -666,6 +666,17 @@ cannot be separated from noise; it is recorded as an observation to test at n=30
 rating-based source (LiveCodeBench carries a Codeforces rating per problem) would make the ladder a real 50 %
 step; a tier label is not a difficulty unit.
 
+**The 30-problem run changes the level, and it is the number to quote:** on the same tier, `coder-27b` scores
+**21/30 = 70% (95% CI 52-83%)** in 30.0 min, where the eight-problem rung said 4/8 = 50%. Two runs on the same
+model and tier, differing only in sample size, and the smaller one was wrong by 20 points. **Eight problems cannot
+locate a level; thirty can and did.** Failures in the 30: eight wrong answers, one budget truncation, no timeouts,
+and six of the nine failures still passed some test cases - near misses rather than non-answers. Median time per
+problem 41 s, worst 325 s (the one truncated answer).
+
+So the ladder stands at: **27B at ~70% on interview-level problems, ~12% on competition-level** (that second number
+still at n=8 and therefore soft). That is the shape of the local coder on this card - competent at standard
+algorithmic tasks with a spec, collapses when the problem needs a non-obvious algorithm or numerical subtlety.
+
 Decode on this card is **~7 tok/s** for the 15 GB IQ4_XS 27B whether `num_ctx` is 32768 or 8192, so context is
 not the lever - partial offload is. That is why the same battery that takes 10 minutes on a fully-GPU 9B takes
 an hour here, and it is a routing fact in its own right.
