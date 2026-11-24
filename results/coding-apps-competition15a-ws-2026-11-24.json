@@ -1,0 +1,252 @@
+{
+ "model": "coder-27b-8k",
+ "tier": "competition",
+ "offset": 0,
+ "passed": 2,
+ "possible": 15,
+ "rate": 0.133,
+ "seconds": 2500.7,
+ "rows": [
+  {
+   "id": 1,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='seems legit' got='exit 1: SyntaxError: invalid syntax'; want='insufficient service' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 322.9,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 1018
+   },
+   "code_chars": 7592,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    e = int(data[idx]); idx += 1\n    entries = []\n    for _ in range(e):\n        y = int(data[idx]); idx += 1\n        m = int(data[idx]); idx += 1\n        o = int(data[idx]); idx += 1\n "
+  },
+  {
+   "id": 2,
+   "ok": false,
+   "cases": "0/5",
+   "how": "fenced",
+   "why": "want='3' got='1'; want='2' got='1'",
+   "finish": "stop",
+   "seconds": 36.0,
+   "usage": {
+    "completion_tokens": 286,
+    "prompt_tokens": 557
+   },
+   "code_chars": 935,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    adj = [[] for _ in range(n)]\n    for i in range(n):\n        while idx < len(data) and data[idx].isdigit():\n            v = int(data[idx]); idx += 1\n "
+  },
+  {
+   "id": 3,
+   "ok": false,
+   "cases": "2/5",
+   "how": "fenced",
+   "why": "want='2' got='1'; want='3' got='1'",
+   "finish": "stop",
+   "seconds": 86.3,
+   "usage": {
+    "completion_tokens": 697,
+    "prompt_tokens": 560
+   },
+   "code_chars": 2608,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    offers = []\n    for _ in range(n):\n        c = data[idx]; idx += 1\n        a = int(data[idx]); idx += 1\n        "
+  },
+  {
+   "id": 4,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 39.0,
+   "usage": {
+    "completion_tokens": 309,
+    "prompt_tokens": 661
+   },
+   "code_chars": 1045,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve(s):\n    n = len(s)\n    # dp[i][j] = minimal weight for substring s[i:j]\n    dp = [[0] * (n + 1) for _ in range(n + 1)]\n    \n    for length in range(1, n + 1):\n        for i in range(n - length + 1):\n            j = i + length\n            # Base: no factoring\n         "
+  },
+  {
+   "id": 5,
+   "ok": false,
+   "cases": "4/5",
+   "how": "fenced",
+   "why": "want='1' got='0'",
+   "finish": "stop",
+   "seconds": 61.1,
+   "usage": {
+    "completion_tokens": 490,
+    "prompt_tokens": 741
+   },
+   "code_chars": 1543,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef parse_program(lines):\n    ops = []\n    for line in lines:\n        line = line.strip()\n        if line == 'E':\n            break\n        parts = line.split()\n        if parts[0] == 'D':\n            ops.append(('D', int(parts[1])))\n        elif parts[0] == 'I':\n            op"
+  },
+  {
+   "id": 6,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='300' got='exit 1: SyntaxError: invalid syntax'; want='1900' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 317.4,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 792
+   },
+   "code_chars": 7317,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef solve():\n    line = sys.stdin.readline().split()\n    d = int(line[0])\n    b = int(line[1])\n    f = int(line[2])\n    t0 = int(line[3])\n    t1 = int(line[4])\n    t2 = int(line[5])\n\n    # State: (day, bling, fruits, t0, t1, t2)\n    # We use BFS/DF"
+  },
+  {
+   "id": 7,
+   "ok": false,
+   "cases": "3/5",
+   "how": "fenced",
+   "why": "want='2' got='1'; want='2' got='1'",
+   "finish": "stop",
+   "seconds": 51.8,
+   "usage": {
+    "completion_tokens": 396,
+    "prompt_tokens": 613
+   },
+   "code_chars": 1211,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    N = int(next(it))\n    K = int(next(it))\n    a = [int(next(it)) for _ in range(N)]\n    b = [int(next(it)) for _ in range(N)]\n\n    # Build DAG: edge i -> j if a_i + K < a_j or "
+  },
+  {
+   "id": 8,
+   "ok": false,
+   "cases": "1/5",
+   "how": "fenced",
+   "why": "want='28' got='0.0000000000'; want='36.2842712475' got='0.0000000000'",
+   "finish": "stop",
+   "seconds": 165.8,
+   "usage": {
+    "completion_tokens": 1278,
+    "prompt_tokens": 741
+   },
+   "code_chars": 5126,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nimport math\nfrom itertools import combinations\n\ndef dist(a, b):\n    return math.hypot(a[0] - b[0], a[1] - b[1])\n\ndef main():\n    data = sys.stdin.read().strip().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    lamps = []\n    for i in range"
+  },
+  {
+   "id": 9,
+   "ok": false,
+   "cases": "4/5",
+   "how": "fenced",
+   "why": "want='1' got='-1'",
+   "finish": "stop",
+   "seconds": 90.2,
+   "usage": {
+    "completion_tokens": 698,
+    "prompt_tokens": 498
+   },
+   "code_chars": 1774,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom math import gcd\n\ndef cross(a, b):\n    return a[0] * b[1] - a[1] * b[0]\n\ndef sub(a, b):\n    return (a[0] - b[0], a[1] - b[1])\n\ndef add(a, b):\n    return (a[0] + b[0], a[1] + b[1])\n\ndef mul(a, s):\n    return (a[0] * s, a[1] * s)\n\ndef div(a, s):\n    return (a[0] // s, a[1] // "
+  },
+  {
+   "id": 10,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 127.6,
+   "usage": {
+    "completion_tokens": 988,
+    "prompt_tokens": 381
+   },
+   "code_chars": 3952,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef is_hill(n):\n    s = str(n)\n    rising = True\n    for i in range(1, len(s)):\n        if s[i] > s[i - 1]:\n            if not rising:\n                return False\n        elif s[i] < s[i - 1]:\n            rising = False\n    return True\n\ndef count_hill(n):\n    s = str(n)\n    L "
+  },
+  {
+   "id": 11,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='6' got='exit 1: SyntaxError: invalid syntax'; want='2' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 329.4,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 1236
+   },
+   "code_chars": 8823,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\nMOD = 1000000007\n\ndef mat_mul(A, B):\n    n = len(A)\n    C = [[0] * n for _ in range(n)]\n    for i in range(n):\n        for j in range(n):\n            for k in range(n):\n                C[i][j] = (C[i][j] + A[i][k] * B[k][j]) % MOD\n    return C\n\ndef mat_pow(A, p):\n    n = len(A)"
+  },
+  {
+   "id": 12,
+   "ok": false,
+   "cases": "0/5",
+   "how": "fenced",
+   "why": "want='-1.26167861 3.88425357' got='-0.10429072 0.84066711'; want='9.21068947 2.56226688' got='0.18659725 0.08027319'",
+   "finish": "stop",
+   "seconds": 252.8,
+   "usage": {
+    "completion_tokens": 1936,
+    "prompt_tokens": 811
+   },
+   "code_chars": 6388,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nimport math\n\ndef solve():\n    line = sys.stdin.readline().strip()\n    if not line:\n        return\n    parts = line.split()\n    b = float(parts[0])\n    tx = float(parts[1])\n    ty = float(parts[2])\n\n    # Target in polar\n    tr = math.sqrt(tx * tx + ty * ty)\n    tphi = math.atan2"
+  },
+  {
+   "id": 13,
+   "ok": false,
+   "cases": "3/5",
+   "how": "fenced",
+   "why": "want='1\\n1' got='1\\n3'; want='1\\n2' got='0'",
+   "finish": "stop",
+   "seconds": 207.6,
+   "usage": {
+    "completion_tokens": 1599,
+    "prompt_tokens": 661
+   },
+   "code_chars": 5399,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict, deque\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    m = int(next(it))\n    edges = []\n    for i in range(m):\n        u = int(next(it))\n        v = int(next(it))\n "
+  },
+  {
+   "id": 14,
+   "ok": false,
+   "cases": "3/5",
+   "how": "fenced",
+   "why": "want='11' got='infinity'; want='2' got='infinity'",
+   "finish": "stop",
+   "seconds": 82.0,
+   "usage": {
+    "completion_tokens": 629,
+    "prompt_tokens": 811
+   },
+   "code_chars": 2111,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    n = int(input[idx]); idx += 1\n    m = int(input[idx]); idx += 1\n    s = int(input[idx]); idx += 1\n    t = int(input[idx]); idx += 1\n\n    adj = defaultdict(list)\n    for _ in ra"
+  },
+  {
+   "id": 15,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='6' got='exit 1: SyntaxError: invalid syntax'; want='0' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 327.4,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 824
+   },
+   "code_chars": 10134,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom math import factorial\nfrom functools import lru_cache\n\nMOD = 1000000007\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    counts = []\n    for i in range(n):\n        counts.append(int(data[idx]))"
+  }
+ ],
+ "note": "APPS test split; a problem counts only when every test case passes; graded by executing the model's program, not by reading it."
+}

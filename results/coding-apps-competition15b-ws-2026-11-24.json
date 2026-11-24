@@ -1,0 +1,252 @@
+{
+ "model": "coder-27b-8k",
+ "tier": "competition",
+ "offset": 15,
+ "passed": 4,
+ "possible": 15,
+ "rate": 0.267,
+ "seconds": 1594.4,
+ "rows": [
+  {
+   "id": 16,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 99.4,
+   "usage": {
+    "completion_tokens": 769,
+    "prompt_tokens": 384
+   },
+   "code_chars": 2810,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef count_with_substring(n, sub):\n    \"\"\"Count numbers in [0, n] whose decimal representation contains sub.\"\"\"\n    s = str(n)\n    m = len(s)\n    k = len(sub)\n    \n    # DP: count numbers of length L that do NOT contain sub\n    # Then subtract from total\n    # State: (position, "
+  },
+  {
+   "id": 17,
+   "ok": false,
+   "cases": "3/4",
+   "how": "fenced",
+   "why": "timeout",
+   "finish": "stop",
+   "seconds": 200.1,
+   "usage": {
+    "completion_tokens": 1550,
+    "prompt_tokens": 518
+   },
+   "code_chars": 5825,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom math import comb\n\ndef dice_ways(n, target):\n    \"\"\"Number of ways to roll 'target' with 'n' dice.\"\"\"\n    if n == 0:\n        return 1 if target == 0 else 0\n    total = 0\n    for face in range(1, 7):\n        if target - face >= 0:\n            total += dice_ways(n - 1, target "
+  },
+  {
+   "id": 18,
+   "ok": true,
+   "cases": "4/4",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 60.1,
+   "usage": {
+    "completion_tokens": 465,
+    "prompt_tokens": 515
+   },
+   "code_chars": 1448,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom math import gcd\n\ndef distinct_prime_factors(n):\n    count = 0\n    d = 2\n    while d * d <= n:\n        if n % d == 0:\n            count += 1\n            while n % d == 0:\n                n //= d\n        d += 1\n    if n > 1:\n        count += 1\n    return count\n\ndef solve():\n "
+  },
+  {
+   "id": 19,
+   "ok": true,
+   "cases": "4/4",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 210.6,
+   "usage": {
+    "completion_tokens": 1626,
+    "prompt_tokens": 663
+   },
+   "code_chars": 5808,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef carryless_add(a, b):\n    \"\"\"Carryless addition of two digit lists (least significant first).\"\"\"\n    result = []\n    max_len = max(len(a), len(b))\n    for i in range(max_len):\n        da = a[i] if i < len(a) else 0\n        db = b[i] if i < len(b) else 0\n        result.append"
+  },
+  {
+   "id": 20,
+   "ok": true,
+   "cases": "4/4",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 63.2,
+   "usage": {
+    "completion_tokens": 485,
+    "prompt_tokens": 712
+   },
+   "code_chars": 1668,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef main():\n    data = sys.stdin.read().splitlines()\n    if not data:\n        return\n    parts = data[0].split()\n    L = parts[0]\n    N = int(parts[1])\n    words = data[1:1+N]\n\n    # Determine the set of characters in the alphabet\n    chars = set()"
+  },
+  {
+   "id": 21,
+   "ok": false,
+   "cases": "3/4",
+   "how": "fenced",
+   "why": "want='164' got='575'",
+   "finish": "stop",
+   "seconds": 23.0,
+   "usage": {
+    "completion_tokens": 175,
+    "prompt_tokens": 428
+   },
+   "code_chars": 560,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    N = int(data[0])\n    A = int(data[1])\n    B = int(data[2])\n    C = int(data[3])\n    \n    total = A + B + C\n    max_cookies = max(A, B, C)\n    others = total - max_cookies\n    \n    # Each person"
+  },
+  {
+   "id": 22,
+   "ok": false,
+   "cases": "3/4",
+   "how": "fenced",
+   "why": "want='no' got='yes'",
+   "finish": "stop",
+   "seconds": 47.0,
+   "usage": {
+    "completion_tokens": 358,
+    "prompt_tokens": 745
+   },
+   "code_chars": 1186,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    m = int(next(it))\n    r = int(next(it))\n\n    candles = []\n    for _ in range(n):\n        x = int(next(it))\n        y"
+  },
+  {
+   "id": 23,
+   "ok": false,
+   "cases": "1/4",
+   "how": "fenced",
+   "why": "want='7' got='8'; want='1' got='2'",
+   "finish": "stop",
+   "seconds": 40.2,
+   "usage": {
+    "completion_tokens": 310,
+    "prompt_tokens": 368
+   },
+   "code_chars": 1254,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    s = sys.stdin.readline().strip()\n    n = len(s)\n    if n == 0:\n        print(0)\n        return\n    \n    # Greedy approach: try to match shortest prefixes with suffixes\n    # If prefix matches suffix, we can split there and continue\n    # Otherwise, we must incl"
+  },
+  {
+   "id": 24,
+   "ok": false,
+   "cases": "3/4",
+   "how": "fenced",
+   "why": "want='700' got='0'",
+   "finish": "stop",
+   "seconds": 108.5,
+   "usage": {
+    "completion_tokens": 837,
+    "prompt_tokens": 766
+   },
+   "code_chars": 3076,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    gold = [0] * (n + 1)\n    for i in range(3, n + 1):\n        gold[i] = int(data[idx]); i"
+  },
+  {
+   "id": 25,
+   "ok": false,
+   "cases": "2/4",
+   "how": "fenced",
+   "why": "want='1 4' got='1 3 2 4'; want='-1' got='2 1 4 3'",
+   "finish": "stop",
+   "seconds": 43.9,
+   "usage": {
+    "completion_tokens": 338,
+    "prompt_tokens": 377
+   },
+   "code_chars": 1061,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom bisect import bisect_left\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = list(map(int, data[1:n+1]))\n\n    # Compute LIS length ending at each index (left to right)\n    lis_left = [1] * n\n    tails = []\n    for "
+  },
+  {
+   "id": 26,
+   "ok": false,
+   "cases": "1/4",
+   "how": "fenced",
+   "why": "want='8' got='16'; want='5' got='10'",
+   "finish": "stop",
+   "seconds": 224.5,
+   "usage": {
+    "completion_tokens": 1727,
+    "prompt_tokens": 697
+   },
+   "code_chars": 7841,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().splitlines()\n    if not data:\n        return\n    n, m = map(int, data[0].split())\n    grid = []\n    for i in range(1, n + 1):\n        grid.append(data[i])\n\n    # Find all '#' positions\n    positions = []\n    for r in range(n):\n        fo"
+  },
+  {
+   "id": 27,
+   "ok": false,
+   "cases": "0/4",
+   "how": "fenced",
+   "why": "want='6\\n19 12 2 18 5 5' got='6\\n2 5 5 12 18 19'; want='13\\n4 2 6 1 9 7 5 5 7 1 2 3 3' got='13\\n1 1 2 2 3 3 4 5 5 6 7 7 9'",
+   "finish": "stop",
+   "seconds": 277.2,
+   "usage": {
+    "completion_tokens": 2137,
+    "prompt_tokens": 572
+   },
+   "code_chars": 6280,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    p = int(data[idx]); idx += 1\n    \n    board = []\n    for i in range(n):\n        row ="
+  },
+  {
+   "id": 28,
+   "ok": false,
+   "cases": "2/4",
+   "how": "fenced",
+   "why": "want='5 1' got='2 4'; want='3 2' got='2 2'",
+   "finish": "stop",
+   "seconds": 61.2,
+   "usage": {
+    "completion_tokens": 470,
+    "prompt_tokens": 607
+   },
+   "code_chars": 1332,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nsys.setrecursionlimit(2000000)\n\ndef main():\n    data = sys.stdin.read().split()\n    idx = 0\n    n = int(data[idx]); idx += 1\n    labels = [0] * (n + 1)\n    for i in range(1, n + 1):\n        labels[i] = int(data[idx]); idx += 1\n    parent = [0] * (n + 1)\n    for i in range(2, n +"
+  },
+  {
+   "id": 29,
+   "ok": false,
+   "cases": "2/4",
+   "how": "fenced",
+   "why": "want='5' got='2'; want='7' got='2'",
+   "finish": "stop",
+   "seconds": 43.0,
+   "usage": {
+    "completion_tokens": 329,
+    "prompt_tokens": 605
+   },
+   "code_chars": 1107,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    n = int(input[idx]); idx += 1\n    \n    values = [0] * (n + 1)\n    parent = [0] * (n + 1)\n    children = defaultdict(list)\n    \n    for i in range(1, n + 1):\n        v = int(inp"
+  },
+  {
+   "id": 30,
+   "ok": false,
+   "cases": "2/4",
+   "how": "fenced",
+   "why": "want='0' got='4\\n1\\n4\\n5\\n7'; want='5\\n1\\n2\\n3\\n6\\n7' got='7\\n1\\n2\\n3\\n6\\n7\\n8\\n9'",
+   "finish": "stop",
+   "seconds": 83.8,
+   "usage": {
+    "completion_tokens": 644,
+    "prompt_tokens": 820
+   },
+   "code_chars": 2263,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    n = int(input[idx]); idx += 1\n    \n    if n == 1:\n        print(1)\n        print(1)\n        return\n    \n    adj = defaultdict(list)\n    for _ in range(n - 1):\n        a = int(i"
+  }
+ ],
+ "note": "APPS test split; a problem counts only when every test case passes; graded by executing the model's program, not by reading it."
+}

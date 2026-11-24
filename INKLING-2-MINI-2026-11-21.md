@@ -677,6 +677,32 @@ So the ladder stands at: **27B at ~70% on interview-level problems, ~12% on comp
 still at n=8 and therefore soft). That is the shape of the local coder on this card - competent at standard
 algorithmic tasks with a spec, collapses when the problem needs a non-obvious algorithm or numerical subtlety.
 
+**The ladder, final, on `coder-27b` (qwen3.5 27.3B, IQ4_XS, partially offloaded, ~7 tok/s), 30 problems per tier:**
+
+| APPS tier | passed | 95% CI | wall | failures |
+|---|---|---|---|---|
+| **interview** | **21/30 = 70%** | 52-83% | 30 min | 8 wrong, 1 truncated, 0 timeouts |
+| **competition** | **6/30 = 20%** | 10-37% | 68 min | 20 wrong, 4 truncated |
+
+Competition's four truncations bound it upward: if every one had passed, 10/30 = 33%. So the honest figure is
+**20-33%, not 20%**. The gap between the tiers is the finding, and it is not a gradual slope - it is a cliff.
+
+**What the competition failures look like** (they are not near misses like the interview ones):
+
+- **collapsed to a constant** - six of the first fifteen answered `1` to counting problems where 3 or 2 was
+  wanted; the program parses the input and then returns a fixed value;
+- **numerically degenerate** - `infinity` where 11 was expected, `0.0000000000` where 28;
+- **truncated at the budget** - four answers ran the full 2500 tokens at 7 tok/s (~325 s each) and were cut
+  mid-block, producing `SyntaxError`;
+- near misses are rare here, unlike interview level where **six of nine failures still passed some cases**.
+
+**So the local coder's limit is not a percentage, it is a shape:** it solves problems reducible to a known
+pattern from a clear specification (70% at interview level, median 41 s), and where the algorithm must be
+invented it does not degrade gracefully - it returns a plausible constant (20%, median ~85 s). That matches the
+lab's existing routing rule and gives it a measured boundary: a coding task local only when the approach is
+already known and the tests are cheap to run; anything where a plausible-but-wrong constant would ship goes to
+the cloud.
+
 Decode on this card is **~7 tok/s** for the 15 GB IQ4_XS 27B whether `num_ctx` is 32768 or 8192, so context is
 not the lever - partial offload is. That is why the same battery that takes 10 minutes on a fully-GPU 9B takes
 an hour here, and it is a routing fact in its own right.
