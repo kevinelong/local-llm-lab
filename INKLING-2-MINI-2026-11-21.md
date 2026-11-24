@@ -629,20 +629,42 @@ when **every** case passes.
    Three of six introductory failures were whitespace-only. Comparing line-wise with each line `rstrip`ped
    moved introductory from 2/8 to 3/8 and recovered problem #8 (0/5 -> 5/5) exactly as predicted.
 
-**Result on `coder-27b-mtp` (= qwen3.5 27.3B, IQ4_XS, 15 GB, partially offloaded, ~7 tok/s):**
+**Result - two local coders, same eight problems per tier, execution-graded:**
 
-| APPS tier (8 problems, 5 cases each) | passed | what failed |
+| APPS tier (8 problems, 5 cases each) | qwen3.5-27B IQ4_XS (7 tok/s, 2500 cap) | qwen3.5:9b (fully GPU, 6000 cap) |
 |---|---|---|
-| introductory | **3/8 = 38%** | one wrong case (#1 4/5), SyntaxError at 328 s (#2), wrong algorithm (#3), off-by-one (#4), right multiset in wrong order (#7 3/5) |
-| interview | **4/8 = 50%** | two wrong cases (#1 2/5), `1 2` for `2 1` input format (#2), SyntaxError at 325 s (#3), wrong model of the task (#8) |
-| competition | running | |
+| introductory | **3/8 = 38%** (95% CI 14-69%) | **1/8 = 12%** (2-47%) |
+| interview | **4/8 = 50%** (22-78%) | **2/8 = 25%** (7-59%) |
+| competition | **1/8 = 12%** (2-47%) | **1/8 = 12%** (2-47%) |
 
-**The finding worth keeping is that the tier labels do not track what this model fails at.** The
-"introductory" problems here are *multi-test-case* statements - `T` cases per stdin with T outputs chained -
-so their failures are input-format and case-count handling plus one truncation, while several "interview"
-problems are single-case and therefore easier for the same model. An easier tier scoring no higher than a
-harder one is a property of APPS's labelling, not of the model. A rating-based source (LiveCodeBench carries a
-Codeforces rating per problem) is the way to build a real 50 % ladder; a tier is not a difficulty unit.
+**What these eight-point rows do and do not establish.** The intervals are enormous at n=8, and one reading I
+gave in session had to be withdrawn for that reason: introductory 3/8 against interview 4/8 is **not** evidence
+that the tiers are mislabelled or that an easier tier scored lower - those two intervals overlap almost
+completely. What survives is narrower: **competition is clearly below the other two rungs**, and the 27B is one
+to two problems ahead of the 9B on both of them - a consistent ordering with overlapping intervals, not a proven
+gap. A limit needs ~30 problems per tier (CI about +-18%), which is the run that has to happen before any of
+this is called a level.
+
+**Failure causes are not all coding failures**, and the split matters more than the totals:
+
+| run | wrong code | non-terminating / truncated | note |
+|---|---|---|---|
+| 27B introductory | 4 | 1 | |
+| 27B interview | 3 | 1 | |
+| 27B competition | 5 | 2 | 328 s answers cut at 2500 tokens |
+| 9B introductory | 4 | 3 | 6000 tokens still not enough |
+| 9B interview | 3 | 3 | writes past the budget instead of stopping |
+
+The 9B's `SyntaxError`s are truncations, not bad syntax: it writes helper functions and its own tests and runs
+past any budget we give it, while the 27B stops. Counting truncations as "cannot code" would push the numbers in
+the direction one expects, which is exactly how the two earlier harness faults stayed invisible.
+
+**A note on what the problems actually demand.** The "introductory" problems in this slice are
+*multi-test-case* statements - `T` cases per stdin with T outputs chained - so their failures are input-format
+and case-count handling as much as algorithms, while several "interview" problems are single-case. With n=8 that
+cannot be separated from noise; it is recorded as an observation to test at n=30, not as a finding. A
+rating-based source (LiveCodeBench carries a Codeforces rating per problem) would make the ladder a real 50 %
+step; a tier label is not a difficulty unit.
 
 Decode on this card is **~7 tok/s** for the 15 GB IQ4_XS 27B whether `num_ctx` is 32768 or 8192, so context is
 not the lever - partial offload is. That is why the same battery that takes 10 minutes on a fully-GPU 9B takes

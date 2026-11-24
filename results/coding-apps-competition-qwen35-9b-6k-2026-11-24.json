@@ -1,0 +1,140 @@
+{
+ "model": "qwen3.5:9b",
+ "tier": "competition",
+ "offset": 0,
+ "passed": 1,
+ "possible": 8,
+ "rate": 0.125,
+ "seconds": 455.3,
+ "rows": [
+  {
+   "id": 1,
+   "ok": false,
+   "cases": "2/5",
+   "how": "fenced",
+   "why": "want='insufficient service' got='seems legit'; want='seems legit' got='tampered odometer'",
+   "finish": "stop",
+   "seconds": 33.9,
+   "usage": {
+    "completion_tokens": 3045,
+    "prompt_tokens": 1018
+   },
+   "code_chars": 11314,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom datetime import date, timedelta\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        e = int(next(iterator))\n    except StopIteration:\n        return\n\n    entries = []\n    for _ i"
+  },
+  {
+   "id": 2,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 21.1,
+   "usage": {
+    "completion_tokens": 1896,
+    "prompt_tokens": 557
+   },
+   "code_chars": 7212,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    \n    try:\n        N = int(next(iterator))\n    except StopIteration:\n        return\n        \n    adj = [[] for _ in"
+  },
+  {
+   "id": 3,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='2' got='exit 1: SyntaxError: invalid syntax'; want='3' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 66.9,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 560
+   },
+   "code_chars": 21409,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        N = int(next(iterator))\n    except StopIteration:\n        return\n\n    offers = []\n    for _ in range(N):\n        color = next(itera"
+  },
+  {
+   "id": 4,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='6' got='exit 1: SyntaxError: invalid syntax'; want='1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 66.9,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 661
+   },
+   "code_chars": 18216,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve(s):\n    n = len(s)\n    # dp[i] will store the minimum weight for suffix s[i:]\n    # We compute this using dynamic programming from right to left.\n    \n    # To efficiently check if a substring s[j:i] is a repetition of some pattern,\n    # we can use string matching or"
+  },
+  {
+   "id": 5,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='0' got='exit 1: SyntaxError: invalid syntax'; want='1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 67.1,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 741
+   },
+   "code_chars": 24078,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    # Read all input from stdin\n    lines = sys.stdin.read().splitlines()\n    \n    def parse_program(lines):\n        ops = []\n        i = 0\n        while i < len(lines):\n            line = lines[i].strip()\n            if not line:\n                i += 1\n           "
+  },
+  {
+   "id": 6,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='300' got='exit 1: SyntaxError: invalid syntax'; want='1900' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 67.2,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 792
+   },
+   "code_chars": 21957,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    # Read input from stdin\n    line = sys.stdin.read().strip()\n    if not line:\n        return\n    \n    d, b, f, t0, t1, t2 = map(int, line.split())\n    \n    # State variables\n    # days_remaining: number of days left to play\n    # bling: current amount of Bling\n "
+  },
+  {
+   "id": 7,
+   "ok": false,
+   "cases": "4/5",
+   "how": "fenced",
+   "why": "want='1' got='2'",
+   "finish": "stop",
+   "seconds": 63.3,
+   "usage": {
+    "completion_tokens": 5679,
+    "prompt_tokens": 613
+   },
+   "code_chars": 17785,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    N = int(data[0])\n    K = int(data[1])\n    \n    a = [int(data[i + 2]) for i in range(N)]\n    b = [int(data[i + 2 + N]) for i in range(N)]\n    \n    # We need to find t"
+  },
+  {
+   "id": 8,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='28' got='exit 1: SyntaxError: invalid syntax'; want='36.2842712475' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 67.3,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 741
+   },
+   "code_chars": 22097,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nimport math\nfrom itertools import combinations\n\ndef solve():\n    input_data = sys.stdin.read().split()\n    if not input_data:\n        return\n    \n    iterator = iter(input_data)\n    try:\n        N = int(next(iterator))\n        lamps = []\n        for _ in range(N):\n            x "
+  }
+ ],
+ "note": "APPS test split; a problem counts only when every test case passes; graded by executing the model's program, not by reading it."
+}
