@@ -1,0 +1,141 @@
+{
+ "model": "coder-27b-mtp",
+ "tier": "interview",
+ "offset": 0,
+ "passed": 2,
+ "possible": 8,
+ "rate": 0.25,
+ "seconds": 3033.2,
+ "rows": [
+  {
+   "id": 1,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "mismatch want='NO\\nYES\\nNO\\nYES\\nYES' got='exit 1: SyntaxError: inv'; mismatch want='NO\\nYES\\nNO\\nYES' got='exit 1: SyntaxError: inv'",
+   "finish": "length",
+   "seconds": 438.2,
+   "usage": {
+    "prompt_tokens": 1076,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    },
+    "completion_tokens": 3000,
+    "total_tokens": 4076
+   },
+   "code_chars": 885
+  },
+  {
+   "id": 2,
+   "ok": false,
+   "why": "no code found",
+   "finish": "length",
+   "seconds": 437.6,
+   "usage": {
+    "prompt_tokens": 680,
+    "prompt_tokens_details": {
+     "cached_tokens": 83
+    },
+    "completion_tokens": 3000,
+    "total_tokens": 3680
+   }
+  },
+  {
+   "id": 3,
+   "ok": false,
+   "why": "no code found",
+   "finish": "length",
+   "seconds": 436.7,
+   "usage": {
+    "prompt_tokens": 451,
+    "prompt_tokens_details": {
+     "cached_tokens": 83
+    },
+    "completion_tokens": 3000,
+    "total_tokens": 3451
+   }
+  },
+  {
+   "id": 4,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 322.7,
+   "usage": {
+    "prompt_tokens": 699,
+    "prompt_tokens_details": {
+     "cached_tokens": 83
+    },
+    "completion_tokens": 2214,
+    "total_tokens": 2913
+   },
+   "code_chars": 925
+  },
+  {
+   "id": 5,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 85.0,
+   "usage": {
+    "prompt_tokens": 551,
+    "prompt_tokens_details": {
+     "cached_tokens": 83
+    },
+    "completion_tokens": 591,
+    "total_tokens": 1142
+   },
+   "code_chars": 447
+  },
+  {
+   "id": 6,
+   "ok": false,
+   "why": "no code found",
+   "finish": "length",
+   "seconds": 435.2,
+   "usage": {
+    "prompt_tokens": 472,
+    "prompt_tokens_details": {
+     "cached_tokens": 83
+    },
+    "completion_tokens": 3000,
+    "total_tokens": 3472
+   }
+  },
+  {
+   "id": 7,
+   "ok": false,
+   "why": "no code found",
+   "finish": "length",
+   "seconds": 438.3,
+   "usage": {
+    "prompt_tokens": 954,
+    "prompt_tokens_details": {
+     "cached_tokens": 83
+    },
+    "completion_tokens": 3000,
+    "total_tokens": 3954
+   }
+  },
+  {
+   "id": 8,
+   "ok": false,
+   "why": "no code found",
+   "finish": "length",
+   "seconds": 438.9,
+   "usage": {
+    "prompt_tokens": 990,
+    "prompt_tokens_details": {
+     "cached_tokens": 83
+    },
+    "completion_tokens": 3000,
+    "total_tokens": 3990
+   }
+  }
+ ],
+ "note": "APPS test split; a problem counts only when every test case passes; graded by executing the model's program, not by reading it."
+}
