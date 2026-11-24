@@ -471,3 +471,37 @@ anyway and a small budget is spent entirely on it. Anything driving this model n
 ~96 tokens produce all-`?` output; that did **not** reproduce here - the long prompt answered correctly once and
 returned empty once, which is a budget/thinking effect rather than the reported one, and worth re-testing when the
 architecture settles.
+
+### Cross-engine, 2026-11-23: Colibri v2.2.0 on our own file
+
+`JustVugg/colibri` v2.2.0 (released 2026-11-22) advertised support for this model from unsloth's GGUFs, including
+**`UD-IQ2_XXS` - the exact file this lab stages**. It is the first second engine that needs no conversion and no source
+build: a `windows-x86_64-cuda.zip` overlay (70 MB, sha256 verified against `SHA256SUMS.txt`) on the 22.6 MB main
+archive, `coli import` our GGUF, `coli doctor` (all checks ok, one `placement.plan` warning: *VRAM tier clamped*), then
+`coli serve` on a spare port.
+
+| | engine / path | generation tok/s | ten-task battery | aggregation at 8K (5 reps, 4,096 budget) |
+|---|---|---|---|---|
+| **llama.cpp `b12611`, CUDA 13.5** | CUDA | **67.4** | **30/30** | 1/5 |
+| Colibri v2.2.0 | **Vulkan** (its own choice) | 23.5 | 24/30 | **2/5** |
+| Colibri v2.2.0 | CUDA (`COLI_VULKAN=0`) | **17.4** | - | - |
+
+Same prompt, same 400-token budget, same model file, one engine loaded at a time.
+
+**Three results worth keeping:**
+
+1. **llama.cpp is 2.9x Colibri on its Vulkan path and 3.9x on its CUDA path** - for this file, on this card. Colibri
+   streams MoE experts into a 6.3-6.6 GiB tier (2,804-2,901 experts) and runs the dense part beside it, a different
+   design from llama.cpp's full offload; it is slower here, and its published 40.9 tok/s is at UD-Q4_K_XL on a 24 GB
+   RTX PRO 4000, not at IQ2_XXS on 12 GB.
+2. **Colibri's CUDA path is slower than its Vulkan path** (17.4 vs 23.5), which is presumably why the engine routes
+   Inkling-2 to Vulkan even in the CUDA build - worth knowing before anyone "fixes" it with `COLI_VULKAN=0`.
+3. **The same weights lose two length constraints on the other engine.** 24/30: `exactly_five_words` returns six words
+   ("soft silver curtains falling gently down", every run) and `summary_20` 23-25 against a limit of 20, while every
+   checkable item - the arithmetic trap, the JSON shape, the executed `is_prime`, the needle, the refusal - is 3/3.
+   Identical file, identical items, 30/30 on llama.cpp. So on this model, instruction compliance is an **engine and
+   prompt-template** property, not a weight property, and a score is only comparable within one engine.
+
+Practical notes: Colibri requires the `model` field on every request (without it: `The model None does not exist`), it
+picked up the vision tower from `mmproj-F16.gguf` automatically, and `coli stop` did not free port 8090 - a `python.exe`
+still held it, so the port had to be cleared by hand before restarting.
