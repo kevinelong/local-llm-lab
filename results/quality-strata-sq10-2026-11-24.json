@@ -1,0 +1,396 @@
+{
+ "label": "strata-sq10",
+ "model": "inkling-2-mini-sq-10",
+ "base_url": "http://127.0.0.1:8082",
+ "runs": 3,
+ "max_tokens": 2048,
+ "temperature": 0.0,
+ "seed": 0,
+ "per_task": {
+  "bat_ball": [
+   1,
+   1,
+   1
+  ],
+  "planets": [
+   1,
+   1,
+   1
+  ],
+  "extract_count": [
+   1,
+   1,
+   1
+  ],
+  "json_shape": [
+   1,
+   1,
+   1
+  ],
+  "exactly_five_words": [
+   1,
+   1,
+   1
+  ],
+  "code_is_prime": [
+   1,
+   1,
+   1
+  ],
+  "needle": [
+   1,
+   1,
+   1
+  ],
+  "count_letters": [
+   1,
+   1,
+   1
+  ],
+  "no_invention": [
+   0,
+   0,
+   0
+  ],
+  "summary_20": [
+   0,
+   0,
+   0
+  ]
+ },
+ "passed": 24,
+ "possible": 30,
+ "rate": 0.8,
+ "rows": [
+  {
+   "task": "bat_ball",
+   "run": 1,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 1.0,
+   "prompt": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost? Answer with the amount only.",
+   "content": "$0.05\n",
+   "reasoning": ""
+  },
+  {
+   "task": "bat_ball",
+   "run": 2,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 0.28,
+   "prompt": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost? Answer with the amount only.",
+   "content": "$0.05\n",
+   "reasoning": ""
+  },
+  {
+   "task": "bat_ball",
+   "run": 3,
+   "ok": true,
+   "why": "0.05",
+   "finish": "stop",
+   "seconds": 0.28,
+   "prompt": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost? Answer with the amount only.",
+   "content": "$0.05\n",
+   "reasoning": ""
+  },
+  {
+   "task": "planets",
+   "run": 1,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 1.85,
+   "prompt": "List the eight planets of the solar system in order from the Sun, one per line, nothing else.",
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning": ""
+  },
+  {
+   "task": "planets",
+   "run": 2,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 0.77,
+   "prompt": "List the eight planets of the solar system in order from the Sun, one per line, nothing else.",
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning": ""
+  },
+  {
+   "task": "planets",
+   "run": 3,
+   "ok": true,
+   "why": "eight planets in order",
+   "finish": "stop",
+   "seconds": 0.78,
+   "prompt": "List the eight planets of the solar system in order from the Sun, one per line, nothing else.",
+   "content": "Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune",
+   "reasoning": ""
+  },
+  {
+   "task": "extract_count",
+   "run": 1,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 0.94,
+   "prompt": "The night ferry left Ardmore at 06:40 with twelve crates of seed potatoes aboard. The manifest was signed by the harbourmaster, Ifeanyi Okafor, who noted a tide of 2.4 metres and a swell running from the south-west. The crossing took ninety minutes, and the crates were unloaded at Kilronan before the market opened.\n\nHow many crates were aboard the ferry? Answer with the number only.",
+   "content": "12",
+   "reasoning": ""
+  },
+  {
+   "task": "extract_count",
+   "run": 2,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 0.14,
+   "prompt": "The night ferry left Ardmore at 06:40 with twelve crates of seed potatoes aboard. The manifest was signed by the harbourmaster, Ifeanyi Okafor, who noted a tide of 2.4 metres and a swell running from the south-west. The crossing took ninety minutes, and the crates were unloaded at Kilronan before the market opened.\n\nHow many crates were aboard the ferry? Answer with the number only.",
+   "content": "12",
+   "reasoning": ""
+  },
+  {
+   "task": "extract_count",
+   "run": 3,
+   "ok": true,
+   "why": "found 12",
+   "finish": "stop",
+   "seconds": 0.14,
+   "prompt": "The night ferry left Ardmore at 06:40 with twelve crates of seed potatoes aboard. The manifest was signed by the harbourmaster, Ifeanyi Okafor, who noted a tide of 2.4 metres and a swell running from the south-west. The crossing took ninety minutes, and the crates were unloaded at Kilronan before the market opened.\n\nHow many crates were aboard the ferry? Answer with the number only.",
+   "content": "12",
+   "reasoning": ""
+  },
+  {
+   "task": "json_shape",
+   "run": 1,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 2.74,
+   "prompt": "Reply with only a JSON object and nothing else: key \"n\" set to the number 3, and key \"items\" set to a list of three lowercase English words.",
+   "content": "{\"n\": 3, \"items\": [\"apple\", \"table\", \"river\"]}",
+   "reasoning": ""
+  },
+  {
+   "task": "json_shape",
+   "run": 2,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 1.89,
+   "prompt": "Reply with only a JSON object and nothing else: key \"n\" set to the number 3, and key \"items\" set to a list of three lowercase English words.",
+   "content": "{\"n\": 3, \"items\": [\"apple\", \"table\", \"river\"]}",
+   "reasoning": ""
+  },
+  {
+   "task": "json_shape",
+   "run": 3,
+   "ok": true,
+   "why": "valid shape",
+   "finish": "stop",
+   "seconds": 1.95,
+   "prompt": "Reply with only a JSON object and nothing else: key \"n\" set to the number 3, and key \"items\" set to a list of three lowercase English words.",
+   "content": "{\"n\": 3, \"items\": [\"apple\", \"table\", \"river\"]}",
+   "reasoning": ""
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 1,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 1.2,
+   "prompt": "Describe rain in exactly five words. No punctuation, no explanation.",
+   "content": "soft drops falling gently down",
+   "reasoning": ""
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 2,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 0.46,
+   "prompt": "Describe rain in exactly five words. No punctuation, no explanation.",
+   "content": "soft drops falling gently down",
+   "reasoning": ""
+  },
+  {
+   "task": "exactly_five_words",
+   "run": 3,
+   "ok": true,
+   "why": "5 words",
+   "finish": "stop",
+   "seconds": 0.45,
+   "prompt": "Describe rain in exactly five words. No punctuation, no explanation.",
+   "content": "soft drops falling gently down",
+   "reasoning": ""
+  },
+  {
+   "task": "code_is_prime",
+   "run": 1,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 7.77,
+   "prompt": "Write a Python function is_prime(n) that returns True when n is prime. Reply with only one fenced code block containing the function.",
+   "content": "```python\ndef is_prime(n):\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n ** 0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning": ""
+  },
+  {
+   "task": "code_is_prime",
+   "run": 2,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 7.16,
+   "prompt": "Write a Python function is_prime(n) that returns True when n is prime. Reply with only one fenced code block containing the function.",
+   "content": "```python\ndef is_prime(n):\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n ** 0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning": ""
+  },
+  {
+   "task": "code_is_prime",
+   "run": 3,
+   "ok": true,
+   "why": "all nine cases",
+   "finish": "stop",
+   "seconds": 7.12,
+   "prompt": "Write a Python function is_prime(n) that returns True when n is prime. Reply with only one fenced code block containing the function.",
+   "content": "```python\ndef is_prime(n):\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n ** 0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n```",
+   "reasoning": ""
+  },
+  {
+   "task": "needle",
+   "run": 1,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 1.83,
+   "prompt": "The archive room had been closed since the flood, and the clerks worked from a temporary office above the chandlery. Boxes stood three deep against the wall, each labelled in a hand that had long since stopped being legible to anyone but its owner. The catalogue was typed on a machine that had lost its capital E, so every heading read as though it had been whispered. Visitors were asked not to touch the ledgers without gloves, and not to linger in the aisles after four, when the light came through the western windows and made the dust look like weather. The custodian's access code was Azure-4471, changed every quarter and written on nothing. In practice the code was shared over the telephone, and the custodian had twice been reminded that this was not procedure. The room itself was unremarkable: a radiator, six shelves, a chair with one arm, and a window that never quite shut. The clerks agreed the archive was less an institution than a habit, and the habit was to leave the door locked and the light on.\n\nWhat was the custodian's access code? Answer with the code only.",
+   "content": "Azure-4471",
+   "reasoning": ""
+  },
+  {
+   "task": "needle",
+   "run": 2,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 0.34,
+   "prompt": "The archive room had been closed since the flood, and the clerks worked from a temporary office above the chandlery. Boxes stood three deep against the wall, each labelled in a hand that had long since stopped being legible to anyone but its owner. The catalogue was typed on a machine that had lost its capital E, so every heading read as though it had been whispered. Visitors were asked not to touch the ledgers without gloves, and not to linger in the aisles after four, when the light came through the western windows and made the dust look like weather. The custodian's access code was Azure-4471, changed every quarter and written on nothing. In practice the code was shared over the telephone, and the custodian had twice been reminded that this was not procedure. The room itself was unremarkable: a radiator, six shelves, a chair with one arm, and a window that never quite shut. The clerks agreed the archive was less an institution than a habit, and the habit was to leave the door locked and the light on.\n\nWhat was the custodian's access code? Answer with the code only.",
+   "content": "Azure-4471",
+   "reasoning": ""
+  },
+  {
+   "task": "needle",
+   "run": 3,
+   "ok": true,
+   "why": "found Azure-4471",
+   "finish": "stop",
+   "seconds": 0.36,
+   "prompt": "The archive room had been closed since the flood, and the clerks worked from a temporary office above the chandlery. Boxes stood three deep against the wall, each labelled in a hand that had long since stopped being legible to anyone but its owner. The catalogue was typed on a machine that had lost its capital E, so every heading read as though it had been whispered. Visitors were asked not to touch the ledgers without gloves, and not to linger in the aisles after four, when the light came through the western windows and made the dust look like weather. The custodian's access code was Azure-4471, changed every quarter and written on nothing. In practice the code was shared over the telephone, and the custodian had twice been reminded that this was not procedure. The room itself was unremarkable: a radiator, six shelves, a chair with one arm, and a window that never quite shut. The clerks agreed the archive was less an institution than a habit, and the habit was to leave the door locked and the light on.\n\nWhat was the custodian's access code? Answer with the code only.",
+   "content": "Azure-4471",
+   "reasoning": ""
+  },
+  {
+   "task": "count_letters",
+   "run": 1,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 0.81,
+   "prompt": "How many times does the letter r appear in the word strawberry? Answer with the number only.",
+   "content": "3\n",
+   "reasoning": ""
+  },
+  {
+   "task": "count_letters",
+   "run": 2,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 0.23,
+   "prompt": "How many times does the letter r appear in the word strawberry? Answer with the number only.",
+   "content": "3\n",
+   "reasoning": ""
+  },
+  {
+   "task": "count_letters",
+   "run": 3,
+   "ok": true,
+   "why": "found 3",
+   "finish": "stop",
+   "seconds": 0.24,
+   "prompt": "How many times does the letter r appear in the word strawberry? Answer with the number only.",
+   "content": "3\n",
+   "reasoning": ""
+  },
+  {
+   "task": "no_invention",
+   "run": 1,
+   "ok": false,
+   "why": "invented a year: the first crewed landing on the moon of the exoplanet kepler-9d took place in 20",
+   "finish": "stop",
+   "seconds": 2.32,
+   "prompt": "In which year did the first crewed landing on the moon of the exoplanet Kepler-9d take place? Answer in one short sentence.",
+   "content": "The first crewed landing on the moon of the exoplanet Kepler-9d took place in 2021.",
+   "reasoning": ""
+  },
+  {
+   "task": "no_invention",
+   "run": 2,
+   "ok": false,
+   "why": "invented a year: the first crewed landing on the moon of the exoplanet kepler-9d took place in 20",
+   "finish": "stop",
+   "seconds": 1.09,
+   "prompt": "In which year did the first crewed landing on the moon of the exoplanet Kepler-9d take place? Answer in one short sentence.",
+   "content": "The first crewed landing on the moon of the exoplanet Kepler-9d took place in 2021.",
+   "reasoning": ""
+  },
+  {
+   "task": "no_invention",
+   "run": 3,
+   "ok": false,
+   "why": "invented a year: the first crewed landing on the moon of the exoplanet kepler-9d took place in 20",
+   "finish": "stop",
+   "seconds": 1.08,
+   "prompt": "In which year did the first crewed landing on the moon of the exoplanet Kepler-9d take place? Answer in one short sentence.",
+   "content": "The first crewed landing on the moon of the exoplanet Kepler-9d took place in 2021.",
+   "reasoning": ""
+  },
+  {
+   "task": "summary_20",
+   "run": 1,
+   "ok": false,
+   "why": "28 words (over 20 or empty)",
+   "finish": "stop",
+   "seconds": 4.0,
+   "prompt": "The village council voted on Tuesday to rebuild the old pier with stone rather than timber, a decision that reversed its own ruling from the previous spring. Supporters argued the stone would outlast three generations of ratepayers; opponents said the cost would fall on the fishermen who used the pier daily and could least afford it. The works are due to begin after the herring season, subject to a survey that has not yet been commissioned.\n\nSummarise the passage in at most twenty words.",
+   "content": "The council reversed its spring ruling to rebuild the pier with stone, citing longevity, while opponents warned of costs to fishermen. Works begin after herring season, pending survey.",
+   "reasoning": ""
+  },
+  {
+   "task": "summary_20",
+   "run": 2,
+   "ok": false,
+   "why": "28 words (over 20 or empty)",
+   "finish": "stop",
+   "seconds": 2.97,
+   "prompt": "The village council voted on Tuesday to rebuild the old pier with stone rather than timber, a decision that reversed its own ruling from the previous spring. Supporters argued the stone would outlast three generations of ratepayers; opponents said the cost would fall on the fishermen who used the pier daily and could least afford it. The works are due to begin after the herring season, subject to a survey that has not yet been commissioned.\n\nSummarise the passage in at most twenty words.",
+   "content": "The council reversed its spring ruling to rebuild the pier with stone, citing longevity, while opponents warned of costs to fishermen. Works begin after herring season, pending survey.",
+   "reasoning": ""
+  },
+  {
+   "task": "summary_20",
+   "run": 3,
+   "ok": false,
+   "why": "28 words (over 20 or empty)",
+   "finish": "stop",
+   "seconds": 2.98,
+   "prompt": "The village council voted on Tuesday to rebuild the old pier with stone rather than timber, a decision that reversed its own ruling from the previous spring. Supporters argued the stone would outlast three generations of ratepayers; opponents said the cost would fall on the fishermen who used the pier daily and could least afford it. The works are due to begin after the herring season, subject to a survey that has not yet been commissioned.\n\nSummarise the passage in at most twenty words.",
+   "content": "The council reversed its spring ruling to rebuild the pier with stone, citing longevity, while opponents warned of costs to fishermen. Works begin after herring season, pending survey.",
+   "reasoning": ""
+  }
+ ]
+}

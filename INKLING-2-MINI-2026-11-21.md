@@ -562,3 +562,49 @@ publisher claim about *agent* tasks and is not what this suite tests; it should 
    target drive afterwards, not before.
 2. **Multi-file `hf download` silently ignores `--include`** and then dies with *"Cannot send a request, as the client
    has been closed"* - one file per invocation works. Both symptoms are the same bug in a different disguise.
+
+### Strata, 2026-11-24: the standing claim was wrong, and their own pack fabricates
+
+The lab has carried **"Strata: no evidence `inkling2_loop` support in any version we track"** since 2026-11-21.
+That is now false, and the correction matters more than the numbers.
+
+Installed `Niko1221/Strata` v0.2.20 (2026-11-22): the **engine** `strata-engine-0.1.66-windows-x86_64-cuda-cuda13.tar.gz`
+(494,695,625 B, sha256 verified, `BUILD.json` commit `2e87c08db18a`, archs 75/86/89/120) and the **Control /
+Terminal** `strata-control-0.1.66-windows-x86_64.zip` (67,853,572 B). The signed `.exe` installer was skipped on
+purpose - it needs elevation and adds nothing the tarball lacks.
+
+`strata models import --plan` on **our own file** answers the question directly: `ok: true`, architecture
+**`inkling2_loop`**, 744 tensors scanned, tokenizer present, type mix including `IQ2_XXS` 7 and `NVFP4` 7. It reads
+the unsloth `Mainline_Support` layout in place. `strata launch --model-path D:\models\inkling-2-mini` then downloaded
+a model-specific engine (417 MB, "Inkling-2-Mini needs its own engine"), loaded the model and served it at 8K on port
+8080 - **11.0 of 11.9 GiB VRAM**, DSpark drafting on by default.
+
+**Five engines/quantisations on the same file and the same battery:**
+
+| engine / file | generation tok/s | ten-task battery | notes |
+|---|---|---|---|
+| **llama.cpp `b12611`, CUDA 13.5, our IQ2_XXS** | **67.4** | **30/30** | |
+| **Strata 0.1.66, our IQ2_XXS** | 28.3 | **27/30** | lost `summary_20` only |
+| Colibri v2.2.0 (Vulkan), our IQ2_XXS | 23.5 | 24/30 | lost 5-word + summary |
+| **Strata 0.1.66, their own SQ-10** | **17.1** | **24/30** | **fabricated a year** |
+| Colibri v2.2.0 (CUDA), our IQ2_XXS | 17.4 | - | |
+
+**Two findings worth more than the speeds:**
+
+1. **Strata is slower than llama.cpp on every file we tried on this card** - 28.3 vs 67.4 tok/s on the same GGUF. Its
+   design streams experts and keeps a CPU pool beside the GPU, and 12 GB is not where that pays off. The claim to
+   test later is its *own* hardware row (24 GB), not this card.
+2. **Their own SQ-10 pack is the slowest and the least truthful of the three.** 9.75 GiB of weights on a 12,227 MiB
+   card leaves ~0.4 GiB for KV and expert slots (status read **11.8 of 11.9 GiB**), which is presumably why it runs at
+   17.1 tok/s - slower than their engine on our smaller GGUF. And on the unknowable question it **invents**:
+
+   > *"The first crewed landing on the moon of the exoplanet Kepler-9d took place in 2021."*
+
+   Our IQ2_XXS on the same engine refuses: *"There is no such thing as a crewed landing on the moon of the exoplanet
+   Kepler-9d…"*. Ten bits per weight bought a confident fabrication where two bits produced a correct refusal - one
+   item, three runs, but it is the failure mode the probe was built for and it is the opposite of what a bigger
+   quantisation is supposed to buy.
+
+**Scope of the correction:** Strata **does** support this model, at 0.1.66, including our exact GGUF - the earlier line
+was written from its release notes, not from an install. What it does not do is beat llama.cpp here, and its native
+pack is not the one to run on 12 GB.
