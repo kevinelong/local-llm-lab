@@ -679,13 +679,18 @@ algorithmic tasks with a spec, collapses when the problem needs a non-obvious al
 
 **The ladder, final, on `coder-27b` (qwen3.5 27.3B, IQ4_XS, partially offloaded, ~7 tok/s), 30 problems per tier:**
 
-| APPS tier | passed | 95% CI | wall | failures |
+| APPS tier | passed | 95% CI | wall | truncated |
 |---|---|---|---|---|
-| **interview** | **21/30 = 70%** | 52-83% | 30 min | 8 wrong, 1 truncated, 0 timeouts |
-| **competition** | **6/30 = 20%** | 10-37% | 68 min | 20 wrong, 4 truncated |
+| introductory | **18/30 = 60%** | 42-75% | 28 min | - |
+| interview | **21/30 = 70%** | 52-83% | 30 min | 1 |
+| competition | **6/30 = 20%** | 10-37% | 68 min | 4 |
+
+Introductory and interview are **statistically indistinguishable** (42-75% against 52-83% overlap almost entirely)
+- the earlier 3/8 = 38% for introductory was sampling, the same fault that made an eight-item interview read 50%
+when thirty said 70%. Competition is the only clearly separated rung, and it is separated by a wide margin.
 
 Competition's four truncations bound it upward: if every one had passed, 10/30 = 33%. So the honest figure is
-**20-33%, not 20%**. The gap between the tiers is the finding, and it is not a gradual slope - it is a cliff.
+**20-33%, not 20%**.
 
 **What the competition failures look like** (they are not near misses like the interview ones):
 
