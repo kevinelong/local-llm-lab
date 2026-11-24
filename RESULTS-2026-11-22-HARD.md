@@ -229,3 +229,34 @@ CUDA 13.5.0, same flags, same model.
 each**, with the same four `finish=length` misses. So the corruption fix does not touch the behaviour this suite
 exercises - it was never a corruption failure, it is deliberation. Keep `b12651` (newer, no regression, the fix may
 matter on paths we have not driven), but do not claim it as a win.
+
+## The aggregation ladder, all five models
+
+Same probe (planted marker, count varies by rep), one run per cell here but **five reps per cell** in the stored files,
+window and budget paired so that prompt + budget fit inside the window:
+
+| model | 8,192 window<br>budget 4,096 | 16,384 window<br>budget 8,192 | 25,000 inside 32K<br>budget 8,192 |
+|---|---|---|---|
+| **Inkling 2 Mini** | **"7" correct, 10 s** | no answer (309 s, even with a 16,384 budget) | no answer |
+| qwen3:8b | wrong: 2, (len), 4, (len), 1 | wrong: 2, 2, 2, 2, 1 | wrong: 2, 1, 1 |
+| qwen3:14b | wrong: 3, 2, 3, 2, 2 | wrong: 2, 2, (len), 2, 2 | wrong: 3, 2, 2 |
+| qwen3.5:9b | no answer | no answer | no answer |
+| gemma4:12b | no answer (all 5) | no answer (all 5) | no answer |
+
+Truths per rep were 7, 5, 9, 7, 5 (the planted count varies deliberately). `(len)` is `finish=length`, an empty
+answer rather than a wrong one.
+
+**The conclusion is not "it breaks at a given context" - it is that most models never do it at all.**
+
+- **Only Inkling has a break point**, and it is real: correct at 8,192 tokens of passage in 10 s, and at 16,384 a
+  budget equal to the whole window still produces nothing after 309 s. That is a genuine capability cliff, and it sits
+  at a quarter to a half of the advertised window.
+- **The two `qwen3` models do not break - they never count.** They answer at every size with 1-4 against truths of
+  5-9, i.e. they sample the passage rather than sweep it, and they answer **confidently** (`finish=stop`). That is the
+  worse failure for a tool: undetectable downstream.
+- **qwen3.5:9b and gemma4:12b never answer at any window tried.** For gemma4 that is the same non-answer defect as
+  its six unanswered quality items and its 4/30 reasoning run.
+
+So the earlier "where aggregation breaks" section, written from Inkling and qwen3.5 alone, was half the story: the
+ladder only makes sense once the failure modes are separated. Inkling is the only model here that has an aggregation
+*ability* to lose.

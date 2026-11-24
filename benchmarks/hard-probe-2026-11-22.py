@@ -301,7 +301,8 @@ def main():
 
     if args.only:
         wanted = {n.strip() for n in args.only.split(",")}
-        plan = [item for item in plan if item[0] in wanted]
+        # match on the task name, so `--only aggregation` also selects `aggregation#1..#3`
+        plan = [item for item in plan if item[0].split("#")[0] in wanted]
 
     rows = []
     for name, prompt, scorer, want, want_text in plan:
