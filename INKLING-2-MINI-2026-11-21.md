@@ -608,3 +608,42 @@ a model-specific engine (417 MB, "Inkling-2-Mini needs its own engine"), loaded 
 **Scope of the correction:** Strata **does** support this model, at 0.1.66, including our exact GGUF - the earlier line
 was written from its release notes, not from an install. What it does not do is beat llama.cpp here, and its native
 pack is not the one to run on 12 GB.
+
+### Coding ladder, 2026-11-24: APPS does not separate the tiers, and my first comparator was wrong
+
+The question was whether any local model can do real coding work, at a difficulty we can find rather than
+assert. APPS is the natural source - its problems carry an official label (**introductory / interview /
+competition**) and stdin/stdout test cases, so grading is execution. `benchmarks/coding-ladder-2026-11-24.py`
+streams the test split, keeps graded problems of one tier (at most five cases, statement under 6000 chars),
+asks for one `python` block, and runs every case in a subprocess with a 6 s timeout. A problem counts only
+when **every** case passes.
+
+**Two harness faults were found before any number was believed:**
+
+1. **The thinking budget was the score.** First run, OpenAI endpoint, `max_tokens 3000`: 2/8 - but **five of
+   the eight** failures were `finish=length` at exactly 3000 tokens with *no code emitted at all*. The model
+   reasoned until the budget ran out. Switching to the native `/api/chat` with **`think:false`** turned 2/8 in
+   3033 s into 4/8 in 632 s on the same eight problems.
+2. **The comparator failed correct programs on whitespace.** APPS expected outputs carry trailing spaces on
+   most lines (`'3\n3 2 0 7 10 14 \n'`); comparing whole strings after one `strip()` is not the same test.
+   Three of six introductory failures were whitespace-only. Comparing line-wise with each line `rstrip`ped
+   moved introductory from 2/8 to 3/8 and recovered problem #8 (0/5 -> 5/5) exactly as predicted.
+
+**Result on `coder-27b-mtp` (= qwen3.5 27.3B, IQ4_XS, 15 GB, partially offloaded, ~7 tok/s):**
+
+| APPS tier (8 problems, 5 cases each) | passed | what failed |
+|---|---|---|
+| introductory | **3/8 = 38%** | one wrong case (#1 4/5), SyntaxError at 328 s (#2), wrong algorithm (#3), off-by-one (#4), right multiset in wrong order (#7 3/5) |
+| interview | **4/8 = 50%** | two wrong cases (#1 2/5), `1 2` for `2 1` input format (#2), SyntaxError at 325 s (#3), wrong model of the task (#8) |
+| competition | running | |
+
+**The finding worth keeping is that the tier labels do not track what this model fails at.** The
+"introductory" problems here are *multi-test-case* statements - `T` cases per stdin with T outputs chained -
+so their failures are input-format and case-count handling plus one truncation, while several "interview"
+problems are single-case and therefore easier for the same model. An easier tier scoring no higher than a
+harder one is a property of APPS's labelling, not of the model. A rating-based source (LiveCodeBench carries a
+Codeforces rating per problem) is the way to build a real 50 % ladder; a tier is not a difficulty unit.
+
+Decode on this card is **~7 tok/s** for the 15 GB IQ4_XS 27B whether `num_ctx` is 32768 or 8192, so context is
+not the lever - partial offload is. That is why the same battery that takes 10 minutes on a fully-GPU 9B takes
+an hour here, and it is a routing fact in its own right.

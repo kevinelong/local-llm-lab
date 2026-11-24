@@ -1,0 +1,140 @@
+{
+ "model": "coder-27b-8k",
+ "tier": "introductory",
+ "offset": 0,
+ "passed": 3,
+ "possible": 8,
+ "rate": 0.375,
+ "seconds": 860.2,
+ "rows": [
+  {
+   "id": 1,
+   "ok": false,
+   "cases": "4/5",
+   "how": "fenced",
+   "why": "want='0' got='3'",
+   "finish": "stop",
+   "seconds": 26.4,
+   "usage": {
+    "completion_tokens": 205,
+    "prompt_tokens": 549
+   },
+   "code_chars": 616,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = list(map(int, data[1:n+1]))\n    \n    odd = 0\n    even = 0\n    odd_sum = 0\n    even_sum = 0\n    for x in a:\n        if x % 2 == 1:\n            odd += 1\n            odd_s"
+  },
+  {
+   "id": 2,
+   "ok": false,
+   "cases": "0/5",
+   "how": "bare",
+   "why": "want='5' got='exit 1: SyntaxError: invalid syntax'; want='1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 327.8,
+   "usage": {
+    "completion_tokens": 2500,
+    "prompt_tokens": 640
+   },
+   "code_chars": 7748,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = int(data[1])\n    b = int(data[2])\n    k = int(data[3])\n    h = list(map(int, data[4:4+n]))\n\n    # For each monster, compute how many skips are needed for you to kill it"
+  },
+  {
+   "id": 3,
+   "ok": false,
+   "cases": "1/5",
+   "how": "fenced",
+   "why": "want='3\\n3 2 0 7 10 14' got='4\\n4 2 1 6 11 13'; want='0\\n0 1 2 3' got='2\\n0 1 4 3'",
+   "finish": "stop",
+   "seconds": 36.2,
+   "usage": {
+    "completion_tokens": 280,
+    "prompt_tokens": 546
+   },
+   "code_chars": 967,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    m = int(data[1])\n    a = list(map(int, data[2:2+n]))\n    \n    target = n // m\n    \n    # Count current remainders\n    counts = defaultdi"
+  },
+  {
+   "id": 4,
+   "ok": false,
+   "cases": "1/5",
+   "how": "fenced",
+   "why": "want='20' got='22'; want='1' got='2'",
+   "finish": "stop",
+   "seconds": 91.2,
+   "usage": {
+    "completion_tokens": 706,
+    "prompt_tokens": 729
+   },
+   "code_chars": 2661,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    it = iter(data)\n    n = int(next(it))\n    m = int(next(it))\n    k = [int(next(it)) for _ in range(n)]\n    offers = []\n    for _ in range(m):\n        d = int(next(it))\n        t = int(next(it))\n"
+  },
+  {
+   "id": 5,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 30.2,
+   "usage": {
+    "completion_tokens": 233,
+    "prompt_tokens": 540
+   },
+   "code_chars": 695,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    it = iter(data)\n    q = int(next(it))\n    out = []\n    for _ in range(q):\n        n = int(next(it))\n        a = []\n        for _ in range(4 * n):\n            a.append(int(next(it)))\n        a.sort()\n        ok = True\n        "
+  },
+  {
+   "id": 6,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 199.5,
+   "usage": {
+    "completion_tokens": 1534,
+    "prompt_tokens": 747
+   },
+   "code_chars": 5366,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\nimport heapq\n\ndef main():\n    input = sys.stdin.read\n    data = input().split()\n    idx = 0\n    n = int(data[idx]); idx += 1\n    m = int(data[idx]); idx += 1\n    k = int(data[idx]); idx += 1\n\n    adj = [[] for _ in range(n + 1)]\n    for _ in range(m):\n        u = int(data[idx]);"
+  },
+  {
+   "id": 7,
+   "ok": false,
+   "cases": "3/5",
+   "how": "fenced",
+   "why": "want='7 2\\n2 2 1 1 2 1' got='7 2\\n1 1 2 2 1 2'; want='7486 3\\n3 3 3 2 2 2 2 1 1 1' got='7486 3\\n1 1 1 2 2 2 2 3 3 3'",
+   "finish": "stop",
+   "seconds": 125.6,
+   "usage": {
+    "completion_tokens": 967,
+    "prompt_tokens": 884
+   },
+   "code_chars": 3018,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    n = int(data[0])\n    a = list(map(int, data[1:n+1]))\n\n    # Sort students by skill, keep original indices\n    students = sorted([(a[i], i) for i in range(n)])\n    skills = [s[0] for s in studen"
+  },
+  {
+   "id": 8,
+   "ok": true,
+   "cases": "5/5",
+   "how": "fenced",
+   "why": "",
+   "finish": "stop",
+   "seconds": 21.5,
+   "usage": {
+    "completion_tokens": 166,
+    "prompt_tokens": 507
+   },
+   "code_chars": 534,
+   "thinking_chars": 0,
+   "raw": "```python\nimport sys\n\ndef solve():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    t = int(data[0])\n    out = []\n    idx = 1\n    for _ in range(t):\n        n = int(data[idx])\n        idx += 1\n        parts = []\n        place = 1\n        while n > 0:\n            digit = n % 10"
+  }
+ ],
+ "note": "APPS test split; a problem counts only when every test case passes; graded by executing the model's program, not by reading it."
+}

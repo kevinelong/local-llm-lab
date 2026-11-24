@@ -97,6 +97,20 @@ def load_items(tier: str, limit: int, offset: int) -> list[dict]:
     return out
 
 
+def same_output(got: str, want: str) -> bool:
+    """APPS expected outputs carry trailing spaces on most lines, so compare line-wise.
+
+    Comparing whole strings would fail a correct program for whitespace the task never
+    asked about - measured: three of six introductory failures were exactly that.
+    """
+    def norm(s: str) -> list[str]:
+        lines = [ln.rstrip() for ln in (s or "").replace("\r\n", "\n").split("\n")]
+        while lines and not lines[-1]:
+            lines.pop()
+        return lines
+    return norm(got) == norm(want)
+
+
 CODE_RE = re.compile(r"```(?:python3?|py)?\s*\n(.*?)```", re.S)
 
 
@@ -187,11 +201,11 @@ def main() -> int:
             case_ok, detail = 0, []
             for stdin_text, want in zip(it["inputs"], it["outputs"]):
                 ok, got = run_case(code, stdin_text, args.case_timeout, wd)
-                if ok and got.strip() == want.strip():
+                if ok and same_output(got, want):
                     case_ok += 1
                 else:
                     detail.append("timeout" if got == "timeout" else
-                                  f"mismatch want={want.strip()[:24]!r} got={got.strip()[:24]!r}")
+                                  f"want={want.rstrip()[:40]!r} got={str(got).rstrip()[:40]!r}")
             ok = case_ok == len(it["inputs"])
         passed += ok
         rows.append({"id": it["id"], "ok": ok, "cases": f"{case_ok}/{len(it['inputs'])}",
