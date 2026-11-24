@@ -1,0 +1,163 @@
+{
+ "model": "coder-27b-8k",
+ "benchmark": "livecodebench-v6",
+ "band": "medium",
+ "offset": 0,
+ "passed": 4,
+ "possible": 10,
+ "rate": 0.4,
+ "seconds": 1263.3,
+ "rows": [
+  {
+   "id": "abc387_c",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='6' got='5\\n'; stdin: want='2025' got='1617\\n'",
+   "finish": "stop",
+   "seconds": 37.6,
+   "usage": {
+    "completion_tokens": 231,
+    "prompt_tokens": 351
+   },
+   "code_chars": 669,
+   "raw": "```python\nimport sys\n\ndef count_snake(n):\n    if n < 10:\n        return 0\n    s = str(n)\n    length = len(s)\n    total = 0\n    for l in range(2, length):\n        for first in range(1, 10):\n            total += first ** (l - 1)\n    for first in range(1, int(s[0])):\n        total += first ** (length -"
+  },
+  {
+   "id": "abc389_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 30.7,
+   "usage": {
+    "completion_tokens": 250,
+    "prompt_tokens": 318
+   },
+   "code_chars": 513,
+   "raw": "```python\nimport sys\nimport math\n\ndef solve():\n    R = int(sys.stdin.readline().strip())\n    R2 = R * R\n    count = 0\n    for i in range(-R, R + 1):\n        for j in range(-R, R + 1):\n            if (i + 0.5) * (i + 0.5) + (j + 0.5) * (j + 0.5) <= R2 and \\\n               (i + 0.5) * (i + 0.5) + (j -"
+  },
+  {
+   "id": "abc391_d",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "atcoder",
+   "why": "stdin: want='Yes\\nYes\\nNo\\nYes\\nNo\\nYes' got='exit 1: SyntaxError: invalid syntax'; stdin: want='No\\nNo\\nYes\\nYes' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 376.9,
+   "usage": {
+    "completion_tokens": 3000,
+    "prompt_tokens": 755
+   },
+   "code_chars": 11414,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    W = int(input[idx]); idx += 1\n    \n    blocks = []\n    for i in range(N):\n        x = int(input[idx]); idx += 1\n        y = int(input[idx]); i"
+  },
+  {
+   "id": "abc394_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 11.8,
+   "usage": {
+    "completion_tokens": 84,
+    "prompt_tokens": 565
+   },
+   "code_chars": 234,
+   "raw": "```python\nimport sys\n\ndef main():\n    s = sys.stdin.readline().strip()\n    while True:\n        idx = s.find(\"WA\")\n        if idx == -1:\n            break\n        s = s[:idx] + \"AC\" + s[idx+2:]\n    print(s)\n\nif __name__ == \"__main__\":\n    main()\n```"
+  },
+  {
+   "id": "abc396_c",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='0' got='exit 1: IndexError: list index out of ra'",
+   "finish": "stop",
+   "seconds": 110.4,
+   "usage": {
+    "completion_tokens": 891,
+    "prompt_tokens": 476
+   },
+   "code_chars": 2851,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    M = int(input[idx]); idx += 1\n    B = []\n    for i in range(N):\n        B.append(int(input[idx])); idx += 1\n    W = []\n    for i in range(M):\n        W.append(int(input[idx])); id"
+  },
+  {
+   "id": "abc397_b",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='1' got='2\\n'",
+   "finish": "stop",
+   "seconds": 16.5,
+   "usage": {
+    "completion_tokens": 129,
+    "prompt_tokens": 379
+   },
+   "code_chars": 294,
+   "raw": "```python\ns = input().strip()\nans = 0\ni = 0\nwhile i < len(s):\n    if s[i] == 'i':\n        if i + 1 < len(s) and s[i + 1] == 'o':\n            i += 2\n        else:\n            ans += 1\n            i += 1\n    else:\n        ans += 1\n        i += 1\nif len(s) % 2 == 1 and s[-1] == 'i':\n    ans += 1\nprint("
+  },
+  {
+   "id": "abc399_d",
+   "ok": true,
+   "cases": "1/1",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 171.4,
+   "usage": {
+    "completion_tokens": 1376,
+    "prompt_tokens": 743
+   },
+   "code_chars": 4764,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    T = int(input[idx]); idx += 1\n    out = []\n    for _ in range(T):\n        N = int(input[idx]); idx += 1\n        A = []\n        for i in range(2 * N):\n            A.append(int(input[idx])); idx += 1\n        pos = "
+  },
+  {
+   "id": "abc400_d",
+   "ok": true,
+   "cases": "4/4",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 77.5,
+   "usage": {
+    "completion_tokens": 612,
+    "prompt_tokens": 1279
+   },
+   "code_chars": 1895,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef main():\n    input = sys.stdin.readline\n    H, W = map(int, input().split())\n    grid = [input().strip() for _ in range(H)]\n    A, B, C, D = map(int, input().split())\n    A -= 1\n    B -= 1\n    C -= 1\n    D -= 1\n\n    # BFS: state = (r, c, kicks)\n"
+  },
+  {
+   "id": "arc194_a",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='8' got='exit 1: SyntaxError: invalid syntax'; stdin: want='-1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 376.1,
+   "usage": {
+    "completion_tokens": 3000,
+    "prompt_tokens": 617
+   },
+   "code_chars": 10263,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n\n    # dp[i][0] = max sum after processing first i elements, S is empty\n    # dp[i][1] = max sum after processing first i elements, S is non-empty\n    # But we can't trac"
+  },
+  {
+   "id": "3720",
+   "ok": false,
+   "cases": "0/4",
+   "platform": "leetcode",
+   "why": "functional: want='1' got='TypeError: Solution.minMaxWeight() missi'; functional: want='-1' got='TypeError: Solution.minMaxWeight() missi'",
+   "finish": "stop",
+   "seconds": 53.0,
+   "usage": {
+    "completion_tokens": 421,
+    "prompt_tokens": 674
+   },
+   "code_chars": 1852,
+   "raw": "```python\nfrom collections import defaultdict, deque\n\nclass Solution:\n    def minMaxWeight(self, n: int, edges: list, threshold: int) -> int:\n        # Sort edges by weight\n        edges.sort(key=lambda e: e[2])\n        \n        # Binary search on the answer (max weight)\n        def can_achieve(max_"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry."
+}

@@ -45,22 +45,33 @@ so the verdict is produced by running the program, not by reading it:
 [`benchmarks/coding-ladder-2026-11-24.py`](benchmarks/coding-ladder-2026-11-24.py). A problem counts only when
 **every** test case passes.
 
-| APPS tier, 30 problems each | `qwen3.5-27B` IQ4_XS, ~7 tok/s | 95% CI | wall |
+| APPS tier, 30 problems each | `qwen3.5-27B` IQ4_XS, ~7 tok/s | `qwen3.5:9b`, fully GPU |
+|---|---|---|
+| introductory | 18/30 = **60%** (42-75%) | 16/30 = **53%** (36-69%) |
+| interview | 21/30 = **70%** (52-83%) | 18/30 = **60%** (42-75%) |
+| competition | 6/30 = **20%** (10-37%) | 5/30 = **17%** (7-34%) |
+
+Competition is bounded upward by its own failures - four of the 27B's thirty answers ran into the token budget and
+were cut mid-block - so the honest figure there is **20-33%**, not 20%.
+
+**LiveCodeBench v6, which is post-cutoff and therefore not memorised:**
+
+| LCB band | `qwen3.5:9b` | split | truncated |
 |---|---|---|---|
-| introductory | **18/30 = 60%** | 42-75% | 28 min |
-| interview | **21/30 = 70%** | 52-83% | 30 min |
-| competition | **6/30 = 20%** | 10-37% | 68 min |
+| easy | **11/15 = 73%** | atcoder 8/9, leetcode 3/6 | 1 |
+| medium | **3/18 = 17%** | atcoder 3/9, leetcode 0/9 | 4 |
+| hard | **1/20 = 5%** | atcoder 1/20 | **16 of 20** |
 
-Competition is bounded upward by its own failures - four of the thirty answers ran into the token budget and were
-cut mid-block - so the honest figure there is **20-33%**, not 20%. The 9B (`qwen3.5:9b`, fully on the GPU) reaches
-**16/30 = 53%** on introductory; its interview and competition rungs were still running when this was written.
+Hard is a budget measurement, not a capability one, and is not quoted as a level. On the ten medium problems both
+models ran, the 27B took **4/10 = 40%** against the 9B's **3/10 = 30%** - overlapping intervals again.
 
-**The finding is the shape, not the percentages.** At interview level the failures are near misses: six of nine
-still passed some test cases, off-by-one and one wrong branch, median 41 s per problem. At competition level they
-**collapse** - six of the first fifteen answered `1` where 3 or 2 was wanted, one returned `infinity` for 11,
-another `0.0000000000` for 28. The program parses the input and then emits a plausible constant. That is the
-failure mode that ships silently, and it gives the routing rule a measured boundary rather than an opinion:
-**local only where the approach is already known and the tests are cheap to run.**
+**So three things follow, and only three.** The cliff sits at *inventing the algorithm*, not at program size: both
+models parse input, write runnable programs and pass multi-case tests at 60-73% where the approach is
+recognisable, then fall to about one in five when it must be derived. **The 27B earns nothing measurable** - one to
+three problems in thirty, and 4-versus-3 in ten, for 13x the wall time (7 tok/s against ~94) - so on this card the
+fast 9B is the right local default for coding. And the thing to route on is the failure *mode*: at competition
+level the model returns a plausible constant (`1` where 3 was wanted, `infinity` for 11), which ships silently
+where a syntax error would not.
 
 ### 0.2 Scoring faults found on the way - three, all mine
 
