@@ -776,6 +776,39 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-25 &middot; [Daily news scan: the 0.1.66 decode regression on ≤13 GiB cards is one auto-armed default, bisected twice in one window and present in 0.1.67; llama.cpp merges DSpark into mainline; and the Inkling "68 vs 12.5" row is a short-prompt cell](NEWS-2026-11-25.md)**
+
+A **24.0 h** window (2026-11-24T14:30Z &rarr; 11-25T14:30Z), the scheduled run, on **32.44 GiB free physical**,
+**25.14 GiB of commit** and **1,257 MiB of 12,227 MiB VRAM**. **The bump target moved without a version moving**:
+`v0.2.21` is still the newest tag with an unedited `published_at`, but the release **object grew in place** to
+**68 assets / 13,667,961,950 B** with four `strata-control-0.1.68-*` files created **17:51:40Z** &mdash; feed
+**sequence 134**, `control 0.1.68`, commit `2af30ccaa` calling it **Terminal 0.2.21.1**, engines unchanged at
+**0.1.67**. Its new section is **three AMD changes and one Linux-only**, and the vendor's own scope line is what
+decides it here: *"Other cards are unchanged. NVIDIA, Apple, Intel and CPU setups write exactly the same plans as
+0.2.21 (we compared 12,960 planned setups and the plans on an RTX 5070)"* &mdash; **"Not tested on Windows."**
+**The day's item lands on our card's gate**: `#7154` and a comment in `#6799` independently bisect the 0.1.66
+decode drop to **`l3_pf_auto_default`** (`low_vram_rules.hpp:134-140`, from `d28c053e6`), which auto-arms **static
+expert row slices + L3 prefetch** when **VRAM ≤ 13 GiB**, cache coverage **< 50 %** and **pool workers ≥ 8** &mdash;
+every phase then waits on its **slowest** worker, and on a **hybrid P/E CPU** half of them are E-cores. The CPU pool
+probe reads **16.7 GB/s (0.1.52) &rarr; 3.5-10 GB/s (0.1.66 static-on)**, decode **18.4 &rarr; 33.9 (+84 %)** with
+`STRATA_L3_PF=0` and **39.7** with `POOL_DEP=0`; **`STRATA_POOL_STATIC=0` does nothing** (`want_static = want_pf ||
+...`). A 12 GiB sm_86 paired A/B restores **90.0/80.8/76.0/80.0** against stock **74.7/66.7/63.3/68.9**, and
+`standard-v1` fresh boot reads **76.3/76.5/82.0 sanity 12/12** against **49.3/44.2/46.3**. **This box qualifies
+three ways over** &mdash; 12 GB, 6 % cache coverage, `--pool-workers 9` &mdash; and its CPU is an **Ultra 9 285,
+24 cores / 24 logical, hybrid P+E**, read today for the first time. A **second, separate** regression is `#7152`:
+**-17..-23 % at the 0.1.62 &rarr; 0.1.63 boundary, still in 0.1.67**, from **42 runs** in alternating order with
+**prefill flat** and ranges disjoint. And the Inkling **SSD tier** now has a measured fix: setup's
+`--vram-experts-gb 3.65 / --ram-experts-gb 4.37` leaves **175 SSD-only** experts and **20.0 tok/s**, against
+**32.6** with the RAM cap lifted &mdash; **+63 %**, reproduced on three builds the same day, and the one-line
+setup fix needs no engine. llama.cpp **merged DSpark** (`#32218`, `33aeb17f8`) and **`b12720` is the merge commit
+itself**, retiring the fork requirement; `#32948` is **KLD 0** (text-neutral) and `#32965` fixes an **int32
+overflow that returns an illegal memory access** on F8/BF16 expert tensors. **[YT]** an in-window 12 GB
+walkthrough reads the same vendor table as **93.9 code / 101.4 math** where the body says **68**, and says the
+Inkling engine *"doesn't reuse the start of your prompt between turns yet"* against the release's own claim &mdash;
+with **`#6733`** narrowing it correctly: **tool-calling requests never reuse the prefix**. **[ARX] advanced** (74
+cs.CL / 144 cs.LG) and **`2611.32269` Pando** states the DFlash/DSpark chain-length ceiling our `--spec` arms sit
+under. **[RD] 403**, 28th in 31 days; **[HN] 1,173 stories**, one of them a **fourth engine** for our family.
+
 **2026-11-24 &middot; [Daily news scan: Strata ships 0.2.21 with a 5.4x row for our exact card and pack, the 0.1.66 abort turns out to reach sm_120 after all, and llama.cpp reveals Inkling 2 was never running fused Flash Attention on any card](NEWS-2026-11-24.md)**
 
 A **24.0 h** window (2026-11-23T14:30Z &rarr; 11-24T14:30Z), the scheduled run, on **37.05 GiB free physical**,

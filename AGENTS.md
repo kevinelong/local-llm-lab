@@ -1,5 +1,249 @@
 # Local AI lab working instructions
 
+- **2026-11-25, scheduled scan: the 0.1.66 decode regression on ≤13 GiB cards is ONE auto-armed default,
+  bisected twice in one window and still present in 0.1.67; llama.cpp merges DSpark into mainline; and the
+  Inkling "68 vs 12.5" row turns out to be a short-prompt cell.** `NEWS-2026-11-25.md`, written against
+  **`NEWS-2026-11-24.md`**, which closed at **2026-11-24T14:30Z**; window
+  **2026-11-24T14:30Z -> 2026-11-25T14:30Z (24.0 h)**, read interval **14:30Z -> ~15:2xZ**. This **is** the
+  scheduled run (`[Wed 11/25/2026  6:30:0x] daily news scan start`, previous run `exit 0` + `verify OK`).
+  Reading only - nothing downloaded as a model or installed, **no engine started, no inference, no
+  benchmark**, **`ai_bench` untouched**. WSL started once for `yt-dlp` (one caption set, both language tracks)
+  and shut down at the end; `gh`/`curl`/`jq` on Windows, plus one 37,347-B release **asset**
+  (`strata-feed.json`), never a model. Gates at start: **32.44 GiB free physical of 63.46**, **commit free
+  25.14 GiB of a 71.96 GiB limit** (17.14 GiB above the 8 GiB floor), GPU **1,257 of 12,227 MiB**, driver
+  **617.24**. Listeners: **`127.0.0.1:11434` pid 57832** (Ollama), **`127.0.0.1:8006` pid 25420** (this
+  track's ComfyUI). Nothing ended, no gate lowered.
+  - **TWO FACTS ABOUT THIS BOX, READ TODAY RATHER THAN REMEMBERED, AND ONE OF THEM MAKES TODAY'S ITEM
+    APPLICABLE: the CPU is an `Intel(R) Core(TM) Ultra 9 285`, 24 cores / 24 logical - i.e. a HYBRID P+E
+    TOPOLOGY (8 P + 16 E)** - and the 5070's link is **PCIe gen 5, width x16** (`gen.current` reads 1 at
+    idle, which is power saving, not a downgrade). The hybrid topology is the precondition of section 2, and
+    it also explains the 2026-10-19 thread ladder from the other direction (**8 threads 30.4 / 16 32.3 / 24
+    29.5 tok/s** is the shape of a pool gated by E-core workers).
+  - **THE BUMP TARGET MOVED WITHOUT A VERSION MOVING, AND THE RELEASE OBJECT GREW IN PLACE. `v0.2.21` is
+    still the newest tag and its `published_at` is unedited (2026-11-24T10:10:03Z), but the object now
+    carries 68 assets / 13,667,961,950 B against the 64 / 13,380,684,413 B the 11-24 file recorded
+    (+287,277,537 B).** Four new files, all `strata-control-0.1.68-*` created **2026-11-24T17:51:40Z**
+    (windows zip **67,953,239 B**, linux x86_64 94,745,649, linux aarch64 78,663,272, macos arm64
+    45,914,946), plus a refreshed `strata-feed.json` and `SHA256SUMS.txt`. The feed is the authority and
+    agrees: **sequence 134**, `generated_at` **2026-11-24T17:51:16Z**, `app 0.2.21`, **`control 0.1.68`**;
+    commit **`2af30ccaa`** (14:44:38Z) says *"Control 0.1.68 / Terminal 0.2.21.1: ... app stays 0.2.21,
+    engine packages stay 0.1.67"*. **So the target is app 0.2.21 / Terminal 0.2.21.1 / engines 0.1.67 /
+    Control 0.1.68.** The body's new `0.2.21.1` section is **three AMD changes and one Linux-only**:
+    `#7022` plans Inkling 128K against the **first 32K tokens** instead of the whole context, so at 128K on
+    a 16 GB card experts on the card go **3.9 -> 9.1 GiB** and answers after a 100K document read **22
+    instead of 13 tok/s**; fp8/fp16 conversation memory is planned as chosen (fp16 was forced above
+    13 GiB); the RAM cap gets **max(0.75 GiB, 5 % of experts)** of slack "so the engine does not stream a
+    few dozen experts from the SSD" (speed within 1 %, first answer 8-15 % sooner); `#7012` fixes a Linux
+    Terminal-only `FileNotFoundError`. **The vendor's own scope line is what decides it for us: "Other
+    cards are unchanged. NVIDIA, Apple, Intel and CPU setups write exactly the same plans as 0.2.21 (we
+    compared 12,960 planned setups and the plans on an RTX 5070)" - and "Not tested on Windows."** One new
+    defect it introduces, stated by the vendor: after updating, chat says **"Agent work is paused for the
+    Strata update"** (`#7099`) until Strata is quit **fully, tray icon included**.
+  - **THE DAY'S ITEM LANDS ON OUR CARD'S GATE, NOT JUST ITS CLASS: `#7154` and the `#6799` comment are the
+    SAME root cause, found independently in one window, and the gate is `VRAM <= 13 GiB`.**
+    **`l3_pf_auto_default`** (`engine/include/strata/core/low_vram_rules.hpp:134-140`, introduced in
+    **`d28c053e6`**, v0.2.20 / engine 0.1.66) auto-arms **static expert row slices + L3 prefetch** when
+    **VRAM ≤ 13 GiB** AND **resident slots × 2 < total experts** (coverage < 50 %) AND **pool workers ≥ 8**.
+    With static slices armed, `ExpertPool::drain()` takes the **`per_worker_`** path (`pool.cpp:1314`): each
+    of n workers gets a static 1/n row slice and serially computes **every** expert in it, so every phase
+    finishes at the pace of the **slowest** worker - and on a hybrid P/E CPU half the workers land on
+    E-cores, **~2x per-miss latency**. `#7154`'s rig (i9-13900H 6P+8E, RTX 4080M 12 GB over OCuLink
+    ~6.1 GB/s, IQ3_S, 2,062 slots = 8 % coverage, `--pool-workers 9`): 0.1.52 control **50.5-51.7**,
+    0.1.66 static-on **18.4**, **+`STRATA_L3_PF=0` 33.9 (+84 %)**, **+`POOL_DEP=0` 39.7**; and the **CPU
+    pool probe** is the cleanest number - **0.1.52 123-133 us (16.7 GB/s)**, 0.1.62 146-155 us, **0.1.66
+    static-on 204-587 us (3.5-10 GB/s)**, static-off 108-183 us. **`STRATA_POOL_STATIC=0` does NOT work**:
+    `want_static = want_pf || (st_env && atoi(st_env))`, so the auto-arm overrides it - **only
+    `STRATA_L3_PF=0` clears `want_pf`**. `rugabunda` in **`#6799`** (2026-11-25T12:39:53Z, crediting
+    `@gtrak`'s bisect to the same commit) gives the 12 GiB sm_86 paired A/B: 0.1.64 **86.4/85.2/79.0/86.4**,
+    0.1.68 stock **74.7/66.7/63.3/68.9**, **0.1.68 + `L3_PF=0` 90.0/80.8/76.0/80.0**, `+CACHE_PIN_FRAC=0`
+    87.7/78.9/81.5/86.2; and fresh-boot `standard-v1` `L3_PF=0` **76.3/76.5/82.0 sanity 12/12** against
+    stock **49.3/44.2/46.3**. **Verified unchanged in 0.1.67.** The other two halves are **`#6948`**
+    (2026-11-24T01:35Z, open, 0 comments: **`low_vram_pin_slots()` keys on cache fraction, not card size** -
+    any cache under 25 % resident pins 25 % of its slots, so a 24 GiB card on a 72 GB MoE pins **~1,105
+    slots** while the `#4870` rule raises swaps to 2/192/0.92 and **the two fight**; pinning off reads
+    **+3.8..+5.3 %** on a 4090, and the PR turns it off **above 16 GiB only**, which is why a 12 GB card
+    keeps the low-VRAM path) and `plsfullmarkprofessor`'s **4070 Ti 12 GB** row in `#6799`
+    (2026-11-24T23:59Z): 0.1.65 **58.3 / 51.8** against 0.1.67 **40.4 / 33.4**, recovered to **51.7 / 49.4**
+    by `CACHE_PIN_FRAC=0 HC_Q8=0 --adapt-every 4 --adapt-swaps 96 --adapt-decay 0.70 --expert-cache 1240`
+    **but with only 57 MiB free**; its decomposition is **per-expert footprint 68.12 -> 68.75-69.08 GiB** and
+    auto reserve **700 -> 960 MiB**, so the same VRAM holds **1,023 experts against 1,240**; and **`--vision
+    off` alone recovers 33 -> 45 tok/s**. **The gate is satisfied here three ways over** (12 GB, our 1,500-slot
+    cache is **6 % coverage**, `--pool-workers` defaults 9) and the CPU is hybrid, so this is a **bump
+    control, not a regression on our rows** - 0.1.47 predates `d28c053e6`.
+  - **A SECOND, INDEPENDENT DECODE REGRESSION: `#7152` (2026-11-25T14:05:15Z, 0 comments) measures -17..-23 %
+    at the 0.1.62 -> 0.1.63 BOUNDARY, STILL PRESENT IN 0.1.67.** `strata bench run`, standard protocol,
+    **42 runs**, 3 per version per condition, **alternating order** so drift cannot stick to one version,
+    every run `complete` and sanity **12/12**; RTX 4070 Ti SUPER 16 GB main + RTX 2070 8 GB helper,
+    layer-split 10, Docker, **9 qemu VMs running at load 2.7-8.6 throughout** (stated). Decode short/4k/16k:
+    0.2.16 (0.1.62) **50.9/52.6/52.6** -> 0.2.17 (0.1.63) **44.8/43.7/44.1** -> 0.2.20 (0.1.66)
+    **43.4/41.6/42.7**; pooled over 6 runs, **0.2.16 51.5 (49.4-54.8)** against **0.2.17 42.8 (41.8-45.0)**,
+    **ranges disjoint**, and the drop happens **once**. Re-tuning does not change it (`RETUNE=1 TUNE=quick`
+    ran 339/857/765 s and said "already fastest"). Same-session control today: **0.2.16 55.4/51.7/53.7**
+    against **0.2.21 42.7/40.4/42.1** (**-23 %**), **prefill identical** (815.1/1642.4 vs 800.5/1643.1).
+    Its own noise statement: the same version differs **5-8 % between sessions**. **Three decode-only
+    regressions are now on record in a week** (this one, `#6799`'s -38..-45 % since 0.2.20 on a 3080 Ti, and
+    the ≤13 GiB rule) - which is why **a decode claim without a prefill column beside it is not readable**,
+    and why the **0.1.47 control arm** the 11-21 file asked for is now mandatory in the bump.
+  - **THE INKLING SSD-TIER MISPLACEMENT HAS A MEASURED FIX AND IT IS `+63 %` ON AN 8 GB CARD - and it is the
+    mechanism behind our own `#6998`. `#7145`** (2026-11-25T12:25Z, 3 comments, open; follow-up to closed
+    `#6752`): setup writes `--vram-experts-gb 3.65 --ram-experts-gb 4.37` (8.02 of SQ-10's 8.60 GB), the
+    engine measures the card and holds only **3.19 GiB** (`vram_budget` in `ink_runner.cuh`), and because
+    the **RAM share stays capped at 4.37**, **175 experts go to the SSD**:
+    `GPU+SSD streaming active: 1139 VRAM (3.19 GiB), 1758 RAM, 175 SSD-only (478-slot pinned DMA ring =
+    2045 MiB, direct=1)`. Like-for-like A/B on the same v0.2.21 tag (alternated starts, GPU ≤ 55 C):
+    **20.0 tok/s with 175 SSD-only, 32.6 with no SSD** (story 21.3 -> 36.3, code 19.5 -> 30.3), and at
+    `--ram-experts-gb 6.0` both builds place identically at 32.3-32.5. **Fix B needs no engine at all** -
+    write `--ram-experts-gb` only when the plan itself sends experts to the SSD (one-line `setup.py` diff in
+    `inkling_expert_flags()`) - and reads **30.5 tok/s with the released engine**. Reproduced and refined
+    the same day: `mercant1982` (13:47Z) found the CUDA path still writes the 4.37 cap on `2af30cc`, and
+    `kaban-baku` (14:15Z) **ran the patch's value on the GPU** - `--ram-experts-gb 5.12` -> no SSD-only
+    line, **32.1 against 20.2**. Two consequences: **whether it arms depends on how much VRAM was free when
+    setup made the plan** (the reporter's very first launch wrote 3.05/4.97 and was fine; **8 of 8 starts**
+    at 3.65/4.37 showed 175 SSD-only, two of them on an unpatched local build) - which is why `#6998` sees
+    it on 12 GB and others do not; and **an existing install keeps its old run config** until
+    `strata install --family inkling-2-mini --model SQ-10 --no-start --yes` runs again. `2ddda80a6` on main
+    is the same mechanism **kept to HIP** "because that is where it was measured".
+  - **llama.cpp MERGES DSpark INTO MAINLINE AND `b12720` IS THE FIRST TAG CARRYING IT. `#32218`** (created
+    2026-11-13, **31 comments**) merged **2026-11-24T20:11:48Z**, commit **`33aeb17f8`**; `compare` says
+    `b12719` is **behind 1** and **`b12720` (2026-11-25T06:44:26Z) is ahead 0 / behind 0 - the merge
+    commit itself**. So the 11-23/11-24 statement "mainline llama.cpp has no DSpark support", the pack
+    README's own line and the `unslothai/llama.cpp` fork requirement are **retired for the drafter**. The
+    thread contains a real stall worth recording: `--spec-draft-sampling probabilistic` with
+    `--spec-type draft-dspark` **hangs on the first request** (no tokens after 60 s, core maxed, GPU idle)
+    because `draft_recurrent` builds **`q` as the full ~200K vocabulary** and the residual loop calls
+    `prob_of(q, ...)`, a linear scan, per candidate - and the Inkling GGUF defaults to `top_k 0`, so one
+    rejected draft costs **~4e10 comparisons**; fixed by detecting the **id-indexed dense prefix** and
+    hashing the sparse tail (**O(V) per rejection**). Also declared: `src/llama-context.cpp:2362-2371`
+    **rejects non-block token ubatches** for INKLING2. **`#32948` "inkling2 graph with fewer ops in mix()
+    and control()"** (first in **`b12723`**) is **text-neutral by test** - `--kl-divergence` gives **mean
+    KLD 0, same top-p 100 %** on CUDA/Metal/CPU and identical greedy text - and worth concat **548 -> 413**,
+    rms_norm **514 -> 400**, repeat **120 -> 0**, **tg128 40.44 -> 41.37 (+2.3 %)**, pp512 **832 -> 857**.
+    **`#32965`** fixes an **int32 overflow in `mul_mat_vec_f`'s matrix offsets** - an offset past **2^31
+    values wraps** and the kernel reads out of bounds, i.e. **an illegal memory access**, on F8_E4M3 experts
+    (experts 147-255 of a DeepSeek-V3-sized tensor) and F16/BF16 output layers at **1 token**; that is the
+    class of our own `prefill (layer-major): an illegal memory access` reports. **`#33032`** loads the four
+    **YaRN** GGUF keys centrally (`fixes #30830`) because only k2-horizon/laguna/mistral3/grok read them
+    per architecture - **any other arch ignored them and ran on defaults**, so a YaRN row elsewhere was not
+    what it claimed. Windows: **`#32080`** CTRL_BREAK_EVENT clean shutdown, **`#33014`** `INFINITE` macro
+    collision. Memory-shaped: **`#31898`** scratch reservation in `graph_optimize`, **`#30685`** input async
+    copies, **`#33016`** unskips the CPU FA indexed-bias tests. **`312504361` bumps the ggml submodule to
+    version 1.1.0.** Window totals: **44 commits, 43 merged PRs**, tags `b12677` -> **`b12723`**,
+    **`v1.0.0` (`b1b770d90`) still the only versioned release**. **Build gate `>= b12723`.**
+  - **THE GYRO PACK MOVED A FIFTH CONSECUTIVE DAY WITH EVERY WEIGHT BYTE IDENTICAL.**
+    `f3034aabaf` -> **`cd23c64710`** (2026-11-24T15:39:32Z, **one hour after the last scan closed**), now
+    **24 files / 412,365,759,820 B** against 13 / 412,365,157,338 - and the **+602,482 B** is entirely
+    presentation (`gyro-header.png` 561,708, six SVG pairs, three buttons, LICENSE, `.gitattributes`,
+    README) while **all nine weight files match the 11-17/18/22 record to the byte** (L-TQ3_0
+    108,323,559,808; M-TQ2_0 91,965,774,272; S-TQ1_0 58,487,015,808; L-noPLE 53,923,298,624; M-noPLE
+    37,565,513,024; S-noPLE 29,686,877,504; PLE-IQ4_NL 28,811,085,184; mtp 2,697,439,648; mmproj
+    904,004,128). Downloads **2,518,137**. The new `assets/kld-v2-*` and `quality-*` SVGs are the
+    **publisher's own quality ladder** - the axis our 30/30 battery cannot resolve. Six other tracked packs
+    unchanged by sha **and** `lastModified`; `dealignai` uncensored now **2,669** downloads (from 1,409).
+  - **[ARX] THE INDEX ADVANCED to Wednesday 25 November: `New submissions (showing 74 of 74)` cs.CL and
+    `144 of 144` cs.LG**, both datelines **"Wednesday, 25 November 2026"** - the first advance since 11-23.
+    Best item is about our drafter: **`2611.32269` Pando** names **DFlash and DSpark** and states the
+    ceiling - *"deployed with draft chains whose length is capped by the block size they are trained for,
+    leaving most of the computational budget for verification unused"* - which is exactly what our
+    `--spec 6` / `--spec 8` arms sit under. **`2611.32873` MXFP4 for LLM Inference** varies Hadamard
+    rotation, PTQ algorithm and scale selection across 6 LLMs and MXFP6/MXFP4/NVFP4 and finds **recipes
+    are format-dependent** (both Strata's NVFP4 packs and ComfyUI's nvfp4 checkpoints). **`2611.33080`
+    Shifter Quantization** reconstructs native-width integer operands by append-and-shift so INT4 MMA spans
+    the full dot product, **SQ2/SHI2 2.71-3.77x** at 2-bit with better **KL**. **`2611.32572` BRAID-MoE**
+    computes next routing from the **pre-combine** residual so expert combines can be deferred a block.
+    **`2611.32324`** proves top-K selection is **not** a good set because attention renormalises over the
+    chosen set - a four-position construction makes the ranked pair cost **133.2x the KL** of the optimal
+    pair, an unbounded gap - i.e. the instrument argument against top-K KV eviction (the `2611.24969` PRKV
+    class). **`2611.31350` GHC** extends hyper-connection residual interfaces across **MoE** at negligible
+    memory cost - the layer family whose Q8_0 kernels aborted every 0.1.66 request. **`2611.33093`
+    AIChipBench**'s framing is our loop class: *"a wrong state update can leave the current token correct
+    and corrupt the output several tokens later."* Also **`2611.31256` FreDraft**, **`2611.33111` Draft
+    Calibration** (acceptance is governed by `||p-q||_1`), **`2611.28349` Grammar-as-a-Drafter**. Four
+    titles on today's page - UniVer `2605.04543`, RheoSampling `2609.21827`, MobileMoE `2605.27358`,
+    Curse-of-Multilinguality `2605.30580` - are **replacements of May/September ids, not new work**.
+  - **[YT] ONE IN-WINDOW 12 GB WALKTHROUGH, AND IT READS THE SAME VENDOR TABLE DIFFERENTLY.**
+    `vpNZyUuw140`, **SimplyExplain, uploaded 2026-11-24**, **498 s**, **5,881 views**; **both caption
+    tracks served** (`en-orig` 68,449 B and `en` 71,918 B) - the inverse of the last seven scans' `en` 429.
+    Second-hand, one presenter, no repeats. **[00:00:05]** "94 tokens a second on a 12 GB graphics card ...
+    an owner with that same card was getting about 30". **[00:00:47-00:01:14]** the 94 is read back from
+    **Strata's own table, RTX 5070 12 GB Windows 11 SQ-10: code 93.9, math 101.4, prompt read ~2,200** -
+    so **68 and 94 are both "the 5070 row", differing by prompt length**, and neither the release body nor
+    our last file said so. **[00:01:37]** RTX 5090 Laptop: **80.5 tok/s drafter off, over 115 with it on**.
+    **[00:02:08-02:58]** pack naming is **size, not card**: SQ10 matches the original next word **~92 %**,
+    SQ15 14.3 GB **~97 %**, SQ20 identical - and on an **RTX 5070 Ti, 88 tok/s with SQ15 against 155 with
+    SQ10**, i.e. **the smaller pack is the fast setup on a bigger card** and leaves ~4 GB more for context.
+    **[00:03:54-00:04:19]** an **RX 6800 XT 16 GB**: 61 tok/s short, **~33 at 10K context, under 9 at 64K**
+    (the collapse `#7143` reports on 12 GB). **[00:04:20-00:05:15] THE 12 GB RECIPE**: the app sets a very
+    long context and keeps KV at **full 16-bit**, so on 12 GB most of it goes to RAM - an RTX 3060 12 GB /
+    32 GB owner got **as little as six tok/s**; **max context 65,000 + KV 8-bit ("almost tripled how much
+    fits") + drafter -> 28-38 tok/s**, ~5x. **[00:05:15]** a second 3060 owner found **setup's plan puts
+    slightly too many experts on a 12 GB card** (loads, then OOM; ~1 GB less let it load) - the `#7145`
+    family from a third party. **[00:05:35]** Unsloth GGUF + Unsloth's separate draft file **stops the
+    engine with a missing tensor** - `#7034` one day later. **[00:05:54-00:06:30]** reasoning effort
+    **high** by default and "the limit on thinking **didn't apply to this model yet**": three coding tasks
+    each ran to **12,000 thinking tokens and stopped without an answer** (the `#6612` class; `#7148`, filed
+    today, proposes the soft landing). **[00:06:30]** an 86-task benchmark: **minimal 94 % in 3.1 h** vs
+    **medium 93 % in 7.4 h**, different cards, declared as a confound by the presenter. **[00:06:52-00:07:17]
+    THE ONE PLACE THREE SOURCES DISAGREE**: the video says the Inkling engine **"doesn't reuse the start of
+    your prompt between turns yet"** (~13 s before every reply on a 3060) against the release body's
+    *"Agent sessions reuse their prompt on every backend"* - and **`#6733`** (open, 11 comments, updated
+    today) narrows it exactly right: *"requests with `tools` still never reuse the prefix"*. So the claim
+    is **true for plain chat and contested for tool-calling agents**, which is the shape our agent rows have.
+  - **[RD] 403 ON BOTH ENDPOINTS** - `new.json` 189,908 B block page, `.rss` 1,522 B `Blocked` -
+    **twenty-eighth failure in thirty-one days**, last success 2026-10-25. No in-window snippet carried a
+    card, driver, engine and quant, so **no Reddit item**. **[HN] `nbHits` 1,173**; `VRAM` 18, `local model`
+    7, `llama.cpp` 1, `Inkling` 1, and `GGUF`/`quantization`/`speculative decoding`/`KV cache`/`WDDM`/
+    `offload` **0** (tokeniser, not silence - `MoE` returns 294 on substrings). On-axis: **"Inky. Inkling 2
+    Mini inference on Apple Silicon"** (2026-11-25T03:56Z, 1 pt) - `robotgamedevelopers/inky`, a **fourth
+    engine** for our family (Apple only, so not runnable); **"A training engine for your local model, using
+    your idle compute"** (2026-11-24T15:03Z, **223 pts, 68 c**) - `sous-labs/songe`, which would need the
+    one-workload rule restated before it could ever run here; and a **Show HN on grammar-guided decoding in
+    vLLM/Xgrammar**, pairing with `2611.28349`. **120 Strata issues were created in-window**; on our axes
+    also **`#7149`** (Windows CUDA packages ship without `strata-vision.exe`, so `--vision` spins at 100 %
+    CPU instead of failing), **`#7142`/`#7144`** (opt-in CUDA arena for dense projections; reuse CUDA
+    buffers for compact Q8_0 vision), **`#7093`** (SQ-20 on 2 cards gives broken output when the split also
+    has host experts, `hyb=1`), and **`#7096`** (0.1.67 HIP: an **81-122K prompt read completes with no
+    first token**, engine spins; `--chunk 2048` stalls, `--chunk 512` completes - the class our fixed
+    `--prefill 2048` rule exists for). **`#7119`** closed after producing a **third-party 16 GB number and
+    three install defects**: the vendor diagnosed a hand-unpacked engine needing **`engine-component.json`
+    directly inside a versioned subfolder under `%LOCALAPPDATA%\Strata\components\shapes\inkling2\engine\`**
+    plus an app bug that says "See the line above" and shows nothing (fix planned 0.2.22); after fixing that
+    and a **missing tokenizer file** the user reports **~35 tok/s** on a 5060 Ti 16 GB.
+  - **[METHOD] SEVEN FAULTS, AND TWO OF THEM ARE THE ONES THIS LAB KEEPS MAKING.** (a) The **PowerShell
+    `$`-stripping fault, ninth instance - and the first time the prescription was followed first**: a
+    `.ps1` written to the repo root, run with `-File`, deleted. It worked first try. (b) **The arXiv id
+    join failed a fifth time and again printed nothing rather than an error** - `href="/abs/(...)"` matched
+    **0** on a page with **193** ids; the form that works is **`abs/([0-9]{4}\.[0-9]{4,5})` with no `href=`
+    and no quote**, then 4,000 chars after each hit, and it self-validates against the counters (74 / 144).
+    (c) **The HN epoch was wrong for the third time** (`1795620600`, two days late) and returned **0 on
+    every query**, which reads exactly like silence; the tell is `.nbHits` **0** on a box with 1,173
+    stories; correct is **1795530600**. (d) **`curl` to a GitHub release asset returned 0 bytes twice** -
+    assets go through `gh api -H "Accept: application/octet-stream" .../releases/assets/<id>` (37,347 B).
+    (e) **arXiv lists replacements at their original ids**, so a naive matched-title count mixes new work
+    with re-announced old work. (f) **HN keyword search is unreliable in both directions** - `MoE` returns
+    294 substring hits while `speculative decoding` returns 0 on a day with four such papers; only
+    `nbHits` and title skimming are trustworthy. (g) **A release object can grow in place** - the asset
+    count moved on an unchanged tag, `published_at` cannot see it, the feed's `sequence` can (134), and the
+    commit message is the record.
+  - **Shortlist, cheapest first**: (1) make **`STRATA_L3_PF=0`** a declared arm of every future 12 GB row and
+    label it a **bump control** (the gate is satisfied three ways here; `POOL_STATIC=0` does not work; add
+    `CACHE_PIN_FRAC=0` and `POOL_DEP=0`); (2) rewrite the bump declaration to **0.2.21 / Terminal 0.2.21.1 /
+    engines 0.1.67 / Control 0.1.68** with **Control version + feed sequence**, the **SSD-only tier count**,
+    **`--ram-experts-gb` as setup wrote it**, the **switch list per build** and **`reused`**; (3) record the
+    two decode regressions as **separate facts with separate boundaries** and require a **prefill column** and
+    a **0.1.47 control arm**; (4) the **header read** that settles root vs `Old_Support` (still unrun, and
+    now with a second answer since mainline can load the drafter); (5) the **12 GB recipe** - SQ-10, ctx
+    65,536, `--kv int8`, drafter on, effort minimal - against the app's default plan; (6) one Inkling load on
+    **`>= b12723`** with **greedy and probabilistic** DSpark arms (the stall was in the probabilistic path);
+    (7) **`#7145`'s fix B** as a one-line setup change, which needs no build. Items 1-4 are edits and one
+    read; 5-7 are gated starts.
+  - **Gated on Kevin**: the **bump** (eighth target in nine scans, now Control 0.1.68 + Terminal 0.2.21.1;
+    Windows engine **494,708,745 B**, Control **67,953,239 B**); a **llama.cpp download at `>= b12723`**
+    (supersedes `>= b12676`); the **SQ-10/SQ-15 packs** (now with a second reason: 88 vs 155 tok/s pack
+    lever); the **dealignai** pack (2,669 downloads, licence `other`); the **Colibri v2.2.0 probe** (48 `dev`
+    commits behind it); plus the unchanged display-to-iGPU cable change, the **Gyro-S route
+    (`cd23c64710`, 412.37 GB)**, the ComfyUI image pair, the DeepSeek IQ2_XXS download, the
+    `STRATA_OWN_CPU_QUANT` build decision and the September 29 candidate tests.
+
 - **2026-11-24, scheduled scan: Strata ships 0.2.21 with a 5.4x row for our exact card and pack, the 0.1.66
   abort turns out to reach sm_120 after all, and llama.cpp reveals Inkling 2 was never running fused Flash
   Attention on any card.** `NEWS-2026-11-24.md`, written against **`NEWS-2026-11-23.md`**, which closed at
