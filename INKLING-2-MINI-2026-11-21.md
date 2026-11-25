@@ -693,6 +693,26 @@ An n=30 stride-1 run of the medium band is in progress, because stride 3 caps th
 should be measured at the same size as the APPS rungs. Stride 1 samples problems in file order, so the sample is a
 contiguous slice of the band's earliest contests - reproducible, but not a random sample of the band.
 
+**The interface matters more than the band.** LCB's file is ordered atcoder-then-leetcode, so sampling decides the
+mix, and two runs of the same band on the same model scored 73% and 28% purely because one was all stdin problems
+and the other was half functional ones. Matched like-for-like:
+
+| band / platform | qwen3.5-27B | qwen3.5:9b | n |
+|---|---|---|---|
+| easy, atcoder (stdin) | 9/9 = **100%** | 8/9 = **89%** | 9 |
+| easy, leetcode (function) | 4/6 = **67%** | 3/6 = **50%** | 6 |
+| medium, atcoder (stdin) | 4/9 = **44%** | 3/9 = **33%** | 9 |
+| medium, leetcode (function) | 1/9 = **11%** | 0/9 = **0%** | 9 |
+
+Two readings had to be withdrawn to get here. First, the 73%-against-28% gap inside the *medium* band was
+composition, not ability - stride 3 pulled in functional problems, stride 1's first fifteen were all stdin. Second,
+"the 27B is well ahead on medium atcoder, 68% against 33%" compared 19 items with 9 and does not survive
+like-for-like matching, where it is **4/9 against 3/9**.
+
+What does survive: **functional problems are where both local models collapse** - 11% and 0% at medium against 44%
+and 33% on stdin problems of the same band - and the 27B is **exactly one problem ahead in every one of the four
+cells**. Consistent direction, unchanged conclusion: no measured difference.
+
 **Six harness faults in one week, five of them mine, every one of which read as a model result:**
 
 | fault | where it bit | how it was caught |

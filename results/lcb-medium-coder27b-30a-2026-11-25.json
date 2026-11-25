@@ -1,0 +1,240 @@
+{
+ "model": "coder-27b-8k",
+ "benchmark": "livecodebench-v6",
+ "band": "medium",
+ "offset": 0,
+ "passed": 11,
+ "possible": 15,
+ "rate": 0.733,
+ "seconds": 1762.2,
+ "rows": [
+  {
+   "id": "abc387_c",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='6' got='5\\n'; stdin: want='2025' got='1617\\n'",
+   "finish": "stop",
+   "seconds": 42.4,
+   "usage": {
+    "completion_tokens": 231,
+    "prompt_tokens": 351
+   },
+   "code_chars": 669,
+   "raw": "```python\nimport sys\n\ndef count_snake(n):\n    if n < 10:\n        return 0\n    s = str(n)\n    length = len(s)\n    total = 0\n    for l in range(2, length):\n        for first in range(1, 10):\n            total += first ** (l - 1)\n    for first in range(1, int(s[0])):\n        total += first ** (length -"
+  },
+  {
+   "id": "abc388_d",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='2 0 10 5' got='5 1 11 6\\n'; stdin: want='0 4 7 4 9' got='4 7 9 5 9\\n'",
+   "finish": "stop",
+   "seconds": 31.9,
+   "usage": {
+    "completion_tokens": 185,
+    "prompt_tokens": 596
+   },
+   "code_chars": 629,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n\n    # Track how many adults have stones\n    adults_with_stones = 0\n    # Track how many adults have no stones\n    adults_without_stones = 0\n\n    for i in range(n):\n     "
+  },
+  {
+   "id": "abc388_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 27.5,
+   "usage": {
+    "completion_tokens": 149,
+    "prompt_tokens": 638
+   },
+   "code_chars": 426,
+   "raw": "```python\nimport sys\nfrom bisect import bisect_right\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    a = list(map(int, data[1:n+1]))\n\n    ans = 0\n    for i in range(n):\n        # find largest j such that a[j] <= a[i] / 2\n        # since a is sorted, use bisect_right on a[i]"
+  },
+  {
+   "id": "abc389_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 44.4,
+   "usage": {
+    "completion_tokens": 250,
+    "prompt_tokens": 318
+   },
+   "code_chars": 513,
+   "raw": "```python\nimport sys\nimport math\n\ndef solve():\n    R = int(sys.stdin.readline().strip())\n    R2 = R * R\n    count = 0\n    for i in range(-R, R + 1):\n        for j in range(-R, R + 1):\n            if (i + 0.5) * (i + 0.5) + (j + 0.5) * (j + 0.5) <= R2 and \\\n               (i + 0.5) * (i + 0.5) + (j -"
+  },
+  {
+   "id": "abc390_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 369.6,
+   "usage": {
+    "completion_tokens": 1599,
+    "prompt_tokens": 778
+   },
+   "code_chars": 5842,
+   "raw": "```python\nimport sys\nfrom itertools import combinations\n\ndef solve():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n    \n    # The operation: choose two bags A and B, move all stones from A to B.\n    # This means bag A becomes 0, bag B becomes B + A."
+  },
+  {
+   "id": "abc390_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 47.9,
+   "usage": {
+    "completion_tokens": 303,
+    "prompt_tokens": 682
+   },
+   "code_chars": 1048,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().splitlines()\n    H, W = map(int, input[0].split())\n    grid = input[1:H+1]\n\n    # Find the bounding box of all '#' cells\n    top = H\n    bottom = -1\n    left = W\n    right = -1\n\n    for i in range(H):\n        for j in range(W):\n        "
+  },
+  {
+   "id": "abc391_d",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "atcoder",
+   "why": "stdin: want='Yes\\nYes\\nNo\\nYes\\nNo\\nYes' got='exit 1: SyntaxError: invalid syntax'; stdin: want='No\\nNo\\nYes\\nYes' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 708.5,
+   "usage": {
+    "completion_tokens": 3000,
+    "prompt_tokens": 755
+   },
+   "code_chars": 11414,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    W = int(input[idx]); idx += 1\n    \n    blocks = []\n    for i in range(N):\n        x = int(input[idx]); idx += 1\n        y = int(input[idx]); i"
+  },
+  {
+   "id": "abc392_d",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 58.6,
+   "usage": {
+    "completion_tokens": 231,
+    "prompt_tokens": 567
+   },
+   "code_chars": 776,
+   "raw": "```python\nimport sys\nfrom collections import Counter\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    dice = []\n    for _ in range(N):\n        K = int(input[idx]); idx += 1\n        faces = []\n        for j in range(K):\n            faces.append(int("
+  },
+  {
+   "id": "abc392_c",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 64.1,
+   "usage": {
+    "completion_tokens": 272,
+    "prompt_tokens": 459
+   },
+   "code_chars": 735,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    P = [0] * (N + 1)\n    for i in range(1, N + 1):\n        P[i] = int(input[idx]); idx += 1\n    Q = [0] * (N + 1)\n    for i in range(1, N + 1):\n        Q[i] = int(input[idx]); idx +="
+  },
+  {
+   "id": "abc394_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 24.2,
+   "usage": {
+    "completion_tokens": 84,
+    "prompt_tokens": 565
+   },
+   "code_chars": 234,
+   "raw": "```python\nimport sys\n\ndef main():\n    s = sys.stdin.readline().strip()\n    while True:\n        idx = s.find(\"WA\")\n        if idx == -1:\n            break\n        s = s[:idx] + \"AC\" + s[idx+2:]\n    print(s)\n\nif __name__ == \"__main__\":\n    main()\n```"
+  },
+  {
+   "id": "abc394_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 31.2,
+   "usage": {
+    "completion_tokens": 123,
+    "prompt_tokens": 557
+   },
+   "code_chars": 407,
+   "raw": "```python\nimport sys\n\ndef main():\n    s = sys.stdin.readline().strip()\n    stack = []\n    pairs = {')': '(', ']': '[', '>': '<'}\n    for ch in s:\n        if ch in '([{<':\n            stack.append(ch)\n        else:\n            if not stack or stack[-1] != pairs[ch]:\n                print(\"No\")\n      "
+  },
+  {
+   "id": "abc395_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 31.1,
+   "usage": {
+    "completion_tokens": 142,
+    "prompt_tokens": 397
+   },
+   "code_chars": 390,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n\n    last_pos = {}\n    ans = n + 1\n    for i, x in enumerate(a):\n        if x in last_pos:\n            ans = min(ans, i - last_pos[x] + 1)\n        last_pos[x] = i\n\n    if"
+  },
+  {
+   "id": "abc396_c",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='0' got='exit 1: IndexError: list index out of ra'",
+   "finish": "stop",
+   "seconds": 199.8,
+   "usage": {
+    "completion_tokens": 891,
+    "prompt_tokens": 476
+   },
+   "code_chars": 2851,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    M = int(input[idx]); idx += 1\n    B = []\n    for i in range(N):\n        B.append(int(input[idx])); idx += 1\n    W = []\n    for i in range(M):\n        W.append(int(input[idx])); id"
+  },
+  {
+   "id": "abc396_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 44.9,
+   "usage": {
+    "completion_tokens": 283,
+    "prompt_tokens": 902
+   },
+   "code_chars": 927,
+   "raw": "```python\nimport sys\nfrom itertools import permutations\n\ndef main():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    M = int(input[idx]); idx += 1\n    \n    adj = [[] for _ in range(N + 1)]\n    for _ in range(M):\n        u = int(input[idx]); idx += 1\n        v ="
+  },
+  {
+   "id": "abc397_c",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 33.9,
+   "usage": {
+    "completion_tokens": 227,
+    "prompt_tokens": 531
+   },
+   "code_chars": 763,
+   "raw": "```python\nimport sys\nfrom collections import Counter\n\ndef main():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n\n    # Count distinct in right part initially (whole array)\n    right_counts = Counter(a)\n    right_distinct = len(right_counts)\n\n    left"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry.",
+ "partial": false,
+ "requested": 15
+}
