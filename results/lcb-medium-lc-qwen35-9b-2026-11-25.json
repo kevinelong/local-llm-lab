@@ -1,0 +1,240 @@
+{
+ "model": "qwen3.5:9b",
+ "benchmark": "livecodebench-v6",
+ "band": "medium",
+ "offset": 0,
+ "passed": 10,
+ "possible": 15,
+ "rate": 0.667,
+ "seconds": 458.1,
+ "rows": [
+  {
+   "id": "3677",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 19.3,
+   "usage": {
+    "completion_tokens": 916,
+    "prompt_tokens": 661
+   },
+   "code_chars": 3611,
+   "raw": "```python\nfrom typing import List\nimport math\n\nclass Solution:\n    def maximumAmount(self, coins: List[List[int]]) -> int:\n        m = len(coins)\n        n = len(coins[0])\n        \n        # dp[k][i][j] represents the max profit at cell (i,j) with k neutralizations used so far.\n        # k can be 0,"
+  },
+  {
+   "id": "3720",
+   "ok": false,
+   "cases": "0/4",
+   "platform": "leetcode",
+   "why": "functional: want='1' got='exit 1: SyntaxError: invalid syntax'; functional: want='-1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 65.5,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 674
+   },
+   "code_chars": 26852,
+   "raw": "```python\nfrom typing import List\nimport heapq\n\nclass Solution:\n    def minMaxWeight(self, n: int, edges: List[List[int]], threshold: int) -> int:\n        # Sort edges by weight to enable binary search or incremental check\n        sorted_edges = sorted(edges, key=lambda x: x[2])\n        \n        # W"
+  },
+  {
+   "id": "3714",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 34.4,
+   "usage": {
+    "completion_tokens": 3162,
+    "prompt_tokens": 483
+   },
+   "code_chars": 11170,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def minMaxSums(self, nums: List[int], k: int) -> int:\n        MOD = 10**9 + 7\n        \n        # Sort the array to easily determine min and max for subsequences\n        nums.sort()\n        n = len(nums)\n        \n        # Precompute factorials a"
+  },
+  {
+   "id": "3737",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='9' got='exit 1: SyntaxError: invalid syntax'; functional: want='18' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 66.0,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 722
+   },
+   "code_chars": 22168,
+   "raw": "```python\nfrom typing import List\nimport math\n\nclass Solution:\n    def minCost(self, n: int, cost: List[List[int]]) -> int:\n        # dp[i][c] = minimum cost to paint houses 0..i ending with color c at house i\n        # We only need the previous row to compute the current row.\n        # Colors are 0"
+  },
+  {
+   "id": "3721",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 6.9,
+   "usage": {
+    "completion_tokens": 613,
+    "prompt_tokens": 854
+   },
+   "code_chars": 3135,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def countMentions(self, numberOfUsers: int, events: List[List[str]]) -> List[int]:\n        # Initialize user status: 0 for online, 1 for offline\n        # We'll use a dictionary to track when each user comes back online\n        status = {i: 0 fo"
+  },
+  {
+   "id": "3751",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 24.9,
+   "usage": {
+    "completion_tokens": 2276,
+    "prompt_tokens": 394
+   },
+   "code_chars": 8362,
+   "raw": "```python\nfrom typing import List\nfrom collections import Counter\n\nclass Solution:\n    def maxFrequency(self, nums: List[int], k: int) -> int:\n        # Since constraints are small (nums[i] <= 50, k <= 50), we can use a frequency array.\n        # However, the operation allows adding x to a subarray."
+  },
+  {
+   "id": "3754",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='3' got='exit 1: SyntaxError: invalid syntax'; functional: want='6' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 66.2,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 583
+   },
+   "code_chars": 25801,
+   "raw": "```python\nclass Solution:\n    def maxDistance(self, s: str, k: int) -> int:\n        n = len(s)\n        if k >= n:\n            return 2 * n\n        \n        # Count current N and E moves\n        cnt_n = s.count('N')\n        cnt_e = s.count('E')\n        \n        # If we can flip all non-N to N and all"
+  },
+  {
+   "id": "3748",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 25.9,
+   "usage": {
+    "completion_tokens": 2351,
+    "prompt_tokens": 464
+   },
+   "code_chars": 7613,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def sortMatrix(self, grid: List[List[int]]) -> List[List[int]]:\n        n = len(grid)\n        # Create a copy to avoid modifying the original grid directly during extraction\n        result = [row[:] for row in grid]\n        \n        # Identify d"
+  },
+  {
+   "id": "3760",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 1.6,
+   "usage": {
+    "completion_tokens": 127,
+    "prompt_tokens": 559
+   },
+   "code_chars": 521,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def assignElements(self, groups: List[int], elements: List[int]) -> List[int]:\n        n = len(groups)\n        m = len(elements)\n        assigned = [-1] * n\n        \n        # For each group, iterate through elements in order (smallest index fir"
+  },
+  {
+   "id": "3779",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 52.8,
+   "usage": {
+    "completion_tokens": 4718,
+    "prompt_tokens": 568
+   },
+   "code_chars": 15180,
+   "raw": "```python\nfrom typing import List\nimport functools\n\nclass Solution:\n    def maxWeight(self, pizzas: List[int]) -> int:\n        n = len(pizzas)\n        \n        # Sort the pizzas to easily pick the largest elements for each day\n        sorted_pizzas = sorted(pizzas)\n        \n        # We need to proc"
+  },
+  {
+   "id": "3771",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='true' got='exit 1: SyntaxError: invalid syntax'; functional: want='false' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 66.8,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 398
+   },
+   "code_chars": 27818,
+   "raw": "```python\nclass Solution:\n    def maxSubstringLength(self, s: str, k: int) -> bool:\n        # If k is 0, it's always possible (selecting zero substrings).\n        if k == 0:\n            return True\n        \n        n = len(s)\n        \n        # Count the frequency of each character in the entire str"
+  },
+  {
+   "id": "3764",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 3.0,
+   "usage": {
+    "completion_tokens": 254,
+    "prompt_tokens": 444
+   },
+   "code_chars": 1092,
+   "raw": "```python\nfrom typing import List\nimport heapq\n\nclass Solution:\n    def maxSum(self, grid: List[List[int]], limits: List[int], k: int) -> int:\n        # Flatten all elements from the grid into a single list along with their row index\n        # We need to respect the limit for each row.\n        \n    "
+  },
+  {
+   "id": "3786",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 9.8,
+   "usage": {
+    "completion_tokens": 888,
+    "prompt_tokens": 448
+   },
+   "code_chars": 3290,
+   "raw": "```python\nclass Solution:\n    def longestPalindromicSubsequence(self, s: str, k: int) -> int:\n        n = len(s)\n        # Precompute character distances with wrap-around\n        def dist(c1, c2):\n            diff = abs(ord(c1) - ord(c2))\n            return min(diff, 26 - diff)\n\n        # dp[i][j] ="
+  },
+  {
+   "id": "3722",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 5.6,
+   "usage": {
+    "completion_tokens": 495,
+    "prompt_tokens": 386
+   },
+   "code_chars": 1690,
+   "raw": "```python\nfrom typing import List\n\nclass Solution:\n    def maxSum(self, nums: List[int], k: int, m: int) -> int:\n        n = len(nums)\n        # dp[i][j] = maximum sum of j non-overlapping subarrays using elements from index i to n-1\n        # We'll compute this bottom-up or top-down. Given constrai"
+  },
+  {
+   "id": "3759",
+   "ok": false,
+   "cases": "1/2",
+   "platform": "leetcode",
+   "why": "functional: want='[80, 30, 0, 80, 50]' got='got=[50, 30, 0, 30, 50]'",
+   "finish": "stop",
+   "seconds": 7.6,
+   "usage": {
+    "completion_tokens": 677,
+    "prompt_tokens": 627
+   },
+   "code_chars": 2858,
+   "raw": "```python\nfrom typing import List\nimport heapq\n\nclass Solution:\n    def findMaxSum(self, nums1: List[int], nums2: List[int], k: int) -> List[int]:\n        n = len(nums1)\n        answer = [0] * n\n        \n        # We will process indices in increasing order of nums1 values.\n        # For each index "
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry.",
+ "partial": false,
+ "requested": 15
+}

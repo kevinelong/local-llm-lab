@@ -1,0 +1,240 @@
+{
+ "model": "coder-27b-8k",
+ "benchmark": "livecodebench-v6",
+ "band": "easy",
+ "offset": 0,
+ "passed": 15,
+ "possible": 15,
+ "rate": 1.0,
+ "seconds": 884.3,
+ "rows": [
+  {
+   "id": "3708",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 87.3,
+   "usage": {
+    "completion_tokens": 139,
+    "prompt_tokens": 401
+   },
+   "code_chars": 554,
+   "raw": "```python\nclass Solution:\n    def zigzagTraversal(self, grid):\n        m = len(grid)\n        n = len(grid[0])\n        result = []\n        skip = False\n        for i in range(m):\n            if i % 2 == 0:\n                for j in range(n):\n                    if not skip:\n                        res"
+  },
+  {
+   "id": "3731",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 56.5,
+   "usage": {
+    "completion_tokens": 109,
+    "prompt_tokens": 426
+   },
+   "code_chars": 333,
+   "raw": "```python\nclass Solution:\n    def subarraySum(self, nums):\n        n = len(nums)\n        prefix = [0] * (n + 1)\n        for i in range(n):\n            prefix[i + 1] = prefix[i] + nums[i]\n        total = 0\n        for i in range(n):\n            start = max(0, i - nums[i])\n            total += prefix["
+  },
+  {
+   "id": "3704",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 48.9,
+   "usage": {
+    "completion_tokens": 90,
+    "prompt_tokens": 478
+   },
+   "code_chars": 301,
+   "raw": "```python\nclass Solution:\n    def countPartitions(self, nums):\n        total = sum(nums)\n        left = 0\n        count = 0\n        for i in range(len(nums) - 1):\n            left += nums[i]\n            right = total - left\n            if (left - right) % 2 == 0:\n                count += 1\n        r"
+  },
+  {
+   "id": "3753",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 46.0,
+   "usage": {
+    "completion_tokens": 90,
+    "prompt_tokens": 343
+   },
+   "code_chars": 272,
+   "raw": "```python\nclass Solution:\n    def maxDifference(self, s: str) -> int:\n        from collections import Counter\n        freq = Counter(s)\n        odd = [f for f in freq.values() if f % 2 == 1]\n        even = [f for f in freq.values() if f % 2 == 0]\n        return max(odd) - min(even)\n```"
+  },
+  {
+   "id": "3709",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 71.1,
+   "usage": {
+    "completion_tokens": 151,
+    "prompt_tokens": 362
+   },
+   "code_chars": 493,
+   "raw": "```python\nclass Solution:\n    def hasSpecialSubstring(self, s: str, k: int) -> bool:\n        n = len(s)\n        i = 0\n        while i < n:\n            j = i\n            while j < n and s[j] == s[i]:\n                j += 1\n            length = j - i\n            if length == k:\n                before_"
+  },
+  {
+   "id": "3768",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 52.7,
+   "usage": {
+    "completion_tokens": 95,
+    "prompt_tokens": 514
+   },
+   "code_chars": 262,
+   "raw": "```python\nclass Solution:\n    def hasSameDigits(self, s: str) -> bool:\n        while len(s) > 2:\n            new_s = \"\"\n            for i in range(len(s) - 1):\n                new_s += str((int(s[i]) + int(s[i + 1])) % 10)\n            s = new_s\n        return s[0] == s[1]\n```"
+  },
+  {
+   "id": "3705",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 74.9,
+   "usage": {
+    "completion_tokens": 134,
+    "prompt_tokens": 699
+   },
+   "code_chars": 498,
+   "raw": "```python\nfrom collections import defaultdict\n\nclass Solution:\n    def largestInteger(self, nums, k):\n        n = len(nums)\n        count = defaultdict(int)\n        for i in range(n - k + 1):\n            sub = nums[i:i + k]\n            seen = set()\n            for x in sub:\n                if x not "
+  },
+  {
+   "id": "3788",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 52.1,
+   "usage": {
+    "completion_tokens": 100,
+    "prompt_tokens": 405
+   },
+   "code_chars": 403,
+   "raw": "```python\nclass Solution:\n    def maxSum(self, nums):\n        best = float('-inf')\n        for i in range(len(nums)):\n            seen = set()\n            cur = 0\n            for j in range(i, len(nums)):\n                if nums[j] in seen:\n                    break\n                seen.add(nums[j])"
+  },
+  {
+   "id": "3817",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 28.0,
+   "usage": {
+    "completion_tokens": 61,
+    "prompt_tokens": 343
+   },
+   "code_chars": 197,
+   "raw": "```python\nclass Solution:\n    def maxContainers(self, n: int, w: int, maxWeight: int) -> int:\n        total_cells = n * n\n        max_by_weight = maxWeight // w\n        return min(total_cells, max_by_weight)\n```"
+  },
+  {
+   "id": "3832",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 45.1,
+   "usage": {
+    "completion_tokens": 94,
+    "prompt_tokens": 545
+   },
+   "code_chars": 303,
+   "raw": "```python\nclass Solution:\n    def minCosts(self, cost):\n        n = len(cost)\n        answer = [0] * n\n        min_cost = cost[0]\n        answer[0] = min_cost\n        for i in range(1, n):\n            if cost[i] < min_cost:\n                min_cost = cost[i]\n            answer[i] = min_cost\n        "
+  },
+  {
+   "id": "3773",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 88.4,
+   "usage": {
+    "completion_tokens": 200,
+    "prompt_tokens": 342
+   },
+   "code_chars": 772,
+   "raw": "```python\nclass Solution:\n    def minimumPairRemoval(self, nums):\n        ops = 0\n        while True:\n            # Check if non-decreasing\n            ok = True\n            for i in range(1, len(nums)):\n                if nums[i] < nums[i - 1]:\n                    ok = False\n                    bre"
+  },
+  {
+   "id": "3747",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 51.0,
+   "usage": {
+    "completion_tokens": 85,
+    "prompt_tokens": 269
+   },
+   "code_chars": 284,
+   "raw": "```python\nclass Solution:\n    def maxAdjacentDistance(self, nums: list[int]) -> int:\n        n = len(nums)\n        max_diff = 0\n        for i in range(n):\n            diff = abs(nums[i] - nums[(i + 1) % n])\n            if diff > max_diff:\n                max_diff = diff\n        return max_diff\n```"
+  },
+  {
+   "id": "3736",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 60.3,
+   "usage": {
+    "completion_tokens": 97,
+    "prompt_tokens": 365
+   },
+   "code_chars": 315,
+   "raw": "```python\nclass Solution:\n    def findValidPair(self, s: str) -> str:\n        from collections import Counter\n        counts = Counter(s)\n        for i in range(len(s) - 1):\n            a, b = s[i], s[i + 1]\n            if a != b and counts[a] == int(a) and counts[b] == int(b):\n                retur"
+  },
+  {
+   "id": "3723",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 75.2,
+   "usage": {
+    "completion_tokens": 119,
+    "prompt_tokens": 341
+   },
+   "code_chars": 410,
+   "raw": "```python\nclass Solution:\n    def sumOfGoodNumbers(self, nums: list[int], k: int) -> int:\n        n = len(nums)\n        total = 0\n        for i in range(n):\n            good = True\n            if i - k >= 0 and nums[i] <= nums[i - k]:\n                good = False\n            if i + k < n and nums[i]"
+  },
+  {
+   "id": "3778",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 44.6,
+   "usage": {
+    "completion_tokens": 56,
+    "prompt_tokens": 396
+   },
+   "code_chars": 190,
+   "raw": "```python\nclass Solution:\n    def transformArray(self, nums: list[int]) -> list[int]:\n        transformed = [0 if x % 2 == 0 else 1 for x in nums]\n        transformed.sort()\n        return transformed\n```"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry.",
+ "partial": false,
+ "requested": 15
+}

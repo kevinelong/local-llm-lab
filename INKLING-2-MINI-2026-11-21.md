@@ -693,25 +693,32 @@ An n=30 stride-1 run of the medium band is in progress, because stride 3 caps th
 should be measured at the same size as the APPS rungs. Stride 1 samples problems in file order, so the sample is a
 contiguous slice of the band's earliest contests - reproducible, but not a random sample of the band.
 
-**The interface does not matter; the band does - and this section was wrong for an hour.** LCB's functional
-(leetcode) problems give their arguments as **newline-separated JSON, one per line**, and the runner parsed the whole
-block as a single JSON value, so every functional answer failed with what looked exactly like a model signature
-error (`Solution.minCost() missing 1 required positional argument`). With the parser fixed and re-verified against a
-hand-written solution, the leetcode cells came back completely differently:
+**The interface does not matter; the band does - and this section was wrong twice before it settled.** LCB's
+functional (leetcode) problems give their arguments as **newline-separated JSON, one per line**, and the runner parsed
+the block as a single JSON value, so every functional answer failed with a message that looked exactly like a model
+signature error. Once fixed and re-verified against hand-written solutions, the leetcode cells inverted:
 
-| band / platform | qwen3.5-27B | corrected from |
-|---|---|---|
-| easy, atcoder (stdin) | 9/9 = **100%** | unchanged |
-| medium, atcoder (stdin) | 16/26 = **62%** | unchanged |
-| medium, leetcode (function) | 9/15 = **60%** | **1/9 = 11%**, void |
+| band / interface | qwen3.5-27B | qwen3.5:9b | note |
+|---|---|---|---|
+| easy, atcoder (stdin) | 9/9 = **100%** | 8/9 = **89%** | |
+| easy, leetcode (function) | 15/15 = **100%** | 11/15 = **73%** | 9B truncated twice |
+| medium, atcoder (stdin) | 15/22 = **68%** | 12/22 = **55%** | matched ids |
+| medium, leetcode (function) | 9/15 = **60%** | 10/15 = **67%** | 9B ahead here |
+| hard, atcoder (stdin) | not run | 1/20 = **5%** | 16 of 20 truncated: budget, not capability |
 
-So there is **no platform effect**: 62% on stdin problems against 60% on functional ones, same band, same model.
-The earlier "both models collapse on functional problems, 11% and 0%" was the parser, and it is withdrawn. What
-remains is the band effect: easy ~100% (atcoder), medium ~60%, and that is the same cliff APPS showed.
+**No platform effect**: 68% and 60% on the same band in two interfaces for one model, so the earlier "both models
+collapse on functional problems (11% and 0%)" was the parser and is withdrawn.
 
-**27B medium, corrected and matched: 25/41 = 61%** (16/26 atcoder + 9/15 leetcode), replacing the invalid 16/30.
-Four of the thirty in that natural-mix run were functional problems scored by the broken parser and are excluded
-rather than re-counted.
+**The easy band is the one place the 27B is perfect**: 24/24 across both interfaces, against the 9B's 19/24
+(Fisher two-sided p = 0.05). That is at the edge of significance and it should not be read as a clean win, because
+**two of the 9B's five failures are its own verbosity** - it wrote 23,599 and 20,823 characters of code, ran out of
+budget and was cut mid-block. Counting those as capability would be the same mistake as every other fault this
+week: the 9B's honest range on easy is 19-21 of 24, which is p ~ 0.3, i.e. not significant.
+
+**Medium, both interfaces, matched: 27B 24/37 = 65% against 9B 22/37 = 59%.** The 27B is ahead in three of the four
+cells and behind in one, by one to three problems, everywhere inside overlapping intervals. After APPS and
+LiveCodeBench, across two interfaces and four tiers, the summary is unchanged: **a consistent small edge for the
+27B, no cell where it is decisively better except the perfect easy band, and 13x the wall time throughout.**
 
 **Six harness faults in one week, five of them mine, every one of which read as a model result:**
 

@@ -1,0 +1,315 @@
+{
+ "model": "qwen3.5:9b",
+ "benchmark": "livecodebench-v6",
+ "band": "medium",
+ "offset": 0,
+ "passed": 11,
+ "possible": 20,
+ "rate": 0.55,
+ "seconds": 756.1,
+ "rows": [
+  {
+   "id": "abc387_c",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='6' got='-37\\n'; stdin: want='2025' got='5409\\n'",
+   "finish": "stop",
+   "seconds": 25.9,
+   "usage": {
+    "completion_tokens": 2398,
+    "prompt_tokens": 351
+   },
+   "code_chars": 8268,
+   "raw": "```python\nimport sys\n\ndef count_snake(n: int) -> int:\n    \"\"\"Count Snake numbers in [1, n].\"\"\"\n    if n < 10:\n        return 0\n    \n    s = str(n)\n    length = len(s)\n    \n    # We will iterate over all possible lengths from 2 to length-1 and count fully.\n    # Then handle the exact length 'length' "
+  },
+  {
+   "id": "abc388_d",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='2 0 10 5' got='exit 1: SyntaxError: invalid syntax'; stdin: want='0 4 7 4 9' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 85.2,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 596
+   },
+   "code_chars": 18662,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    N = int(data[0])\n    A = list(map(int, data[1:N+1]))\n    \n    # Count how many aliens have at least 1 stone initially\n    initial_adults = sum(1 for x in A if x > 0)\n    \n    # We need to simulate year "
+  },
+  {
+   "id": "abc388_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 13.2,
+   "usage": {
+    "completion_tokens": 866,
+    "prompt_tokens": 638
+   },
+   "code_chars": 2969,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    N = int(data[0])\n    A = list(map(int, data[1:]))\n    \n    # Since A is sorted in ascending order, we can use two pointers or binary search.\n    # For each mochi B (bottom), we want to count how many mo"
+  },
+  {
+   "id": "abc389_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 61.1,
+   "usage": {
+    "completion_tokens": 4213,
+    "prompt_tokens": 318
+   },
+   "code_chars": 10424,
+   "raw": "```python\nimport sys\nimport math\n\ndef solve():\n    try:\n        line = sys.stdin.read().strip()\n        if not line:\n            return\n        R = int(line)\n    except ValueError:\n        return\n\n    # We need to count integer pairs (i, j) such that the square with corners\n    # at (i+/-0.5, j+/-0."
+  },
+  {
+   "id": "abc390_d",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='3' got='exit 1: SyntaxError: invalid syntax'; stdin: want='2' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 84.3,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 778
+   },
+   "code_chars": 19022,
+   "raw": "```python\nimport sys\n\ndef solve():\n    # Read N\n    try:\n        line1 = sys.stdin.read().split()\n    except Exception:\n        return\n\n    if not line1:\n        return\n\n    iterator = iter(line1)\n    try:\n        N = int(next(iterator))\n        A = []\n        for _ in range(N):\n            A.append"
+  },
+  {
+   "id": "abc390_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 9.5,
+   "usage": {
+    "completion_tokens": 673,
+    "prompt_tokens": 682
+   },
+   "code_chars": 2500,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    H = int(data[0])\n    W = int(data[1])\n    S = data[2:]\n    \n    # Parse grid into a list of lists for easier manipulation\n    grid = [list(row) for row in S]\n    \n  "
+  },
+  {
+   "id": "abc391_d",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "atcoder",
+   "why": "stdin: want='Yes\\nYes\\nNo\\nYes\\nNo\\nYes' got='exit 1: SyntaxError: invalid syntax'; stdin: want='No\\nNo\\nYes\\nYes' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 81.5,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 755
+   },
+   "code_chars": 19488,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    iterator = iter(data)\n    \n    N = int(next(iterator))\n    W = int(next(iterator))\n    \n    blocks = []\n    for i in range(N):\n        X = int(next(iterator))\n        Y = "
+  },
+  {
+   "id": "abc392_d",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "atcoder",
+   "why": "stdin: want='0.333333333333333' got='0.33333333333333331483\\n'; stdin: want='0.666666666666667' got='0.50000000000000000000\\n'",
+   "finish": "stop",
+   "seconds": 3.9,
+   "usage": {
+    "completion_tokens": 255,
+    "prompt_tokens": 567
+   },
+   "code_chars": 927,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    iterator = iter(data)\n    \n    try:\n        N = int(next(iterator))\n    except StopIteration:\n        return\n\n    # Store dice as list of sets to count common elements efficiently\n    dice_sets = []\n    \n   "
+  },
+  {
+   "id": "abc392_c",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "atcoder",
+   "why": "stdin: want='3 4 1 2' got='exit 1: IndexError: list index out of ra'; stdin: want='4 8 6 5 3 10 9 2 1 7' got='exit 1: IndexError: list index out of ra'",
+   "finish": "stop",
+   "seconds": 5.4,
+   "usage": {
+    "completion_tokens": 367,
+    "prompt_tokens": 459
+   },
+   "code_chars": 1137,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    N = int(data[0])\n    P = [int(x) for x in data[1:N]]  # P_1 to P_N (0-indexed: P[i] is who person i+1 stares at)\n    Q = [int(x) for x in data[N:2*N]]  # Q_1 to Q_N (bib numbers for persons 1 to N)\n    "
+  },
+  {
+   "id": "abc394_c",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='ACCAC' got='exit 1: SyntaxError: invalid syntax'; stdin: want='ACC' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 87.4,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 565
+   },
+   "code_chars": 18367,
+   "raw": "```python\nimport sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    \n    # We need to repeatedly find the leftmost \"WA\" and replace it with \"AC\".\n    # Since replacing \"WA\" (length 2) with \"AC\" (length 2) does not change the length,\n    # but creates new potential \"WA\"s or removes existing ones."
+  },
+  {
+   "id": "abc394_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 19.6,
+   "usage": {
+    "completion_tokens": 1309,
+    "prompt_tokens": 557
+   },
+   "code_chars": 5093,
+   "raw": "```python\nimport sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    n = len(s)\n    \n    # We need to check if the string can be reduced to empty by removing \"()\", \"[]\", \"<>\".\n    # This is equivalent to checking if every character has a matching pair of the same type,\n    # and the nesting struc"
+  },
+  {
+   "id": "abc395_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 6.0,
+   "usage": {
+    "completion_tokens": 362,
+    "prompt_tokens": 397
+   },
+   "code_chars": 1345,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    N = int(data[0])\n    A = list(map(int, data[1:N+1]))\n    \n    # We need to find the shortest contiguous subarray that contains a repeat"
+  },
+  {
+   "id": "abc396_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 18.4,
+   "usage": {
+    "completion_tokens": 1102,
+    "prompt_tokens": 476
+   },
+   "code_chars": 3842,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    N = int(data[0])\n    M = int(data[1])\n    \n    B = list(map(int, data[2:2+N]))\n    W = list(map(int, data[2+N:2+N+M]))\n    \n    # Sort both lists in descending order to pick largest values first\n    B.s"
+  },
+  {
+   "id": "abc396_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 6.9,
+   "usage": {
+    "completion_tokens": 404,
+    "prompt_tokens": 902
+   },
+   "code_chars": 1463,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    iterator = iter(data)\n    N = int(next(iterator))\n    M = int(next(iterator))\n    \n    adj = [[] for _ in range(N + 1)]\n    \n    for _ in range(M):\n        u = int(n"
+  },
+  {
+   "id": "abc397_c",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 13.8,
+   "usage": {
+    "completion_tokens": 841,
+    "prompt_tokens": 531
+   },
+   "code_chars": 2761,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    N = int(data[0])\n    A = [int(x) for x in data[1:]]\n    \n    # Precompute distinct counts from left to right (prefix distinct counts)\n "
+  },
+  {
+   "id": "abc397_b",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='1' got='exit 1: SyntaxError: invalid syntax'; stdin: want='2' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 121.9,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 379
+   },
+   "code_chars": 20105,
+   "raw": "```python\nimport sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    \n    # We want to insert minimum characters so that:\n    # - Length is even\n    # - Odd positions (1-indexed) are 'i'\n    # - Even positions (1-indexed) are 'o'\n    \n    # Let's map the existing characters in S to their required"
+  },
+  {
+   "id": "abc398_b",
+   "ok": true,
+   "cases": "4/4",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 7.3,
+   "usage": {
+    "completion_tokens": 463,
+    "prompt_tokens": 395
+   },
+   "code_chars": 1657,
+   "raw": "```python\nimport sys\nfrom collections import Counter\n\ndef solve():\n    try:\n        line = sys.stdin.read().strip()\n        if not line:\n            return\n        a = list(map(int, line.split()))\n    except ValueError:\n        return\n\n    counts = Counter(a)\n    \n    # Check for full house: one val"
+  },
+  {
+   "id": "abc398_c",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 3.4,
+   "usage": {
+    "completion_tokens": 207,
+    "prompt_tokens": 419
+   },
+   "code_chars": 737,
+   "raw": "```python\nimport sys\nfrom collections import Counter\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    N = int(data[0])\n    A = list(map(int, data[1:N+1]))\n    \n    # Count occurrences of each integer\n    counts = Counter(A)\n    \n    # "
+  },
+  {
+   "id": "abc399_d",
+   "ok": false,
+   "cases": "0/1",
+   "platform": "atcoder",
+   "why": "stdin: want='1\\n0\\n4' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 91.5,
+   "usage": {
+    "completion_tokens": 6000,
+    "prompt_tokens": 743
+   },
+   "code_chars": 16753,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    iterator = iter(data)\n    \n    try:\n        T_str = next(iterator)\n        if not T_str:\n            return\n        T = int(T_str)\n    except StopIteration:\n        return\n\n    out_lines = []\n    \n    for _ "
+  },
+  {
+   "id": "abc399_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 7.5,
+   "usage": {
+    "completion_tokens": 504,
+    "prompt_tokens": 410
+   },
+   "code_chars": 1834,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read\n    data = input().split()\n    \n    if not data:\n        return\n    \n    iterator = iter(data)\n    N = int(next(iterator))\n    M = int(next(iterator))\n    \n    # We need to count the number of edges that form cycles.\n    # A forest is a g"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry.",
+ "partial": false,
+ "requested": 20
+}
