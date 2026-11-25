@@ -69,13 +69,15 @@ def cases_of(row: dict) -> list[dict]:
 
 
 def load_items(band: str, limit: int, offset: int, max_cases: int,
-               stride: int = 1) -> list[dict]:
+               stride: int = 1, platform: str = "") -> list[dict]:
     """Take every `stride`-th usable problem, so a sample spans contests rather than one ABC round."""
     items, seen = [], 0
     with LCB.open(encoding="utf-8") as fh:
         for line in fh:
             row = json.loads(line)
             if row.get("difficulty") != band:
+                continue
+            if platform and row.get("platform") != platform:
                 continue
             cases = cases_of(row)
             if not cases or len(cases) > max_cases:
@@ -169,6 +171,28 @@ print(json.dumps({"error": "TypeError: " + str(last)[:80]}))
 """
 
 
+def parse_args(raw: str) -> list:
+    """LCB functional inputs are newline-separated JSON: one argument per line.
+
+    Measured the hard way: `4\n[[3, 5, 7], ...]` is two arguments, not one string. Parsing the
+    whole block as JSON fails, and the failure looked exactly like a model signature error
+    (`Solution.minCost() missing 1 required positional argument`).
+    """
+    lines = [ln for ln in (raw or "").splitlines() if ln.strip()]
+    if len(lines) > 1:
+        out = []
+        for ln in lines:
+            try:
+                out.append(json.loads(ln))
+            except Exception:
+                out.append(ln.strip())
+        return out
+    try:
+        return [json.loads(raw)]
+    except Exception:
+        return [raw]
+
+
 def run_functional(code: str, func: str, arg_json: list, want: str,
                    timeout: float, wd: str) -> tuple[bool, str]:
     script = os.path.join(wd, "sol.py")
@@ -223,13 +247,15 @@ def main() -> int:
     ap.add_argument("--offset", type=int, default=0)
     ap.add_argument("--max-cases", type=int, default=8)
     ap.add_argument("--stride", type=int, default=1)
+    ap.add_argument("--platform", default="", choices=("", "atcoder", "leetcode"))
     ap.add_argument("--max-tokens", type=int, default=6000)
     ap.add_argument("--num-ctx", type=int, default=8192)
     ap.add_argument("--case-timeout", type=float, default=6.0)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
-    items = load_items(args.band, args.limit, args.offset, args.max_cases, args.stride)
+    items = load_items(args.band, args.limit, args.offset, args.max_cases, args.stride,
+                       args.platform)
     if not items:
         print("no usable problems"); return 2
 
@@ -266,10 +292,7 @@ def main() -> int:
         with tempfile.TemporaryDirectory() as wd:
             for c in it["cases"]:
                 if c["kind"] == "functional" and it["func"]:
-                    try:
-                        argv = json.loads(c["input"])
-                    except Exception:
-                        argv = [c["input"]]
+                    argv = parse_args(c["input"])
                     matched, got = run_functional(code, it["func"], argv, c["output"],
                                                   args.case_timeout, wd)
                 else:

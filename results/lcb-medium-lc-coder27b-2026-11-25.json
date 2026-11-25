@@ -1,0 +1,240 @@
+{
+ "model": "coder-27b-8k",
+ "benchmark": "livecodebench-v6",
+ "band": "medium",
+ "offset": 0,
+ "passed": 9,
+ "possible": 15,
+ "rate": 0.6,
+ "seconds": 772.6,
+ "rows": [
+  {
+   "id": "3677",
+   "ok": false,
+   "cases": "1/2",
+   "platform": "leetcode",
+   "why": "functional: want='8' got='got=7'",
+   "finish": "stop",
+   "seconds": 64.4,
+   "usage": {
+    "completion_tokens": 499,
+    "prompt_tokens": 661
+   },
+   "code_chars": 1592,
+   "raw": "```python\nclass Solution:\n    def maximumAmount(self, coins):\n        m = len(coins)\n        n = len(coins[0])\n        NEG = float('-inf')\n        dp = [[[NEG, NEG, NEG] for _ in range(n)] for _ in range(m)]\n        dp[0][0][0] = coins[0][0]\n        if coins[0][0] < 0:\n            dp[0][0][1] = 0\n  "
+  },
+  {
+   "id": "3720",
+   "ok": true,
+   "cases": "4/4",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 54.2,
+   "usage": {
+    "completion_tokens": 421,
+    "prompt_tokens": 674
+   },
+   "code_chars": 1852,
+   "raw": "```python\nfrom collections import defaultdict, deque\n\nclass Solution:\n    def minMaxWeight(self, n: int, edges: list, threshold: int) -> int:\n        # Sort edges by weight\n        edges.sort(key=lambda e: e[2])\n        \n        # Binary search on the answer (max weight)\n        def can_achieve(max_"
+  },
+  {
+   "id": "3714",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 48.0,
+   "usage": {
+    "completion_tokens": 374,
+    "prompt_tokens": 483
+   },
+   "code_chars": 1118,
+   "raw": "```python\nclass Solution:\n    def minMaxSums(self, nums, k):\n        MOD = 10**9 + 7\n        n = len(nums)\n        nums.sort()\n        \n        # Precompute powers of 2\n        pow2 = [1] * (n + 1)\n        for i in range(1, n + 1):\n            pow2[i] = (pow2[i - 1] * 2) % MOD\n        \n        # Pre"
+  },
+  {
+   "id": "3737",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 133.6,
+   "usage": {
+    "completion_tokens": 1039,
+    "prompt_tokens": 722
+   },
+   "code_chars": 3616,
+   "raw": "```python\nclass Solution:\n    def minCost(self, n: int, cost: list[list[int]]) -> int:\n        # DP: dp[i][c] = min cost to paint houses 0..i with house i painted color c\n        # Constraints: adjacent different, and for each pair (i, n-1-i), colors differ.\n        # Since n is even, we can process"
+  },
+  {
+   "id": "3721",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 35.1,
+   "usage": {
+    "completion_tokens": 264,
+    "prompt_tokens": 854
+   },
+   "code_chars": 1155,
+   "raw": "```python\nclass Solution:\n    def countMentions(self, numberOfUsers: int, events: list) -> list:\n        online = [True] * numberOfUsers\n        offline_until = [0] * numberOfUsers\n        mentions = [0] * numberOfUsers\n\n        for ev in events:\n            typ = ev[0]\n            ts = int(ev[1])\n "
+  },
+  {
+   "id": "3751",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='2' got='got=1'; functional: want='4' got='got=1'",
+   "finish": "stop",
+   "seconds": 13.5,
+   "usage": {
+    "completion_tokens": 100,
+    "prompt_tokens": 394
+   },
+   "code_chars": 345,
+   "raw": "```python\nfrom collections import Counter\n\nclass Solution:\n    def maxFrequency(self, nums, k):\n        n = len(nums)\n        diff = [k - x for x in nums]\n        best = 0\n        for i in range(n):\n            cnt = Counter()\n            for j in range(i, n):\n                cnt[diff[j]] += 1\n     "
+  },
+  {
+   "id": "3754",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 30.8,
+   "usage": {
+    "completion_tokens": 232,
+    "prompt_tokens": 583
+   },
+   "code_chars": 888,
+   "raw": "```python\nclass Solution:\n    def maxDistance(self, s: str, k: int) -> int:\n        n = len(s)\n        # Try all 4 target directions\n        best = 0\n        for target in ['N', 'S', 'E', 'W']:\n            # Greedy: change first k non-target chars to target\n            changed = 0\n            x, y ="
+  },
+  {
+   "id": "3748",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 40.6,
+   "usage": {
+    "completion_tokens": 311,
+    "prompt_tokens": 464
+   },
+   "code_chars": 1105,
+   "raw": "```python\nclass Solution:\n    def sortMatrix(self, grid):\n        n = len(grid)\n        # Bottom-left triangle: diagonals where row >= col\n        # These go from top-left to bottom-right, starting at (r,0) for r in 0..n-1\n        for r in range(n):\n            diag = []\n            i, j = r, 0\n    "
+  },
+  {
+   "id": "3760",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 12.4,
+   "usage": {
+    "completion_tokens": 87,
+    "prompt_tokens": 559
+   },
+   "code_chars": 334,
+   "raw": "```python\nclass Solution:\n    def assignElements(self, groups, elements):\n        n = len(groups)\n        m = len(elements)\n        assigned = [-1] * n\n        for i in range(n):\n            for j in range(m):\n                if groups[i] % elements[j] == 0:\n                    assigned[i] = j\n     "
+  },
+  {
+   "id": "3779",
+   "ok": false,
+   "cases": "1/2",
+   "platform": "leetcode",
+   "why": "functional: want='14' got='got=13'",
+   "finish": "stop",
+   "seconds": 14.2,
+   "usage": {
+    "completion_tokens": 98,
+    "prompt_tokens": 568
+   },
+   "code_chars": 318,
+   "raw": "```python\nclass Solution:\n    def maxWeight(self, pizzas):\n        pizzas.sort()\n        n = len(pizzas)\n        days = n // 4\n        total = 0\n        for d in range(days):\n            if d % 2 == 0:\n                total += pizzas[-1 - 2 * d]\n            else:\n                total += pizzas[-2 -"
+  },
+  {
+   "id": "3771",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "leetcode",
+   "why": "functional: want='true' got='got=False'",
+   "finish": "stop",
+   "seconds": 21.4,
+   "usage": {
+    "completion_tokens": 162,
+    "prompt_tokens": 398
+   },
+   "code_chars": 604,
+   "raw": "```python\nclass Solution:\n    def maxSubstringLength(self, s: str, k: int) -> bool:\n        n = len(s)\n        if k == 0:\n            return True\n        first = {}\n        last = {}\n        for i, ch in enumerate(s):\n            if ch not in first:\n                first[ch] = i\n            last[ch]"
+  },
+  {
+   "id": "3764",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='7' got='got=5'; functional: want='21' got='got=18'",
+   "finish": "stop",
+   "seconds": 15.2,
+   "usage": {
+    "completion_tokens": 113,
+    "prompt_tokens": 444
+   },
+   "code_chars": 393,
+   "raw": "```python\nclass Solution:\n    def maxSum(self, grid, limits, k):\n        import heapq\n        h = []\n        for i in range(len(grid)):\n            row = grid[i]\n            row.sort(reverse=True)\n            for j in range(min(limits[i], len(row))):\n                heapq.heappush(h, row[j])\n       "
+  },
+  {
+   "id": "3786",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 59.7,
+   "usage": {
+    "completion_tokens": 461,
+    "prompt_tokens": 448
+   },
+   "code_chars": 1628,
+   "raw": "```python\nclass Solution:\n    def longestPalindromicSubsequence(self, s: str, k: int) -> int:\n        n = len(s)\n        # dp[i][j][k] = max palindrome length in s[i..j] with at most k operations\n        # Use iterative approach with 3D array\n        # Dimensions: n x n x (k+1)\n        \n        # In"
+  },
+  {
+   "id": "3722",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 194.3,
+   "usage": {
+    "completion_tokens": 1437,
+    "prompt_tokens": 386
+   },
+   "code_chars": 4324,
+   "raw": "```python\nclass Solution:\n    def maxSum(self, nums: list[int], k: int, m: int) -> int:\n        n = len(nums)\n        prefix = [0] * (n + 1)\n        for i in range(n):\n            prefix[i + 1] = prefix[i] + nums[i]\n\n        def subarray_sum(l, r):\n            return prefix[r + 1] - prefix[l]\n\n     "
+  },
+  {
+   "id": "3759",
+   "ok": false,
+   "cases": "1/2",
+   "platform": "leetcode",
+   "why": "functional: want='[80, 30, 0, 80, 50]' got='got=[70, 30, 0, 60, 50]'",
+   "finish": "stop",
+   "seconds": 32.8,
+   "usage": {
+    "completion_tokens": 244,
+    "prompt_tokens": 627
+   },
+   "code_chars": 779,
+   "raw": "```python\nimport bisect\nfrom typing import List\n\nclass Solution:\n    def findMaxSum(self, nums1: List[int], nums2: List[int], k: int) -> List[int]:\n        n = len(nums1)\n        pairs = sorted(zip(nums1, nums2))\n        vals = [p[0] for p in pairs]\n        idx_map = {}\n        for i, (v, _) in enum"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry.",
+ "partial": false,
+ "requested": 15
+}

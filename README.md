@@ -56,14 +56,16 @@ were cut mid-block - so the honest figure there is **20-33%**, not 20%.
 
 **LiveCodeBench v6, which is post-cutoff and therefore not memorised:**
 
-| LCB band | `qwen3.5:9b` | split | truncated |
-|---|---|---|---|
-| easy | **11/15 = 73%** | atcoder 8/9, leetcode 3/6 | 1 |
-| medium | **3/18 = 17%** | atcoder 3/9, leetcode 0/9 | 4 |
-| hard | **1/20 = 5%** | atcoder 1/20 | **16 of 20** |
+| LCB band | passed | note |
+|---|---|---|
+| easy (atcoder) | **9/9 = 100%** (27B) | |
+| easy (atcoder) | **11/15 = 73%** (9B, mixed sample) | |
+| medium (atcoder) | **16/26 = 62%** (27B) | |
+| medium (leetcode, functional) | **9/15 = 60%** (27B) | after fixing the argument parser - see 0.2 |
+| hard (atcoder) | **1/20 = 5%** (9B) | 16 of 20 truncated: a budget measurement, not capability |
 
-Hard is a budget measurement, not a capability one, and is not quoted as a level. On the ten medium problems both
-models ran, the 27B took **4/10 = 40%** against the 9B's **3/10 = 30%** - overlapping intervals again.
+The interface makes no difference - 62% on stdin problems against 60% on functional ones in the same band - so the
+cliff is the band, exactly as APPS showed.
 
 **So three things follow, and only three.** The cliff sits at *inventing the algorithm*, not at program size: both
 models parse input, write runnable programs and pass multi-case tests at 60-73% where the approach is
