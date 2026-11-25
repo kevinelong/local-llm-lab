@@ -200,6 +200,20 @@ def run_functional(code: str, func: str, arg_json: list, want: str,
     return ok, f"got={str(value)[:40]}"
 
 
+def checkpoint(path: str, model: str, **kw) -> None:
+    """Write what is finished so far, so a kill at the deadline cannot destroy the run.
+
+    Measured need: a 30-problem band on the 27B at ~7 tok/s can outlive the job deadline,
+    and before this the JSON was only written after the last item.
+    """
+    rows = kw.pop("rows")
+    payload = {"model": model, "rows": rows, "passed": sum(1 for r in rows if r.get("ok")),
+               "possible": len(rows), "partial": True}
+    payload.update(kw)
+    pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
+    pathlib.Path(path).write_text(json.dumps(payload, indent=1), encoding="utf-8")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--base-url", default="http://127.0.0.1:11434")
@@ -245,6 +259,8 @@ def main() -> int:
             rows.append({"id": it["id"], "ok": False, "why": how, "finish": finish,
                          "seconds": round(secs, 1), "usage": usage, "raw": content[:300]})
             print(f"{it['id']} FAIL {how}", flush=True)
+            checkpoint(args.out, args.model, benchmark="livecodebench-v6", band=args.band,
+                       offset=args.offset, rows=rows)
             continue
         ok_cases, detail = 0, []
         with tempfile.TemporaryDirectory() as wd:
@@ -273,6 +289,8 @@ def main() -> int:
         print(f"{it['id']:<16} {'PASS' if ok_all else 'FAIL'} "
               f"cases={ok_cases}/{len(it['cases'])} {secs:5.1f}s "
               f"{'' if ok_all else rows[-1]['why'][:70]}", flush=True)
+        checkpoint(args.out, args.model, benchmark="livecodebench-v6", band=args.band,
+                   offset=args.offset, rows=rows)
 
     total = len(items)
     out = {"model": args.model, "benchmark": "livecodebench-v6", "band": args.band,
@@ -280,7 +298,8 @@ def main() -> int:
            "rate": round(passed / total, 3), "seconds": round(time.time() - t0, 1),
            "rows": rows,
            "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case "
-                   "passes on the first program; no partial credit, no retry."}
+                   "passes on the first program; no partial credit, no retry.",
+           "partial": False, "requested": args.limit}
     pathlib.Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(args.out).write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(f"\n{args.model} | LCB {args.band} | {passed}/{total} = {100*passed/total:.0f}%")

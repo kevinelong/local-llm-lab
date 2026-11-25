@@ -1,0 +1,285 @@
+{
+ "model": "coder-27b-8k",
+ "benchmark": "livecodebench-v6",
+ "band": "medium",
+ "offset": 0,
+ "passed": 5,
+ "possible": 18,
+ "rate": 0.278,
+ "seconds": 3174.9,
+ "rows": [
+  {
+   "id": "abc387_c",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='6' got='5\\n'; stdin: want='2025' got='1617\\n'",
+   "finish": "stop",
+   "seconds": 31.6,
+   "usage": {
+    "completion_tokens": 231,
+    "prompt_tokens": 351
+   },
+   "code_chars": 669,
+   "raw": "```python\nimport sys\n\ndef count_snake(n):\n    if n < 10:\n        return 0\n    s = str(n)\n    length = len(s)\n    total = 0\n    for l in range(2, length):\n        for first in range(1, 10):\n            total += first ** (l - 1)\n    for first in range(1, int(s[0])):\n        total += first ** (length -"
+  },
+  {
+   "id": "abc389_d",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 33.5,
+   "usage": {
+    "completion_tokens": 250,
+    "prompt_tokens": 318
+   },
+   "code_chars": 513,
+   "raw": "```python\nimport sys\nimport math\n\ndef solve():\n    R = int(sys.stdin.readline().strip())\n    R2 = R * R\n    count = 0\n    for i in range(-R, R + 1):\n        for j in range(-R, R + 1):\n            if (i + 0.5) * (i + 0.5) + (j + 0.5) * (j + 0.5) <= R2 and \\\n               (i + 0.5) * (i + 0.5) + (j -"
+  },
+  {
+   "id": "abc391_d",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "atcoder",
+   "why": "stdin: want='Yes\\nYes\\nNo\\nYes\\nNo\\nYes' got='exit 1: SyntaxError: invalid syntax'; stdin: want='No\\nNo\\nYes\\nYes' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 455.6,
+   "usage": {
+    "completion_tokens": 3000,
+    "prompt_tokens": 755
+   },
+   "code_chars": 11414,
+   "raw": "```python\nimport sys\nfrom collections import defaultdict\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    W = int(input[idx]); idx += 1\n    \n    blocks = []\n    for i in range(N):\n        x = int(input[idx]); idx += 1\n        y = int(input[idx]); i"
+  },
+  {
+   "id": "abc394_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 12.5,
+   "usage": {
+    "completion_tokens": 84,
+    "prompt_tokens": 565
+   },
+   "code_chars": 234,
+   "raw": "```python\nimport sys\n\ndef main():\n    s = sys.stdin.readline().strip()\n    while True:\n        idx = s.find(\"WA\")\n        if idx == -1:\n            break\n        s = s[:idx] + \"AC\" + s[idx+2:]\n    print(s)\n\nif __name__ == \"__main__\":\n    main()\n```"
+  },
+  {
+   "id": "abc396_c",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='0' got='exit 1: IndexError: list index out of ra'",
+   "finish": "stop",
+   "seconds": 156.1,
+   "usage": {
+    "completion_tokens": 891,
+    "prompt_tokens": 476
+   },
+   "code_chars": 2851,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    M = int(input[idx]); idx += 1\n    B = []\n    for i in range(N):\n        B.append(int(input[idx])); idx += 1\n    W = []\n    for i in range(M):\n        W.append(int(input[idx])); id"
+  },
+  {
+   "id": "abc397_b",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='1' got='2\\n'",
+   "finish": "stop",
+   "seconds": 47.8,
+   "usage": {
+    "completion_tokens": 129,
+    "prompt_tokens": 379
+   },
+   "code_chars": 294,
+   "raw": "```python\ns = input().strip()\nans = 0\ni = 0\nwhile i < len(s):\n    if s[i] == 'i':\n        if i + 1 < len(s) and s[i + 1] == 'o':\n            i += 2\n        else:\n            ans += 1\n            i += 1\n    else:\n        ans += 1\n        i += 1\nif len(s) % 2 == 1 and s[-1] == 'i':\n    ans += 1\nprint("
+  },
+  {
+   "id": "abc399_d",
+   "ok": true,
+   "cases": "1/1",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 307.1,
+   "usage": {
+    "completion_tokens": 1376,
+    "prompt_tokens": 743
+   },
+   "code_chars": 4764,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    T = int(input[idx]); idx += 1\n    out = []\n    for _ in range(T):\n        N = int(input[idx]); idx += 1\n        A = []\n        for i in range(2 * N):\n            A.append(int(input[idx])); idx += 1\n        pos = "
+  },
+  {
+   "id": "abc400_d",
+   "ok": true,
+   "cases": "4/4",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 159.4,
+   "usage": {
+    "completion_tokens": 612,
+    "prompt_tokens": 1279
+   },
+   "code_chars": 1895,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef main():\n    input = sys.stdin.readline\n    H, W = map(int, input().split())\n    grid = [input().strip() for _ in range(H)]\n    A, B, C, D = map(int, input().split())\n    A -= 1\n    B -= 1\n    C -= 1\n    D -= 1\n\n    # BFS: state = (r, c, kicks)\n"
+  },
+  {
+   "id": "arc194_a",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='8' got='exit 1: SyntaxError: invalid syntax'; stdin: want='-1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 761.1,
+   "usage": {
+    "completion_tokens": 3000,
+    "prompt_tokens": 617
+   },
+   "code_chars": 10263,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n\n    # dp[i][0] = max sum after processing first i elements, S is empty\n    # dp[i][1] = max sum after processing first i elements, S is non-empty\n    # But we can't trac"
+  },
+  {
+   "id": "3720",
+   "ok": false,
+   "cases": "0/4",
+   "platform": "leetcode",
+   "why": "functional: want='1' got='TypeError: Solution.minMaxWeight() missi'; functional: want='-1' got='TypeError: Solution.minMaxWeight() missi'",
+   "finish": "stop",
+   "seconds": 92.0,
+   "usage": {
+    "completion_tokens": 421,
+    "prompt_tokens": 674
+   },
+   "code_chars": 1852,
+   "raw": "```python\nfrom collections import defaultdict, deque\n\nclass Solution:\n    def minMaxWeight(self, n: int, edges: list, threshold: int) -> int:\n        # Sort edges by weight\n        edges.sort(key=lambda e: e[2])\n        \n        # Binary search on the answer (max weight)\n        def can_achieve(max_"
+  },
+  {
+   "id": "3721",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='[2, 2]' got='TypeError: Solution.countMentions() miss'; functional: want='[2, 2]' got='TypeError: Solution.countMentions() miss'",
+   "finish": "stop",
+   "seconds": 59.0,
+   "usage": {
+    "completion_tokens": 264,
+    "prompt_tokens": 854
+   },
+   "code_chars": 1155,
+   "raw": "```python\nclass Solution:\n    def countMentions(self, numberOfUsers: int, events: list) -> list:\n        online = [True] * numberOfUsers\n        offline_until = [0] * numberOfUsers\n        mentions = [0] * numberOfUsers\n\n        for ev in events:\n            typ = ev[0]\n            ts = int(ev[1])\n "
+  },
+  {
+   "id": "3748",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 65.4,
+   "usage": {
+    "completion_tokens": 311,
+    "prompt_tokens": 464
+   },
+   "code_chars": 1105,
+   "raw": "```python\nclass Solution:\n    def sortMatrix(self, grid):\n        n = len(grid)\n        # Bottom-left triangle: diagonals where row >= col\n        # These go from top-left to bottom-right, starting at (r,0) for r in 0..n-1\n        for r in range(n):\n            diag = []\n            i, j = r, 0\n    "
+  },
+  {
+   "id": "3771",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='true' got='TypeError: Solution.maxSubstringLength()'; functional: want='false' got='TypeError: Solution.maxSubstringLength()'",
+   "finish": "stop",
+   "seconds": 34.9,
+   "usage": {
+    "completion_tokens": 162,
+    "prompt_tokens": 398
+   },
+   "code_chars": 604,
+   "raw": "```python\nclass Solution:\n    def maxSubstringLength(self, s: str, k: int) -> bool:\n        n = len(s)\n        if k == 0:\n            return True\n        first = {}\n        last = {}\n        for i, ch in enumerate(s):\n            if ch not in first:\n                first[ch] = i\n            last[ch]"
+  },
+  {
+   "id": "3722",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='13' got='TypeError: Solution.maxSum() missing 2 r'; functional: want='-10' got='TypeError: Solution.maxSum() missing 2 r'",
+   "finish": "stop",
+   "seconds": 327.3,
+   "usage": {
+    "completion_tokens": 1437,
+    "prompt_tokens": 386
+   },
+   "code_chars": 4324,
+   "raw": "```python\nclass Solution:\n    def maxSum(self, nums: list[int], k: int, m: int) -> int:\n        n = len(nums)\n        prefix = [0] * (n + 1)\n        for i in range(n):\n            prefix[i + 1] = prefix[i] + nums[i]\n\n        def subarray_sum(l, r):\n            return prefix[r + 1] - prefix[l]\n\n     "
+  },
+  {
+   "id": "3750",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='[2, -1, 3]' got='TypeError: Solution.solveQueries() missi'; functional: want='[-1, -1, -1, -1]' got='TypeError: Solution.solveQueries() missi'",
+   "finish": "stop",
+   "seconds": 36.4,
+   "usage": {
+    "completion_tokens": 165,
+    "prompt_tokens": 497
+   },
+   "code_chars": 691,
+   "raw": "```python\nfrom collections import defaultdict\n\nclass Solution:\n    def solveQueries(self, nums, queries):\n        n = len(nums)\n        pos = defaultdict(list)\n        for i, v in enumerate(nums):\n            pos[v].append(i)\n        \n        ans = []\n        for q in queries:\n            val = nums"
+  },
+  {
+   "id": "3794",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='110' got='TypeError: Solution.minTime() missing 1 '; functional: want='5' got='TypeError: Solution.minTime() missing 1 '",
+   "finish": "stop",
+   "seconds": 82.3,
+   "usage": {
+    "completion_tokens": 383,
+    "prompt_tokens": 666
+   },
+   "code_chars": 1223,
+   "raw": "```python\nclass Solution:\n    def minTime(self, skill, mana):\n        n = len(skill)\n        m = len(mana)\n        # time[i][j] = time when wizard i finishes potion j\n        # We can compute this iteratively.\n        # For wizard 0: time[0][j] = j * skill[0] * mana[0] + skill[0] * mana[j]\n        #"
+  },
+  {
+   "id": "3763",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='1.0' got='got=3'; functional: want='1.16667' got='got=2'",
+   "finish": "stop",
+   "seconds": 40.1,
+   "usage": {
+    "completion_tokens": 176,
+    "prompt_tokens": 510
+   },
+   "code_chars": 610,
+   "raw": "```python\nclass Solution:\n    def separateSquares(self, squares):\n        events = []\n        total_area = 0\n        for x, y, l in squares:\n            events.append((y, l))\n            events.append((y + l, -l))\n            total_area += l * l\n        events.sort()\n        half = total_area / 2.0\n"
+  },
+  {
+   "id": "3805",
+   "ok": false,
+   "cases": "1/4",
+   "platform": "leetcode",
+   "why": "functional: want='4' got='got=1'; functional: want='7' got='got=2'",
+   "finish": "stop",
+   "seconds": 469.3,
+   "usage": {
+    "completion_tokens": 1883,
+    "prompt_tokens": 678
+   },
+   "code_chars": 7569,
+   "raw": "```python\nclass Solution:\n    def maxActiveSectionsAfterTrade(self, s: str) -> int:\n        n = len(s)\n        # Count initial active sections\n        active = s.count('1')\n        \n        # Find all blocks of 1s surrounded by 0s (candidates to remove)\n        # and all blocks of 0s surrounded by 1"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry.",
+ "partial": false,
+ "requested": 20
+}

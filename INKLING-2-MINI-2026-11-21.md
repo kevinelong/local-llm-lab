@@ -676,6 +676,23 @@ rather than of APPS's labelling. The hard band is **not a capability measurement
 the 6000-token budget and were cut mid-block, so it measures the budget. Medium's 17% does stand - 11 of its 15
 failures were wrong answers with the program completing.
 
+**Matched on identical problems, both models (stride 3 sampling, so 15 and 18 problems per band):**
+
+| LCB band | qwen3.5-27B | qwen3.5:9b | truncations 27B / 9B |
+|---|---|---|---|
+| easy (15 matched) | **13/15 = 87%** (62-96) | **11/15 = 73%** (48-89) | 0 / 1 |
+| medium (18 matched) | **5/18 = 28%** (12-51) | **3/18 = 17%** (6-39) | 2 / 4 |
+
+**Every disagreement in both bands runs one way: the 27B passes items the 9B fails, and never the reverse.** That
+is a real signal in a small sample - two items in each band, consistent direction - while the intervals still
+overlap. So the honest reading after both benchmarks is: **the 27B is consistently one to two problems ahead and
+never measurably ahead.** At 7 tok/s against ~94, that is 13x the wall time for a lead that has not been
+demonstrated.
+
+An n=30 stride-1 run of the medium band is in progress, because stride 3 caps the sample at 18 and the third rung
+should be measured at the same size as the APPS rungs. Stride 1 samples problems in file order, so the sample is a
+contiguous slice of the band's earliest contests - reproducible, but not a random sample of the band.
+
 **Six harness faults in one week, five of them mine, every one of which read as a model result:**
 
 | fault | where it bit | how it was caught |

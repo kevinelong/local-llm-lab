@@ -1,0 +1,240 @@
+{
+ "model": "coder-27b-8k",
+ "benchmark": "livecodebench-v6",
+ "band": "easy",
+ "offset": 0,
+ "passed": 13,
+ "possible": 15,
+ "rate": 0.867,
+ "seconds": 238.9,
+ "rows": [
+  {
+   "id": "abc387_b",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 23.7,
+   "usage": {
+    "completion_tokens": 61,
+    "prompt_tokens": 367
+   },
+   "code_chars": 139,
+   "raw": "```python\nx = int(input())\ntotal = 0\nfor i in range(1, 10):\n    for j in range(1, 10):\n        if i * j != x:\n            total += i * j\nprint(total)\n```"
+  },
+  {
+   "id": "abc388_a",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 3.6,
+   "usage": {
+    "completion_tokens": 23,
+    "prompt_tokens": 248
+   },
+   "code_chars": 39,
+   "raw": "```python\ns = input().strip()\nprint(s[0] + \"UPC\")\n```"
+  },
+  {
+   "id": "abc390_a",
+   "ok": true,
+   "cases": "4/4",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 18.2,
+   "usage": {
+    "completion_tokens": 136,
+    "prompt_tokens": 356
+   },
+   "code_chars": 377,
+   "raw": "```python\nimport sys\n\ndef main():\n    data = sys.stdin.read().split()\n    if not data:\n        return\n    A = list(map(int, data))\n    n = len(A)\n    target = list(range(1, n + 1))\n    for i in range(n - 1):\n        B = A[:]\n        B[i], B[i + 1] = B[i + 1], B[i]\n        if B == target:\n           "
+  },
+  {
+   "id": "abc391_b",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 29.7,
+   "usage": {
+    "completion_tokens": 225,
+    "prompt_tokens": 582
+   },
+   "code_chars": 765,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().splitlines()\n    idx = 0\n    N, M = map(int, input[idx].split())\n    idx += 1\n    S = []\n    for i in range(N):\n        S.append(input[idx].strip())\n        idx += 1\n    T = []\n    for i in range(M):\n        T.append(input[idx].strip())\n"
+  },
+  {
+   "id": "abc393_a",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 12.2,
+   "usage": {
+    "completion_tokens": 92,
+    "prompt_tokens": 405
+   },
+   "code_chars": 188,
+   "raw": "```python\ns1, s2 = input().split()\nif s1 == \"sick\" and s2 == \"fine\":\n    print(2)\nelif s1 == \"fine\" and s2 == \"sick\":\n    print(3)\nelif s1 == \"sick\" and s2 == \"sick\":\n    print(1)\nelse:\n    print(4)\n```"
+  },
+  {
+   "id": "abc394_a",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 4.8,
+   "usage": {
+    "completion_tokens": 32,
+    "prompt_tokens": 275
+   },
+   "code_chars": 79,
+   "raw": "```python\ns = input().strip()\nresult = ''.join(ch for ch in s if ch == '2')\nprint(result)\n```"
+  },
+  {
+   "id": "abc396_b",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 19.9,
+   "usage": {
+    "completion_tokens": 147,
+    "prompt_tokens": 660
+   },
+   "code_chars": 437,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().splitlines()\n    Q = int(input[0])\n    stack = [0] * 100\n    top = 0\n    results = []\n    for i in range(1, Q + 1):\n        parts = input[i].split()\n        if parts[0] == '1':\n            stack[top] = int(parts[1])\n            top += 1\n"
+  },
+  {
+   "id": "abc398_a",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 17.0,
+   "usage": {
+    "completion_tokens": 129,
+    "prompt_tokens": 194
+   },
+   "code_chars": 402,
+   "raw": "```python\nimport sys\n\ndef solve():\n    n = int(sys.stdin.readline().strip())\n    if n % 2 == 1:\n        # Odd length: one '=' in the center\n        result = ['-' for _ in range(n)]\n        result[n // 2] = '='\n    else:\n        # Even length: two adjacent '=' in the center\n        result = ['-' for "
+  },
+  {
+   "id": "abc400_a",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 6.0,
+   "usage": {
+    "completion_tokens": 42,
+    "prompt_tokens": 249
+   },
+   "code_chars": 73,
+   "raw": "```python\nA = int(input())\nif 400 % A == 0:\n    print(400 // A)\nelse:\n    print(-1)\n```"
+  },
+  {
+   "id": "3731",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 14.8,
+   "usage": {
+    "completion_tokens": 109,
+    "prompt_tokens": 426
+   },
+   "code_chars": 333,
+   "raw": "```python\nclass Solution:\n    def subarraySum(self, nums):\n        n = len(nums)\n        prefix = [0] * (n + 1)\n        for i in range(n):\n            prefix[i + 1] = prefix[i] + nums[i]\n        total = 0\n        for i in range(n):\n            start = max(0, i - nums[i])\n            total += prefix["
+  },
+  {
+   "id": "3709",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='true' got='TypeError: Solution.hasSpecialSubstring('; functional: want='false' got='TypeError: Solution.hasSpecialSubstring('",
+   "finish": "stop",
+   "seconds": 20.0,
+   "usage": {
+    "completion_tokens": 151,
+    "prompt_tokens": 362
+   },
+   "code_chars": 493,
+   "raw": "```python\nclass Solution:\n    def hasSpecialSubstring(self, s: str, k: int) -> bool:\n        n = len(s)\n        i = 0\n        while i < n:\n            j = i\n            while j < n and s[j] == s[i]:\n                j += 1\n            length = j - i\n            if length == k:\n                before_"
+  },
+  {
+   "id": "3788",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 13.8,
+   "usage": {
+    "completion_tokens": 100,
+    "prompt_tokens": 405
+   },
+   "code_chars": 403,
+   "raw": "```python\nclass Solution:\n    def maxSum(self, nums):\n        best = float('-inf')\n        for i in range(len(nums)):\n            seen = set()\n            cur = 0\n            for j in range(i, len(nums)):\n                if nums[j] in seen:\n                    break\n                seen.add(nums[j])"
+  },
+  {
+   "id": "3773",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 26.6,
+   "usage": {
+    "completion_tokens": 200,
+    "prompt_tokens": 342
+   },
+   "code_chars": 772,
+   "raw": "```python\nclass Solution:\n    def minimumPairRemoval(self, nums):\n        ops = 0\n        while True:\n            # Check if non-decreasing\n            ok = True\n            for i in range(1, len(nums)):\n                if nums[i] < nums[i - 1]:\n                    ok = False\n                    bre"
+  },
+  {
+   "id": "3723",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='12' got='TypeError: Solution.sumOfGoodNumbers() m'; functional: want='2' got='TypeError: Solution.sumOfGoodNumbers() m'",
+   "finish": "stop",
+   "seconds": 16.6,
+   "usage": {
+    "completion_tokens": 119,
+    "prompt_tokens": 341
+   },
+   "code_chars": 410,
+   "raw": "```python\nclass Solution:\n    def sumOfGoodNumbers(self, nums: list[int], k: int) -> int:\n        n = len(nums)\n        total = 0\n        for i in range(n):\n            good = True\n            if i - k >= 0 and nums[i] <= nums[i - k]:\n                good = False\n            if i + k < n and nums[i]"
+  },
+  {
+   "id": "3811",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "leetcode",
+   "why": "",
+   "finish": "stop",
+   "seconds": 10.0,
+   "usage": {
+    "completion_tokens": 72,
+    "prompt_tokens": 398
+   },
+   "code_chars": 217,
+   "raw": "```python\nclass Solution:\n    def reverseDegree(self, s: str) -> int:\n        total = 0\n        for i, ch in enumerate(s, 1):\n            rev_val = 26 - (ord(ch) - ord('a'))\n            total += rev_val * i\n        return total\n```"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry.",
+ "partial": false,
+ "requested": 30
+}

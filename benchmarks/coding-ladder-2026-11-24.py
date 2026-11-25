@@ -140,6 +140,20 @@ def run_case(code: str, stdin_text: str, timeout: float, workdir: str) -> tuple[
     return True, p.stdout
 
 
+def checkpoint(path: str, model: str, **kw) -> None:
+    """Write what is finished so far, so a kill at the deadline cannot destroy the run.
+
+    Measured need: a 30-problem band on the 27B at ~7 tok/s can outlive the job deadline,
+    and before this the JSON was only written after the last item.
+    """
+    rows = kw.pop("rows")
+    payload = {"model": model, "rows": rows, "passed": sum(1 for r in rows if r.get("ok")),
+               "possible": len(rows), "partial": True}
+    payload.update(kw)
+    pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
+    pathlib.Path(path).write_text(json.dumps(payload, indent=1), encoding="utf-8")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--base-url", default="http://127.0.0.1:8090")
@@ -215,13 +229,15 @@ def main() -> int:
                      "raw": content[:300]})
         print(f"#{it['id']:>2} {'PASS' if ok else 'FAIL'} cases={case_ok}/{len(it['inputs'])} "
               f"{secs:5.1f}s {'' if ok else rows[-1]['why'][:80]}", flush=True)
+        checkpoint(args.out, args.model, tier=args.tier, offset=args.offset, rows=rows)
 
     total = len(items)
     out = {"model": args.model, "tier": args.tier, "offset": args.offset,
            "passed": passed, "possible": total, "rate": round(passed / total, 3),
            "seconds": round(time.time() - t0, 1), "rows": rows,
            "note": "APPS test split; a problem counts only when every test case passes; "
-                   "graded by executing the model's program, not by reading it."}
+                   "graded by executing the model's program, not by reading it.",
+           "partial": False, "requested": args.limit}
     pathlib.Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(args.out).write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(f"\n{args.model} | APPS {args.tier} | {passed}/{total} = {100*passed/total:.0f}%")
