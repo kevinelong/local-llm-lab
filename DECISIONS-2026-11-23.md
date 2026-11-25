@@ -11,7 +11,7 @@ advice he asked for. This supersedes `TILE-LAB-PLAN-2026-11-23.md` (kept as the 
 | 2 | Which licence? | **MIT** for this work. `local-llm-lab` is private today; if it is ever published it carries MIT, not the FSL-1.1-MIT that the source material assumed. Recorded here so the choice is not re-litigated per file. |
 | 3 | Commit the raw replies, or summaries only? | **Commit everything, uncut - prompts as well as replies** (revised same day: "keep everything in, ignore the cap for now"). The 10 MB line is no longer a limit; it is a marker reported alongside results. Nothing in these suites is personal: the passages are generated filler and the reasoning items are public BBH/GSM8K. The rule that remains is the obvious one - **if a suite ever puts a personal file (a photo, a document) into a prompt, that prompt is redacted before it is committed**. |
 | 4 | Retire the ten-task battery? | Advice below. |
-| 5 | Which backends? | **Both**, and open to more. `--backend` is explicit; OpenAI-compatible and Ollama-native, plus whatever else can be measured. See the Strata note below - we do **not** currently measure with Strata. |
+| 5 | Which backends? | **Both**, and open to more. `--backend` is explicit; OpenAI-compatible and Ollama-native, plus whatever else can be measured. See the Strata note below - **corrected 2026-11-25: we do measure with Strata** (0.1.66, since 2026-11-24). |
 | 6 | Is the `vt` suite in scope? | Advice below. |
 | 7 | Include older evidence? | Not as a rule: evidence kept with a discussion is included **without asking when it is under 10 MB**, older or newer. Above that, ask. This replaces case-by-case asking. |
 
@@ -48,17 +48,34 @@ with it.
 
 ## Strata: what is true today
 
-We **track** Strata and have studied its published numbers; we do **not** measure with it:
+**Corrected 2026-11-25 - this section was wrong.** It read *"we do **not** measure with it"* and *"no version we track
+has evidence of loading `inkling2_loop`"*. Both were written from Strata's release notes and neither survived an
+install: on **2026-11-24**, **Strata 0.1.66** imported our exact GGUF as `inkling2_loop` (744 tensors, tokenizer
+present, the unsloth `Mainline_Support` layout read in place) and served it, then was measured on the ten-task
+battery. Evidence and the correction's own record: `README.md` §0.3-0.4, `INKLING-2-MINI-2026-11-21.md` §"Strata,
+2026-11-24", `results/quality-strata-2026-11-24.json`, `results/quality-strata-sq10-2026-11-24.json`.
 
-- `C:/Users/kevin/strata` is the notes/journal project (`AI-STRENGTH-NOTES.md`, `az-state.json`), not the engine.
-- No Strata engine binary is installed on this box, and no version we track has evidence of loading `inkling2_loop`.
-- What exists are the release targets the daily scan records (**app 0.2.20 / engine 0.1.65 / Control 0.1.65**) and
-  the `RustingStrata` public benchmark page, which is a **separate** Rust engine.
+What the measurement settled:
 
-For Strata to become a backend the harness measures, three things are needed and none is done: the engine installed
-at a pinned version, an interface the harness can drive (HTTP or CLI), and a load check that it accepts the model
-under test. Until then, a Strata row in any table would be a number copied from someone else's page - which is
-exactly what this lab's evidence rules forbid.
+- The engine installs **without elevation** (engine tarball + Control zip, both sha256-verified; the signed `.exe` was
+  skipped on purpose), and on first launch it downloads a **model-specific engine** (417 MB) rather than using the
+  generic one.
+- On this card it is **2.4x slower than llama.cpp on the same file**: 28.3 against 67.4 tok/s, 27/30 against 30/30. Its
+  own SQ-10 pack is the slowest row measured (**17.1 tok/s**) and, on the one question that has no answer, it
+  **fabricated a year** where our two-bit file on the same engine refused. Strata's design pays on the 24 GB card its
+  own table quotes, not on 12 GB.
+- **It is not resident now.** The staged binaries stay on disk; no `strata` process is running (the only engine process
+  on this box is `ollama`, pid 57832). Note that *"we do not measure with Strata"* was already false when this section
+  was written, independently of the `inkling2_loop` question: the October ladders on engine **0.1.47** and the `q2_0`
+  pack are Strata rows (`CHUNK-LADDER-AND-RESERVE-2026-10-26.md`, `CACHE-CEILING-2026-11-15.md`), and `README.md` §3
+  quotes Strata at **1.93 s per item** on the 1,100-item knowledge set. What is new in November is this model on it.
+- What the original text still gets right: `C:/Users/kevin/strata` is the notes/journal project (`AI-STRENGTH-NOTES.md`,
+  `az-state.json`), not the engine; and `RustingStrata` is a **separate** Rust engine, not a Strata release. The targets
+  the daily scan tracks have moved to **app 0.2.21 / Terminal 0.2.21.1 / engines 0.1.67 / Control 0.1.68**
+  (`NEWS-2026-11-25.md` §1).
+
+So the original objection no longer holds either: a Strata row is no longer "a number copied from someone else's
+page" - it is one this lab measured, and it sits beside llama.cpp's and Colibri's in `MODELS.md`.
 
 ## Evidence: full fidelity, and what it costs
 

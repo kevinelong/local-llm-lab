@@ -726,8 +726,10 @@
   the size; 10 MB is a marker to report, not a cap. The one standing rule: a prompt that contains a personal file is
   redacted before it is committed. The ten-task battery is retired as a ranking suite and kept as the fast smoke
   gate; BBH/GSM8K/the long-context probes are what rank. Backends are OpenAI-compatible and Ollama-native, open to
-  more - but **we do not measure with Strata**: no engine is installed here, and what we have is its release notes and
-  a separate engine's public page.
+  more - and **we do now measure with Strata** (*corrected 2026-11-25: this line read "we do not measure with Strata:
+  no engine is installed here" until 0.1.66 was installed on 2026-11-24 and measured our own `inkling2_loop` GGUF -
+  28.3 tok/s against llama.cpp's 67.4, and its own SQ-10 pack fabricated a year; see `README.md` §0.3-0.4 and
+  `MODELS.md`*).
 
 - **2026-11-22, Inkling 2 Mini runs on this box, and its vision works from both CLIs.** `INKLING-2-MINI-2026-11-21.md`
   now carries the whole day: llama.cpp built at `b12611` (`690b87d88`, the `#32704` fix) with the CUDA redist
