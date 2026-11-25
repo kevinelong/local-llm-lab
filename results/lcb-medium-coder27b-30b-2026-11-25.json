@@ -1,0 +1,240 @@
+{
+ "model": "coder-27b-8k",
+ "benchmark": "livecodebench-v6",
+ "band": "medium",
+ "offset": 15,
+ "passed": 5,
+ "possible": 15,
+ "rate": 0.333,
+ "seconds": 3050.8,
+ "rows": [
+  {
+   "id": "abc397_b",
+   "ok": false,
+   "cases": "2/3",
+   "platform": "atcoder",
+   "why": "stdin: want='1' got='2\\n'",
+   "finish": "stop",
+   "seconds": 47.4,
+   "usage": {
+    "completion_tokens": 129,
+    "prompt_tokens": 379
+   },
+   "code_chars": 294,
+   "raw": "```python\ns = input().strip()\nans = 0\ni = 0\nwhile i < len(s):\n    if s[i] == 'i':\n        if i + 1 < len(s) and s[i + 1] == 'o':\n            i += 2\n        else:\n            ans += 1\n            i += 1\n    else:\n        ans += 1\n        i += 1\nif len(s) % 2 == 1 and s[-1] == 'i':\n    ans += 1\nprint("
+  },
+  {
+   "id": "abc398_b",
+   "ok": false,
+   "cases": "3/4",
+   "platform": "atcoder",
+   "why": "stdin: want='No' got='Yes\\n'",
+   "finish": "stop",
+   "seconds": 29.7,
+   "usage": {
+    "completion_tokens": 80,
+    "prompt_tokens": 395
+   },
+   "code_chars": 259,
+   "raw": "```python\nfrom collections import Counter\n\ncards = list(map(int, input().split()))\ncounts = Counter(cards)\n\nhas_three = any(c >= 3 for c in counts.values())\nhas_two = any(c >= 2 for c in counts.values())\n\nif has_three and has_two:\n    print(\"Yes\")\nelse:\n    print(\"No\")\n```"
+  },
+  {
+   "id": "abc398_c",
+   "ok": true,
+   "cases": "2/2",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 48.2,
+   "usage": {
+    "completion_tokens": 135,
+    "prompt_tokens": 419
+   },
+   "code_chars": 405,
+   "raw": "```python\nimport sys\nfrom collections import Counter\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    a = list(map(int, data[1:n+1]))\n    counts = Counter(a)\n    best = -1\n    best_val = -1\n    for i in range(n):\n        if counts[a[i]] == 1:\n            if a[i] > best_val:\n"
+  },
+  {
+   "id": "abc399_d",
+   "ok": true,
+   "cases": "1/1",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 279.1,
+   "usage": {
+    "completion_tokens": 1376,
+    "prompt_tokens": 743
+   },
+   "code_chars": 4764,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    T = int(input[idx]); idx += 1\n    out = []\n    for _ in range(T):\n        N = int(input[idx]); idx += 1\n        A = []\n        for i in range(2 * N):\n            A.append(int(input[idx])); idx += 1\n        pos = "
+  },
+  {
+   "id": "abc399_c",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 63.0,
+   "usage": {
+    "completion_tokens": 313,
+    "prompt_tokens": 410
+   },
+   "code_chars": 956,
+   "raw": "```python\nimport sys\nsys.setrecursionlimit(300000)\n\ndef main():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    M = int(input[idx]); idx += 1\n\n    parent = list(range(N + 1))\n    rank = [0] * (N + 1)\n\n    def find(x):\n        while parent[x] != x:\n            p"
+  },
+  {
+   "id": "abc400_c",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='5' got='11\\n'; stdin: want='24' got='63\\n'",
+   "finish": "stop",
+   "seconds": 33.4,
+   "usage": {
+    "completion_tokens": 164,
+    "prompt_tokens": 329
+   },
+   "code_chars": 442,
+   "raw": "```python\nimport sys\nimport math\n\ndef count_good(N):\n    # Count numbers of form 2^a * b^2 <= N\n    # For each a >= 0, count b >= 1 such that b^2 <= N / 2^a\n    # i.e., b <= sqrt(N / 2^a)\n    # Sum over a from 0 to floor(log2(N))\n    \n    count = 0\n    a = 0\n    while (1 << a) <= N:\n        limit = "
+  },
+  {
+   "id": "abc400_d",
+   "ok": true,
+   "cases": "4/4",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 120.7,
+   "usage": {
+    "completion_tokens": 612,
+    "prompt_tokens": 1279
+   },
+   "code_chars": 1895,
+   "raw": "```python\nimport sys\nfrom collections import deque\n\ndef main():\n    input = sys.stdin.readline\n    H, W = map(int, input().split())\n    grid = [input().strip() for _ in range(H)]\n    A, B, C, D = map(int, input().split())\n    A -= 1\n    B -= 1\n    C -= 1\n    D -= 1\n\n    # BFS: state = (r, c, kicks)\n"
+  },
+  {
+   "id": "arc191_a",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='593' got='exit 1: SyntaxError: invalid syntax'; stdin: want='993' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 690.4,
+   "usage": {
+    "completion_tokens": 3000,
+    "prompt_tokens": 475
+   },
+   "code_chars": 10751,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    N = int(input[0])\n    M = int(input[1])\n    S = list(input[2])\n    T = input[3]\n    \n    # Greedy: for each position in S from left to right,\n    # if we can improve it with the best remaining char from T, do it.\n    # But w"
+  },
+  {
+   "id": "arc192_a",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='Yes' got='exit 1: SyntaxError: invalid syntax'; stdin: want='No' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 617.0,
+   "usage": {
+    "completion_tokens": 3000,
+    "prompt_tokens": 861
+   },
+   "code_chars": 8859,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n    \n    if all(x == 1 for x in a):\n        print(\"Yes\")\n        return\n    \n    # Check if there's a 0 that can never be covered\n    # A 0 at position i can be covered "
+  },
+  {
+   "id": "arc194_a",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "atcoder",
+   "why": "stdin: want='8' got='exit 1: SyntaxError: invalid syntax'; stdin: want='-1' got='exit 1: SyntaxError: invalid syntax'",
+   "finish": "length",
+   "seconds": 671.1,
+   "usage": {
+    "completion_tokens": 3000,
+    "prompt_tokens": 617
+   },
+   "code_chars": 10263,
+   "raw": "```python\nimport sys\n\ndef main():\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    a = list(map(int, input[1:n+1]))\n\n    # dp[i][0] = max sum after processing first i elements, S is empty\n    # dp[i][1] = max sum after processing first i elements, S is non-empty\n    # But we can't trac"
+  },
+  {
+   "id": "arc195_a",
+   "ok": true,
+   "cases": "3/3",
+   "platform": "atcoder",
+   "why": "",
+   "finish": "stop",
+   "seconds": 40.8,
+   "usage": {
+    "completion_tokens": 253,
+    "prompt_tokens": 432
+   },
+   "code_chars": 805,
+   "raw": "```python\nimport sys\n\ndef solve():\n    input = sys.stdin.read().split()\n    idx = 0\n    N = int(input[idx]); idx += 1\n    M = int(input[idx]); idx += 1\n    A = [int(input[idx + i]) for i in range(N)]; idx += N\n    B = [int(input[idx + i]) for i in range(M)]; idx += M\n\n    # Find first occurrence of "
+  },
+  {
+   "id": "3677",
+   "ok": false,
+   "cases": "1/2",
+   "platform": "leetcode",
+   "why": "functional: want='8' got='got=7'",
+   "finish": "stop",
+   "seconds": 86.6,
+   "usage": {
+    "completion_tokens": 499,
+    "prompt_tokens": 661
+   },
+   "code_chars": 1592,
+   "raw": "```python\nclass Solution:\n    def maximumAmount(self, coins):\n        m = len(coins)\n        n = len(coins[0])\n        NEG = float('-inf')\n        dp = [[[NEG, NEG, NEG] for _ in range(n)] for _ in range(m)]\n        dp[0][0][0] = coins[0][0]\n        if coins[0][0] < 0:\n            dp[0][0][1] = 0\n  "
+  },
+  {
+   "id": "3720",
+   "ok": false,
+   "cases": "0/4",
+   "platform": "leetcode",
+   "why": "functional: want='1' got='TypeError: Solution.minMaxWeight() missi'; functional: want='-1' got='TypeError: Solution.minMaxWeight() missi'",
+   "finish": "stop",
+   "seconds": 129.6,
+   "usage": {
+    "completion_tokens": 421,
+    "prompt_tokens": 674
+   },
+   "code_chars": 1852,
+   "raw": "```python\nfrom collections import defaultdict, deque\n\nclass Solution:\n    def minMaxWeight(self, n: int, edges: list, threshold: int) -> int:\n        # Sort edges by weight\n        edges.sort(key=lambda e: e[2])\n        \n        # Binary search on the answer (max weight)\n        def can_achieve(max_"
+  },
+  {
+   "id": "3714",
+   "ok": false,
+   "cases": "0/3",
+   "platform": "leetcode",
+   "why": "functional: want='24' got='TypeError: Solution.minMaxSums() missing'; functional: want='22' got='TypeError: Solution.minMaxSums() missing'",
+   "finish": "stop",
+   "seconds": 56.8,
+   "usage": {
+    "completion_tokens": 374,
+    "prompt_tokens": 483
+   },
+   "code_chars": 1118,
+   "raw": "```python\nclass Solution:\n    def minMaxSums(self, nums, k):\n        MOD = 10**9 + 7\n        n = len(nums)\n        nums.sort()\n        \n        # Precompute powers of 2\n        pow2 = [1] * (n + 1)\n        for i in range(1, n + 1):\n            pow2[i] = (pow2[i - 1] * 2) % MOD\n        \n        # Pre"
+  },
+  {
+   "id": "3737",
+   "ok": false,
+   "cases": "0/2",
+   "platform": "leetcode",
+   "why": "functional: want='9' got='TypeError: Solution.minCost() missing 1 '; functional: want='18' got='TypeError: Solution.minCost() missing 1 '",
+   "finish": "stop",
+   "seconds": 134.7,
+   "usage": {
+    "completion_tokens": 1039,
+    "prompt_tokens": 722
+   },
+   "code_chars": 3616,
+   "raw": "```python\nclass Solution:\n    def minCost(self, n: int, cost: list[list[int]]) -> int:\n        # DP: dp[i][c] = min cost to paint houses 0..i with house i painted color c\n        # Constraints: adjacent different, and for each pair (i, n-1-i), colors differ.\n        # Since n is even, we can process"
+  }
+ ],
+ "note": "LCB v6, public+private cases, pass@1: a problem counts only if every case passes on the first program; no partial credit, no retry.",
+ "partial": false,
+ "requested": 15
+}
