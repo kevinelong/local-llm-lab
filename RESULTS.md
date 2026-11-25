@@ -1,6 +1,9 @@
 # Results
 
-Latest experiment: [September 15 local agent and CPU round](RESULTS-2026-09-15.md), using 16k context and a separate probe set. Historical measurements below retain their original settings.
+Latest experiment: [RESULTS-2026-11-22.md](RESULTS-2026-11-22.md) - the five-model quality pass and the engine context
+sweeps - followed by the coding ladders in [README.md §0.1-0.2](README.md) and
+[INKLING-2-MINI-2026-11-21.md](INKLING-2-MINI-2026-11-21.md). Historical measurements below retain their original
+settings.
 
 All numbers from DARKTEXAS (RTX 5070 12 GB / 32 GB RAM), Ollama, temperature 0, 32k context unless noted.
 tok/s is generation speed. "Placement" is the GPU share reported by `ollama ps`. Except where the
@@ -27,6 +30,7 @@ planets in order, and a code probe where applicable).
 | qwen3.5:9b | 9B | 94 | 100% GPU | yes (new) |
 | granite4.2:8b | 8B | 74.6 | 95% GPU | yes (new) |
 | gemma3:12b | 12B dense | 68 | 100% GPU | yes |
+| Inkling 2 Mini | 26B MoE / 3.4B active, IQ2_XXS | **67.4** | 100% GPU, 32K | yes (the only 32K + vision option here; **llama.cpp, not Ollama** - see the note below) |
 | gemma4:12b | 12B dense | 63 | 100% GPU | yes |
 | qwen3:14b | 14B dense | 63 | 100% GPU | yes (best dense all-rounder) |
 | gpt-oss:20b | 20B MoE | 48.9 | 68% GPU | yes (new) |
@@ -37,6 +41,13 @@ planets in order, and a code probe where applicable).
 | gemma4:26b | 26B MoE | n/a | crashed on load | pre-0.31.1 Blackwell MoE bug; deleted. Would run now, not re-tested. |
 | Kimi-K2.7-Code | 1T MoE | n/a | does not fit | NO (cloud/API only) |
 | DeepSeek V4-Pro | 1.6T MoE | n/a | does not fit | NO (cloud/API only) |
+
+*Inkling 2 Mini is the one row served by llama.cpp `b12611` rather than Ollama - Ollama's Windows path for
+`inkling2_loop` was fixed only above this box's `v0.40.17` pin. The 67.4 tok/s is a `llama-server` median of 3 at a
+32,768 window (`RESULTS-2026-11-22.md` §"the same question for Inkling"); a `llama-cli` probe on the same build with
+`-ub 512 -fa on` read 27.6 tok/s at `-c 32768`, and that 2.4x disagreement is recorded rather than resolved. The same
+file on the other engines (Strata 28.3, Colibri Vulkan 23.5, Colibri CUDA 17.4, Strata's own SQ-10 pack 17.1) is in
+`MODELS.md`.*
 
 ## Reading the table
 - Everything at/above ~48 tok/s is comfortably interactive here.
