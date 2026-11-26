@@ -778,6 +778,39 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-26 &middot; [Daily news scan: Strata ships 0.2.22/0.1.69, a single 12 GB card loses 14 % of Qwen prefill on it with one switch that gives it back, llama.cpp publishes v1.1.0, and the Inkling GGUF path ignores the RAM cap the last shortlist was going to fix](NEWS-2026-11-26.md)**
+
+A **24.0 h** window (2026-11-25T14:30Z &rarr; 11-26T14:30Z), the scheduled run, on **35.74 GiB free physical**,
+**24.34 GiB of commit** and **1,429 MiB of 12,227 MiB VRAM**. **The bump target moved again**: `v0.2.22`
+published **18:52:49Z** with app/Terminal **0.2.22**, `strata-engine` and the CUDA Inkling engine **0.1.69**,
+Control **0.1.69**, and the Hy4 plus AMD/Intel/Apple Inkling engines left at 0.1.67 &mdash; the Windows CUDA 13
+engine is **494,711,524 B**, only **+2,779 B** over 0.1.67, and the vendor compared **120,960 planned setups**
+to show plans are unchanged. The feed was **sequence 136**, generated **14:24:33Z**, i.e. **4 h 28 min before
+the page** and six minutes before the previous scan opened. **The day's item is measurable on our card's
+class**: `#7188` shows Qwen3.8 prefill **-14 % (1,010.4 -> 866.5 tok/s)** on a **single 12 GB RTX 3060** at
+engine 0.1.69, restored to **1,399-1,422** by **`STRATA_PF_FUSED_KQ=0`** with nine other switches inert, the
+loss dating to **0.1.59** and the MMQ removal to 0.1.62 &mdash; so our 0.1.47 rows are the pre-regression
+baseline and a 12 GB arm that sits in the fused-chunk regime is unreadable without it. `#7206` puts an
+`0xC0000005` on the first prefill on **both** backends, and the vendor names an auto-armed **pin-by-need**
+default (0.1.65+) with `STRATA_PIN_BY_NEED=0` fixing two of three earlier reports; `#7207` shows what a
+four-switch env array does to generation (truncation, then token spewing) and yields the rule that
+**`STRATA_SET` is inert on Windows**. `#7154` gained a maintainer answer: the auto-arm costs **+12 % on a
+homogeneous 8-core Coffee Lake** (39.02 -> 44.08 -> 39.69 A-B-A, 3/3 needles intact), so it is
+**topology-independent**, and the coverage denominator is **`n_layers x n_expert` = 24,576** &mdash; our own
+6.1 %. `#7169` **retires the last shortlist's fix B on the path we would take**: the Inkling **GGUF** loader
+ignores `--ram-experts-gb` and copies every host expert into **one 22 GB arena** for a file llama.cpp runs in
+16 GB, where the cliff is **4.9 tok/s** when the hot experts are the swapped-out ones. llama.cpp published
+**`v1.1.0`** (DSpark, a four-way `draft-*` split, `--target-bpw`, `LLAMA_MOE_RANDOM_ROUTING=1`) and merged
+**DFlash2-for-Inkling** three hours later into **no tag**; a **300 MB Q4_K_M DFlash2 drafter** appeared on HF
+the same hour. **[ARX] advanced to 26 November** (74/143) with **DFly2**, the engine's own drafter name, and
+a **looped-MoE trio** for our 5.4B-of-48-visits architecture. **[YT]** a Tandem-cpp video whose own
+measurement is that official llama.cpp's expert cache took **load 90 s -> 8 s** and **decode 24 -> 42 tok/s**
+with **prefill unchanged**. **[RD]** the API is **403 for the 29th time in 32 days** but the **mirror path now
+reads the whole subreddit** - and both threads it opened are on **our card**: five models at 32K on a 5070 12 GB
+(Inkling loops 6 of 42 at high thinking, 3 at medium) and a 3060 12 GB three-quant ladder with a **47-48 of 48
+top-token agreement** check. **[HN] 1,033 stories**, the on-axis one claiming the decision reference **Jev is a
+35B-A3B**.
+
 **2026-11-25 &middot; [Daily news scan: the 0.1.66 decode regression on ≤13 GiB cards is one auto-armed default, bisected twice in one window and present in 0.1.67; llama.cpp merges DSpark into mainline; and the Inkling "68 vs 12.5" row is a short-prompt cell](NEWS-2026-11-25.md)**
 
 A **24.0 h** window (2026-11-24T14:30Z &rarr; 11-25T14:30Z), the scheduled run, on **32.44 GiB free physical**,
