@@ -778,6 +778,28 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-27 &middot; [Daily news scan: Strata names the 0.1.69 Windows crash - a start-up buffer pool zeroed for GGUF packs, with a one-variable workaround - a 12 GB 3060 test finds greedy decoding is the Inkling loop and temperature 1.0 removes it, and llama.cpp merges FP8/NVFP4 quant scales plus the MoE-cache fix for our looped model](NEWS-2026-11-27.md)**
+
+A **24.0 h** window (2026-11-26T14:30Z &rarr; 11-27T14:30Z), the scheduled run, on **33.22 GiB free physical**,
+**21.85 GiB of commit** and **1,570 MiB of 12,227 MiB VRAM**. **The crash the last file could only price now has a
+cause:** `#7245` reports **eleven WER events at one offset** (`strata.exe+0x6fbc8b`, `0xc0000005`) on a 12 GB 3060 at
+engine 0.1.69, and the vendor's answer is a start-up step, new since **0.1.67**, that **discards the buffer pool GGUF
+packs need and zeroes its size** - so the first expert outside the RAM copy is memcpy'd into a zero-size buffer;
+**`STRATA_STARTUP_UNBUFFERED=0`** is the workaround, the fix is written with no date, and our installed **0.1.66**
+predates it. Three more regressions are all **expert-cache slot arithmetic**: **6508 &rarr; 6150 slots** for -5 % decode
+(`#7286`, where the planner's printed estimate moves the *opposite* way), **-13.7 % at 176K cold prefill** on a layer
+split (`#7250`), and a **GEMM warm-up before cache sizing** that `STRATA_PREFILL_WARM=0` gives back (`#7289`).
+**Inkling vision runs its encoder on the CPU on Windows** (**~20 s per 1280x720 screenshot**, a reporter's patch makes
+it 3-5 s) and **an image chat re-reads the whole prompt every turn**. llama.cpp merged **FP8/NVFP4 quant scales**
+(`#28898`, **in no tag**) and the **MoE-cache fix that fires on `inkling2_loop` with a layer split** (`#33133`, first
+tag **b12814**), while its Inkling CUDA fusion (`#33060`) reports **KLD 0.00205 against its own ubatch difference of
+0.00225** - so no text identity crosses it. And a 12 GB 3060 test of five engines puts **mainline llama.cpp at ~4
+tok/s against 30** on the same model, shows **reasoning effort "none" means three different things** (Strata hides the
+thinking, so its visible stream reads **~350 tok/s**), and finds the loop fix: **greedy 9/15 &rarr; temperature 1.0
+12/15 with zero loops**.
+
+
+
 **2026-11-26 &middot; [Daily news scan: Strata ships 0.2.22/0.1.69, a single 12 GB card loses 14 % of Qwen prefill on it with one switch that gives it back, llama.cpp publishes v1.1.0, and the Inkling GGUF path ignores the RAM cap the last shortlist was going to fix](NEWS-2026-11-26.md)**
 
 A **24.0 h** window (2026-11-25T14:30Z &rarr; 11-26T14:30Z), the scheduled run, on **35.74 GiB free physical**,

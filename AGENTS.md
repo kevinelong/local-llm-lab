@@ -1,5 +1,127 @@
 # Local AI lab working instructions
 
+- **2026-11-27, scheduled scan: Strata NAMES the 0.1.69 Windows crash (a start-up buffer pool zeroed for GGUF
+  packs, workaround `STRATA_STARTUP_UNBUFFERED=0`), a 12 GB 3060 test finds GREEDY DECODING is the Inkling loop and
+  temperature 1.0 removes it, and llama.cpp merges FP8/NVFP4 quant scales plus the MoE-cache fix for our looped
+  model.** `NEWS-2026-11-27.md`, written against **`NEWS-2026-11-26.md`**, which closed at **2026-11-26T14:30Z**;
+  window **2026-11-26T14:30Z -> 2026-11-27T14:30Z (24.0 h)**, read interval **14:30Z -> ~14:45Z**. This **is** the
+  scheduled run (`[Fri 11/27/2026  6:30:01.11] daily news scan start`, previous run `exit 0` + `verify OK`).
+  Reading only - nothing downloaded as a model or installed, **no engine started, no inference, no benchmark**,
+  **`ai_bench` untouched**. WSL started once for `yt-dlp` (three searches, five metadata reads, one caption set,
+  both tracks present) and shut down at the end; `gh`/`curl`/`jq` on Windows, plus one 38,811-B release **asset**
+  (`strata-feed.json`), never a model. Gates at start: **33.22 GiB free physical of 63.46**, **commit free 21.85 GiB
+  of a 71.96 GiB limit** (13.85 above the 8 GiB floor), GPU **1,570 of 12,227 MiB**, driver **617.24**. Listeners:
+  **`127.0.0.1:11434` pid 57832** (Ollama), **`127.0.0.1:8006` pid 25420** (this track's ComfyUI). Nothing ended,
+  no gate lowered. Lab state re-read: installed engine **0.1.66** (component state = feed **sequence 132**,
+  `checked_at 2026-11-24T08:24:38Z`), measured llama.cpp build **`b12611`**.
+  - **THE DAY'S ITEM IS A NAMED ROOT CAUSE FOR THE CRASH THE 11-26 FILE COULD ONLY PRICE. `#7245`**
+    (2026-11-26T14:39:12Z, 3 comments, answered 15:19:56Z) is the same fault offset the 11-26 file carried from
+    `#7206`'s CUDA reporter - **`strata.exe+0x6fbc8b`, `0xc0000005`** - on Windows 11 26100, **RTX 3060 12 GB**,
+    sm_86, engine 0.1.69, Qwen3.8 GSQ-RCO IQ3_S as a **native + `--ple-gguf`** split, `--kv int8 --kv-resident
+    32768 --vram-reserve-mib 1536`: **eleven WER events, all at the identical offset**, 4-6 min into each session,
+    while **0.1.65 with 31 identical arguments serves the same 6,440-token prompt and keeps serving**. The vendor
+    resolved the offset with symbols: it is the `rep movsb` inside `memcpy`, "the engine copied a block of memory
+    into a buffer that was too small". **Since 0.1.67**, GGUF models read in place go through a start-up step (files
+    closed, reads unbuffered, files mapped again) whose **last part throws away a pool of buffers and sets their size
+    to zero**; the next expert neither in VRAM nor in the RAM copy gets a zero-size buffer and **~1.5 MB** is copied
+    into it. **0.1.65 refused that step for GGUF packs**, which is why it is clean. Workaround while staying on
+    0.1.69: **`STRATA_STARTUP_UNBUFFERED=0`**; fix "is small and is written ... cannot give a date"; the two log
+    lines to grep are `... read unbuffered` and `the startup reads are done`. **Not** the small-card prompt rule,
+    **not** the fused kernels, **not** the 17 sm_86 switches.
+  - **Three more regressions in one window, all expert-cache slot arithmetic.** **`#7286`** (RTX 3090 24 GB sm_86,
+    Windows, 0.1.62 vs 0.1.66, four arms interleaved, n=10/4): decode **-5.0 % / -4.3 %**, prefill noise, with free
+    VRAM at start **16.70 -> 16.12 GiB**, post-cache reserve **256 -> 384 MiB**, allocation **6,508 -> 6,150 slots**,
+    and - the rule it earns - **the planner's printed estimate moved the opposite way (5,563 -> 6,186)**, so the
+    printed estimate is not what is allocated. **`#7250`**: 2x3080 + 3080 Ti split, **~176K cold prefill 2054/2050 ->
+    1774/1770 tok/s (-13.6/-13.8 %)**, `reused = 0` verified. **`#7289`**: the **GEMM warm-up runs before the cache
+    is sized**, costing **225 MiB per card and 242 slots**; **`STRATA_PREFILL_WARM=0`** restores 5,042/3,797 slots
+    and takes v0.2.22 from -4.7 % to **-2.7 %** vs v0.2.16 - and every arm carried **`STRATA_L3_PF=0` and
+    `STRATA_ADAPT_MID=0`**, the second a switch name this lab has never declared.
+  - **A sm_120 mid-session fatal on 0.1.69, clean on 0.1.67. `#7299`**: RTX 5060 Ti 16 GiB, compute 12.0, Linux,
+    four agents, prompts 100-119k - **two fatal GPU errors in 6.5 h** (`the launch timed out`, `verify: layer 15
+    never rang`), each losing every in-flight turn, against **zero** on 0.1.67 over 11 starts. Its banner lists
+    **12 switches**, `ADAPT_FETCH` on because the card is <= 16 GiB and "does not give bit-for-bit the same text".
+    Arch ours, VRAM not: a **VOID trigger for a bump row**, not a 0.1.66 regression.
+  - **Inkling vision is CPU-side on Windows/CUDA and an image chat re-reads everything.** **`#7288`**: no ViT
+    kernels for Inkling on CUDA, so the encoder runs on the host with **float weights and a 1.27 GB staging copy**
+    (**1280x720 = ~20 s** to first token); the reporter's fp16-on-card patch measures **20 s -> 3-5 s**, and the
+    release's CPU table is 0.25 MP 15 s / 1 MP 74 s / 2.1 MP 334 s / 3 MP 743 s. **`#7303`**: from
+    `engine/src/inkling2/ink_serve.h` v0.2.22-1, the encode loop at **~645** runs over every image every turn (no
+    embedding cache) and the prefix-reuse check at **~671** is wrapped in `if (pg.images.empty())` - one image in
+    the chat and every later turn re-reads the whole prompt. So **`reused` near zero on a vision row is expected by
+    construction**, not an engine property.
+  - **A learned expert profile is filed per pack tag. `#7301`**: switching quant tier writes a second
+    `expert-profile-learned-<tag>.bin` and starts from the shipped baseline, because `learned_profile_args()`
+    substitutes only when that exact path exists; `read_expert_profile()` rejects only on magic, version and
+    `(layers, experts)`, so an `STRP` v1 profile **is** portable across tiers of the same geometry - and the four
+    files on that box have identical headers (48 x 512, 24,576 slots). Our own file is **196,632 B, 48 x 512, sha
+    `3acf05d1...`**. Also: `--adapt-decay 0.97` gives **91-96 %** hit rates across mixed work (0.7 arm not run).
+  - **llama.cpp: two long-wanted merges and their boundaries.** **`#28898`** (FP8/NVFP4 quant scales, scale tensors
+    in GGML, CUDA epilogue mul) merged **2026-11-27T13:51:57Z** and **no tag carries it** (`b12815` behind 3).
+    **`#33133`** (MoE cache: experts selected on another backend) merged 09:32Z, **first tag `b12814`**, fixes
+    **`#33101`'s** `GGML_ASSERT(sel->op == GGML_OP_RESHAPE)` which fires on **`inkling2_loop` with a layer split** -
+    output after the fix is identical to all-experts-on-GPU. **`#33060`** (CUDA Inkling fusion) merged 11-26T15:15Z,
+    first tag **`b12800`**: launches **5,745 -> 2,584**, **tg128 +28-31 %**, and its own accuracy numbers - conv,
+    clip and situ **mean KLD 0**, depth-mix + loop-controller **0.00205** against master's own ubatch difference of
+    **0.00225** - so **no text identity crosses it**. Also **`#32187`** adds **Inkling 2** to mainline,
+    **`#30139`** reads recurrent states in place, **`#33136`** fixes an NVFP4 MMQ `y_scale` over-read, **`#33063`**
+    is FA with indexed bias, **`#32898`/`#33116`** are the Vulkan Inkling fixes. New report **`#33150`**: Inkling 2
+    Mini degenerates into repeats with `-np 2` on HIP; **`#33134`**: named `tool_choice` not enforced for Qwen XML
+    tool calls.
+  - **Ollama `v0.40.19-rc0`** (2026-11-26T17:52Z) is **inkling2 faster histories/drafts/snapshots + MLX Engram
+    compaction + a llama-server bump**, no CUDA Inkling - **no Ollama build serves our model on this card**; stable
+    stays **0.40.18**. Its **`#19934`** is the silent-failure class in the open: a mid-stream decode failure returns
+    **HTTP 200 with an empty body**. **ComfyUI** has no release (v0.46.0, 2 commits) and **`#18019`** prices a
+    DynamicVRAM loader bug: `_lazy_load_from_state_dict` allocates **FP32 `torch.zeros` for missing keys under
+    `strict=False`**, **~883 MB per layer, 22-28 GB of Windows commit**, hard-crashing a 32 GB box at the first
+    KSampler step. **`#18012`** takes a Windows RAM check from **259.2 us to 3.55 us**.
+  - **Packs: a revision move can be 96 bytes.** Gyro `cd23c64710` -> **`3cb6d6c004`** (2026-11-27T11:12:51Z, 24 -> 26
+    files) with eight of nine weights byte-identical and **`M-TQ2_0-noPLE` 96 B smaller (37,565,512,928 vs
+    37,565,513,024)**; the **DFlash2 drafter pack** `51ca9cab41` -> **`f2eb9995ab`** with **+9,280 B on four files**
+    and **+49,280 on BF16**; **`strata-engine/Inkling-2-Mini-Strata`** `04996a1e2c` -> **`5623ceb47d`** adds
+    **`SQv2-20` 19,374,768,128 B** and **`Vision-v2` 636,551,168 B**; new **`AtomicChat/Inkling-2-Mini-Uncensored-GGUF`**
+    (37 files, **1.06 M downloads**, apache-2.0, **IQ2_M 8,665,091,680 B**) and a 26.75 MB **pi LoRA**. The
+    GSQ-RCO-vs-UD question has no answer because **ISTA publishes no KLD** while Unsloth lists **0.0595** at 9.14 GB.
+  - **[ARX] DID NOT ADVANCE** - the same Thursday 26 November batch, **177** cs.CL and **419** cs.LG ids and the same
+    74 / 143 new counters, read a second time; nothing new is cited. **[YT] one in-window upload and it is a 12 GB
+    3060 five-engine test** (`L2ejF8OCFUo`, Alex, 2026-11-26, 1,320 s, 6,452 views, both caption tracks):
+    **mainline llama.cpp ~4 / Unsloth fork ~10 / Strata ~13 / Maya ~26 / Ninfer ~30 tok/s** on the same model at 32K
+    with defaults; **reasoning effort `none` means three different things** - llama.cpp and Ninfer still think
+    250-300 tokens, Maya emits zero, and **Strata hides the thinking so the visible stream reads ~350 tok/s** (a
+    measurement trap, his words, and the engine's own audit from 10-21); quality a dead heat (**GSM8K 99/97/96**,
+    HumanEval ~80 everywhere, **no answer changed** against the near-lossless 8-bit file over 60 prompts); and the
+    loop fix - **greedy 9/15 -> temperature 1.0 12/15 with zero loops -> 16K cap 14/15**, matching a model four
+    times bigger, with his own caveats (n=1, temp 1 randomness, Flash-Next's arm greedy, and **its one miss was a
+    loop too**). **[RD] readable by a third route**: JSON is 403 and `new/.rss` is now **404** (it points at
+    `rss.reddit.com`) while `read` resolves the listing through the **Arctic Shift archive** with full comments;
+    three threads on our model - the **Vulkan Inkling prefill fix** (`f89a243d5`, Strix Halo 16k 346 -> 633 and 64k
+    117 -> 491 against ROCm), the **GSQ-RCO vs UD** KLD question, and **Inkling-2-Mini-Unbound v3 / Prime LoRA**
+    (hard debugging **73.3 -> 100 %**, thinking **344 -> 184 tokens**, **49.5 -> 5.7 %** cut off, publisher's numbers,
+    replication recipe given). **[HN] 896 stories**: **RustingStrata** (a fourth Rust engine, unread), a **402-point
+    AMD-specific llama.cpp fork** (not ours), the AtomicChat pack, and the DRAM-shortage story.
+  - **[METHOD] five faults, three new tells**: the Reddit **RSS endpoint moved** (404 with a body pointing at
+    `rss.reddit.com`) so "blocked" and "gone" are different failures; **the `read` tool picked a different mirror
+    than yesterday** (Arctic Shift, not safereddit) and says which; **`gh release download --pattern` wrote nothing**
+    while `gh api .../assets/<id>` returned all 38,811 B - the 11-26 note's failure seen from the other side;
+    **`yt-dlp --flat-playlist` returns `upload_date NA`** for the sixth time; and a `python -c` URL-encoder inside a
+    bash loop silently produced **empty HN queries** that read exactly like silence (`curl -G --data-urlencode` is
+    the form, and `.nbHits` 896 is the tell).
+  - **Shortlist, cheapest first**: (1) the bump declaration's **crash block** - `STRATA_STARTUP_UNBUFFERED=0` for
+    GGUF-pack arms at 0.1.67+, the **pack layout** as a field, the two log lines, and `fatal GPU error` /
+    `verify: layer N never rang` as **VOID not slow**; (2) the **sampling block** per model - **`temperature: 0` for
+    any Inkling identity claim**, and loop work as **greedy vs temperature 1.0** at 4,000 and 16,000 caps; (3) read
+    the installed 0.1.66's settings register for **`PREFILL_WARM` / `ADAPT_MID` / `PF_SMALL` / `STARTUP_UNBUFFERED`**;
+    (4) **one vision row with a follow-up turn carrying no image** (TTFT, CPU share, `reused`); (5) **one start**
+    reading the cache-sizing line with `PREFILL_WARM=0` on a single card; (6) the llama.cpp gate to **`b12814`**
+    (`#33133` + `#33060`; `#28898` in no tag); (7) a **DSpine acceptance arm** on our spec ladder. Items 1-3 are
+    edits and a read; 4-5 are single starts; 6-7 are gated downloads.
+  - **Gated on Kevin**: the **bump** (target unchanged, app 0.2.22 / engines + Control 0.1.69; feed sequence 136,
+    generated 2026-11-25T14:24:33Z) now with **five** conditions; a **llama.cpp download at `b12814`**; the
+    **SQ-10/SQ-15** packs (now also SQv2-20 and Vision-v2); the **AtomicChat uncensored IQ2_M** (1.06 M downloads,
+    apache-2.0) or its v3 LoRA; the `dealignai` pack; the Colibri probe; plus the unchanged display-to-iGPU cable
+    change, the Gyro-S route (**`3cb6d6c004`**, one file 96 B off), the ComfyUI image pair, the DeepSeek IQ2_XXS
+    download, the `STRATA_OWN_CPU_QUANT` decision and the September 29 candidate tests.
+
 - **2026-11-26, scheduled scan: Strata ships 0.2.22 / engine 0.1.69, and a SINGLE 12 GB card loses 14 % of
   Qwen prefill on it with one switch that gives ~95 % back; llama.cpp publishes v1.1.0 with DSpark and a
   four-way draft split; and the Inkling GGUF path turns out to ignore the RAM cap the last shortlist was
