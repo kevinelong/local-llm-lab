@@ -778,6 +778,23 @@ truncated **10 of 10** items on every arm, and a rubric that encoded the **3200 
 the answer is the **6400 MT/s** one, moving all four arms in the same direction. Classifier unchanged,
 **10/10 agreement** again. Recommendation: make coverage **facts delivered / facts demanded**.
 
+**2026-11-28 &middot; [Daily news scan: Strata ships 0.2.23 / engine 0.1.70, turns "fast mode" on by default on the RTX 5070 12 GB while stating it changes the exact words, and the 0.1.69/0.1.70 decode drop gets a one-variable off switch - plus five malicious GGUFs on Hugging Face at 2,428 downloads](NEWS-2026-11-28.md)**
+
+A **24.0 h** window (2026-11-27T14:30Z &rarr; 11-28T14:30Z), the scheduled run, on **30.27 GiB free physical**,
+**55.15 GiB of commit** and **2,039 MiB of 12,227 MiB VRAM**. **The bump target moved 4 h after the last file
+closed:** `v0.2.23` puts app/Terminal at **0.2.23**, Qwen engines at **0.1.70** (`ebda56cbaa19+cuda13.0`,
+494,708,298 B, sm_120, **+2 B over 0.1.69 - no Qwen speed claim**) and the NVIDIA Inkling engine at **0.1.71**, and
+adds **"fast mode on by default on ... the RTX 5070 12 GB"** which **"can change the exact words of an answer
+slightly"** - so no text-identity claim crosses it. **DFlash 2 replaces DSpark**, but `#7329` shows `strata launch`
+**cannot pass it on any platform** (`--draft dflash2` is not in the engine's enum, the launcher never supplies the
+`.pack`, `draft_n: 0` while the log says `DSpark took 0 MiB`). The Qwen decode regression gets a **rollback test**
+(`#7323`: single 4090, 0.1.65 **88.6/82.5/80.2** against 0.1.70 **77.2/65.4/65.7**, prompt flat, sanity 12/12) and a
+**second reporter whose fix is one variable**: `STRATA_ADAPT_MID=0` restores 61 &rarr; 62-66 tok/s, with the `#4870`
+mid-coverage line (28.4 % slots, swaps 96 &rarr; 192) as the mechanism. Three pack defects are filed -
+**only SQ-20 has a v2**, a **Gyro-S SHA mismatch**, and an **Inkling GGUF in llama.cpp's layout exits 1 with
+"Failed to open .strata file"** - and the day's security item is **five malicious GGUFs** (2,428 downloads) whose
+chat templates arm a PowerShell loader that carves a RAT appended **after the last tensor**.
+
 **2026-11-27 &middot; [Daily news scan: Strata names the 0.1.69 Windows crash - a start-up buffer pool zeroed for GGUF packs, with a one-variable workaround - a 12 GB 3060 test finds greedy decoding is the Inkling loop and temperature 1.0 removes it, and llama.cpp merges FP8/NVFP4 quant scales plus the MoE-cache fix for our looped model](NEWS-2026-11-27.md)**
 
 A **24.0 h** window (2026-11-26T14:30Z &rarr; 11-27T14:30Z), the scheduled run, on **33.22 GiB free physical**,

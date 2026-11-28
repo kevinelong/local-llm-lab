@@ -1,5 +1,209 @@
 # Local AI lab working instructions
 
+- **2026-11-28, scheduled scan: Strata ships 0.2.23 / engine 0.1.70 and turns "fast mode" ON BY DEFAULT on the
+  RTX 5070 12 GB while stating it changes the exact words; the 0.1.69/0.1.70 decode drop gets a second reporter and
+  a one-variable off switch (`STRATA_ADAPT_MID=0`); and five malicious GGUFs on Hugging Face reach 2,428 downloads
+  with the payload in the chat template and after the last tensor.** `NEWS-2026-11-28.md`, written against
+  **`NEWS-2026-11-27.md`**, which closed at **2026-11-27T14:30Z**; window
+  **2026-11-27T14:30Z -> 2026-11-28T14:30Z (24.0 h)**, read interval **14:30Z -> ~15:20Z**. This **is** the
+  scheduled run (`[Sat 11/28/2026  6:30:01.23] daily news scan start`, previous run `exit 0` + `verify OK`).
+  Reading only - nothing downloaded as a model or installed, **no engine started, no inference, no benchmark**,
+  **`ai_bench` untouched**. WSL started once for `yt-dlp` (three searches, eight metadata reads, two caption sets:
+  `en` 429'd, `en-orig` 97,224 B, `ja` 30,212 B) and shut down at the end; `gh`/`curl`/`jq` on Windows, plus the
+  38,581-B release **asset** (`strata-feed.json`), never a model. Gates at start: **30.27 GiB free physical of
+  63.46**, **commit free 55.15 GiB of a 71.96 GiB limit**, GPU **2,039 of 12,227 MiB**, driver **617.24**.
+  Listeners: **`127.0.0.1:11434` pid 57832** (Ollama), **`127.0.0.1:8006` pid 25420** (this track's ComfyUI).
+  Nothing ended, no gate lowered. Lab state **carried** from 11-27: installed engine **0.1.66**, measured
+  llama.cpp build **`b12611`** (a targeted `find` for the component-state JSON under
+  `%LOCALAPPDATA%\Programs\Strata` returned nothing, so the version was not re-read).
+  - **THE BUMP TARGET MOVED 4 h AFTER THE LAST FILE CLOSED. `v0.2.23`** (2026-11-27T18:43:32Z, tag `4560d0379`,
+    `prerelease: false`) puts app/Terminal at **0.2.23**, **Control 0.1.70**, the **Qwen engines 0.1.70** on
+    Windows/Mac/Linux-CUDA13, **Inkling 0.1.70** with **NVIDIA Inkling 0.1.71** attached "since 28 November", and
+    leaves Linux/aarch64 Qwen at 0.1.69 and Hy4 at 0.1.67. **The page says 42 files / 7,399,418,398 B while the
+    object carries 47 assets**, and the attached feed is **sequence 139, `generated_at` 2026-11-28T11:25:01Z** -
+    **16 h 41 min AFTER publication**, the inverse of the 11-25/11-26 "feed precedes the page" shape. Windows
+    packages: **Qwen engine 494,708,298 B** (installed 712,199,923, build **`ebda56cbaa19+cuda13.0`**, archs
+    sm_75/86/89/**120**/compute_120, min driver 580.65, **+2 B over 0.1.69 so no Qwen speed change**),
+    **Inkling 0.1.71 444,288,933 B** (0.1.70 439,846,865), **Control 68,055,221 B**, installer 110,993,088 B.
+  - **FOUR CHANGES REACH A 12 GB sm_120 WINDOWS BOX AND TWO OF THEM DECIDE HOW A ROW READS.** (a) **"Fast mode is
+    on by default on the RTX 5090, RTX 5060 Ti 16 GB, RTX 5070 12 GB, RTX PRO, DGX Spark and R9700. It can change
+    the exact words of an answer slightly"** - back-outs **`STRATA_INK_SM120=0`** and **`STRATA_INK_SM120_EXACT=1`**
+    (old words, still faster on a 5090); so **no text-identity claim crosses this bump**, on top of the 11-20
+    `--short-read` finding (5070: 8/10 identical at defaults, 10/10 at `--short-read 64`). (b) **DFlash 2 replaces
+    DSpark**, one extra 0.55 GB file, auto on RDNA2/3/4, R9700, Strix Halo, M5 Max with SQ-20 v2, and **on NVIDIA by
+    card size** ("from 24 GiB for up to 32 requests, below 24 GiB for a single request and from 16 at once"), **not
+    loaded when it would push part of the model off the card**. (c) **`--turbo`/`--turbo-max`** (opt-in) skip the
+    weakest late-layer expert picks: **+20.7 % on a 5060 8 GB, +23.0 % on an RTX 5070 12 GB**, at **22/26 tool calls
+    against 23/26** on a 4090 - a stated quality trade our tool-call battery scores and our rate rows do not.
+    (d) **The Windows GGUF crash is fixed in 0.1.70** (`#7131`, `#7155`, `#7206`; `#7245`: "an engine crash is now
+    reported as an engine fault, not as a lack of RAM") - i.e. the 11-27 file's `STRATA_STARTUP_UNBUFFERED=0` item
+    **shipped** - with the release's own caveat: covered by a sanitizer unit test and a start test on an RTX 5070,
+    **"but not run with a real GGUF model before release"**. **Release rows on our card**: RTX 5070 12 GB **96.9 to
+    119.5 tok/s** across prompt kinds (SQ-20 v2); 5060 8 GB with part of the model in RAM 32.5-41.2; **no 5070 or
+    12 GB row in the IQ3_S prompt table** (4090 1,360 -> 3,721; A6000 315 -> 1,887); the "same answer after a
+    restart" claim covers 5090/RTX PRO/DGX Spark only. **Known limits that bound a row**: fast mode makes a 16K
+    document decode **19 % slower on the 5090** (180.9 -> 147.3), **DFlash 2 is slower on code on the 5090 (21 %)**,
+    chat on the 5060 Ti (17 %) and a 4K document on the V100 (86.9 -> 63.8); **8 GB cards OOM at 32+ users, use
+    `--parallel 16` or less**; the Windows installer was run only **on a PC that already had Strata**.
+  - **THE DECODE REGRESSION NOW HAS A ROLLBACK TEST AND A ONE-VARIABLE FIX. `#7323`** (2026-11-27T19:36Z): single
+    **RTX 4090 24 GB, Windows 11**, Qwen3.8 UD-IQ4_XS-v31, 128K, `--kv int8`, DFlash2 - 0.1.65 **88.6 / 82.5 /
+    80.2**, 0.1.69 **70.3 / 62.5 / 62.5**, 0.1.70 **77.2 / 65.4 / 65.7** (short/4K/16K decode), prompt **1,058 /
+    1,101 / 1,079** at 4K and sanity 12/12 everywhere, two runs per cell plus a clean all-apps-closed pair
+    (**0.1.65 80.7/72.2/86.6 against 0.1.70 62.2/59.0/58.1** = **-18 to -33 %**), rollback via
+    `strata components rollback`; draft acceptance ~77 % and a normal window warm-up on both, so drafter and GPU
+    state are excluded. **Second reporter (2026-11-28T12:46Z, Linux, single RTX 3090, source builds): 61 -> 47-52
+    on 0.1.70, and `STRATA_ADAPT_MID=0` restores 62-66** - his log names the mechanism, the **`#4870` mid-coverage
+    line**: `mid-coverage expert cache (6989 of 24576 slots, 28.4%): adaptive defaults every 4 -> 2, swaps 96 -> 192,
+    decay 0.70 -> 0.92`, "the cache hit rate goes up, but the engine swaps **2-2.5x more experts** per request".
+    Third finding in the same issue: **2 of 3 starts on 0.1.70 failed** with `mapped staging allocation failed
+    [pinned-memory-exhausted]` at ~52 GB free RAM. **Our 1,500-slot cache is 6.1 % of 24,576**, so whether the
+    25 %/mid-coverage gate arms here is a **function of the rung**, read from the engine's own line.
+  - **THE RELEASE'S HEADLINE FEATURE CANNOT BE PASSED BY `strata launch` ON ANY PLATFORM. `#7329`**
+    (2026-11-27T20:02Z, reproduced on the 0.2.23-cuda13 container): with `DRAFTING=dflash2` the engine line carries
+    `--draft dflash2` and **no `--dspark`**, logs `DSpark took 0 MiB`, and every reply reports **`draft_n: 0`** at
+    77.7 tok/s - three causes: the launcher never passes the path (`setup.py` ~956/973 is the only `dspark_path`
+    use), **`--dspark` wants an engine `.pack`** (`tools/dflash2_pack.py` builds one: 622.8 MB, 81 tensors) not the
+    safetensors setup fetches, and **`--draft dflash2` is not in the engine's enum** (`auto|dspark|off`). Two
+    independent confirmations: **SYCL/Arc B70** - `--draft dflash2` "leaves the drafter **off silently**" because
+    `STRATA_INK_DRAFTER=dflash2` is set only for `--draft on`, working log
+    `[ink_sycl_dflash2] loaded … (5 layers Q8_ROW, slots=1, ring=2112, max_M*=8)` / `DFlash 2 loaded: 635 MiB` -
+    and a CUDA datapoint matching the container. **So a "drafter on" Strata arm read `draft_n`, not the flag.**
+  - **THREE PACK DEFECTS, AND ONE IS OUR FORMAT. `#7374`**: the notes' "the three SQ files are new v2" is wrong -
+    the repo holds **one** `SQv2-*` (`Inkling-2-Mini-SQv2-20.strata`, commit `16b2170`), **SQ-10/SQ-15 map to the
+    plain v1.1 files** and `inkling_family.FILES` agrees, and `SHA256SUMS.txt` (377 B) predates the v2 upload -
+    which supports the 11-27 reading that **only SQ-20 and Vision-v2 are new**, and forbids reading a "v2
+    expectation" into SQ-10/SQ-15 (what an 8-16 GB card would plan around). **`#7362`**:
+    `Qwen3.8-Flash-Next-Gyro-S-TQ1_0.gguf` **does not match the pinned SHA-256** - the pack whose `M-TQ2_0-noPLE`
+    the 11-27 file recorded as 96 B off. **`#7373`**: an Inkling-2-Mini GGUF in **upstream llama.cpp's layout**
+    (`Tsunderee/…Bonsai-QAT`, 6.19 GiB, `inkling2_loop`, `Q2_0`/`Q1_0` experts) **exits 1** from `strata-inkling`
+    0.1.70 with `open: Failed to open .strata file: …gguf`, `--info` the same - so `strata-inkling`'s GGUF path
+    takes the **native + `--ple-gguf` split** only, and "Strata reads our GGUF" is layout-specific.
+  - **THE "0.2.23 IS 30x SLOWER" REPORTS HAVE A NAMED ENVIRONMENTAL CAUSE. `#7363`** (04:22Z, closed same day):
+    0.2.23, 5060 Ti 16 GB, **256 GB RAM**, 60 -> **2 tok/s**, models under `…\Documents\Strata\…`.
+    **`#7365`** (04:51Z): "Please revert … `{user}\Documents` is a possible default Folder for models in Windows" -
+    "my OneDrive got filled with 500 GB of models … **performance dropped to 1 t/s while it was uploading**", and
+    names `terminal/strata_control/discovery.py#L68`, whose docstring says Documents "where the desktop app keeps
+    Strata by default (Windows may redirect Documents to OneDrive)". **`#7372`** (06:31Z) is the same shape on an
+    RTX 6000 Ada + 32 GB (5 tok/s). **Checked on this box: `C:\Users\kevin\Documents\Strata` does not exist**, so
+    the class cannot reach us - and it earns a declaration field (**`data_dir` and whether it is cloud-synced**),
+    because a synced folder makes decode a function of upload bandwidth no gate can see.
+  - **llama.cpp: 18 commits, tags `b12810` -> `b12833`, AND EVERY ON-AXIS MERGE IS IN NO TAG.** By `compare`
+    against `b12833`: **`#33062` `[Inkling 2] Support nvfp4 pass-through`** (11-27T14:44Z, **ahead 9**),
+    **`#33186` `model: expand Inkling 2 tau after embeddings`** (11-28T10:09Z, **ahead 5**), **`#33238` `tests: use
+    the fused mul_mat tolerance for LOOP_CTRL`** (ahead 4), **`#33162` `CUDA: fix ADD_ID launch for more than 65535
+    tokens`** (ahead 10), `#32626` (ncols2 mma FA, ahead 6); only **`#33064`** (CUDA 13 dp4a MMQ hint) is **in
+    `b12833`**. `v1.1.0` remains the only non-prerelease release. **Issues**: **`#33235`** "persistent expert weight
+    pool for MoE CPU offloading (`--moe-expert-cache`)" - **closed unmerged the same day**, a ggml-core pool with a
+    **pool-owned device map table via `get_rows`** ("no new ops, works on CUDA/Vulkan/Metal"), validated by a
+    **96-case matrix bit-exact against a reference arm**, with "CUDA re-run on this branch **pending**"; **`#33243`**
+    (open) **`Q2_0M` KV quantisation, CPU+Vulkan**; **`#33241`** Vulkan prefill **20-40 % slower on a 7900 XTX
+    (Windows) since `#31323`**; **`#33215`** per-channel FP8 **silently dequantized to F16**; `#33196`, `#33206`,
+    `#33218`, `#33228`, `#33242`, `#33239`.
+  - **OLLAMA'S RC BECAME STABLE BY RENAMING THE TAG - seventh dating trap.** `v0.40.19` now reads
+    `prerelease: false` with **`published_at` still 2026-11-26T17:52:02Z** (the 11-27 `-rc0` timestamp), so the
+    promotion is invisible in the date. **1 commit** (`d227b7e21`, bump llama-server, `#19953`); **31 issues**,
+    three on axis: **`#19976`** `hf.co/…:Q2_0` pulls **`PQ2_0.gguf`** by **substring match** when both exist (a
+    pack identity chosen by name, not hash - the `#7301` class), **`#19971`** a fixed 30 s GPU bootstrap timeout
+    **silently falls back to CPU** when libraries are cold, **`#19961`** `/v1` chat logprobs always include
+    `top_logprobs`. Still **no CUDA Inkling path**, so the 11-18 rule holds.
+  - **COMFYUI: FOUR TAGS, FOUR 404s, FOURTH SERIES.** Newest **published** is still `v0.46.0` (11-18); tags
+    `v0.46.1`-`v0.46.4` exist and **`releases/tags/v0.46.4` is 404**; `#18035` "backport release v0.46.4" opened and
+    closed with no release object. 5 commits. On-axis issues: `#18028` (DynamicVRAM on ROCm renders Flux bf16
+    **solid black/NaN** when it does not fit), `#18034` (MPS all-NaN attention from an uninitialised `baddbmm`),
+    `#18036` (EXIF-orientation change **reverted**), `#18031`/`#18032` multi-GPU tiled VAE. Nothing CUDA/12 GB, so
+    the image covariate list does not grow - and the rule stands that our image rows name the **server's**
+    `ComfyUI version:` line, not a tag.
+  - **PACKS: OUR UNCENSORED INKLING PACK MOVED AND GAINED A TOP END.**
+    **`AtomicChat/Inkling-2-Mini-Uncensored-GGUF`** `c311009c` -> **`c5667da36f`** (2026-11-27T18:44:10Z), 37 files,
+    **downloads 1,059,763 -> 1,297,386**, adding **Q8_0 27,820,099,328**, **AD-Q6_K 23,870,638,048**,
+    **AD-Q5_K 19,156,764,640** while every smaller AD quant (Q4_K 16,525,559,776, IQ4_XS 15,079,901,152, IQ3_S
+    13,340,510,176, IQ3_XXS 12,659,263,456, IQ2_S 11,640,047,584, IQ2_XXS 10,508,660,320, **IQ2_M 8,665,091,680**)
+    and the 43,805,184 B LoRA are **byte-identical** - so the usable 12 GB tier is unchanged. **Unchanged by sha**:
+    Gyro `3cb6d6c004`, DFlash2 drafter pack `f2eb9995ab`, `strata-engine/Inkling-2-Mini-Strata` `5623ceb47d`,
+    `unsloth/Inkling-2-Mini` `78ac8edb76`, `unsloth/Qwen3.8-Flash-Next` `f5d175de2c`, `ggml-org/Qwen3.6-35B-A3B`
+    `52f9f9b805`, ISTA DSV4.1 `65d53bc8be`. Broad sweep: **100 GGUF repos created in-window** (page cap), none
+    recommended; named leads are `ilintar/Inkling_2_Mini_deloop-GGUF`, `mradermacher/Tenet-26B-A3B-Inkling2-Unslop-v3-i1`,
+    `mradermacher/Inkling-2-Mini-LV-i1`, `aman2321/…Opus-Short-Thinking`, `fritskarl/…Unbound-v3-Fast-pi-IQ3_M`,
+    `taurusduan/…Gyro` (a mirror), and two uncensored ones (`P4pps3n/Inkling-2-Mini-abliterated`,
+    `mrfakename/Hy4-flash-abliterated`).
+  - **[ARX] DID NOT ADVANCE - third read of the same batch**: both pages still date **"Thursday, 26 November 2026"**,
+    **177** cs.CL and **419** cs.LG ids, the same **74 / 143** new counters. Zero new papers, nothing cited as new.
+  - **[YT] ONE IN-WINDOW UPLOAD ON OUR CARD CLASS, AND ITS FINDING IS A CONTEXT-BUDGET ONE. `dr2iaJgpcEk`** (AI
+    Receipts, 2026-11-27, 598 s, 3,151 views; `en` 429, **`en-orig` 97,224 B**): **"Three models, 1 12 GB card, nine
+    real jobs"**, each on its makers' recommended settings; Saluki ships only a 2-bit file and Inkling's file is so
+    big "part of it has to sit in my PC's memory". Job one: **Inkling** the only finished game (~1 h 15 min with
+    pasted errors), Bonsai "ran out of room on its first try" and after one fix has an empty minimap and clips
+    walls, **Saluki never produced a page in four tries over two hours** - the mechanism stated at
+    [00:02:02-00:02:17]: "these models think before they write, and **all that thinking eats up the window** … the
+    window fills up halfway through the file"; **thinking turned to medium** then produced a working game in
+    ~22 min. Speed: **Bonsai 121 tok/s**, "the others don't even get to half", and **drafter off = ~80**; the count
+    is **"Inkling won all four builds"** with chats/code-job/long-document tied. A second upload (`TmJUXQ75LmU`,
+    2026-11-28, 257 s, 25 views, `ja`) re-narrates the 0.2.23 notes with no measurement and is not quoted.
+  - **[RD] READABLE BY TWO MIRRORS IN ONE RUN** (`new.json` still 403 with the 1,522-B page; the **listing** came
+    through **Arctic Shift** and **threads** through **safereddit/Redlib**, each response naming its source - so the
+    mirror is per **request**). Five kept: **`1y7k1gb`** (**598 points, 85 comments**) "Heretic's author has
+    **archived the repository**" with a farewell dated **28 November 2026** (`p-e-w/heretic#601`) - the largest
+    abliteration project and the source of the ARA method, leaving `obliteratus`/`abliterix`/`heretic-gguf`, "none
+    as maintained" - which matters to Kevin's uncensored-first preference as a **provenance** fact;
+    **`1y7mty3`** **Basalt 0.6.0**, a **fifth** engine on our family, "**6,400 tok/s aggregate** decoding on a
+    single 5090" (aggregate, not single-stream; the same author whose `basalt #261` WDDM lost-wake-up the 11-18
+    file carried); **`1y7mgd9`** Ternary-Bonsai-2.5 27B **TQ1_0 6.23 GB + MTP at 12 GB / 96 t/s**, which
+    "reasoned for 22,000 tokens and then **looped 'part,part,part,part,part'**" (the loop class on our VRAM class,
+    one prompt, no repeats); **`1y7iekx`** a 24 GB + 32 GB Strata question whose answer is the RAM floor from the
+    user side ("with 32GB it will be rather tight … Swift IQ3-XXS fits barely … 60-100 tg / 2500 pp", against
+    **40-60 / 500-1,000** for a dense 27B q4 on the card alone); **`1y7l7dh`** a third-party check of the Unbound v3
+    claims ("four of five hold, coding inconclusive"). Also named and unread: `1y7hvyw` (a 16 GB 4060 Ti patch
+    bundle, "156K VRAM context, 5.6 MB zip").
+  - **[HN] 786 STORIES, AND THE DAY'S ON-AXIS ITEM IS A SUPPLY-CHAIN FINDING ABOUT GGUF.** **"GGUF LLM Models with
+    Hidden Malware on Hugging Face Reached 2400 Victims"** (**51 points**, 2026-11-28T11:57Z,
+    `malspark.com/blog/malicious-gguf-models-hugging-face/`, published **2026-11-27**): a scan of **3,273,389**
+    public HF repos (226,310 GGUF, 2.56 PB) with **HTTP Range requests only** found **5 malicious repos, 2,428
+    downloads** (11-27). **Mir2k** appended a **Windows RAT after the last tensor** (plain and raw-Deflate) with a
+    clean template, then on **2026-11-26 rewrote both templates** so the model begins every reply with a PowerShell
+    line that carves and runs the payload - repos include **`Mir2k/Inkling-2-Mini-Uncensored-GGUF`** (458 downloads);
+    implant = embedded Tor, ChaCha20 PSK, DPAPI browser passwords, **MetaMask/Phantom**, keylogging, webcam,
+    RandomX Monero, a 10-min scheduled task, and a UAC bypass that **fails on missing backslashes**. **timdedid**
+    put a hidden `[SYSTEM DIRECTIVE]` in three Qwen3-1.7B "cyber" templates that hijacks an agent's `powershell`
+    tool on the phrase "`What is`". The published fix, **`Root0ne/gguf-radar`** (MIT), parses the template
+    **without running it**, reports bytes after the data section, non-zero padding and **negative-zero scales in
+    zero-scale Q8_0 blocks**, and rebuilds canonically; lab-only hiding places: alignment-padding gaps, a
+    **GGUF+ZIP polyglot** (`zipimport`), zero-scale blocks. Also kept: "**101 tok/s from Inkling 2 Mini in vLLM on
+    one GB10**" (58 points, unified memory, unread), "MTP on M5 Ultra 512 GB: +63 % vs a **JSON collapse**"
+    (unread), `LayerStream` (fine-tuning, not ours), and the bare-metal llama.cpp story already recorded 11-27.
+    **Consequence for us**: this lab downloads community GGUFs and runs **agents with tool access**, so a pack's
+    **chat template is part of the instrument** and must be read, not assumed - and "the model behaves oddly" and
+    "the template changed upstream" are different failures.
+  - **[METHOD] SIX FAULTS, THREE REPEATS.** (a) The PowerShell **`$`-stripping fault, tenth instance** -
+    `"$os.TotalVirtualMemorySize"` inside a double-quoted `-Command` died on `.TotalVirtualMemorySize`; re-run from
+    a **`.ps1` written to the repo root and deleted**, which worked first try. (b) **The HN epoch was ~25 h in the
+    future** (`1795880400` instead of **`1795789800`** for 2026-11-27T14:30Z), so three queries returned `nbHits 0`
+    - which reads like silence; the tell is that the tag-only query then returns **786**. Third instance.
+    (c) **The Reddit mirror is per request**, not per day (Arctic Shift for the listing, Redlib for threads).
+    (d) **`en` captions 429'd (eighth scan)** and `en-orig` served; `--flat-playlist` still returns `upload_date NA`
+    (seventh). (e) **`gh release download --pattern` was not needed**: `curl -sL` on the release-asset URL returned
+    **38,581 B**, a third route that works. (f) **A `find` for the component-state JSON returned nothing**, so the
+    installed engine version is **carried** from 11-27 rather than re-read - an empty result was not allowed to read
+    as confirmation.
+  - **Shortlist, cheapest first**: (1) **write the 0.2.23 bump declaration** - target **app 0.2.23 / Qwen 0.1.70 /
+    Inkling 0.1.71 / Control 0.1.70**, with `STRATA_INK_SM120`/`_EXACT`, **`STRATA_ADAPT_MID`**,
+    `STRATA_STARTUP_UNBUFFERED=0` **retained** for 0.1.67-0.1.69 (0.1.70 claims the fix, unrun with a real GGUF),
+    the **pack layout**, **`data_dir` + cloud-synced**, and `fatal GPU error` / `verify: layer N never rang` as
+    **VOID not slow**; (2) **read the installed engine's own lines** (`mid-coverage expert cache`,
+    `filling the GPU's expert cache`, `read unbuffered`, `the startup reads are done`) and `--help` for
+    `ADAPT_MID`/`INK_SM120` - two of this window's items turn on whether 0.1.66 accepts the names, and the coverage
+    line decides whether `#4870`'s 25 % gate reaches our 1,500-slot rung; (3) **add a template-and-hash check to the
+    pack declaration** (section 13's reason); (4) **read `draft_n` on any Inkling arm** (`#7329`, one start);
+    (5) **one decode A/B with `STRATA_ADAPT_MID=0`** at the rung we load (two starts, ~30 min); (6) **move the
+    llama.cpp gate to the first tag after `b12833`** (`#33162`, `#33062`, `#33186` are all in no tag); (7) a
+    **DSpine or `--turbo` acceptance arm** on the spec ladder. Items 1-3 are edits, 4-5 single starts, 6-7 gated
+    downloads.
+  - **Gated on Kevin**: the **Strata bump** (target moved, six conditions, Windows Qwen engine 494,708,298 B /
+    Inkling 444,288,933 B / Control 68,055,221 B); the **llama.cpp download** at the first tag after `b12833`; the
+    **SQ-10/SQ-15** packs (with `#7374`: only SQ-20 is v2); the **AtomicChat IQ2_M 8,665,091,680 B** (1.30 M
+    downloads) or its v3 LoRA; the `dealignai` pack; the Colibri probe; the **Gyro-S route** (`3cb6d6c004`, now with
+    `#7362`'s checksum report); plus the unchanged display-to-iGPU cable change, the ComfyUI image pair, the
+    DeepSeek IQ2_XXS download, the `STRATA_OWN_CPU_QUANT` build decision and the September 29 candidate tests.
+
 - **2026-11-27, scheduled scan: Strata NAMES the 0.1.69 Windows crash (a start-up buffer pool zeroed for GGUF
   packs, workaround `STRATA_STARTUP_UNBUFFERED=0`), a 12 GB 3060 test finds GREEDY DECODING is the Inkling loop and
   temperature 1.0 removes it, and llama.cpp merges FP8/NVFP4 quant scales plus the MoE-cache fix for our looped
